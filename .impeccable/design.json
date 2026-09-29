@@ -23,7 +23,7 @@
       },
       "heading-gradient-end": {
         "role": "heading-accent-end",
-        "hex": "#008FA8"
+        "hex": "#B8D5FB"
       },
       "heading-gradient-dark-start": {
         "role": "dark-cta-heading-start",
@@ -121,6 +121,10 @@
         "biet_qua",
         "biet_qua_other",
         "agreement"
+      ],
+      "repeatableFields": [
+        "cc_loai[]",
+        "cc_ngay[]"
       ]
     },
     "contactRail": {
@@ -143,7 +147,7 @@
     },
     {
       "name": "Heading accent",
-      "body": "Use a blue-to-cyan gradient only on short accent phrases in hero and section h1/h2 headings; keep the surrounding heading text black and card h3 text solid. On the blue consultation surface, use the documented white-to-mint contrast variant for readability."
+      "body": "Use a blue-to-light-blue gradient only on short accent phrases in hero and section h1/h2 headings; keep the surrounding heading text black and card h3 text solid. On the blue consultation surface, use the documented white-to-mint contrast variant for readability."
     },
     {
       "name": "Workbench honesty",

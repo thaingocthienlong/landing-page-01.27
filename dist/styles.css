@@ -15,7 +15,7 @@
   --purple: #8057e8;
   --teal: #0aa7a5;
   --heading-gradient-start: #0052d9;
-  --heading-gradient-end: #008fa8;
+  --heading-gradient-end: #b8d5fb;
   --heading-gradient-dark-start: #9bbcff;
   --heading-gradient-dark-end: #67e3d2;
   --shell: 1200px;
@@ -1217,6 +1217,7 @@ h3 {
 }
 
 .pricing-section {
+  padding-top: 88px;
   padding-bottom: 86px;
 }
 
@@ -2986,7 +2987,7 @@ h3 {
     font-size: 9px;
   }
 }
-/* Contrast correction for gradient surfaces: preserve the blue-to-cyan direction while keeping white UI text above WCAG AA. */
+/* Contrast correction for blue-to-teal card surfaces: keep white UI text above WCAG AA. */
 .schedule-card,
 .price-card,
 .payment-card {
@@ -3000,5 +3001,153 @@ h3 {
   /* Reserve the fixed contact rail's lane so content never sits beneath it. */
   .shell {
     width: min(var(--shell), calc(100% - 120px));
+  }
+}
+
+/* Review refinements: keep trust copy on one desktop line without changing the mobile stack. */
+@media (min-width: 641px) {
+  .promo-inner {
+    min-height: 34px;
+    gap: 10px;
+    font-size: 9px;
+    letter-spacing: -0.012em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .promo-inner > span {
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .promo-inner > span strong {
+    white-space: nowrap;
+  }
+
+  .promo-inner > a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+.section-command {
+  display: flex;
+  justify-content: center;
+  margin: 14px auto 0;
+}
+
+.section-command code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  color: #43516a;
+  background: #edf3ff;
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.radio-row label,
+.radio-grid label {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.radio-row input,
+.radio-grid input {
+  margin: 0;
+  justify-self: start;
+}
+
+.radio-grid {
+  gap: 12px 28px;
+  align-items: stretch;
+}
+
+.certificate-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  color: #273448;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.consultation-other-field[hidden] {
+  display: none;
+}
+
+.certificate-add,
+.certificate-remove {
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  color: var(--blue-deep);
+  background: #edf3ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.certificate-add {
+  padding: 0 12px;
+}
+
+.certificate-remove {
+  width: 44px;
+  padding: 0;
+  align-self: end;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.certificate-add:hover,
+.certificate-add:focus-visible,
+.certificate-remove:hover,
+.certificate-remove:focus-visible {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--white);
+}
+
+.certificate-list {
+  display: grid;
+  gap: 12px;
+}
+
+.certificate-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px;
+  align-items: end;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .pricing-section {
+    padding-top: 62px;
+  }
+
+  .section-command {
+    margin-top: 10px;
+  }
+
+  .section-command code {
+    font-size: 9px;
+  }
+
+  .certificate-row {
+    grid-template-columns: 1fr;
+  }
+
+  .certificate-remove {
+    align-self: start;
   }
 }

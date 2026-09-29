@@ -284,12 +284,47 @@
     const phone = form.elements.namedItem("phoneregister");
     const sourceRadios = [...form.querySelectorAll('input[name="biet_qua"]')];
     const sourceOther = form.elements.namedItem("biet_qua_other");
+    const sourceOtherField = sourceOther?.closest(".consultation-other-field") || null;
+    const certificateList = form.querySelector("[data-certificate-list]");
+    const addCertificateButton = form.querySelector("[data-add-certificate]");
     let lastTrigger = null;
     const syncSourceOther = () => {
       const requiresOther = sourceRadios.some((radio) => radio.checked && radio.value === "Khác");
       if (!sourceOther) return;
       sourceOther.required = requiresOther;
       sourceOther.setAttribute("aria-required", String(requiresOther));
+      sourceOther.disabled = !requiresOther;
+      sourceOtherField?.toggleAttribute("hidden", !requiresOther);
+      sourceOtherField?.setAttribute("aria-hidden", String(!requiresOther));
+    };
+    const syncCertificateButtons = () => {
+      if (!certificateList) return;
+      const rows = [...certificateList.querySelectorAll(".certificate-row")];
+      rows.forEach((row) => {
+        const removeButton = row.querySelector("[data-remove-certificate]");
+        if (removeButton) removeButton.hidden = rows.length === 1;
+      });
+    };
+    const addCertificate = () => {
+      if (!certificateList) return;
+      const firstRow = certificateList.querySelector(".certificate-row");
+      if (!firstRow) return;
+      const row = firstRow.cloneNode(true);
+      const nextIndex = certificateList.querySelectorAll(".certificate-row").length + 1;
+      row.querySelectorAll("input").forEach((input) => {
+        input.value = "";
+      });
+      const certificateInput = row.querySelector('input[name="cc_loai[]"]');
+      const certificateDateInput = row.querySelector('input[name="cc_ngay[]"]');
+      if (certificateInput) certificateInput.id = `consultation-certificate-${nextIndex}`;
+      if (certificateDateInput) certificateDateInput.id = `consultation-certificate-date-${nextIndex}`;
+      row.querySelector('label[for^="consultation-certificate-date-"]')?.setAttribute("for", `consultation-certificate-date-${nextIndex}`);
+      row.querySelector('label[for^="consultation-certificate-"]:not([for*="date"])')?.setAttribute("for", `consultation-certificate-${nextIndex}`);
+      const removeButton = row.querySelector("[data-remove-certificate]");
+      if (removeButton) removeButton.hidden = false;
+      certificateList.append(row);
+      syncCertificateButtons();
+      row.querySelector("input")?.focus();
     };
     const clearFeedback = () => {
       error.hidden = true;
@@ -310,7 +345,7 @@
         clearFeedback();
         if (typeof dialog?.showModal === "function") dialog.showModal();
         else dialog?.setAttribute("open", "");
-        dialog?.querySelector("input, select, button")?.focus();
+        form.querySelector("input, select, button")?.focus();
       });
     });
     dialog?.querySelector("[data-close-consultation]")?.addEventListener("click", closeDialog);
@@ -324,7 +359,17 @@
       clearFeedback();
       if (event.target?.name === "biet_qua") syncSourceOther();
     });
+    addCertificateButton?.addEventListener("click", addCertificate);
+    certificateList?.addEventListener("click", (event) => {
+      const removeButton = event.target.closest("[data-remove-certificate]");
+      if (!removeButton) return;
+      const rows = certificateList.querySelectorAll(".certificate-row");
+      if (rows.length <= 1) return;
+      removeButton.closest(".certificate-row")?.remove();
+      syncCertificateButtons();
+    });
     syncSourceOther();
+    syncCertificateButtons();
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       clearFeedback();
