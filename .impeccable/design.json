@@ -1,44 +1,53 @@
 {
-  "name": "Research Instrument / Data Observatory",
-  "version": "1.0.0",
+  "name": "Viện Phương Nam WorkBuddy-like course landing page",
+  "version": "2.0.0",
   "mode": "persuade",
   "dials": {
-    "DESIGN_VARIANCE": 8,
-    "MOTION_INTENSITY": 7,
+    "DESIGN_VARIANCE": 5,
+    "MOTION_INTENSITY": 4,
     "VISUAL_DENSITY": 5
   },
   "tokens": {
     "colors": {
-      "navy-950": {"role": "primary-field", "hex": "#071A3A"},
-      "navy-800": {"role": "secondary-field", "hex": "#0D2A5A"},
-      "navy-600": {"role": "signal", "hex": "#174A8C"},
-      "white": {"role": "surface-and-type", "hex": "#FFFFFF"},
-      "mist": {"role": "utility-surface", "hex": "#F3F6FA"}
+      "action-blue": {"role": "primary-action", "hex": "#0052D9"},
+      "blue-deep": {"role": "hover-and-emphasis", "hex": "#003B9A"},
+      "white": {"role": "primary-surface", "hex": "#FFFFFF"},
+      "mist": {"role": "cool-gray-surface", "hex": "#F5F7FB"},
+      "ink": {"role": "primary-text", "hex": "#111111"},
+      "black": {"role": "closing-cta", "hex": "#000000"}
     },
     "typography": {
-      "display": {"family": "Segoe UI Variable, Segoe UI, Arial, sans-serif", "purpose": "Headlines and course names"},
-      "body": {"family": "Segoe UI Variable, Segoe UI, Arial, sans-serif", "purpose": "Readable explanatory copy"},
-      "data": {"family": "Cascadia Mono, SFMono-Regular, Consolas, monospace", "purpose": "Codes, dates, labels, fees, readouts"}
+      "display": {"family": "Inter, Segoe UI, Arial, sans-serif", "purpose": "Hero and section headings"},
+      "body": {"family": "Inter, Segoe UI, Arial, sans-serif", "purpose": "Course and contact copy"},
+      "data": {"family": "SFMono-Regular, Consolas, monospace", "purpose": "Codes, dates, labels, and compact values"}
+    },
+    "layout": {
+      "shell": "1200px max-width",
+      "buttonHeight": "44px",
+      "sectionGap": "72-112px",
+      "cardRadius": "0-4px"
     },
     "motion": {
-      "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
-      "easeInOut": "cubic-bezier(0.77, 0, 0.175, 1)",
-      "heroEntrance": "700ms easeOut",
-      "uiState": "160-240ms easeOut",
-      "buttonPress": "100-160ms easeOut"
+      "ease": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "heroEntrance": "650ms opacity + small translateY",
+      "tabTransition": "240ms crossfade + translateY",
+      "hover": "180ms border/shadow/small translate",
+      "reducedMotion": "disable loops and transforms"
     }
   },
   "components": {
-    "readoutPanel": {"role": "source-backed program summary", "surface": "navy-950", "radius": "0-4px"},
-    "pipelineStop": {"role": "course navigation and state", "surface": "white/mist", "active": "navy-600"},
-    "courseDetail": {"role": "source-backed syllabus disclosure", "element": "details"},
-    "feeLedger": {"role": "source-backed fee comparison", "element": "table"}
+    "header": {"role": "promotion strip plus navigation", "surface": "white"},
+    "heroWorkbench": {"role": "HTML/CSS course interface illustration", "surface": "white/mist", "externalAssets": false},
+    "scenarioTabs": {"role": "three source-backed course scenarios", "element": "tabs + tabpanel"},
+    "pricing": {"role": "source-backed fees and conditions", "element": "cards + details"},
+    "faq": {"role": "accessible disclosure", "element": "details"},
+    "contactRail": {"role": "real phone, website, and back-to-top actions", "fakeChat": false}
   },
   "rules": [
-    {"name": "One navy signal system", "body": "Use navy tonal changes and opacity for emphasis. Do not introduce a second brand accent."},
-    {"name": "Instrument over decoration", "body": "Axis lines, ticks, readouts, and active course states must explain the real course sequence. Do not add fake charts or looping analytics."},
-    {"name": "Sharp research geometry", "body": "Keep one near-sharp corner language and let rules, alignment, and whitespace provide hierarchy."},
-    {"name": "Motion with purpose", "body": "Use motion for explanation, state indication, spatial consistency, and tactile feedback. Gate hover and honor reduced motion."},
-    {"name": "Source truth", "body": "Use the main notice for dates, prices, format, address, payment, and deadline; use each course notice for its own audience and syllabus; preserve missing QR and registration URL."}
+    {"name": "Original reference grammar", "body": "Use the WorkBuddy-like composition and rhythm without Tencent branding, copy, assets, or URLs."},
+    {"name": "Source truth", "body": "Reconcile dates, codes, fees, contacts, payment, faculty facts, and certificate rules to the notices. Do not invent registration URLs, QR codes, standalone R pricing, or outcome claims."},
+    {"name": "Workbench honesty", "body": "Mark the HTML/CSS product window as a demo and never present simulated rows or outputs as real research results."},
+    {"name": "Motion with purpose", "body": "Use restrained reveal, tab transition, hover feedback, and one ambient workbench loop. Honor reduced motion."},
+    {"name": "Accessible structure", "body": "Maintain one h1, visible focus, skip link, keyboard tabs, native FAQ details, real tel links, and no horizontal overflow."}
   ]
 }

@@ -1,64 +1,48 @@
-# Research Instrument / Data Observatory
+# Viện Phương Nam — WorkBuddy-like course landing page
 
-## Design read
+## Design direction
 
-Landing page tuyển sinh cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm dữ liệu; ngôn ngữ navy + trắng của một phòng phân tích, leaning toward a scientific instrument interface with restrained kinetic feedback.
+This page uses the composition and interaction rhythm of a polished product landing page: a two-level header, two-column hero, product-style workbench, scenario tabs, pricing, value cards, FAQ, black closing CTA, footer, and a compact contact rail. It is an original implementation for Viện Phương Nam. It does not use Tencent branding, copy, assets, or URLs.
 
-## Dials
-
-- `DESIGN_VARIANCE: 8`
-- `MOTION_INTENSITY: 7`
-- `VISUAL_DENSITY: 5`
+The previous Research Instrument / Data Observatory visual world is retired. Do not reintroduce readout panels, pipeline axes, pointer-follow signals, dark mesh, neon glow, or fabricated charts.
 
 ## Visual contract
 
-The page explains a real eight-day course sequence through a visible research pipeline: question, data, model, decision. The three stations are grounded in the source program notices: R fundamentals, cost-effectiveness analysis, and time-series forecasting.
+- **Palette:** action blue `#0052D9`, deep blue for hover, white, cool gray mist, black closing CTA, and dark text. Navy is not the dominant brand field.
+- **Type:** Inter or the system sans stack. Use the monospace stack only for course codes, dates, labels, and compact data values.
+- **Container:** centered desktop shell capped near `1200px`; generous section spacing; white and cool-gray sections alternate.
+- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. No glassmorphism or large pill controls.
+- **Hero:** light-blue wash and dot pattern are allowed; workbench visuals are built in HTML/CSS and do not depend on external assets.
+- **Content:** all dates, codes, fees, contacts, payment details, faculty facts, and certificate conditions must remain reconciled to the source notices. Missing registration URL/QR stays explicitly unresolved.
 
-### Color
+## Information architecture
 
-- Navy 950 `#071A3A`: primary field, header mark, high-contrast action.
-- Navy 800 `#0D2A5A`: explanatory dark band.
-- Navy 600 `#174A8C`: signal, focus, active state, rules that need emphasis.
-- White `#FFFFFF`: primary surface and type on navy.
-- Cool mist `#F3F6FA`: utility surface only; no second brand accent.
+1. Promotion strip with January 2027 intake and 25/12/2026 deadline.
+2. White navigation with Viện Phương Nam wordmark and internal anchors.
+3. Hero: source-backed headline, 03 courses, 08 days, 02 formats, real contact CTAs, and workbench demo marked as illustration.
+4. Use Cases: R basic, cost-effectiveness, and time-series tabs.
+5. Schedule, tuition combinations and discounts, value, advantages, skills, faculty, FAQ.
+6. Black CTA with phone and official website links.
+7. Contact footer and fixed call, website, and back-to-top actions.
 
-There are no gradients, glass surfaces, glows, decorative data charts, or stock photos. Signal states use navy tonal changes and opacity rather than a new accent hue.
+## Interaction and motion
 
-### Type
+- Hero and section reveal: one opacity plus small vertical translation, once per element.
+- Workbench: one slow ambient float and a restrained status indicator; no competing loops.
+- Scenario tabs: keyboard-accessible `role="tablist"`, crossfade/translate around `240ms`, no autoplay.
+- Tab content is driven by the single `scenarios` object in `dist/app.js`; invalid keys fall back to `r`.
+- Mobile navigation opens from the hamburger, closes on link selection, outside click, resize, or Escape.
+- Native `<details>` provides FAQ disclosure without a JavaScript dependency.
+- Hover changes border, shadow, and a few pixels of translation. Buttons move the arrow slightly.
+- `prefers-reduced-motion: reduce` removes loops and transforms while retaining readable content and active states.
 
-- Display and body: system sans stack, beginning with Segoe UI Variable and Segoe UI.
-- Data: Cascadia Mono, SFMono-Regular, or Consolas.
-- No editorial serif and no mixed-family emphasis.
-- Mono is reserved for source codes, dates, labels, fee values, and technical readouts.
+## Responsive and accessibility gates
 
-### Shape and layout
+- Verify 1440px, 1280px, 768px, and 390px widths with no horizontal overflow.
+- Hero collapses to one column; workbench sidebar becomes a compact tab rail; pricing becomes one column.
+- Keep one `h1`, continuous heading hierarchy, skip link, visible focus, real `tel:` links, `rel="noreferrer"` for new website tabs, and no hover-only information.
+- Preserve `#course-cea` as a compatible deep link that activates the CEA tab.
 
-- One near-sharp radius language: square corners with no more than a small control radius.
-- Asymmetric 12-column hero and course layouts.
-- No three-card feature grid.
-- Depth comes from solid navy planes, baseline rules, axis ticks, and whitespace.
-- Course details remain semantic `details` elements; fee data remains a semantic table.
+## Verification and rollback
 
-## Motion contract
-
-Motion has a named purpose: explanation, state indication, spatial consistency, or tactile feedback.
-
-- First viewport entrance: opacity plus `translateY(14px)`, `700ms`, `cubic-bezier(0.23, 1, 0.32, 1)`.
-- Course state and hover: color, border, opacity, and small transforms under `240ms`.
-- Button press: `scale(0.97)` between `100ms` and `160ms`.
-- Scroll-linked pipeline: `IntersectionObserver` updates the active source-backed course readout. It does not hijack scroll.
-- Pointer signal: a single readout marker on fine pointers only; no continuous loop.
-- Reduced motion preserves readable state and color changes while removing position changes, pointer movement, and decorative entrance motion.
-- Every hover motion is gated with `(hover: hover) and (pointer: fine)`.
-
-## Content integrity
-
-`assets/TB10.26_01.27_V1.docx` is authoritative for dates, fees, format, address, payment, and deadline. The three course notices are authoritative for their own objectives, audiences, and modules. The main notice contains an audience ordering error; the course-specific notices resolve it. Registration URL and QR are blank in the source and stay explicitly unresolved. No standalone price for Course 1 is inferred.
-
-## Review gates
-
-1. Validate source facts and fee arithmetic before publication.
-2. Render desktop, tablet, and mobile views and inspect the first viewport plus full page.
-3. Test keyboard, touch, focus, menu close, native disclosures, links, and reduced motion.
-4. Run `node --check dist/app.js`, `git diff --check`, and Impeccable detect after the final visual pass.
-5. Keep the previous private Site version and the local editorial snapshot available for rollback.
+Run `node --check dist/app.js`, `git diff --check`, HTML/ID/link checks, content and fee arithmetic audits, visual browser QA, and Impeccable detect after the final visual pass. Keep the pre-redesign filesystem snapshot and the current private Site version available. Publish only after source checks and browser QA pass; if preview fails, leave the new version unpublished and restore the prior Site version.
