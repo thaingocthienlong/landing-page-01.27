@@ -33,6 +33,14 @@
         "role": "dark-cta-heading-end",
         "hex": "#67E3D2"
       },
+      "surface-gradient-start": {
+        "role": "schedule-price-payment-and-advantage-surface-start",
+        "hex": "#0052D9"
+      },
+      "surface-gradient-end": {
+        "role": "contrast-safe-blue-surface-end",
+        "hex": "#2E73CF"
+      },
       "white": {
         "role": "primary-surface",
         "hex": "#FFFFFF"
@@ -171,7 +179,11 @@
     },
     {
       "name": "Surface hierarchy",
-      "body": "Use blue gradients for schedule, payment, and combination price cards; reserve translucent white surfaces for the consultation preview and keep other content surfaces opaque."
+      "body": "Use the shared contrast-safe blue gradient (#0052D9 to #2E73CF) for schedule, payment, combination price cards, and advantage icons; use a light blue wash for the four advantage cards. Reserve translucent white surfaces for the consultation preview and keep other content surfaces opaque."
+    },
+    {
+      "name": "Accent scope",
+      "body": "Keep the pale blue heading gradient limited to short heading accent phrases. Do not reuse its light endpoint for white card text; use the documented surface gradient so schedule, pricing, payment, and advantage content remains readable."
     },
     {
       "name": "User-supplied trust line",
