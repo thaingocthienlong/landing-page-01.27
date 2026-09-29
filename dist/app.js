@@ -51,10 +51,10 @@
       level: "Chuyên sâu",
       title: "Từ câu hỏi nghiên cứu đến mô hình và từ mô hình đến quyết định.",
       description: "Dành cho nhà quản lý, hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên y tế và kinh tế y tế, cùng nhân sự dược phẩm và công nghệ y tế.",
-      prompt: "Từ chi phí và utility đến QALY, ICER và phân tích độ nhạy.",
+      prompt: "Từ chi phí và chỉ số lợi ích sức khỏe (utility) đến QALY, ICER và phân tích độ nhạy.",
       outputTitle: "Hiểu cấu trúc nghiên cứu CEA và diễn giải kết quả.",
       output: [
-        "Xác định và đo lường chi phí, hiệu quả, utility và QALY",
+        "Xác định và đo lường chi phí, hiệu quả, chỉ số lợi ích sức khỏe (utility) và QALY",
         "Tính và diễn giải ICER",
         "Xây dựng mô hình Markov và thực hiện phân tích độ nhạy.",
       ],
