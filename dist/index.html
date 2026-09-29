@@ -2,140 +2,218 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f2eee6" />
-    <meta name="description" content="Thông tin chính thức về chuỗi khóa học chuyên gia Phân tích dữ liệu với R từ cơ bản đến nâng cao tại Viện Phương Nam, tháng 01/2027." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#071a3a" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#071a3a" />
+    <meta name="description" content="Chuỗi khóa học chuyên gia Phân tích dữ liệu với R từ cơ bản đến nâng cao tại Viện Phương Nam, tháng 01/2027." />
     <meta property="og:title" content="Phân tích dữ liệu với R | Viện Phương Nam" />
-    <meta property="og:description" content="Ba khóa học, tám ngày thực hành, từ nền tảng R đến chuỗi thời gian và phân tích chi phí - hiệu quả." />
+    <meta property="og:description" content="Ba khóa học liên kết về R, kinh tế y tế và chuỗi thời gian cho nghiên cứu khoa học." />
     <meta property="og:type" content="website" />
     <title>Phân tích dữ liệu với R | Viện Phương Nam</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
+
     <header class="site-header" data-header>
       <div class="shell header-inner">
         <a class="brand" href="#top" aria-label="Viện Phương Nam, về đầu trang">
           <span class="brand-mark" aria-hidden="true">VP</span>
-          <span class="brand-copy"><strong>VIỆN PHƯƠNG NAM</strong><span>Hồ sơ khóa học / 01.2027</span></span>
+          <span class="brand-copy">
+            <strong>VIỆN PHƯƠNG NAM</strong>
+            <span>RESEARCH DATA LAB / 01.2027</span>
+          </span>
         </a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
-          <span class="sr-only">Mở điều hướng</span><span></span><span></span>
+          <span class="sr-only">Mở điều hướng</span>
+          <span></span><span></span>
         </button>
         <nav id="primary-nav" class="primary-nav" aria-label="Điều hướng chính">
-          <a href="#programs">Mục lục</a>
+          <a href="#programs">Lộ trình</a>
           <a href="#schedule">Lịch học</a>
           <a href="#tuition">Học phí</a>
           <a href="#faculty">Giảng viên</a>
-          <a class="nav-cta" href="#register">Liên hệ đăng ký</a>
+          <a class="nav-cta" href="#register">Nhận thông tin đăng ký</a>
         </nav>
       </div>
     </header>
 
     <main id="main-content">
-      <section class="masthead" id="top">
-        <div class="shell masthead-grid">
-          <div class="masthead-copy">
-            <div class="issue-line"><span>10/2026/TB-VPN</span><span>01.10.2026</span><span>VIỆN PHƯƠNG NAM</span></div>
-            <h1>Phân tích dữ liệu với R <em>từ cơ bản đến nâng cao</em></h1>
-            <p class="masthead-lead">Một chuỗi học chuyên gia kéo dài tám ngày, đi từ cách đặt câu hỏi và làm việc với dữ liệu đến mô hình dự báo, kinh tế y tế và quyết định có căn cứ.</p>
-            <div class="masthead-actions">
-              <a class="button button-accent" href="#programs">Đọc mục lục khóa học</a>
-              <a class="button button-text" href="#register">Nhận thông tin đăng ký</a>
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-mark" aria-hidden="true"></span> THÔNG BÁO 10/2026 / CHUỖI KHÓA HỌC CHUYÊN GIA</p>
+            <h1 id="hero-title">Từ câu hỏi nghiên cứu đến <span>mô hình dữ liệu có thể giải thích.</span></h1>
+            <p class="hero-lead">Một lộ trình tám ngày với R và RStudio, đi từ nền tảng phân tích đến kinh tế y tế và dự báo chuỗi thời gian. Học để đặt đúng câu hỏi, chọn đúng phương pháp và diễn giải kết quả có căn cứ.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#programs">Xem lộ trình dữ liệu <span aria-hidden="true">↘</span></a>
+              <a class="text-link" href="#register">Liên hệ để xác nhận chỗ <span aria-hidden="true">→</span></a>
             </div>
-            <p class="masthead-note"><span class="red-dot" aria-hidden="true"></span> Học tại Viện Phương Nam hoặc trực tuyến qua Zoom</p>
+            <p class="hero-note"><span class="status-dot" aria-hidden="true"></span> Viện Phương Nam / trực tiếp hoặc Zoom / tháng 01.2027</p>
           </div>
-          <aside class="dossier" aria-label="Tóm tắt lịch học">
-            <div class="dossier-heading"><span>LỊCH TRÌNH</span><span>01 / 03</span></div>
-            <ol class="dossier-list">
-              <li><span class="dossier-date">08-10.01.27</span><span class="dossier-code">PTCBR01.27</span><strong>R cơ bản</strong><small>Nền tảng dữ liệu và RStudio</small></li>
-              <li><span class="dossier-date">12-13.01.27</span><span class="dossier-code">PTHQR01.27</span><strong>Chi phí - hiệu quả</strong><small>Mô hình và quyết định y tế</small></li>
-              <li><span class="dossier-date">14-16.01.27</span><span class="dossier-code">PTTGR01.27</span><strong>Chuỗi thời gian</strong><small>Dự báo từ dữ liệu thực tế</small></li>
-            </ol>
-            <div class="dossier-footer"><span>08 ngày / 03 khóa</span><span>08:30-17:00</span></div>
+
+          <aside class="readout-panel" aria-label="Thông số chuỗi khóa học" data-signal-panel>
+            <span class="signal-dot" data-signal-dot aria-hidden="true"></span>
+            <div class="readout-topline"><span>PROGRAM READOUT</span><span>01 / 03</span></div>
+            <div class="readout-heading">
+              <span class="readout-kicker">DATA PATH / R</span>
+              <strong>08<span> DAYS</span></strong>
+            </div>
+            <div class="readout-axis" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+            <dl class="readout-stats">
+              <div><dt>MODULES</dt><dd>03</dd></div>
+              <div><dt>FORMAT</dt><dd>R / RStudio</dd></div>
+              <div><dt>DATES</dt><dd>08—16.01.27</dd></div>
+              <div><dt>MODE</dt><dd>ONSITE / ZOOM</dd></div>
+            </dl>
+            <div class="readout-course" data-readout-course>
+              <div><span class="readout-index">01</span><span data-readout-code>PTCBR01.27</span></div>
+              <strong data-readout-title>R cơ bản</strong>
+              <span data-readout-meta>08—10.01.27 / 03 ngày</span>
+            </div>
           </aside>
         </div>
-      </section>
-
-      <section class="fact-strip" aria-label="Thông tin nhanh">
-        <div class="shell fact-grid">
-          <div class="fact-item"><span>ĐỊA ĐIỂM</span><strong>Viện Phương Nam / Zoom</strong></div>
-          <div class="fact-item"><span>NHỊP HỌC</span><strong>08:30-12:00 + 13:30-17:00</strong></div>
-          <div class="fact-item"><span>NGÀY ĐẦU TIÊN</span><strong>08/01 bắt đầu 08:00</strong></div>
-          <div class="fact-item"><span>HẠN ĐĂNG KÝ</span><strong>25/12/2026</strong></div>
+        <div class="shell hero-axis" aria-hidden="true">
+          <span>QUESTION</span><i></i><span>DATA</span><i></i><span>MODEL</span><i></i><span>DECISION</span>
         </div>
       </section>
 
-      <section class="section index-section" id="programs">
-        <div class="shell">
-          <div class="section-lead">
-            <p class="section-tag">MỤC LỤC / CHUỖI HỌC</p>
-            <h2>Ba điểm dừng, một lộ trình dữ liệu liền mạch.</h2>
-            <p>Thứ tự được xếp theo thông báo chính thức. Mỗi khóa có thể đăng ký riêng hoặc ghép thành tổ hợp.</p>
+      <section class="intro-band" aria-label="Tóm tắt phương pháp">
+        <div class="shell intro-grid">
+          <p class="eyebrow">RESEARCH DATA LAB / 2027</p>
+          <p class="intro-statement">R không chỉ là code. Đây là cách biến một câu hỏi khoa học thành dữ liệu có cấu trúc, mô hình có thể kiểm tra và quyết định có thể giải thích.</p>
+          <div class="intro-facts"><span>03 khóa liên kết</span><span>08 ngày học</span><span>07—08 chuyên đề / khóa</span></div>
+        </div>
+      </section>
+
+      <section class="section pipeline-section" id="programs" aria-labelledby="pipeline-title" data-pipeline-shell>
+        <div class="shell pipeline-layout">
+          <div class="section-intro">
+            <p class="eyebrow">01 / LỘ TRÌNH</p>
+            <h2 id="pipeline-title">Một pipeline. Ba cách đọc dữ liệu.</h2>
+            <p>Ba khóa được xếp theo thông báo chính thức. Có thể đăng ký từng khóa hoặc ghép thành tổ hợp để đi từ nền tảng đến bài toán chuyên sâu.</p>
+            <div class="pipeline-readout" aria-live="polite">
+              <span>ACTIVE SIGNAL</span>
+              <strong data-active-signal>R CƠ BẢN</strong>
+              <small data-active-description>Xây nền tảng từ câu hỏi nghiên cứu đến dữ liệu, R code và diễn giải.</small>
+            </div>
           </div>
-          <div class="course-index" role="list" aria-label="Danh mục khóa học">
-            <article class="index-row" role="listitem">
-              <div class="index-number">01</div><div class="index-code">PTCBR01.27<br /><span>08-10.01.27 / 03 ngày</span></div>
-              <div class="index-title"><h3>Phân tích dữ liệu với R cơ bản</h3><p>Object, vector, data frame, trực quan hóa, kiểm định, so sánh và hồi quy.</p></div>
-              <a class="row-link" href="#course-r">Xem đề cương</a>
-            </article>
-            <article class="index-row" role="listitem">
-              <div class="index-number">02</div><div class="index-code">PTHQR01.27<br /><span>12-13.01.27 / 02 ngày</span></div>
-              <div class="index-title"><h3>Phân tích chi phí - hiệu quả</h3><p>Chi phí, utility, QALY, decision tree, Markov model, ICER và bất định.</p></div>
-              <a class="row-link" href="#course-cea">Xem đề cương</a>
-            </article>
-            <article class="index-row" role="listitem">
-              <div class="index-number">03</div><div class="index-code">PTTGR01.27<br /><span>14-16.01.27 / 03 ngày</span></div>
-              <div class="index-title"><h3>Phân tích dữ liệu chuỗi thời gian với R</h3><p>Stationarity, ACF, ARIMA, exponential smoothing và đánh giá dự báo.</p></div>
-              <a class="row-link" href="#course-time">Xem đề cương</a>
-            </article>
+          <nav class="pipeline-nav" aria-label="Chọn chương trình">
+            <a class="pipeline-stop is-active" href="#course-r" data-course-nav="r" aria-current="true">
+              <span class="stop-marker">01</span>
+              <span class="stop-copy"><strong>R cơ bản</strong><small>08—10.01.27 / PTCBR01.27</small></span>
+              <span class="stop-arrow" aria-hidden="true">↘</span>
+            </a>
+            <a class="pipeline-stop" href="#course-cea" data-course-nav="cea">
+              <span class="stop-marker">02</span>
+              <span class="stop-copy"><strong>Chi phí - hiệu quả</strong><small>12—13.01.27 / PTHQR01.27</small></span>
+              <span class="stop-arrow" aria-hidden="true">↘</span>
+            </a>
+            <a class="pipeline-stop" href="#course-time" data-course-nav="time">
+              <span class="stop-marker">03</span>
+              <span class="stop-copy"><strong>Chuỗi thời gian</strong><small>14—16.01.27 / PTTGR01.27</small></span>
+              <span class="stop-arrow" aria-hidden="true">↘</span>
+            </a>
+          </nav>
+        </div>
+      </section>
+
+      <section class="section course-block course-block-navy" id="course-r" data-course="r" aria-labelledby="course-r-title">
+        <div class="shell course-grid">
+          <div class="course-marker-column"><span>01</span><i aria-hidden="true"></i><small>FOUNDATION</small></div>
+          <div class="course-overview">
+            <p class="eyebrow">PTCBR01.27 / 08—10.01.2027 / 03 NGÀY</p>
+            <h2 id="course-r-title">Đặt nền tảng để tự tin làm việc với dữ liệu.</h2>
+            <p>Khóa học dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người đang thực hiện đề tài cần xây dựng lại quy trình phân tích một cách có hệ thống. Không cần kinh nghiệm lập trình trước đó.</p>
+            <div class="course-tags"><span>R / RSTUDIO</span><span>07 CHUYÊN ĐỀ</span><span>REPRODUCIBLE</span></div>
+          </div>
+          <div class="module-list module-list-light">
+            <details open><summary><span>01</span> R và RStudio</summary><p>Object, vector, data frame, nhập và quản lý dữ liệu, cấu trúc một chương trình phân tích và nguyên tắc tái lập.</p></details>
+            <details><summary><span>02</span> AI trong viết R code</summary><p>Viết, giải thích, kiểm tra và sửa code do AI hỗ trợ; nhận diện lỗi đúng cú pháp nhưng sai về phương pháp.</p></details>
+            <details><summary><span>03</span> Hiển thị dữ liệu</summary><p>Histogram, boxplot, scatter plot, ggplot2 và lựa chọn biểu đồ theo câu hỏi nghiên cứu.</p></details>
+            <details><summary><span>04</span> Kiểm định và khoảng tin cậy</summary><p>Giả thuyết, trị số P, khoảng tin cậy, độ ảnh hưởng và các lỗi diễn giải thường gặp.</p></details>
+            <details><summary><span>05</span> Mô tả dữ liệu</summary><p>Biến liên tục, biến phân loại, trung bình, trung vị, độ lệch chuẩn, phân vị, tỷ lệ, outlier và dữ liệu thiếu.</p></details>
+            <details><summary><span>06</span> Phân tích so sánh</summary><p>T-test, binomial test, chi-squared test, khoảng tin cậy và phân biệt ý nghĩa thống kê với ý nghĩa thực tế.</p></details>
+            <details><summary><span>07</span> Phân tích mối liên quan</summary><p>Hồi quy tuyến tính, hồi quy logistic, hệ số, odds ratio và diễn giải kết quả.</p></details>
           </div>
         </div>
       </section>
 
-      <section class="section schedule-section" id="schedule">
+      <section class="section course-block" id="course-cea" data-course="cea" aria-labelledby="course-cea-title">
+        <div class="shell course-grid">
+          <div class="course-marker-column"><span>02</span><i aria-hidden="true"></i><small>DECISION</small></div>
+          <div class="course-overview">
+            <p class="eyebrow">PTHQR01.27 / 12—13.01.2027 / 02 NGÀY</p>
+            <h2 id="course-cea-title">Đặt chi phí, hiệu quả và bất định trong cùng một mô hình.</h2>
+            <p>Phù hợp với nhà quản lý và hoạch định chính sách y tế, bác sĩ, dược sĩ, nghiên cứu viên, nghiên cứu sinh và người làm trong dược phẩm hoặc công nghệ y tế.</p>
+            <div class="course-tags"><span>CEA / QALY</span><span>08 CHUYÊN ĐỀ</span><span>HEALTH POLICY</span></div>
+          </div>
+          <div class="module-list">
+            <details open><summary><span>01</span> Nguyên lý CEA</summary><p>Economic evaluation, comparator, perspective, time horizon, discounting và incremental analysis.</p></details>
+            <details><summary><span>02</span> Chi phí, hiệu quả và utility</summary><p>Direct medical, non-medical, productivity costs, utility và QALY.</p></details>
+            <details><summary><span>03</span> ICER và decision tree</summary><p>Incremental costs, incremental QALYs, expected costs và ICER bằng R.</p></details>
+            <details><summary><span>04</span> Markov model</summary><p>Health states, transition probabilities, cycles, transition matrix, absorbing state và time horizon.</p></details>
+            <details><summary><span>05</span> Tham số và sensitivity analysis</summary><p>One-way, scenario và probabilistic sensitivity analysis; phân bố xác suất và Monte Carlo simulation.</p></details>
+            <details><summary><span>06</span> Từ ICER đến decision making</summary><p>Willingness-to-pay threshold, cost-effectiveness plane, net monetary benefit và CEAC.</p></details>
+            <details><summary><span>07</span> Ca nghiên cứu</summary><p>Câu hỏi, mô hình, tham số, chi phí, QALY, ICER, uncertainty và decision trong một quy trình liền mạch.</p></details>
+            <details><summary><span>08</span> AI trong CEA</summary><p>Hỗ trợ tổng hợp thông tin, viết R code, mô phỏng và biểu đồ; người phân tích vẫn chịu trách nhiệm kiểm tra giả định.</p></details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section course-block course-block-soft" id="course-time" data-course="time" aria-labelledby="course-time-title">
+        <div class="shell course-grid">
+          <div class="course-marker-column"><span>03</span><i aria-hidden="true"></i><small>FORECAST</small></div>
+          <div class="course-overview">
+            <p class="eyebrow">PTTGR01.27 / 14—16.01.2027 / 03 NGÀY</p>
+            <h2 id="course-time-title">Đọc được tín hiệu nằm trong thời gian.</h2>
+            <p>Dành cho người làm việc với dữ liệu được ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật và khoa học xã hội.</p>
+            <div class="course-tags"><span>FORECASTING</span><span>08 CHUYÊN ĐỀ</span><span>ARIMA / ACF</span></div>
+          </div>
+          <div class="module-list">
+            <details open><summary><span>01</span> Dữ liệu chuỗi thời gian</summary><p>Time index, lag, frequency, autocorrelation, forecasting và khám phá dữ liệu theo thời gian.</p></details>
+            <details><summary><span>02</span> Stationarity, ACF và ADF</summary><p>Tính dừng, tự tương quan, Augmented Dickey-Fuller, biến đổi và differencing.</p></details>
+            <details><summary><span>03</span> Exponential smoothing</summary><p>Trend, seasonality, cycle, noise và các mô hình smoothing từ đơn giản đến có mùa vụ.</p></details>
+            <details><summary><span>04</span> Sai số dự báo</summary><p>MAE, RMSE, MAPE, chia training/testing và đánh giá forecast accuracy.</p></details>
+            <details><summary><span>05</span> AR, MA và ARIMA</summary><p>Xác định tham số, fitting, kiểm tra residuals và dự báo bằng R.</p></details>
+            <details><summary><span>06</span> So sánh mô hình</summary><p>Goodness-of-fit, AIC, BIC và khả năng dự báo ngoài mẫu.</p></details>
+            <details><summary><span>07</span> Prophet và neural network</summary><p>Tiếp cận trend, seasonality và cách so sánh phương pháp hiện đại với mô hình truyền thống.</p></details>
+            <details><summary><span>08</span> Thực hành từ dữ liệu đến dự báo</summary><p>Dữ liệu, hiển thị, cấu trúc, stationarity, mô hình, kiểm tra, dự báo, sai số, so sánh và diễn giải.</p></details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section schedule-section" id="schedule" aria-labelledby="schedule-title">
         <div class="shell schedule-grid">
-          <div class="section-lead section-lead-dark">
-            <p class="section-tag">LỊCH HỌC / THÁNG 01</p>
-            <h2>Học theo nhịp của một phòng phân tích.</h2>
-            <p>Ngày học trực tiếp tại Viện Phương Nam hoặc tham gia từ xa qua Zoom. Ngày đầu tiên bắt đầu lúc 08:00.</p>
+          <div class="section-intro">
+            <p class="eyebrow">02 / LỊCH HỌC</p>
+            <h2 id="schedule-title">Tám ngày, ba điểm dừng, một trục thời gian.</h2>
+            <p>Ngày học được giữ theo Thông báo số 10/2026/TB-VPN. Ngày đầu tiên bắt đầu lúc 08:00; các buổi còn lại học sáng và chiều theo khung giờ thông báo.</p>
           </div>
-          <div class="calendar-sheet" role="list" aria-label="Lịch ba khóa học">
-            <article class="calendar-row" role="listitem"><div class="calendar-day">08<br /><span>THỨ SÁU</span></div><div><p class="calendar-date">08-10 / 01 / 2027</p><h3>R cơ bản</h3><p>PTCBR01.27<br />Nền tảng dữ liệu và RStudio</p></div><span class="calendar-duration">03 ngày</span></article>
-            <article class="calendar-row" role="listitem"><div class="calendar-day">12<br /><span>THỨ BA</span></div><div><p class="calendar-date">12-13 / 01 / 2027</p><h3>Chi phí - hiệu quả</h3><p>PTHQR01.27<br />Mô hình và quyết định y tế</p></div><span class="calendar-duration">02 ngày</span></article>
-            <article class="calendar-row" role="listitem"><div class="calendar-day">14<br /><span>THỨ NĂM</span></div><div><p class="calendar-date">14-16 / 01 / 2027</p><h3>Chuỗi thời gian</h3><p>PTTGR01.27<br />Dự báo từ dữ liệu thực tế</p></div><span class="calendar-duration">03 ngày</span></article>
+          <div class="timeline" role="list" aria-label="Lịch ba khóa học">
+            <article class="timeline-row" role="listitem"><div class="timeline-date"><strong>08—10</strong><span>01.2027</span></div><div class="timeline-line" aria-hidden="true"><i></i></div><div class="timeline-copy"><p>PTCBR01.27 / 03 NGÀY</p><h3>R cơ bản</h3><span>Nền tảng dữ liệu và RStudio</span></div></article>
+            <article class="timeline-row" role="listitem"><div class="timeline-date"><strong>12—13</strong><span>01.2027</span></div><div class="timeline-line" aria-hidden="true"><i></i></div><div class="timeline-copy"><p>PTHQR01.27 / 02 NGÀY</p><h3>Chi phí - hiệu quả</h3><span>Mô hình và quyết định y tế</span></div></article>
+            <article class="timeline-row" role="listitem"><div class="timeline-date"><strong>14—16</strong><span>01.2027</span></div><div class="timeline-line" aria-hidden="true"><i></i></div><div class="timeline-copy"><p>PTTGR01.27 / 03 NGÀY</p><h3>Chuỗi thời gian</h3><span>Dự báo từ dữ liệu thực tế</span></div></article>
+          </div>
+          <div class="schedule-foot"><span>08:30—12:00 + 13:30—17:00</span><span>08/01 bắt đầu 08:00</span><span>VIỆN PHƯƠNG NAM / ZOOM</span></div>
+        </div>
+      </section>
+
+      <section class="section fit-section" aria-labelledby="fit-title">
+        <div class="shell fit-grid">
+          <div class="section-intro"><p class="eyebrow">03 / NGƯỜI HỌC</p><h2 id="fit-title">Bắt đầu từ nền tảng hiện tại của bạn.</h2></div>
+          <div class="fit-list">
+            <div><span>01</span><p><strong>Nhà nghiên cứu và nghiên cứu sinh</strong><small>Cần một quy trình từ câu hỏi, dữ liệu đến diễn giải có thể kiểm tra.</small></p></div>
+            <div><span>02</span><p><strong>Giảng viên và người làm đề tài</strong><small>Muốn xây dựng lại nền tảng phân tích với R và RStudio.</small></p></div>
+            <div><span>03</span><p><strong>Y tế, dược phẩm và chính sách</strong><small>Cần mô hình hóa chi phí, hiệu quả, bất định hoặc dự báo theo thời gian.</small></p></div>
           </div>
         </div>
       </section>
 
-      <section class="section course-section" id="course-r">
-        <div class="shell course-layout">
-          <div class="course-intro"><p class="section-tag">PTCBR01.27 / 08-10.01.27</p><h2>Nền tảng đủ chắc để tự tin đi tiếp.</h2><p>Đi từ câu hỏi nghiên cứu, cấu trúc dữ liệu và phương pháp đến code R, kết quả và diễn giải. Phù hợp với người bắt đầu làm việc có hệ thống với R.</p><div class="course-meta"><span>03 ngày</span><span>07 chuyên đề</span><span>R / RStudio</span></div></div>
-          <div class="module-list"><details open><summary><span>01</span> R và RStudio</summary><p>Object, vector, data frame, nhập và quản lý dữ liệu, cấu trúc chương trình và nguyên tắc tái lập.</p></details><details><summary><span>02</span> AI trong viết R code</summary><p>Viết, giải thích, kiểm tra và sửa code do AI hỗ trợ; nhận diện lỗi đúng cú pháp nhưng sai phương pháp.</p></details><details><summary><span>03</span> Hiển thị dữ liệu</summary><p>Histogram, boxplot, scatter plot, ggplot2 và lựa chọn biểu đồ theo câu hỏi nghiên cứu.</p></details><details><summary><span>04</span> Kiểm định và khoảng tin cậy</summary><p>Giả thuyết, trị số P, khoảng tin cậy, độ ảnh hưởng và các lỗi diễn giải thường gặp.</p></details><details><summary><span>05</span> Mô tả dữ liệu</summary><p>Biến liên tục, biến phân loại, trung bình, trung vị, độ lệch chuẩn, phân vị, tỷ lệ, outlier và dữ liệu thiếu.</p></details><details><summary><span>06</span> Phân tích so sánh</summary><p>T-test, binomial test, chi-squared test, khoảng tin cậy và phân biệt ý nghĩa thống kê với ý nghĩa thực tế.</p></details><details><summary><span>07</span> Phân tích mối liên quan</summary><p>Hồi quy tuyến tính, hồi quy logistic, hệ số, odds ratio và diễn giải kết quả.</p></details></div>
-        </div>
-      </section>
-
-      <section class="section course-section course-section-tint" id="course-cea">
-        <div class="shell course-layout course-layout-reverse">
-          <div class="course-intro"><p class="section-tag">PTHQR01.27 / 12-13.01.27</p><h2>Từ ICER đến một quyết định có căn cứ.</h2><p>Đặt chi phí, hiệu quả và bất định trong cùng một khung phân tích cho kinh tế y tế và đánh giá công nghệ y tế.</p><div class="course-meta"><span>02 ngày</span><span>08 chuyên đề</span><span>CEA / QALY</span></div></div>
-          <div class="module-list"><details open><summary><span>01</span> Nguyên lý CEA</summary><p>Economic evaluation, comparator, perspective, time horizon, discounting và incremental analysis.</p></details><details><summary><span>02</span> Chi phí, hiệu quả và utility</summary><p>Direct medical, non-medical, productivity costs, utility và QALY.</p></details><details><summary><span>03</span> ICER và decision tree</summary><p>Incremental costs, incremental QALYs, expected costs và ICER bằng R.</p></details><details><summary><span>04</span> Markov model</summary><p>Health states, transition probabilities, cycles, transition matrix, absorbing state và time horizon.</p></details><details><summary><span>05</span> Tham số và sensitivity analysis</summary><p>One-way, scenario và probabilistic sensitivity analysis; phân bố xác suất và Monte Carlo simulation.</p></details><details><summary><span>06</span> Từ ICER đến decision making</summary><p>Willingness-to-pay threshold, cost-effectiveness plane, net monetary benefit và CEAC.</p></details><details><summary><span>07</span> Ca nghiên cứu</summary><p>Câu hỏi, mô hình, tham số, chi phí, QALY, ICER, uncertainty và decision trong một quy trình liền mạch.</p></details><details><summary><span>08</span> AI trong CEA</summary><p>Hỗ trợ tổng hợp thông tin, viết R code, mô phỏng và biểu đồ; người phân tích vẫn chịu trách nhiệm kiểm tra giả định.</p></details></div>
-        </div>
-      </section>
-
-      <section class="section course-section" id="course-time">
-        <div class="shell course-layout">
-          <div class="course-intro"><p class="section-tag">PTTGR01.27 / 14-16.01.27</p><h2>Đọc được tín hiệu nằm trong thời gian.</h2><p>Đưa người học từ cấu trúc chuỗi đến xây dựng, đánh giá và so sánh mô hình dự báo bằng R.</p><div class="course-meta"><span>03 ngày</span><span>08 chuyên đề</span><span>Forecasting</span></div></div>
-          <div class="module-list"><details open><summary><span>01</span> Dữ liệu chuỗi thời gian</summary><p>Time index, lag, frequency, autocorrelation, forecasting và khám phá dữ liệu theo thời gian.</p></details><details><summary><span>02</span> Stationarity, ACF và ADF</summary><p>Tính dừng, tự tương quan, Augmented Dickey-Fuller, biến đổi và differencing.</p></details><details><summary><span>03</span> Exponential smoothing</summary><p>Trend, seasonality, cycle, noise và các mô hình smoothing từ đơn giản đến có mùa vụ.</p></details><details><summary><span>04</span> Sai số dự báo</summary><p>MAE, RMSE, MAPE, chia training/testing và đánh giá forecast accuracy.</p></details><details><summary><span>05</span> AR, MA và ARIMA</summary><p>Xác định tham số, fitting, kiểm tra residuals và dự báo bằng R.</p></details><details><summary><span>06</span> So sánh mô hình</summary><p>Goodness-of-fit, AIC, BIC và khả năng dự báo ngoài mẫu.</p></details><details><summary><span>07</span> Prophet và neural network</summary><p>Tiếp cận trend, seasonality và cách so sánh phương pháp hiện đại với mô hình truyền thống.</p></details><details><summary><span>08</span> Thực hành từ dữ liệu đến dự báo</summary><p>Dữ liệu, hiển thị, cấu trúc, stationarity, mô hình, kiểm tra, dự báo, sai số, so sánh và diễn giải.</p></details></div>
-        </div>
-      </section>
-
-      <section class="section tuition-section" id="tuition">
+      <section class="section tuition-section" id="tuition" aria-labelledby="tuition-title">
         <div class="shell">
-          <div class="section-lead"><p class="section-tag">SỔ HỌC PHÍ / THÔNG BÁO 10/2026</p><h2>Chọn một khóa hoặc đi trọn lộ trình.</h2><p>Giá dưới đây được chép theo thông báo. Những ô nguồn để trống được giữ là chưa xác nhận.</p></div>
+          <div class="section-intro tuition-intro"><p class="eyebrow">04 / HỌC PHÍ</p><h2 id="tuition-title">Chọn một khóa hoặc đi trọn lộ trình.</h2><p>Giá được chép theo thông báo nguồn. Các trường không có giá riêng trong văn bản được giữ là chưa xác nhận.</p></div>
           <div class="ledger-wrap">
             <table class="ledger">
               <caption>Bảng học phí theo tổ hợp khóa học</caption>
@@ -145,32 +223,38 @@
                 <tr><th scope="row">Khóa 1 + 2</th><td data-label="Niêm yết">6.700.000</td><td data-label="Giảm 5%">6.365.000</td><td data-label="Giảm 10%">6.030.000</td><td data-label="Giảm 15%">5.695.000</td></tr>
                 <tr><th scope="row">Khóa 1 + 3</th><td data-label="Niêm yết">7.500.000</td><td data-label="Giảm 5%">7.125.000</td><td data-label="Giảm 10%">6.750.000</td><td data-label="Giảm 15%">6.375.000</td></tr>
                 <tr><th scope="row">Khóa 2 + 3</th><td data-label="Niêm yết">6.700.000</td><td data-label="Giảm 5%">6.365.000</td><td data-label="Giảm 10%">6.030.000</td><td data-label="Giảm 15%">5.695.000</td></tr>
-                <tr><th scope="row">Riêng Khóa 2</th><td data-label="Niêm yết">4.500.000</td><td data-label="Giảm 5%" class="muted-cell">Chưa xác nhận</td><td data-label="Giảm 10%">4.050.000</td><td data-label="Giảm 15%" class="muted-cell">Chưa xác nhận</td></tr>
-                <tr><th scope="row">Riêng Khóa 3</th><td data-label="Niêm yết">3.500.000</td><td data-label="Giảm 5%" class="muted-cell">Chưa xác nhận</td><td data-label="Giảm 10%">3.150.000</td><td data-label="Giảm 15%" class="muted-cell">Chưa xác nhận</td></tr>
+                <tr><th scope="row">Riêng khóa 2</th><td data-label="Niêm yết">4.500.000</td><td data-label="Giảm 5%" class="muted-cell">Chưa xác nhận</td><td data-label="Giảm 10%">4.050.000</td><td data-label="Giảm 15%" class="muted-cell">Chưa xác nhận</td></tr>
+                <tr><th scope="row">Riêng khóa 3</th><td data-label="Niêm yết">3.500.000</td><td data-label="Giảm 5%" class="muted-cell">Chưa xác nhận</td><td data-label="Giảm 10%">3.150.000</td><td data-label="Giảm 15%" class="muted-cell">Chưa xác nhận</td></tr>
               </tbody>
             </table>
           </div>
-          <div class="tuition-notes"><div><strong>Học viên cũ</strong><span>15% nếu hoàn tất trước 20/11/2026; 10% sau thời điểm này. Không áp dụng cho khóa lẻ 2 và 3.</span></div><div><strong>Học viên mới</strong><span>10% khi đóng sớm trước 20/11/2026. Nhóm từ 3 người được giảm 5% và có thể cộng dồn theo chính sách nguồn.</span></div><div><strong>Hạn đăng ký</strong><span>Đăng ký và hoàn tất học phí trước 25/12/2026.</span></div></div>
-          <p class="fine-print">Thông báo không có giá đăng ký riêng cho Khóa 1. Cách tính khi cộng dồn ưu đãi cần được đơn vị tổ chức xác nhận trước khi chốt giá cuối.</p>
+          <div class="discount-grid"><div><strong>Học viên cũ</strong><span>15% nếu hoàn tất trước 20/11/2026; 10% sau thời điểm này. Không áp dụng cho khóa lẻ 2 và 3.</span></div><div><strong>Học viên mới</strong><span>10% khi đóng sớm trước 20/11/2026. Nhóm từ 3 người được giảm 5% và có thể cộng dồn theo chính sách nguồn.</span></div><div><strong>Hạn đăng ký</strong><span>Đăng ký và hoàn tất học phí trước 25/12/2026.</span></div></div>
+          <p class="source-note">Thông báo không có giá đăng ký riêng cho Khóa 1. Cách tính khi cộng dồn ưu đãi cần được đơn vị tổ chức xác nhận trước khi chốt giá cuối.</p>
         </div>
       </section>
 
-      <section class="section faculty-section" id="faculty">
+      <section class="section faculty-section" id="faculty" aria-labelledby="faculty-title">
         <div class="shell faculty-grid">
-          <div class="section-lead"><p class="section-tag">NGƯỜI DẪN DẮT</p><h2>Kinh nghiệm nghiên cứu, đặt vào đúng bài toán.</h2><p>Thông tin giảng viên được trích theo Thông báo số 10/2026/TB-VPN.</p></div>
-          <div class="faculty-list"><article class="faculty-row"><div class="faculty-index">A</div><div><p class="faculty-role">GS.TS.</p><h3>Nguyễn Văn Tuấn</h3><p>Thông báo giới thiệu thầy đang công tác tại UTS và UNSW Sydney, với nền tảng nghiên cứu y khoa, phương pháp và giáo dục đại học.</p></div></article><article class="faculty-row"><div class="faculty-index">B</div><div><p class="faculty-role">TS.</p><h3>Trần Sơn Thạch</h3><p>Thông báo giới thiệu thầy đang công tác tại Garvan và UNSW, với nền tảng bác sĩ y khoa, thống kê và tư vấn phương pháp cho thử nghiệm lâm sàng.</p></div></article></div>
+          <div class="section-intro"><p class="eyebrow">05 / GIẢNG VIÊN</p><h2 id="faculty-title">Phương pháp đứng sau mỗi mô hình.</h2><p>Thông tin giảng viên được trích theo Thông báo số 10/2026/TB-VPN.</p></div>
+          <div class="faculty-list">
+            <article class="faculty-row"><span class="faculty-index">A</span><div><p class="faculty-role">GS.TS.</p><h3>Nguyễn Văn Tuấn</h3><p>Thông báo giới thiệu thầy đang công tác tại UTS và UNSW Sydney, với nền tảng nghiên cứu y khoa, phương pháp và giáo dục đại học.</p></div></article>
+            <article class="faculty-row"><span class="faculty-index">B</span><div><p class="faculty-role">TS.</p><h3>Trần Sơn Thạch</h3><p>Thông báo giới thiệu thầy đang công tác tại Garvan và UNSW, với nền tảng bác sĩ y khoa, thống kê và tư vấn phương pháp cho thử nghiệm lâm sàng.</p></div></article>
+          </div>
         </div>
       </section>
 
-      <section class="section register-section" id="register">
+      <section class="register-section" id="register" aria-labelledby="register-title">
         <div class="shell register-grid">
-          <div class="register-copy"><p class="section-tag">LIÊN HỆ / XÁC NHẬN TRƯỚC KHI CHUYỂN KHOẢN</p><h2>Bắt đầu từ câu hỏi của bạn.</h2><p>Link đăng ký và mã QR chưa xuất hiện trong thông báo nguồn. Hãy liên hệ trực tiếp để xác nhận chỗ, tổ hợp khóa và ưu đãi áp dụng.</p><div class="register-actions"><a class="button button-accent" href="tel:02822426789">Gọi Viện Phương Nam</a><a class="button button-outline" href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">Mở website</a></div></div>
-          <div class="contact-sheet"><div class="contact-row"><span>ĐỊA CHỈ</span><strong>45 Đinh Tiên Hoàng<br />Phường Sài Gòn, TP. Hồ Chí Minh</strong></div><div class="contact-row"><span>ĐIỆN THOẠI</span><strong><a href="tel:02822426789">(028) 2242 6789</a><br /><a href="tel:0949761636">0949 761 636 / Cô Vy</a><br /><a href="tel:0912114511">0912 114 511 / Cô Thảo</a></strong></div><div class="contact-row"><span>THANH TOÁN</span><strong>OCB Tân Thuận / STK 2242 6789<br />VIEN PHAT TRIEN NGUON LUC XA HOI PHUONG NAM</strong></div><div class="contact-alert"><span class="red-dot" aria-hidden="true"></span><span>Nội dung chuyển khoản: họ tên, số điện thoại, mã khóa. Nhóm học viên ghi thêm tên nhóm.</span></div></div>
+          <div class="register-copy"><p class="eyebrow">06 / LIÊN HỆ</p><h2 id="register-title">Bắt đầu từ câu hỏi của bạn.</h2><p>Link đăng ký và mã QR chưa xuất hiện trong thông báo nguồn. Liên hệ trực tiếp để xác nhận chỗ, tổ hợp khóa và ưu đãi áp dụng trước khi chuyển khoản.</p><div class="register-actions"><a class="button button-light" href="tel:02822426789">Gọi Viện Phương Nam <span aria-hidden="true">↗</span></a><a class="register-link" href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">Mở website chính thức <span aria-hidden="true">↗</span></a></div></div>
+          <div class="contact-console"><div class="console-line"><span>ADDRESS</span><strong>45 Đinh Tiên Hoàng<br />Phường Sài Gòn, TP. Hồ Chí Minh</strong></div><div class="console-line"><span>PHONE</span><strong><a href="tel:02822426789">(028) 2242 6789</a><br /><a href="tel:0949761636">0949 761 636 / Cô Vy</a><br /><a href="tel:0912114511">0912 114 511 / Cô Thảo</a></strong></div><div class="console-line"><span>PAYMENT</span><strong>OCB Tân Thuận / STK 2242 6789<br />VIEN PHAT TRIEN NGUON LUC XA HOI PHUONG NAM</strong></div><div class="console-alert"><span aria-hidden="true">!</span><p>Hạn đăng ký và hoàn tất học phí: <strong>25/12/2026</strong>. Xác nhận thông tin với Viện trước khi thanh toán.</p></div></div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer"><div class="shell footer-inner"><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true">VP</span><span class="brand-copy"><strong>VIỆN PHƯƠNG NAM</strong><span>Phân tích dữ liệu với R</span></span></a><p>Thông tin lịch và học phí theo Thông báo số 10/2026/TB-VPN.<br />Link đăng ký chính thức sẽ bổ sung khi đơn vị tổ chức cung cấp.</p><a class="back-top" href="#top">Về đầu trang</a></div></footer>
+    <footer class="site-footer">
+      <div class="shell footer-inner"><a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true">VP</span><span class="brand-copy"><strong>VIỆN PHƯƠNG NAM</strong><span>RESEARCH DATA LAB / 01.2027</span></span></a><p>Thông tin được tổng hợp từ Thông báo số 10/2026/TB-VPN và các đề cương khóa học.</p><a class="back-top" href="#top">Về đầu trang <span aria-hidden="true">↑</span></a></div>
+    </footer>
+
     <script src="./app.js" defer></script>
   </body>
 </html>

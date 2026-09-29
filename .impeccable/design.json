@@ -1,83 +1,44 @@
 {
-  "schemaVersion": 2,
-  "generatedAt": "2026-09-29T00:00:00Z",
-  "title": "Design System: Viện Phương Nam / Hồ sơ khóa học R",
-  "extensions": {
-    "colorMeta": {
-      "cool-paper": {"role": "neutral", "displayName": "Cool Paper", "canonical": "oklch(95% 0.012 150)", "tonalRamp": ["#18211f", "#2f3b36", "#59635e", "#8c9992", "#b7c2bc", "#d0d9d3", "#dfe6e1", "#eef1ed"]},
-      "cool-paper-deep": {"role": "surface", "displayName": "Cool Paper Deep", "canonical": "oklch(91% 0.018 150)", "tonalRamp": ["#202d2b", "#3c4b46", "#66756e", "#9aa9a1", "#bcc8c1", "#cbd6d0", "#dfe6e1", "#f1f4f0"]},
-      "ink": {"role": "text", "displayName": "Archive Ink", "canonical": "oklch(14% 0.02 165)", "tonalRamp": ["#101412", "#18211f", "#2f3a35", "#59635e", "#7e8983", "#abb6af", "#d7ded9", "#eef1ed"]},
-      "vermilion": {"role": "accent", "displayName": "Oxidized Vermilion", "canonical": "oklch(43% 0.15 32)", "tonalRamp": ["#3f1814", "#631f19", "#7d2e27", "#a94033", "#c36558", "#d78b80", "#e8b5ac", "#f6ded9"]},
-      "vermilion-deep": {"role": "accent-strong", "displayName": "Vermilion Deep", "canonical": "oklch(34% 0.12 32)", "tonalRamp": ["#2b120f", "#4b1b16", "#68231d", "#7d2e27", "#a94e43", "#ca7c72", "#e2afa7", "#f4d7d3"]}
-    },
-    "typographyMeta": {
-      "display": {"displayName": "Source Serif 4", "purpose": "Course title, section heads, course names, and people names."},
-      "body": {"displayName": "IBM Plex Sans", "purpose": "Readable explanatory copy and supporting text."},
-      "data": {"displayName": "IBM Plex Mono", "purpose": "Codes, dates, labels, navigation, and fee values."}
-    },
-    "shadows": [],
-    "motion": [
-      {"name": "masthead-entrance", "value": "700ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Introduce the title and factual dossier without hiding page content."},
-      {"name": "state-transition", "value": "160ms ease-out", "purpose": "Button, link, and menu state changes."}
-    ],
-    "breakpoints": [
-      {"name": "tablet", "value": "980px"},
-      {"name": "phone", "value": "680px"}
-    ]
+  "name": "Research Instrument / Data Observatory",
+  "version": "1.0.0",
+  "mode": "persuade",
+  "dials": {
+    "DESIGN_VARIANCE": 8,
+    "MOTION_INTENSITY": 7,
+    "VISUAL_DENSITY": 5
   },
-  "components": [
-    {
-      "name": "Primary action",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "A real next step in the registration path.",
-      "html": "<a class=\"ds-button-primary\" href=\"#programs\">Đọc mục lục khóa học</a>",
-      "css": ".ds-button-primary { display:inline-flex; min-height:46px; align-items:center; padding:11px 16px; color:#eef1ed; background:#a94033; border:1px solid #a94033; border-radius:2px; font:500 13px/1 'IBM Plex Mono',monospace; text-decoration:none; } .ds-button-primary:hover { background:#7d2e27; border-color:#7d2e27; } .ds-button-primary:focus-visible { outline:3px solid #a94033; outline-offset:4px; }"
+  "tokens": {
+    "colors": {
+      "navy-950": {"role": "primary-field", "hex": "#071A3A"},
+      "navy-800": {"role": "secondary-field", "hex": "#0D2A5A"},
+      "navy-600": {"role": "signal", "hex": "#174A8C"},
+      "white": {"role": "surface-and-type", "hex": "#FFFFFF"},
+      "mist": {"role": "utility-surface", "hex": "#F3F6FA"}
     },
-    {
-      "name": "Course index row",
-      "kind": "custom",
-      "refersTo": "ruled-row",
-      "description": "Aligned source-backed course entry.",
-      "html": "<article class=\"ds-ruled-row\"><span class=\"ds-index\">01</span><span class=\"ds-code\">PTCBR01.27</span><h3>Phân tích dữ liệu với R cơ bản</h3></article>",
-      "css": ".ds-ruled-row { display:grid; grid-template-columns:54px 170px minmax(0,1fr); gap:22px; padding:26px 0; border-top:1px solid #c6beb2; color:#18211f; } .ds-index,.ds-code { font:500 12px/1.4 'IBM Plex Mono',monospace; color:#7d2e27; }"
+    "typography": {
+      "display": {"family": "Segoe UI Variable, Segoe UI, Arial, sans-serif", "purpose": "Headlines and course names"},
+      "body": {"family": "Segoe UI Variable, Segoe UI, Arial, sans-serif", "purpose": "Readable explanatory copy"},
+      "data": {"family": "Cascadia Mono, SFMono-Regular, Consolas, monospace", "purpose": "Codes, dates, labels, fees, readouts"}
     },
-    {
-      "name": "Disclosure row",
-      "kind": "custom",
-      "refersTo": "disclosure",
-      "description": "Native expandable syllabus detail.",
-      "html": "<details class=\"ds-disclosure\"><summary><span>01</span> R và RStudio</summary><p>Object, vector, data frame.</p></details>",
-      "css": ".ds-disclosure { border-bottom:1px solid #c6beb2; } .ds-disclosure summary { display:grid; grid-template-columns:38px minmax(0,1fr); gap:16px; padding:17px 0; color:#18211f; font:600 20px/1.2 'Source Serif 4',serif; cursor:pointer; } .ds-disclosure summary:focus-visible { outline:3px solid #a94033; outline-offset:4px; }"
+    "motion": {
+      "easeOut": "cubic-bezier(0.23, 1, 0.32, 1)",
+      "easeInOut": "cubic-bezier(0.77, 0, 0.175, 1)",
+      "heroEntrance": "700ms easeOut",
+      "uiState": "160-240ms easeOut",
+      "buttonPress": "100-160ms easeOut"
     }
-  ],
-  "narrative": {
-    "northStar": "The Research Bulletin.",
-    "overview": "This landing page treats the course announcement as a useful printed prospectus. The visitor should feel they have opened an issue with a date, a sequence, an index, a calendar, a fee ledger, and a reliable way to ask for a place. The page earns attention through editorial rhythm and source-backed specificity rather than a decorative dashboard or a collection of promotional cards.",
-    "keyCharacteristics": [
-      "Cool paper, dark ink, and one oxidized vermilion accent.",
-      "Source Serif 4 for the title and course voice, IBM Plex Sans for readable body copy, and IBM Plex Mono for codes, dates, and fee columns.",
-      "Hairline rules, ruled rows, and asymmetric columns replace rounded card grids.",
-      "A single masthead entrance motion; content is visible by default and reduced motion is respected.",
-      "The registration state is honest: contact links work, while the missing official QR and form link are named plainly."
-    ],
-    "rules": [
-      {"name": "The Cool Paper Rule", "body": "Keep the background cool and quiet, like an archival sheet under daylight. Use the deeper paper only to separate bands; never add a gradient.", "section": "colors"},
-      {"name": "The Single Accent Rule", "body": "Vermilion is reserved for the active registration action, source identifiers, dates, and small status marks. Do not introduce a second accent color.", "section": "colors"},
-      {"name": "The Editorial Scale Rule", "body": "Source Serif 4 carries the title, section heads, course names, and people names. IBM Plex Sans carries paragraphs. IBM Plex Mono is reserved for codes, dates, labels, and money. Keep body measure near 65 to 75 characters.", "section": "typography"},
-      {"name": "The Index Before the Pitch Rule", "body": "The first viewport must answer what the course is, when it happens, and how to continue reading. Use a masthead and factual dossier before longer explanation.", "section": "layout"},
-      {"name": "The Ruled Sequence Rule", "body": "Repeatable course information belongs in aligned rows and a calendar sheet, not same-size feature cards. At small widths, rows become a single readable column in the same order.", "section": "layout"}
-    ],
-    "dos": [
-      "Do use real notice numbers, course codes, dates, fees, contact numbers, and the source's missing-link state.",
-      "Do keep the CEA audience paired with the CEA course and the time-series audience paired with the time-series course.",
-      "Do keep the mobile order identical to the reading order.",
-      "Do use visible focus states and close the mobile menu on Escape, outside click, or link activation."
-    ],
-    "donts": [
-      "Don't add decorative charts, fabricated metrics, stock imagery, generic icon tiles, gradients, glass, pills, or equal feature cards.",
-      "Don't imply that a registration form or QR code exists before the organizer supplies it.",
-      "Don't place unsupported outcomes, prices, testimonials, or credentials in the page."
-    ]
-  }
+  },
+  "components": {
+    "readoutPanel": {"role": "source-backed program summary", "surface": "navy-950", "radius": "0-4px"},
+    "pipelineStop": {"role": "course navigation and state", "surface": "white/mist", "active": "navy-600"},
+    "courseDetail": {"role": "source-backed syllabus disclosure", "element": "details"},
+    "feeLedger": {"role": "source-backed fee comparison", "element": "table"}
+  },
+  "rules": [
+    {"name": "One navy signal system", "body": "Use navy tonal changes and opacity for emphasis. Do not introduce a second brand accent."},
+    {"name": "Instrument over decoration", "body": "Axis lines, ticks, readouts, and active course states must explain the real course sequence. Do not add fake charts or looping analytics."},
+    {"name": "Sharp research geometry", "body": "Keep one near-sharp corner language and let rules, alignment, and whitespace provide hierarchy."},
+    {"name": "Motion with purpose", "body": "Use motion for explanation, state indication, spatial consistency, and tactile feedback. Gate hover and honor reduced motion."},
+    {"name": "Source truth", "body": "Use the main notice for dates, prices, format, address, payment, and deadline; use each course notice for its own audience and syllabus; preserve missing QR and registration URL."}
+  ]
 }
