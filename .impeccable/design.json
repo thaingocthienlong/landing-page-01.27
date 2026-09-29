@@ -1,6 +1,6 @@
 {
   "name": "Viện Phương Nam WorkBuddy-like course landing page",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "mode": "persuade",
   "dials": {
     "DESIGN_VARIANCE": 5,
@@ -11,6 +11,10 @@
     "colors": {
       "action-blue": {"role": "primary-action", "hex": "#0052D9"},
       "blue-deep": {"role": "hover-and-emphasis", "hex": "#003B9A"},
+      "heading-gradient-start": {"role": "heading-accent-start", "hex": "#0052D9"},
+      "heading-gradient-end": {"role": "heading-accent-end", "hex": "#008FA8"},
+      "heading-gradient-dark-start": {"role": "dark-cta-heading-start", "hex": "#9BBCFF"},
+      "heading-gradient-dark-end": {"role": "dark-cta-heading-end", "hex": "#67E3D2"},
       "white": {"role": "primary-surface", "hex": "#FFFFFF"},
       "mist": {"role": "cool-gray-surface", "hex": "#F5F7FB"},
       "ink": {"role": "primary-text", "hex": "#111111"},
@@ -41,11 +45,14 @@
     "scenarioTabs": {"role": "three source-backed course scenarios", "element": "tabs + tabpanel"},
     "pricing": {"role": "source-backed fees and conditions", "element": "cards + details"},
     "faq": {"role": "accessible disclosure", "element": "details"},
+    "consultationForm": {"role": "static advisory form with phone fallback", "element": "form", "endpoint": "none", "fields": ["full_name", "email", "phone", "course_id", "learning_mode", "note", "agreement"]},
     "contactRail": {"role": "real phone, website, and back-to-top actions", "fakeChat": false}
   },
   "rules": [
     {"name": "Original reference grammar", "body": "Use the WorkBuddy-like composition and rhythm without Tencent branding, copy, assets, or URLs."},
     {"name": "Source truth", "body": "Reconcile dates, codes, fees, contacts, payment, faculty facts, and certificate rules to the notices. Do not invent registration URLs, QR codes, standalone R pricing, or outcome claims."},
+    {"name": "Heading accent", "body": "Use a blue-to-cyan gradient only on short accent phrases in hero and section h1/h2 headings; keep the surrounding heading text black and card h3 text solid. On the blue consultation surface, use the documented white-to-mint contrast variant for readability."},
+    {"name": "Static form boundary", "body": "Validate consultation fields locally and direct the learner to the real phone contact. Never claim a static submission reached the PHP backend and never expose CAPTCHA, webhook, SMTP, or credential data."},
     {"name": "Workbench honesty", "body": "Mark the HTML/CSS product window as a demo and never present simulated rows or outputs as real research results."},
     {"name": "Motion with purpose", "body": "Use restrained reveal, tab transition, hover feedback, and one ambient workbench loop. Honor reduced motion."},
     {"name": "Accessible structure", "body": "Maintain one h1, visible focus, skip link, keyboard tabs, native FAQ details, real tel links, and no horizontal overflow."}

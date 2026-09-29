@@ -8,12 +8,14 @@ The previous Research Instrument / Data Observatory visual world is retired. Do 
 
 ## Visual contract
 
-- **Palette:** action blue `#0052D9`, deep blue for hover, white, cool gray mist, black closing CTA, and dark text. Navy is not the dominant brand field.
+- **Palette:** action blue `#0052D9`, deep blue for hover, heading gradient `#0052D9 → #008FA8`, white, cool gray mist, black closing CTA, and dark text. Navy is not the dominant brand field.
 - **Type:** Inter or the system sans stack. Use the monospace stack only for course codes, dates, labels, and compact data values.
 - **Container:** centered desktop shell capped near `1200px`; generous section spacing; white and cool-gray sections alternate.
-- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. No glassmorphism or large pill controls.
+- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. The consultation section may use one white translucent card over a blue gradient; transparency is localized and has an opaque fallback.
 - **Hero:** light-blue wash and dot pattern are allowed; workbench visuals are built in HTML/CSS and do not depend on external assets.
 - **Content:** all dates, codes, fees, contacts, payment details, faculty facts, and certificate conditions must remain reconciled to the source notices. Missing registration URL/QR stays explicitly unresolved.
+- **Heading treatment:** keep the main heading phrase black and apply the blue-to-cyan gradient only to a short accent phrase in hero and section `h1`/`h2` headings. Card `h3` text and mono labels remain solid colors. The closing black CTA uses the lighter `#9BBCFF → #67E3D2` variant, while the blue consultation surface uses a white-to-mint contrast variant so the accent remains readable.
+- **Consultation:** the static page includes a compact advisory form for name, email, phone, course, learning mode, note, and consent. It validates locally and routes the user to the real phone contact; it never claims a submission reached the PHP backend.
 
 ## Information architecture
 
@@ -22,8 +24,9 @@ The previous Research Instrument / Data Observatory visual world is retired. Do 
 3. Hero: source-backed headline, 03 courses, 08 days, 02 formats, real contact CTAs, and workbench demo marked as illustration.
 4. Use Cases: R basic, cost-effectiveness, and time-series tabs.
 5. Schedule, tuition combinations and discounts, value, advantages, skills, faculty, FAQ.
-6. Black CTA with phone and official website links.
-7. Contact footer and fixed call, website, and back-to-top actions.
+6. Consultation form over a blue gradient surface.
+7. Black CTA with phone and official website links.
+8. Contact footer and fixed call, website, and back-to-top actions.
 
 ## Interaction and motion
 
@@ -34,6 +37,7 @@ The previous Research Instrument / Data Observatory visual world is retired. Do 
 - Mobile navigation opens from the hamburger, closes on link selection, outside click, resize, or Escape.
 - Native `<details>` provides FAQ disclosure without a JavaScript dependency.
 - Hover changes border, shadow, and a few pixels of translation. Buttons move the arrow slightly.
+- Consultation form validation keeps entered values, reports invalid fields, and shows the static-site phone fallback without a fake success state.
 - `prefers-reduced-motion: reduce` removes loops and transforms while retaining readable content and active states.
 
 ## Responsive and accessibility gates

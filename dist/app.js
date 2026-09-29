@@ -274,6 +274,50 @@
     button.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "auto" : "smooth" }));
   };
 
+  const setupConsultationForm = () => {
+    const form = document.querySelector("#consultation-form");
+    const error = document.querySelector("#consultation-error");
+    const status = document.querySelector("#consultation-status");
+    if (!form || !error || !status) return;
+
+    const phone = form.elements.namedItem("phone");
+    const clearFeedback = () => {
+      error.hidden = true;
+      status.hidden = true;
+      error.textContent = "";
+      status.textContent = "";
+    };
+
+    form.addEventListener("input", clearFeedback);
+    form.addEventListener("change", clearFeedback);
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      clearFeedback();
+
+      if (phone) {
+      const normalizedPhone = phone.value.replace(/[\s\-]/g, "");
+        phone.setCustomValidity(
+          normalizedPhone.length >= 9 && normalizedPhone.length <= 11 && /^\d+$/.test(normalizedPhone)
+            ? ""
+            : "Số điện thoại cần có từ 9 đến 11 chữ số."
+        );
+      }
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        error.textContent = "Vui lòng kiểm tra các trường bắt buộc và số điện thoại trước khi tiếp tục.";
+        error.hidden = false;
+        form.querySelector(":invalid")?.focus();
+        return;
+      }
+
+      if (phone) phone.setCustomValidity("");
+      status.textContent = "Trang giới thiệu chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 để xác nhận chỗ, tổ hợp khóa và thông tin thanh toán.";
+      status.hidden = false;
+      status.focus();
+    });
+  };
+
   const setupHashState = () => {
     const syncHash = () => {
       if (window.location.hash.toLowerCase() === "#course-cea") setScenario("cea");
@@ -287,6 +331,7 @@
   setupMobileNav();
   setupRevealObserver();
   setupBackToTop();
+  setupConsultationForm();
   setupHashState();
   setScenario(activeScenario);
 })();
