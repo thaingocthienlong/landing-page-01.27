@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "",
-    "indexed_at": "2026-09-28T16:19:33Z",
+    "commit": "243d3bca4e361919aca446e961f7cc73ed45e80b",
+    "indexed_at": "2026-09-29T04:13:53Z",
     "project": "D-Codex-LandingPage",
-    "nodes": 2,
-    "edges": 1,
-    "original_size": 1572864,
-    "compressed_size": 2626,
-    "compression_level": 9
+    "nodes": 59,
+    "edges": 58,
+    "original_size": 2162688,
+    "compressed_size": 11689,
+    "compression_level": 3
 }

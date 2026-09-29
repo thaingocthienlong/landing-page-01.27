@@ -1,31 +1,59 @@
-const navToggle = document.querySelector('.nav-toggle');
-const primaryNav = document.querySelector('#primary-nav');
+(() => {
+  const root = document.documentElement;
+  root.classList.add("js");
 
-if (navToggle && primaryNav) {
-  navToggle.addEventListener('click', () => {
-    const open = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', String(!open));
-    primaryNav.classList.toggle('is-open', !open);
+  const toggle = document.querySelector(".nav-toggle");
+  const nav = document.querySelector("#primary-nav");
+  const header = document.querySelector("[data-header]");
+  if (!toggle || !nav) return;
+
+  let lastFocused = null;
+
+  const closeMenu = ({ restoreFocus = false } = {}) => {
+    nav.classList.remove("is-open");
+    toggle.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("menu-open");
+    if (restoreFocus) toggle.focus();
+  };
+
+  const openMenu = () => {
+    lastFocused = document.activeElement;
+    nav.classList.add("is-open");
+    toggle.setAttribute("aria-expanded", "true");
+    document.body.classList.add("menu-open");
+    nav.querySelector("a")?.focus();
+  };
+
+  toggle.addEventListener("click", () => {
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    if (isOpen) closeMenu({ restoreFocus: true });
+    else openMenu();
   });
 
-  primaryNav.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      navToggle.setAttribute('aria-expanded', 'false');
-      primaryNav.classList.remove('is-open');
-    });
+  nav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => closeMenu());
   });
-}
 
-const revealItems = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window) {
-  const revealObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
-    });
-  }, { threshold: 0.12 });
-  revealItems.forEach((item) => revealObserver.observe(item));
-} else {
-  revealItems.forEach((item) => item.classList.add('is-visible'));
-}
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+      closeMenu({ restoreFocus: true });
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (toggle.getAttribute("aria-expanded") !== "true") return;
+    if (!header.contains(event.target)) closeMenu({ restoreFocus: false });
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 680 && toggle.getAttribute("aria-expanded") === "true") {
+      closeMenu();
+      if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    }
+  });
+
+  const currentYear = new Date().getFullYear();
+  document.querySelectorAll("[data-current-year]").forEach((node) => {
+    node.textContent = String(currentYear);
+  });
+})();
