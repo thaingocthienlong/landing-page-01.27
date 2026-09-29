@@ -19,19 +19,19 @@
       format: "R / RStudio",
       topicCount: "07",
       level: "Nền tảng",
-      title: "Đặt nền tảng để tự tin làm việc với dữ liệu.",
-      description: "Khóa học cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người mới R; không cần kinh nghiệm lập trình trước đó.",
-      prompt: "Chuẩn bị dữ liệu, chọn biểu đồ và kiểm tra mối liên quan bằng R.",
-      outputTitle: "Quy trình phân tích sẵn sàng để kiểm tra.",
+      title: "Xây dựng nền tảng phân tích dữ liệu bằng R.",
+      description: "Dành cho nhà nghiên cứu, học viên sau đại học, giảng viên và người mới bắt đầu sử dụng R; không cần kinh nghiệm lập trình.",
+      prompt: "Nhập, quản lý, hiển thị dữ liệu và lựa chọn phương pháp theo câu hỏi nghiên cứu.",
+      outputTitle: "Thực hiện phân tích bằng R và diễn giải kết quả.",
       output: [
-        "Nhập và kiểm tra cấu trúc dữ liệu",
-        "Chọn biểu đồ theo câu hỏi nghiên cứu",
-        "Diễn giải output cùng bối cảnh",
+        "Nhập, quản lý, mô tả và hiển thị dữ liệu",
+        "Hiểu kiểm định giả thuyết, trị số P và khoảng tin cậy",
+        "Thực hiện các phân tích so sánh và phân tích mối liên quan",
       ],
       skills: [
-        "Nhập, quản lý và mô tả dữ liệu",
-        "Hiển thị dữ liệu theo câu hỏi",
-        "Kiểm định, hồi quy và diễn giải",
+        "Nhập, quản lý, mô tả và hiển thị dữ liệu",
+        "Chọn biểu đồ theo câu hỏi nghiên cứu",
+        "Diễn giải kết quả trong bối cảnh nghiên cứu",
       ],
       codeLines: [
         "library(tidyverse)",
@@ -39,7 +39,7 @@
         "  glimpse() |>",
         "  ggplot(aes(x = group, y = outcome))",
       ],
-      windowLabel: "Research question",
+      windowLabel: "Câu hỏi nghiên cứu",
     },
     cea: {
       label: "Chi phí - hiệu quả",
@@ -49,19 +49,19 @@
       format: "CEA / R",
       topicCount: "08",
       level: "Chuyên sâu",
-      title: "Đọc bài toán kinh tế y tế bằng một mô hình có thể giải thích.",
-      description: "Dành cho người làm chính sách y tế, chuyên môn y tế, nghiên cứu y tế - kinh tế, dược phẩm, công nghệ y tế và HTA.",
-      prompt: "Từ chi phí và utility, tính QALY, ICER và kiểm tra bất định của quyết định.",
-      outputTitle: "Một khung CEA để đọc và kiểm tra.",
+      title: "Từ câu hỏi nghiên cứu đến mô hình và từ mô hình đến quyết định.",
+      description: "Dành cho nhà quản lý, hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên y tế và kinh tế y tế, cùng nhân sự dược phẩm và công nghệ y tế.",
+      prompt: "Từ chi phí và utility đến QALY, ICER và phân tích độ nhạy.",
+      outputTitle: "Hiểu cấu trúc nghiên cứu CEA và diễn giải kết quả.",
       output: [
-        "Tách chi phí, utility và QALY",
+        "Xác định và đo lường chi phí, hiệu quả, utility và QALY",
         "Tính và diễn giải ICER",
-        "Kiểm tra sensitivity và mô hình Markov",
+        "Xây dựng mô hình Markov và thực hiện phân tích độ nhạy.",
       ],
       skills: [
         "Tính và diễn giải ICER/QALY",
-        "Xây dựng decision tree hoặc Markov model",
-        "Kiểm tra độ nhạy của giả định",
+        "Xây dựng cây quyết định hoặc mô hình Markov",
+        "Kiểm tra độ nhạy của các giả định",
       ],
       codeLines: [
         "cea <- model |>",
@@ -69,29 +69,29 @@
         "  calculate_icer()",
         "plot_sensitivity(cea)",
       ],
-      windowLabel: "Health economics question",
+      windowLabel: "Câu hỏi kinh tế y tế",
     },
     time: {
       label: "Chuỗi thời gian",
       code: "PTTGR01.27",
       date: "14–16/01/2027",
       duration: "03 ngày",
-      format: "R / forecast",
+      format: "R / dự báo",
       topicCount: "08",
       level: "Chuyên sâu",
-      title: "Biến dữ liệu theo thời gian thành một dự báo có căn cứ.",
-      description: "Dành cho người làm dữ liệu theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật và khoa học xã hội.",
-      prompt: "Kiểm tra tính dừng, đọc ACF/ADF và so sánh độ chính xác của forecast.",
-      outputTitle: "Quy trình dự báo có thể so sánh.",
+      title: "Nhận diện, xây dựng và đánh giá mô hình dự báo chuỗi thời gian.",
+      description: "Dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu được ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật, khoa học xã hội và các lĩnh vực liên quan.",
+      prompt: "Kiểm tra tính dừng, đọc ACF/ADF và so sánh độ chính xác dự báo.",
+      outputTitle: "Đánh giá và so sánh các mô hình dự báo.",
       output: [
-        "Tạo time index và kiểm tra tín hiệu",
-        "Đọc ACF/ADF trước khi chọn mô hình",
-        "So sánh forecast accuracy ngoài mẫu",
+        "Tổ chức, nhập, hiển thị và khám phá dữ liệu theo thời gian",
+        "Đánh giá tính dừng bằng ACF/ADF trước khi chọn mô hình",
+        "So sánh độ chính xác dự báo trên dữ liệu ngoài mẫu",
       ],
       skills: [
         "Kiểm tra ACF/ADF và tính dừng",
-        "Xây dựng và so sánh mô hình ARIMA",
-        "Diễn giải forecast accuracy",
+        "Xây dựng và so sánh các mô hình dự báo, gồm ARIMA",
+        "Diễn giải độ chính xác dự báo",
       ],
       codeLines: [
         "fit <- data |>",
@@ -99,7 +99,7 @@
         "report(accuracy(fit))",
         "forecast(fit, h = 12)",
       ],
-      windowLabel: "Time-series question",
+      windowLabel: "Câu hỏi chuỗi thời gian",
     },
   };
 
@@ -161,13 +161,13 @@
     setText("[data-scenario-topic-count]", scenario.topicCount);
     setText("[data-scenario-level]", scenario.level);
     setList("[data-scenario-skills]", scenario.skills);
-    setText("[data-scenario-window-title]", `${scenario.label} / Analysis workspace`);
+    setText("[data-scenario-window-title]", `${scenario.label} / Bảng phân tích`);
     setText("[data-scenario-window-label]", scenario.windowLabel);
     setText("[data-scenario-prompt]", scenario.prompt);
     setText("[data-scenario-output-title]", scenario.outputTitle);
     setList("[data-scenario-output]", scenario.output);
 
-    setText("[data-workbench-label]", `Scenario / ${scenario.label}`);
+    setText("[data-workbench-label]", `Tình huống / ${scenario.label}`);
     setText("[data-workbench-prompt]", scenario.prompt);
     setText("[data-workbench-code]", scenario.codeLines.join("\n"));
     setList("[data-workbench-output]", scenario.output);
@@ -278,9 +278,19 @@
     const form = document.querySelector("#consultation-form");
     const error = document.querySelector("#consultation-error");
     const status = document.querySelector("#consultation-status");
+    const dialog = document.querySelector("#consultation-dialog");
     if (!form || !error || !status) return;
 
-    const phone = form.elements.namedItem("phone");
+    const phone = form.elements.namedItem("phoneregister");
+    const sourceRadios = [...form.querySelectorAll('input[name="biet_qua"]')];
+    const sourceOther = form.elements.namedItem("biet_qua_other");
+    let lastTrigger = null;
+    const syncSourceOther = () => {
+      const requiresOther = sourceRadios.some((radio) => radio.checked && radio.value === "Khác");
+      if (!sourceOther) return;
+      sourceOther.required = requiresOther;
+      sourceOther.setAttribute("aria-required", String(requiresOther));
+    };
     const clearFeedback = () => {
       error.hidden = true;
       status.hidden = true;
@@ -288,14 +298,39 @@
       status.textContent = "";
     };
 
+    const closeDialog = () => {
+      if (typeof dialog?.close === "function" && dialog.open) dialog.close();
+      else dialog?.removeAttribute("open");
+    };
+
+    document.querySelectorAll("[data-open-consultation]").forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        if (trigger.matches("a")) event.preventDefault();
+        lastTrigger = trigger;
+        clearFeedback();
+        if (typeof dialog?.showModal === "function") dialog.showModal();
+        else dialog?.setAttribute("open", "");
+        dialog?.querySelector("input, select, button")?.focus();
+      });
+    });
+    dialog?.querySelector("[data-close-consultation]")?.addEventListener("click", closeDialog);
+    dialog?.addEventListener("close", () => lastTrigger?.focus());
+    dialog?.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog();
+    });
+
     form.addEventListener("input", clearFeedback);
-    form.addEventListener("change", clearFeedback);
+    form.addEventListener("change", (event) => {
+      clearFeedback();
+      if (event.target?.name === "biet_qua") syncSourceOther();
+    });
+    syncSourceOther();
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       clearFeedback();
 
       if (phone) {
-      const normalizedPhone = phone.value.replace(/[\s\-]/g, "");
+        const normalizedPhone = phone.value.replace(/[\s\-+().]/g, "");
         phone.setCustomValidity(
           normalizedPhone.length >= 9 && normalizedPhone.length <= 11 && /^\d+$/.test(normalizedPhone)
             ? ""
@@ -312,7 +347,7 @@
       }
 
       if (phone) phone.setCustomValidity("");
-      status.textContent = "Trang giới thiệu chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 để xác nhận chỗ, tổ hợp khóa và thông tin thanh toán.";
+      status.textContent = "Trang giới thiệu hiện chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, tổ hợp khóa và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
       status.hidden = false;
       status.focus();
     });
