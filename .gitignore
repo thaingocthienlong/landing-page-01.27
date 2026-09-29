@@ -1,3 +1,5 @@
 .impeccable-home/
 .impeccable/review/
 .impeccable-detect.json
+site-package*.tar.gz
+site-package-stage-*/
