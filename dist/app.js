@@ -10,6 +10,159 @@
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+  const setupStickyHeader = () => {
+    const header = document.querySelector("[data-sticky-header]");
+    if (!header) return;
+    const sync = () => header.classList.toggle("is-scrolled", window.scrollY > 24);
+    window.addEventListener("scroll", sync, { passive: true });
+    sync();
+  };
+
+  const setupFloatingToc = () => {
+    const links = [...document.querySelectorAll("[data-toc-target]")];
+    const targets = links
+      .map((link) => ({ link, target: document.getElementById(link.dataset.tocTarget) }))
+      .filter(({ target }) => target);
+    if (!targets.length) return;
+
+    const setActive = (id) => {
+      targets.forEach(({ link, target }) => {
+        const isActive = target.id === id;
+        link.classList.toggle("is-active", isActive);
+        if (isActive) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      });
+    };
+
+    links.forEach((link) => link.addEventListener("click", () => setActive(link.dataset.tocTarget)));
+    setActive("top");
+
+    if (!("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        .slice(0, 1)
+        .forEach((entry) => setActive(entry.target.id));
+    }, { rootMargin: "-24% 0px -58% 0px", threshold: [0, 0.2, 0.5, 0.8] });
+    targets.forEach(({ target }) => observer.observe(target));
+  };
+
+  const setupNetworkCanvas = () => {
+    const canvas = document.querySelector("#network-canvas");
+    const hero = document.querySelector(".hero-section");
+    const context = canvas?.getContext("2d", { alpha: true });
+    if (!canvas || !hero || !context) return;
+
+    let width = 1;
+    let height = 1;
+    let pixelRatio = 1;
+    let particles = [];
+    let frameId = 0;
+    let heroVisible = true;
+    let resizeFrame = 0;
+    const linkDistance = 118;
+
+    const particleCount = () => (window.innerWidth > 768 ? 60 : 30);
+
+    const seedParticles = () => {
+      particles = Array.from({ length: particleCount() }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.42,
+        vy: (Math.random() - 0.5) * 0.42,
+        radius: Math.random() * 1.2 + 0.55,
+      }));
+    };
+
+    const resize = () => {
+      const bounds = hero.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(width * pixelRatio));
+      canvas.height = Math.max(1, Math.floor(height * pixelRatio));
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      seedParticles();
+    };
+
+    const draw = () => {
+      frameId = 0;
+      if (!heroVisible || document.hidden) return;
+
+      context.clearRect(0, 0, width, height);
+      particles.forEach((particle, index) => {
+        if (!reducedMotion.matches) {
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          if (particle.x < 0 || particle.x > width) {
+            particle.vx *= -1;
+            particle.x = Math.min(width, Math.max(0, particle.x));
+          }
+          if (particle.y < 0 || particle.y > height) {
+            particle.vy *= -1;
+            particle.y = Math.min(height, Math.max(0, particle.y));
+          }
+        }
+
+        context.beginPath();
+        context.fillStyle = "rgba(0, 82, 217, 0.72)";
+        context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        context.fill();
+
+        for (let nextIndex = index + 1; nextIndex < particles.length; nextIndex += 1) {
+          const next = particles[nextIndex];
+          const distance = Math.hypot(particle.x - next.x, particle.y - next.y);
+          if (distance > linkDistance) continue;
+          context.beginPath();
+          context.strokeStyle = `rgba(0, 82, 217, ${0.16 * (1 - distance / linkDistance)})`;
+          context.lineWidth = 0.7;
+          context.moveTo(particle.x, particle.y);
+          context.lineTo(next.x, next.y);
+          context.stroke();
+        }
+      });
+
+      if (!reducedMotion.matches) frameId = window.requestAnimationFrame(draw);
+    };
+
+    const scheduleResize = () => {
+      if (resizeFrame) return;
+      resizeFrame = window.requestAnimationFrame(() => {
+        resizeFrame = 0;
+        resize();
+        if (!frameId) draw();
+      });
+    };
+
+    const syncMotion = () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      frameId = 0;
+      resize();
+      draw();
+    };
+
+    resize();
+    draw();
+    window.addEventListener("resize", scheduleResize, { passive: true });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && frameId) {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+      if (!document.hidden && !frameId) draw();
+    });
+    if (typeof reducedMotion.addEventListener === "function") reducedMotion.addEventListener("change", syncMotion);
+    if (typeof ResizeObserver === "function") new ResizeObserver(scheduleResize).observe(hero);
+    if ("IntersectionObserver" in window) {
+      const visibilityObserver = new IntersectionObserver(([entry]) => {
+        heroVisible = entry.isIntersecting;
+        if (heroVisible && !frameId) draw();
+      }, { threshold: 0 });
+      visibilityObserver.observe(hero);
+    }
+  };
+
   const scenarios = {
     r: {
       label: "R cơ bản",
@@ -479,6 +632,9 @@
   setupScenarioTabs();
   setupWorkbenchNav();
   setupMobileNav();
+  setupStickyHeader();
+  setupFloatingToc();
+  setupNetworkCanvas();
   setupRevealObserver();
   setupBackToTop();
   setupConsultationForm();

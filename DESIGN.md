@@ -12,7 +12,7 @@ The previous Research Instrument / Data Observatory visual world is retired. The
 - **Type:** Inter or the system sans stack. Use the monospace stack only for course codes, dates, labels, and compact data values.
 - **Container:** centered desktop shell capped near `1200px`; generous section spacing; white and cool-gray sections alternate.
 - **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. The consultation section uses a blue gradient with a localized white translucent preview card; transparency is localized and has an opaque fallback. Schedule, payment, combination price, and advantage surfaces share a controlled action-blue family. The foundational R/RStudio advantage card leads with a stronger border, surface, and shadow; the remaining cards stay compact and related without unrelated purple/teal accents.
-- **Hero:** light-blue wash and dot pattern are allowed; workbench visuals are built in HTML/CSS and do not depend on external assets.
+- **Hero:** light-blue wash, a faint 76px reference grid, and a restrained linked-particle field are allowed; workbench visuals are built in HTML/CSS and do not depend on external assets.
 - **Content:** all dates, codes, fees, contacts, payment details, faculty facts, and certificate conditions must remain reconciled to the source notices. Missing registration URL/QR stays explicitly unresolved. The registration statement in the promotion strip is user-supplied trust copy, kept at the user’s direction and not treated as a claim extracted from the four course notices.
 - **Heading treatment:** keep the main heading phrase black and apply the blue-to-light-blue gradient only to a short accent phrase in hero and section `h1`/`h2` headings. Card `h3` text and mono labels remain solid colors. The closing black CTA uses the lighter `#9BBCFF → #67E3D2` variant, while the blue consultation surface uses white-to-light-blue text so the accent remains readable. Card surfaces use the separate contrast-safe blue gradient rather than the pale heading endpoint.
 - **Consultation:** the static page opens a native dialog whose visible fields follow the supplied PHP grouping: course, email, split name, gender, birth date, phone, province, work position/unit, degree field, repeatable optional certificate rows, discovery source, and consent. The “Khác” discovery option reveals and requires its detail. PHP-only CAPTCHA/session/hidden endpoint fields are intentionally excluded because this static page has no confirmed backend. It validates locally, preserves entered values, and routes the learner to the real phone contact without claiming submission success.
@@ -31,6 +31,7 @@ The previous Research Instrument / Data Observatory visual world is retired. The
 ## Interaction and motion
 
 - Hero and section reveal: one opacity plus small vertical translation, once per element.
+- Hero atmosphere: the network canvas uses 60 desktop particles or 30 mobile particles, pauses when the hero is out of view or the tab is hidden, and renders a single static frame when reduced motion is requested.
 - Workbench: one slow ambient float and a restrained status indicator; no competing loops.
 - Scenario tabs: keyboard-accessible `role="tablist"`, crossfade/translate around `240ms`, no autoplay.
 - Tab content is driven by the single `scenarios` object in `dist/app.js`; invalid keys fall back to `r`.
@@ -39,6 +40,8 @@ The previous Research Instrument / Data Observatory visual world is retired. The
 - Hover changes border, shadow, and a few pixels of translation. Buttons move the arrow slightly.
 - Consultation form validation keeps entered values, reports invalid fields, and shows the static-site phone fallback without a fake success state.
 - `prefers-reduced-motion: reduce` removes loops and transforms while retaining readable content and active states.
+- Reference-inspired orientation: a compact floating table of contents maps to the existing `#top`, `#programs`, `#schedule`, and `#consultation` sections; it is a glass rail on wide screens and a safe-area-aware bottom bar on narrower screens.
+- The header remains sticky and gains a restrained shadow after scrolling; the hero ends with a white SVG wave to create the same section handoff rhythm as the reference without changing the light product palette.
 - Dialog fallback behavior keeps Escape, focus containment, focus restoration, and scroll locking when native `showModal()` is unavailable. The static form exposes a visible no-JavaScript phone fallback and never claims a backend submission.
 
 ## Responsive and accessibility gates

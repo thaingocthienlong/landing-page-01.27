@@ -10,7 +10,7 @@
     <meta property="og:type" content="website" />
     <title>Phân tích dữ liệu với R | Viện Phương Nam</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260930-ref" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <header class="site-header">
+    <header class="site-header" data-sticky-header>
       <div class="shell header-inner">
         <a class="brand" href="#top" aria-label="Viện Phương Nam, về đầu trang">
           <span class="brand-mark" aria-hidden="true">VP</span>
@@ -48,8 +48,19 @@
       </div>
     </header>
 
+    <nav class="floating-toc" aria-label="Điều hướng nhanh">
+      <ul>
+        <li><a class="floating-toc-link is-active" href="#top" data-toc-target="top" aria-current="location"><span aria-hidden="true">⌂</span><span>Giới thiệu</span></a></li>
+        <li><a class="floating-toc-link" href="#programs" data-toc-target="programs"><span aria-hidden="true">◈</span><span>Khóa học</span></a></li>
+        <li><a class="floating-toc-link" href="#schedule" data-toc-target="schedule"><span aria-hidden="true">▦</span><span>Lộ trình</span></a></li>
+        <li><a class="floating-toc-link floating-toc-cta" href="#consultation" data-toc-target="consultation"><span aria-hidden="true">↗</span><span>Đăng ký</span></a></li>
+      </ul>
+    </nav>
+
     <main id="main-content">
       <section class="hero-section" id="top" aria-labelledby="hero-title">
+        <canvas class="network-canvas" id="network-canvas" aria-hidden="true"></canvas>
+        <div class="hero-grid-overlay" aria-hidden="true"></div>
         <div class="shell hero-grid">
           <div class="hero-copy" data-reveal>
             <p class="eyebrow"><span class="eyebrow-star" aria-hidden="true">✦</span> CHUỖI KHÓA HỌC CHUYÊN GIA</p>
@@ -117,6 +128,11 @@ data |&gt;
             <div class="floating-note floating-note-left"><span class="note-ring" aria-hidden="true"></span><span>R / RStudio<br /><b>08 ngày</b></span></div>
             <div class="floating-note floating-note-right"><span>dữ liệu → mô hình<br /><b>→ quyết định</b></span></div>
           </div>
+        </div>
+        <div class="hero-wave" aria-hidden="true">
+          <svg viewBox="0 0 1440 64" preserveAspectRatio="none" focusable="false">
+            <path d="M0,28 C360,58 1080,0 1440,30 L1440,64 L0,64 Z" fill="currentColor"></path>
+          </svg>
         </div>
       </section>
 
@@ -408,6 +424,6 @@ data |&gt;
       <button type="button" class="floating-action floating-top" data-back-top aria-label="Về đầu trang"><span aria-hidden="true">↑</span></button>
     </div>
 
-    <script src="./app.js" defer></script>
+    <script src="./app.js?v=20260930-ref" defer></script>
   </body>
 </html>
