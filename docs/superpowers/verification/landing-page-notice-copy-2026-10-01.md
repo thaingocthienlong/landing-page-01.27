@@ -56,5 +56,11 @@ Additional browser evidence:
 
 ## Release and rollback
 
-- Product/doc changes are ready for commit; unrelated `.codebase-memory` changes remain untouched.
+- Commit `36028b6` (`Reconcile landing page copy with latest course notice`) contains the product and verification changes; unrelated `.codebase-memory` changes and the source DOCX remain outside the commit.
+- GitHub Pages workflow `36761584309` completed successfully after the push.
+- Public checks returned HTTP 200:
+  - `https://thaingocthienlong.github.io/landing-page-01.27/?v=20261001-notice-copy`
+  - `https://thaingocthienlong.github.io/landing-page-01.27/app.js?v=20261001-notice-copy`
+  - `https://thaingocthienlong.github.io/landing-page-01.27/styles.css?v=20261001-notice-copy`
+- The deployed page title is `Phân tích định lượng với R | Viện Phương Nam`; the public accessibility tree exposes the new deadline, exact course options, six prices, official URL, payment placeholders, and faculty copy.
 - Rollback is `git revert <copy-reconciliation-commit>`; no backend or migration rollback is required.
