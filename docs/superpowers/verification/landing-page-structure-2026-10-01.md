@@ -22,7 +22,7 @@ Dead dialog selector audit                PASS (HTML, CSS, and JS contain no dia
 Browser QA at 1440/1280/768/390px         PASS (no horizontal overflow; centered title; inline form visible after hero)
 Form interaction QA                       PASS (empty required validation, phone grammar, Khác toggle, certificate add/remove, fallback status/data retention)
 Course deep link QA                       PASS (#course-cea selects Chi phí - hiệu quả)
-Public deployment                         PENDING final verification
+Public deployment                         PASS (GitHub Pages workflow 36756512622 succeeded; commit e0ef7d6)
 ```
 
 ## Required browser checks
@@ -40,3 +40,10 @@ Public deployment                         PENDING final verification
 - The 390px screenshot shows the centered title, stacked CTAs, mobile navigation, contact rail, safe-area floating TOC, and the inline form card without overlap.
 - Empty submit exposed the form alert. A 3-digit phone was rejected. Selecting `Khác` made `#consultation-other` visible, enabled, and required; returning to Email hid, disabled, and unrequired it.
 - Adding a certificate created indexes `1` and `2`; removing the second row restored only the first row. A valid local-only check displayed the phone fallback and preserved the entered course and phone values.
+
+## Deployment evidence
+
+- `https://thaingocthienlong.github.io/landing-page-01.27/?v=20261001-structure` returned HTTP 200 and exposes one `h1`, one form, `#registration`, the centered source title, and no dialog markup.
+- `https://thaingocthienlong.github.io/landing-page-01.27/app.js?v=20261001-structure` returned HTTP 200 with no `showModal` or `data-open-consultation` behavior.
+- `https://thaingocthienlong.github.io/landing-page-01.27/styles.css?v=20261001-structure` returned HTTP 200 with no dialog selectors.
+- Public browser AX inspection confirmed the centered hero, inline `consultation-form`, `#registration` before `#programs`, updated header/TOC anchors, and the complete field set.
