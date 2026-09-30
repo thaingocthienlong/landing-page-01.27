@@ -57,11 +57,16 @@ Additional browser evidence:
 
 ## Release and rollback
 
-- Commit `36028b6` (`Reconcile landing page copy with latest course notice`) contains the initial product and verification changes. A follow-up copy-polish commit records the final exact labels, faculty details and form fallback wording; unrelated `.codebase-memory` changes and the source DOCX remain outside both commits.
+- Commit `36028b6` (`Reconcile landing page copy with latest course notice`) contains the initial product and verification changes. Commit `38a3297` records the final exact labels, expanded source-backed faculty details and form fallback wording; commit `fde70c3` adds the explicit Fellow/Australian Academy credential wording. Unrelated `.codebase-memory` changes and the source DOCX remain outside these commits.
 - GitHub Pages workflow `36761584309` completed successfully after the push.
+- The intermediate workflows `36763413095` and `36764483547` were canceled after remaining in the GitHub Pages environment queue; workflow `36766162048` completed successfully for the final product commit.
 - Public checks returned HTTP 200:
   - `https://thaingocthienlong.github.io/landing-page-01.27/?v=20261001-notice-copy`
   - `https://thaingocthienlong.github.io/landing-page-01.27/app.js?v=20261001-notice-copy`
   - `https://thaingocthienlong.github.io/landing-page-01.27/styles.css?v=20261001-notice-copy`
+- Final cache-busted checks for `fde70c3` returned HTTP 200:
+  - `https://thaingocthienlong.github.io/landing-page-01.27/?v=20261001-final-fde70c3`
+  - `https://thaingocthienlong.github.io/landing-page-01.27/app.js?v=20261001-final-fde70c3`
+  - `https://thaingocthienlong.github.io/landing-page-01.27/styles.css?v=20261001-final-fde70c3`
 - The deployed page title is `Phân tích định lượng với R | Viện Phương Nam`; the public accessibility tree exposes the new deadline, exact course options, six prices, official URL, payment placeholders, and faculty copy.
-- Rollback is `git revert <copy-reconciliation-commit>` followed by `git revert <copy-polish-commit>` when both releases must be reversed; no backend or migration rollback is required.
+- Rollback is `git revert fde70c3 38a3297 36028b6` for the product reconciliation commits; no backend or migration rollback is required.
