@@ -23,7 +23,7 @@
       },
       "heading-gradient-end": {
         "role": "heading-accent-end",
-        "hex": "#B8D5FB"
+        "hex": "#5A8ED9"
       },
       "heading-gradient-dark-start": {
         "role": "dark-cta-heading-start",
@@ -39,7 +39,7 @@
       },
       "surface-gradient-end": {
         "role": "contrast-safe-blue-surface-end",
-        "hex": "#2E73CF"
+        "hex": "#0B72B1"
       },
       "white": {
         "role": "primary-surface",
@@ -179,11 +179,19 @@
     },
     {
       "name": "Surface hierarchy",
-      "body": "Use the shared contrast-safe blue gradient (#0052D9 to #2E73CF) for schedule, payment, combination price cards, and advantage icons; use a light blue wash for the four advantage cards. Reserve translucent white surfaces for the consultation preview and keep other content surfaces opaque."
+      "body": "Use the shared contrast-safe blue gradient (#0052D9 to #0B72B1) for schedule, payment, combination price cards, and advantage surfaces; use a light blue wash for the four advantage cards. Reserve translucent white surfaces for the consultation preview and keep other content surfaces opaque."
     },
     {
       "name": "Accent scope",
       "body": "Keep the pale blue heading gradient limited to short heading accent phrases. Do not reuse its light endpoint for white card text; use the documented surface gradient so schedule, pricing, payment, and advantage content remains readable."
+    },
+    {
+      "name": "Advantage hierarchy",
+      "body": "The foundational R/RStudio practice card leads the sequence with a stronger border, surface, and shadow; the remaining three cards remain compact follow-on choices."
+    },
+    {
+      "name": "Contrast and fallback",
+      "body": "Use contrast-safe endpoints for headings and white text on blue surfaces, keep focus rings visible on both light and blue backgrounds, and preserve a visible phone fallback when JavaScript or native dialog APIs are unavailable."
     },
     {
       "name": "User-supplied trust line",

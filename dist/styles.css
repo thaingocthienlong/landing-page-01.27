@@ -13,11 +13,12 @@
   --black: #000000;
   --green: #087f68;
   --heading-gradient-start: #0052d9;
-  --heading-gradient-end: #b8d5fb;
+  /* The light end stays saturated enough for large display headings on white. */
+  --heading-gradient-end: #5a8ed9;
   --heading-gradient-dark-start: #9bbcff;
   --heading-gradient-dark-end: #67e3d2;
   --surface-gradient-start: #0052d9;
-  --surface-gradient-end: #2e73cf;
+  --surface-gradient-end: #0b72b1;
   --shell: 1200px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --sans: Inter, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -276,7 +277,10 @@ h3 {
 }
 
 .primary-nav > a:not(.nav-cta) {
-  padding: 22px 14px;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 14px;
   transition: color 180ms var(--ease), background-color 180ms var(--ease);
 }
 
@@ -480,10 +484,14 @@ h3 {
   transition: transform 180ms var(--ease);
 }
 
-.button-primary:hover,
-.button-primary:focus-visible {
+.button-primary:hover {
   background: var(--blue-deep);
   box-shadow: 0 6px 16px rgba(0, 82, 217, 0.2);
+}
+
+.button-primary:focus-visible {
+  background: var(--blue-deep);
+  box-shadow: 0 0 0 5px var(--blue-deep);
 }
 
 .button-primary:hover span,
@@ -633,7 +641,7 @@ h3 {
 
 .workbench-nav {
   display: flex;
-  min-height: 32px;
+  min-height: 44px;
   align-items: center;
   gap: 7px;
   padding: 0 8px;
@@ -856,7 +864,7 @@ h3 {
 }
 
 .scenario-tab {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 24px;
   border: 0;
   color: #56606d;
@@ -880,7 +888,7 @@ h3 {
 .scenario-panel {
   display: grid;
   min-height: 462px;
-  grid-template-columns: minmax(260px, 0.78fr) minmax(500px, 1.22fr);
+  grid-template-columns: minmax(240px, 0.78fr) minmax(0, 1.22fr);
   align-items: center;
   gap: clamp(36px, 7vw, 100px);
 }
@@ -1285,8 +1293,7 @@ h3 {
   gap: 10px;
   padding: 28px 34px;
   border-left: 1px solid var(--line);
-  background-image: radial-gradient(rgba(0, 82, 217, 0.15) 1px, transparent 1px);
-  background-size: 16px 16px;
+  background: #f4f8ff;
 }
 
 .discount-stack > div {
@@ -1440,8 +1447,7 @@ h3 {
   box-shadow: 0 9px 22px rgba(32, 56, 96, 0.05);
 }
 
-.value-icon,
-.advantage-icon {
+.value-icon {
   display: grid;
   width: 42px;
   height: 42px;
@@ -1457,15 +1463,19 @@ h3 {
   background: var(--blue);
 }
 
-/* Keep all four learning advantages in the same action-blue family. The
-   legacy modifier classes remain in the markup for compatibility, but no
-   purple, green, or teal accent is used in this component. */
-.advantage-icon,
-.advantage-icon.blue,
-.advantage-icon.purple,
-.advantage-icon.green,
-.advantage-icon.teal {
-  background: linear-gradient(135deg, var(--surface-gradient-start), var(--surface-gradient-end));
+.advantage-index {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  margin-bottom: 28px;
+  border: 1px solid var(--blue);
+  color: var(--blue-deep);
+  background: var(--white);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .value-card p,
@@ -1489,24 +1499,23 @@ h3 {
   min-height: 252px;
   padding: 28px 28px 24px;
   border: 1px solid var(--line);
-  background:
-    radial-gradient(rgba(0, 82, 217, 0.13) 1px, transparent 1px),
-    var(--white);
-  background-size: 15px 15px;
-  background-position: right 12px top 12px;
+  background: linear-gradient(145deg, #fafdff 0%, #eaf2ff 100%);
 }
 
 .advantage-card h3 {
   max-width: 15ch;
 }
 
-/* A quiet blue wash keeps the four learning cards related to the blue
-   surfaces without turning the whole section into a saturated panel. */
 .advantage-card {
   border-color: #c9daf4;
-  background:
-    radial-gradient(rgba(0, 82, 217, 0.13) 1px, transparent 1px),
-    linear-gradient(145deg, #fafdff 0%, #eaf2ff 100%);
+}
+
+/* Practice with R/RStudio is the foundation of the sequence, so it leads
+   the grid while the three follow-on cards retain equal treatment. */
+.advantage-card:first-child {
+  background: linear-gradient(145deg, #f4f9ff 0%, #dbeaff 100%);
+  border-color: #8db5e8;
+  box-shadow: 0 12px 28px rgba(0, 59, 154, 0.1);
 }
 
 .skills-grid {
@@ -1619,7 +1628,7 @@ h3 {
   padding: 86px 0 92px;
   background:
     radial-gradient(circle at 84% 24%, rgba(255, 255, 255, 0.28), transparent 28%),
-    linear-gradient(118deg, #0b63e5 0%, #2d8bf2 47%, #74b6ff 100%);
+    linear-gradient(118deg, #0757d8 0%, #126fcf 52%, #1f5db7 100%);
 }
 
 .consultation-section::before,
@@ -1656,11 +1665,11 @@ h3 {
 }
 
 .consultation-copy {
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--white);
 }
 
 .consultation-copy .section-label {
-  color: #d5e8ff;
+  color: var(--white);
   background: rgba(0, 45, 135, 0.24);
 }
 
@@ -1670,13 +1679,13 @@ h3 {
 }
 
 .consultation-copy .heading-accent {
-  background-image: linear-gradient(100deg, #ffffff 0%, #a9f0ec 100%);
+  background-image: linear-gradient(100deg, #ffffff 0%, #dff2ff 100%);
   color: #ffffff;
 }
 
 .consultation-copy > p:not(.section-label):not(.consultation-note) {
   max-width: 47ch;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--white);
   line-height: 1.7;
 }
 
@@ -1714,7 +1723,7 @@ h3 {
 
 .consultation-contact span:not(.consultation-contact-mark),
 .consultation-note {
-  color: rgba(255, 255, 255, 0.76);
+  color: #eaf5ff;
   font-size: 12px;
   line-height: 1.55;
 }
@@ -1722,22 +1731,6 @@ h3 {
 .consultation-note {
   max-width: 48ch;
   margin: 20px 0 0;
-}
-
-.consultation-card {
-  min-width: 0;
-  padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.74);
-  background: #f8fbff;
-  box-shadow: 0 22px 54px rgba(0, 45, 135, 0.2);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .consultation-card {
-    background: rgba(255, 255, 255, 0.88);
-  }
 }
 
 .consultation-form {
@@ -1807,8 +1800,9 @@ h3 {
 .form-field textarea:focus {
   border-color: var(--blue);
   background: var(--white);
-  outline: 0;
-  box-shadow: 0 0 0 3px rgba(0, 82, 217, 0.14);
+  outline: 3px solid var(--blue-deep);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .consultation-modes {
@@ -2110,8 +2104,10 @@ h3 {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(0, 82, 217, 0.4);
-  outline-offset: 3px;
+  /* A two-tone ring remains visible on white cards and blue surfaces. */
+  outline: 3px solid var(--white);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--blue-deep);
 }
 
 @media (max-width: 1100px) {
@@ -2153,6 +2149,12 @@ h3 {
 @media (max-width: 900px) {
   .shell {
     width: min(var(--shell), calc(100% - 36px));
+  }
+
+  /* Reserve the fixed contact rail on tablet widths as well as phones. */
+  main > section > .shell,
+  .site-footer > .shell {
+    padding-right: 62px;
   }
 
   .header-inner {
@@ -2220,10 +2222,6 @@ h3 {
     max-width: 680px;
   }
 
-  .consultation-grid {
-    padding-right: 62px;
-  }
-
   .scenario-copy h3 {
     max-width: 22ch;
   }
@@ -2238,13 +2236,6 @@ h3 {
 }
 
 @media (max-width: 640px) {
-  .faq-shell,
-  .cta-inner,
-  .consultation-grid,
-  .site-footer .shell {
-    padding-right: 62px;
-  }
-
   .site-footer {
     padding-bottom: 74px;
   }
@@ -2313,7 +2304,6 @@ h3 {
   .hero-actions {
     align-items: stretch;
     flex-direction: column;
-    padding-right: 62px;
   }
 
   .hero-actions .button {
@@ -2365,7 +2355,7 @@ h3 {
   }
 
   .workbench-nav {
-    min-height: 34px;
+    min-height: 44px;
     justify-content: center;
     padding: 0 3px;
     font-size: 8px;
@@ -2417,6 +2407,7 @@ h3 {
 
   .scenario-tab {
     flex: 0 0 auto;
+    min-height: 44px;
     padding-inline: 17px;
     font-size: 11px;
   }
@@ -2476,17 +2467,6 @@ h3 {
 
   .consultation-section {
     padding: 62px 0 70px;
-  }
-
-  .consultation-card {
-    padding: 22px 18px;
-    background: #f8fbff;
-  }
-
-  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    .consultation-card {
-      background: rgba(255, 255, 255, 0.94);
-    }
   }
 
   .form-grid {
@@ -2594,7 +2574,6 @@ h3 {
   .cta-actions {
     align-items: stretch;
     flex-direction: column;
-    padding-right: 62px;
   }
 
   .cta-actions .button {
@@ -2652,7 +2631,7 @@ h3 {
 /* Feedback round: source-led surfaces, readable hero and modal consultation flow. */
 .promo-accent {
   color: var(--blue-deep);
-  background: linear-gradient(100deg, var(--heading-gradient-start), var(--heading-gradient-end));
+  background: linear-gradient(100deg, var(--blue-deep), #1f56a6);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2692,7 +2671,7 @@ h3 {
 
 .schedule-date small,
 .schedule-row div span {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--white);
 }
 
 .schedule-foot {
@@ -2762,7 +2741,7 @@ h3 {
 }
 
 .payment-label {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--white);
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.12em;
@@ -2778,7 +2757,7 @@ h3 {
 .payment-note {
   margin: 0;
   padding: 17px 22px;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--white);
   background: rgba(0, 31, 91, 0.2);
   font-size: 12px;
   line-height: 1.6;
@@ -2830,6 +2809,31 @@ h3 {
   border: 0;
   background: transparent;
   color: var(--ink);
+}
+
+/* The static fallback mirrors the native dialog without relying on ::backdrop. */
+body.dialog-open {
+  overflow: hidden;
+}
+
+.consultation-dialog.is-fallback-open {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 14px;
+  place-items: center;
+  background: rgba(6, 21, 51, 0.58);
+}
+
+.consultation-dialog.is-fallback-open .consultation-modal {
+  width: min(900px, 100%);
+  max-height: calc(100vh - 28px);
 }
 
 .consultation-dialog::backdrop {
@@ -2890,6 +2894,16 @@ h3 {
   padding: 0;
 }
 
+.form-noscript {
+  margin-top: 20px;
+  padding: 12px 14px;
+  border: 1px solid #9ab9e8;
+  color: var(--blue-deep);
+  background: #edf4ff;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 900px) {
   .payment-grid {
     grid-template-columns: 1fr;
@@ -2910,11 +2924,6 @@ h3 {
 
   .payment-section {
     padding: 64px 0;
-  }
-
-  .payment-grid,
-  .consultation-grid {
-    padding-right: 62px;
   }
 
   .payment-card > div,
@@ -2992,10 +3001,6 @@ h3 {
     font-size: 9px;
   }
 }
-.promo-accent {
-  background-image: linear-gradient(100deg, var(--blue-deep) 0%, var(--surface-gradient-end) 100%);
-}
-
 .schedule-date small,
 .schedule-row div span,
 .payment-label,
@@ -3006,6 +3011,13 @@ h3 {
   /* Reserve the fixed contact rail's lane so content never sits beneath it. */
   .shell {
     width: min(var(--shell), calc(100% - 120px));
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  main > section > .shell,
+  .site-footer > .shell {
+    padding-right: 62px;
   }
 }
 
@@ -3038,23 +3050,39 @@ h3 {
   }
 }
 
-.section-command {
-  display: flex;
-  justify-content: center;
-  margin: 14px auto 0;
+@media (min-width: 641px) and (max-width: 900px) {
+  /* Keep the long institutional line readable at tablet widths instead of
+     letting nowrap text run into the consultation link. */
+  .promo-inner {
+    flex-wrap: wrap;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .promo-inner > span {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+
+  .promo-inner > span strong {
+    white-space: normal;
+  }
+
+  .promo-inner > a {
+    margin-left: auto;
+  }
 }
 
-.section-command code {
-  display: inline-block;
-  max-width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--line-strong);
-  color: #43516a;
-  background: #edf3ff;
-  font-family: var(--mono);
-  font-size: 10px;
-  line-height: 1.5;
-  text-align: left;
+.section-command {
+  max-width: 70ch;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: center;
+  text-wrap: balance;
+  margin: 14px auto 0;
 }
 
 .radio-row label,
@@ -3142,10 +3170,7 @@ h3 {
 
   .section-command {
     margin-top: 10px;
-  }
-
-  .section-command code {
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .certificate-row {

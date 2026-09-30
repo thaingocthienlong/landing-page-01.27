@@ -18,7 +18,7 @@
     <div class="promo-bar">
       <div class="shell promo-inner">
         <span><strong class="promo-accent">Viện phát triển nguồn lực xã hội Phương Nam hoạt động theo số đăng ký: A - 2619/Bộ Khoa Học và Công Nghệ</strong><span class="promo-divider" aria-hidden="true"></span>Hạn đăng ký và thanh toán: 25/12/2026</span>
-        <a href="#consultation">Đăng ký tư vấn <span aria-hidden="true">→</span></a>
+        <a href="#consultation" data-open-consultation>Đăng ký tư vấn <span aria-hidden="true">→</span></a>
       </div>
     </div>
 
@@ -43,7 +43,7 @@
           <a href="#tuition">Học phí</a>
           <a href="#faculty">Báo cáo viên</a>
           <a href="#consultation">Liên hệ</a>
-          <a class="nav-cta" href="#consultation">Đăng ký tư vấn <span aria-hidden="true">→</span></a>
+          <a class="nav-cta" href="#consultation" data-open-consultation>Đăng ký tư vấn <span aria-hidden="true">→</span></a>
         </nav>
       </div>
     </header>
@@ -64,7 +64,7 @@
 
             <div class="hero-actions">
               <a class="button button-primary" href="#programs">Xem lộ trình <span aria-hidden="true">→</span></a>
-              <a class="button button-secondary" href="#consultation" data-open-consultation>Liên hệ xác nhận chỗ</a>
+              <a class="button button-secondary" href="#consultation" data-open-consultation>Đăng ký tư vấn</a>
             </div>
             <p class="hero-note"><span class="status-dot" aria-hidden="true"></span> 08–16/01/2027 · Viện Phương Nam · R / RStudio</p>
             <p class="hero-schedule">Học trực tiếp tại Viện Phương Nam hoặc trực tuyến qua Zoom · 08:30–12:00 · 13:30–17:00 · riêng ngày 08/01 bắt đầu lúc 08:00</p>
@@ -88,7 +88,7 @@
                   <button type="button" class="workbench-nav" data-workbench-nav="schedule" aria-pressed="false"><span class="nav-icon" aria-hidden="true">▦</span>Lịch học</button>
                   <span class="workbench-sidebar-rule" aria-hidden="true"></span>
                   <span class="workbench-sidebar-label">LỊCH HỌC</span>
-                  <span class="workbench-sidebar-date">08—16.01.27</span>
+                  <span class="workbench-sidebar-date">08–16.01.27</span>
                 </nav>
                 <div class="workbench-main">
                   <div class="workbench-topline"><span data-workbench-label>Tình huống / R cơ bản</span><span class="live-pill"><i></i> Minh họa</span></div>
@@ -198,9 +198,9 @@ data |&gt;
             <p>Ba khóa học có tính liên kết, với mục tiêu và đối tượng riêng.</p>
           </div>
           <div class="schedule-card" data-reveal data-reveal-delay="1">
-            <div class="schedule-row"><span class="schedule-date">08—10<br /><small>THÁNG 01</small></span><div><strong>R cơ bản</strong><span>PTCBR01.27 · 03 ngày</span></div><i aria-hidden="true">→</i></div>
-            <div class="schedule-row"><span class="schedule-date">12—13<br /><small>THÁNG 01</small></span><div><strong>Chi phí - hiệu quả</strong><span>PTHQR01.27 · 02 ngày</span></div><i aria-hidden="true">→</i></div>
-            <div class="schedule-row"><span class="schedule-date">14—16<br /><small>THÁNG 01</small></span><div><strong>Chuỗi thời gian</strong><span>PTTGR01.27 · 03 ngày</span></div><i aria-hidden="true">→</i></div>
+            <div class="schedule-row"><span class="schedule-date">08–10<br /><small>THÁNG 01</small></span><div><strong>R cơ bản</strong><span>PTCBR01.27 · 03 ngày</span></div><i aria-hidden="true">→</i></div>
+            <div class="schedule-row"><span class="schedule-date">12–13<br /><small>THÁNG 01</small></span><div><strong>Chi phí - hiệu quả</strong><span>PTHQR01.27 · 02 ngày</span></div><i aria-hidden="true">→</i></div>
+            <div class="schedule-row"><span class="schedule-date">14–16<br /><small>THÁNG 01</small></span><div><strong>Chuỗi thời gian</strong><span>PTTGR01.27 · 03 ngày</span></div><i aria-hidden="true">→</i></div>
             <div class="schedule-foot"><span>08:30–12:00 · 13:30–17:00</span><span>Ngày đầu tiên: 08:00</span></div>
           </div>
         </div>
@@ -210,7 +210,7 @@ data |&gt;
         <div class="shell">
           <div class="section-heading centered" data-reveal>
             <h2 id="pricing-title">Học phí theo <span class="heading-accent">tổ hợp khóa học</span>.</h2>
-            <p class="section-command"><code>Học phí được niêm yết theo từng tổ hợp khóa học trong Thông báo số 10/2026/TB-VPN.</code></p>
+            <p class="section-command">Thông báo số 10/2026/TB-VPN niêm yết học phí theo từng tổ hợp khóa học.</p>
           </div>
 
           <article class="featured-price" data-reveal>
@@ -252,10 +252,10 @@ data |&gt;
             <h2 id="advantages-title">Các điều kiện và <span class="heading-accent">cách học</span>.</h2>
           </div>
           <div class="advantage-grid" data-reveal>
-            <article class="advantage-card"><span class="advantage-icon purple">▣</span><h3>Thực hành với R/RStudio</h3><p>Học qua thực hành trực tiếp trên R và RStudio; hướng dẫn cài đặt sẽ được gửi trước ngày khai giảng.</p></article>
-            <article class="advantage-card"><span class="advantage-icon blue">◎</span><h3>Lộ trình liên kết</h3><p>R cơ bản là nền tảng phù hợp cho hai khóa học chuyên sâu tiếp theo.</p></article>
-            <article class="advantage-card"><span class="advantage-icon green">⌁</span><h3>Hai hình thức học</h3><p>Học trực tiếp tại Viện Phương Nam hoặc tham gia trực tuyến qua Zoom.</p></article>
-            <article class="advantage-card"><span class="advantage-icon teal">✓</span><h3>Tài liệu theo tổ hợp</h3><p>Tài liệu slide bản in, giấy chứng nhận hoàn thành từng mô-đun học và sách được áp dụng theo đúng tổ hợp.</p></article>
+            <article class="advantage-card"><span class="advantage-index" aria-hidden="true">01</span><h3>Thực hành với R/RStudio</h3><p>Học qua thực hành trực tiếp trên R và RStudio; Viện Phương Nam sẽ gửi hướng dẫn cài đặt trước ngày khai giảng.</p></article>
+            <article class="advantage-card"><span class="advantage-index" aria-hidden="true">02</span><h3>Lộ trình liên kết</h3><p>R cơ bản là nền tảng phù hợp cho hai khóa học chuyên sâu tiếp theo.</p></article>
+            <article class="advantage-card"><span class="advantage-index" aria-hidden="true">03</span><h3>Hai hình thức học</h3><p>Học trực tiếp tại Viện Phương Nam hoặc tham gia trực tuyến qua Zoom.</p></article>
+            <article class="advantage-card"><span class="advantage-index" aria-hidden="true">04</span><h3>Tài liệu theo tổ hợp</h3><p>Từng tổ hợp gồm tài liệu slide bản in, giấy chứng nhận hoàn thành từng mô-đun học và sách theo thông báo.</p></article>
           </div>
         </div>
       </section>
@@ -282,7 +282,7 @@ data |&gt;
         <div class="shell faculty-grid">
           <div class="section-heading" data-reveal>
             <h2 id="faculty-title">Báo cáo viên và <span class="heading-accent">chuyên môn</span>.</h2>
-            <p>Thông tin báo cáo viên được trích theo Thông báo số 10/2026/TB-VPN.</p>
+            <p>Thông báo số 10/2026/TB-VPN nêu thông tin báo cáo viên.</p>
           </div>
           <div class="faculty-list" data-reveal data-reveal-delay="1">
             <article class="faculty-card"><span class="faculty-index">01</span><div><p class="faculty-role">GS.TS.</p><h3>Nguyễn Văn Tuấn</h3><p>GS.TS. Nguyễn Văn Tuấn hiện công tác tại Đại học Công nghệ Sydney (UTS) và Đại học New South Wales (UNSW Sydney).</p></div></article>
@@ -297,12 +297,12 @@ data |&gt;
             <h2 id="faq-title">Câu hỏi thường gặp <span class="heading-accent">trước khi đăng ký</span>.</h2>
           </div>
           <div class="faq-list" data-reveal>
-            <details><summary>Ai phù hợp với từng khóa? <span aria-hidden="true">+</span></summary><p>R cơ bản dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên, người làm đề tài và người mới R. Phân tích chi phí - hiệu quả dành cho những người làm việc trong lĩnh vực y tế và dược phẩm, nghiên cứu y tế và kinh tế y tế, dược phẩm và công nghệ y tế. Phân tích dữ liệu chuỗi thời gian với R dành cho các nhà nghiên cứu, nghiên cứu sinh, giảng viên và những người làm việc với dữ liệu được ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật và khoa học xã hội.</p></details>
-            <details><summary>Khóa R cơ bản có yêu cầu biết lập trình trước không? <span aria-hidden="true">+</span></summary><p>Không cần kinh nghiệm lập trình trước đó. Hướng dẫn cài đặt R, RStudio và các gói cần thiết sẽ được gửi trước ngày khai giảng.</p></details>
+            <details><summary>Ai phù hợp với từng khóa? <span aria-hidden="true">+</span></summary><p>R cơ bản dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên, người làm đề tài và người mới R. Phân tích chi phí - hiệu quả dành cho những người làm việc trong lĩnh vực y tế và dược phẩm, nghiên cứu y tế và kinh tế y tế, dược phẩm và công nghệ y tế. Phân tích dữ liệu chuỗi thời gian với R dành cho các nhà nghiên cứu, nghiên cứu sinh, giảng viên và những người làm việc với dữ liệu ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật và khoa học xã hội.</p></details>
+            <details><summary>Khóa R cơ bản có yêu cầu biết lập trình trước không? <span aria-hidden="true">+</span></summary><p>Không cần kinh nghiệm lập trình trước đó. Viện Phương Nam sẽ gửi hướng dẫn cài đặt R, RStudio và các gói cần thiết trước ngày khai giảng.</p></details>
             <details><summary>Có thể học trực tiếp hoặc trực tuyến qua Zoom như thế nào? <span aria-hidden="true">+</span></summary><p>Thông báo chính thức cho phép học trực tiếp tại Viện Phương Nam hoặc trực tuyến qua Zoom. Lịch mỗi ngày gồm 08:30–12:00 và 13:30–17:00; riêng ngày đầu tiên bắt đầu lúc 08:00.</p></details>
-            <details><summary>Học phí và điều kiện giảm giá ra sao? <span aria-hidden="true">+</span></summary><p>Học phí được niêm yết theo từng tổ hợp ở phần Học phí. Các mức 5%, 10% và 15% chỉ áp dụng theo điều kiện tương ứng; ô chưa có trong thông báo giữ nguyên là chưa công bố.</p></details>
+            <details><summary>Học phí và điều kiện giảm giá ra sao? <span aria-hidden="true">+</span></summary><p>Thông báo số 10/2026/TB-VPN niêm yết học phí theo từng tổ hợp ở phần Học phí. Các mức 5%, 10% và 15% chỉ áp dụng theo điều kiện tương ứng; ô chưa có trong thông báo giữ nguyên là chưa công bố.</p></details>
             <details><summary>Khóa riêng có được cấp giấy chứng nhận hoàn thành khóa học không? <span aria-hidden="true">+</span></summary><p>Khóa 2 hoặc khóa 3 đăng ký riêng không cấp giấy chứng nhận hoàn thành, chỉ có tài liệu slide bản in. Các tổ hợp có tài liệu slide bản in từng khóa, giấy chứng nhận từng mô-đun và sách có chữ ký.</p></details>
-            <details><summary>Đăng ký và thanh toán qua đâu khi thông báo chưa có URL/QR? <span aria-hidden="true">+</span></summary><p>Thông báo nguồn chưa công bố URL đăng ký hoặc mã QR. Vui lòng gọi Viện Phương Nam để xác nhận chỗ, tổ hợp khóa, ưu đãi và thông tin chuyển khoản trước khi thanh toán.</p></details>
+            <details><summary>Đăng ký và thanh toán qua đâu khi thông báo chưa có URL/QR? <span aria-hidden="true">+</span></summary><p>Thông báo chính thức chưa công bố URL đăng ký hoặc mã QR. Vui lòng gọi Viện Phương Nam để xác nhận chỗ, tổ hợp khóa, ưu đãi và thông tin chuyển khoản trước khi thanh toán.</p></details>
           </div>
         </div>
       </section>
@@ -327,7 +327,7 @@ data |&gt;
         <div class="shell consultation-grid">
           <div class="consultation-copy" data-reveal>
             <h2 id="consultation-title">Nhận thông tin <span class="heading-accent">đăng ký khóa học</span>.</h2>
-            <p>Thông báo nguồn chưa công bố URL đăng ký hoặc mã QR. Gọi Viện Phương Nam để xác nhận chỗ, tổ hợp khóa, ưu đãi và thông tin chuyển khoản.</p>
+            <p>Thông báo chính thức chưa công bố URL đăng ký hoặc mã QR. Gọi Viện Phương Nam để xác nhận chỗ, tổ hợp khóa, ưu đãi và thông tin chuyển khoản.</p>
             <div class="consultation-contact">
               <span class="consultation-contact-mark" aria-hidden="true">↗</span>
               <div><strong>Liên hệ đăng ký trực tiếp</strong><span>Viện Phương Nam · 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</span><span>(028) 2242 6789 · 0949 761 636 (Cô Vy) · 0912 114 511 (Cô Thảo)</span></div>
@@ -341,12 +341,13 @@ data |&gt;
             <button class="inline-action consultation-preview-action" type="button" data-open-consultation>Đăng ký tư vấn <span aria-hidden="true">→</span></button>
           </div>
         </div>
+        <noscript><p class="form-noscript shell">JavaScript đang tắt. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để đăng ký tư vấn.</p></noscript>
       </section>
 
-      <dialog class="consultation-dialog" id="consultation-dialog" aria-labelledby="consultation-dialog-title" aria-describedby="consultation-modal-note">
+      <dialog class="consultation-dialog" id="consultation-dialog" role="dialog" aria-modal="true" aria-labelledby="consultation-dialog-title" aria-describedby="consultation-modal-note">
         <div class="consultation-modal">
           <div class="consultation-modal-head"><div><span class="preview-kicker">Thông tin đăng ký</span><h2 id="consultation-dialog-title">Đăng ký <span class="heading-accent">tư vấn khóa học</span>.</h2></div><button class="dialog-close" type="button" data-close-consultation aria-label="Đóng biểu mẫu">×</button></div>
-          <p class="modal-note" id="consultation-modal-note">Các nhóm trường chính được đối chiếu với mẫu PHP. Trang giới thiệu tĩnh chưa kết nối bộ xử lý đăng ký trực tuyến; sau khi kiểm tra thông tin, vui lòng gọi Viện để xác nhận.</p>
+          <p class="modal-note" id="consultation-modal-note">Biểu mẫu trong thông báo là căn cứ cho các nhóm trường chính. Trang giới thiệu tĩnh chưa kết nối bộ xử lý đăng ký trực tuyến; sau khi kiểm tra thông tin, vui lòng gọi Viện để xác nhận.</p>
           <form id="consultation-form" class="consultation-form" novalidate>
             <div class="form-grid">
               <div class="form-field form-field-wide"><label for="consultation-course">Khóa học quan tâm <span class="required-mark" aria-hidden="true">*</span></label><select id="consultation-course" name="course_id" required aria-describedby="consultation-error"><option value="" selected disabled>Chọn khóa học</option><option value="PTCBR01.27">Khóa học “Phân tích dữ liệu với R cơ bản” · PTCBR01.27</option><option value="PTHQR01.27">Khóa học “Phân tích chi phí - hiệu quả” · PTHQR01.27</option><option value="PTTGR01.27">Khóa học “Phân tích dữ liệu chuỗi thời gian với R” · PTTGR01.27</option></select></div>
@@ -354,8 +355,8 @@ data |&gt;
               <div class="form-field"><label for="consultation-holot">Họ và chữ lót <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-holot" name="ho_lot" type="text" autocomplete="additional-name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn" required aria-describedby="consultation-error" /></div>
               <div class="form-field"><label for="consultation-ten">Tên <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-ten" name="ten" type="text" autocomplete="given-name" maxlength="50" placeholder="Ví dụ: An" required aria-describedby="consultation-error" /></div>
               <fieldset class="form-field form-field-wide consultation-modes"><legend>Giới tính <span class="required-mark" aria-hidden="true">*</span></legend><div class="radio-row"><label><input type="radio" name="gioi_tinh" value="Nam" required /> Nam</label><label><input type="radio" name="gioi_tinh" value="Nữ" /> Nữ</label></div></fieldset>
-              <div class="form-field"><label for="consultation-birth">Ngày sinh <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-birth" name="ngay_sinh" type="text" autocomplete="bday" placeholder="Ví dụ: 01/01/1990" required aria-describedby="consultation-error" /></div>
-              <div class="form-field"><label for="consultation-phone">Số điện thoại <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-phone" name="phoneregister" type="tel" inputmode="tel" autocomplete="tel" pattern="(?:[0-9][\s\-+().]*){9,11}" maxlength="20" required aria-describedby="consultation-error" /></div>
+              <div class="form-field"><label for="consultation-birth">Ngày sinh <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-birth" name="ngay_sinh" type="text" inputmode="numeric" autocomplete="bday" placeholder="Ví dụ: 01/01/1990" pattern="(?:0[1-9]|[12][0-9]|3[01])\/(?:0[1-9]|1[0-2])\/[0-9]{4}" maxlength="10" required aria-describedby="consultation-error" /></div>
+              <div class="form-field"><label for="consultation-phone">Số điện thoại <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-phone" name="phoneregister" type="tel" inputmode="tel" autocomplete="tel" pattern="(?:[0-9][\s-]*){9,11}" maxlength="20" required aria-describedby="consultation-error" /></div>
               <div class="form-field form-field-wide"><label for="consultation-province">Tỉnh/Thành phố (sau sáp nhập) đang sinh sống/làm việc <span class="required-mark" aria-hidden="true">*</span></label><select id="consultation-province" name="tinh_thanh" required aria-describedby="consultation-error"><option value="" selected disabled>Chọn tỉnh/thành từ danh sách</option><option>Tỉnh Tuyên Quang</option><option>Tỉnh Lào Cai</option><option>Tỉnh Thái Nguyên</option><option>Tỉnh Phú Thọ</option><option>Tỉnh Bắc Ninh</option><option>Tỉnh Hưng Yên</option><option>Thành phố Hải Phòng</option><option>Tỉnh Ninh Bình</option><option>Tỉnh Quảng Trị</option><option>Thành phố Đà Nẵng</option><option>Tỉnh Quảng Ngãi</option><option>Tỉnh Gia Lai</option><option>Tỉnh Khánh Hoà</option><option>Tỉnh Lâm Đồng</option><option>Tỉnh Đắk Lắk</option><option>Thành phố Hồ Chí Minh</option><option>Tỉnh Đồng Nai</option><option>Tỉnh Tây Ninh</option><option>Thành phố Cần Thơ</option><option>Tỉnh Vĩnh Long</option><option>Tỉnh Đồng Tháp</option><option>Tỉnh Cà Mau</option><option>Tỉnh An Giang</option><option>Thành phố Hà Nội</option><option>Thành phố Huế</option><option>Tỉnh Lai Châu</option><option>Tỉnh Điện Biên</option><option>Tỉnh Sơn La</option><option>Tỉnh Lạng Sơn</option><option>Tỉnh Quảng Ninh</option><option>Tỉnh Thanh Hoá</option><option>Tỉnh Nghệ An</option><option>Tỉnh Hà Tĩnh</option><option>Tỉnh Cao Bằng</option></select></div>
               <div class="form-field"><label for="consultation-position">Vị trí công tác (Khoa/Phòng/Ban) <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-position" name="vi_tri" type="text" maxlength="200" required aria-describedby="consultation-error" /></div>
               <div class="form-field"><label for="consultation-workplace">Đơn vị công tác <span class="required-mark" aria-hidden="true">*</span></label><input id="consultation-workplace" name="don_vi" type="text" maxlength="200" required aria-describedby="consultation-error" /></div>

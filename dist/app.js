@@ -80,7 +80,7 @@
       topicCount: "08",
       level: "Chuyên sâu",
       title: "Nhận diện, xây dựng và đánh giá mô hình dự báo chuỗi thời gian.",
-      description: "Dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu được ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật, khoa học xã hội và các lĩnh vực liên quan.",
+      description: "Dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật, khoa học xã hội và các lĩnh vực liên quan.",
       prompt: "Kiểm tra tính dừng, đọc ACF/ADF và so sánh độ chính xác dự báo.",
       outputTitle: "Đánh giá và so sánh các mô hình dự báo.",
       output: [
@@ -288,6 +288,12 @@
     const certificateList = form.querySelector("[data-certificate-list]");
     const addCertificateButton = form.querySelector("[data-add-certificate]");
     let lastTrigger = null;
+    let fallbackDialogOpen = false;
+    let fallbackInertElements = [];
+    const initialCertificateIndexes = [...(certificateList?.querySelectorAll('input[name="cc_loai[]"]') || [])]
+      .map((input) => Number((input.id.match(/-(\d+)$/) || [])[1] || 0));
+    let nextCertificateIndex = Math.max(0, ...initialCertificateIndexes) + 1;
+    const dialogFocusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const syncSourceOther = () => {
       const requiresOther = sourceRadios.some((radio) => radio.checked && radio.value === "Khác");
       if (!sourceOther) return;
@@ -310,7 +316,8 @@
       const firstRow = certificateList.querySelector(".certificate-row");
       if (!firstRow) return;
       const row = firstRow.cloneNode(true);
-      const nextIndex = certificateList.querySelectorAll(".certificate-row").length + 1;
+      const nextIndex = nextCertificateIndex;
+      nextCertificateIndex += 1;
       row.querySelectorAll("input").forEach((input) => {
         input.value = "";
       });
@@ -333,9 +340,40 @@
       status.textContent = "";
     };
 
+    const getDialogFocusables = () => [...(dialog?.querySelectorAll(dialogFocusableSelector) || [])]
+      .filter((element) => !element.hidden && element.getClientRects().length > 0);
+
+    const setFallbackInert = (isOpen) => {
+      if (isOpen) {
+        fallbackInertElements = [];
+        let current = dialog;
+        while (current?.parentElement) {
+          const parent = current.parentElement;
+          [...parent.children]
+            .filter((element) => element !== current && !element.hasAttribute("inert"))
+            .forEach((element) => fallbackInertElements.push(element));
+          if (parent === document.body) break;
+          current = parent;
+        }
+        fallbackInertElements.forEach((element) => element.setAttribute("inert", ""));
+        return;
+      }
+      fallbackInertElements.forEach((element) => element.removeAttribute("inert"));
+      fallbackInertElements = [];
+    };
+
     const closeDialog = () => {
-      if (typeof dialog?.close === "function" && dialog.open) dialog.close();
-      else dialog?.removeAttribute("open");
+      if (!dialog) return;
+      if (typeof dialog.close === "function" && dialog.open && !fallbackDialogOpen) {
+        dialog.close();
+        return;
+      }
+      dialog.removeAttribute("open");
+      dialog.classList.remove("is-fallback-open");
+      document.body.classList.remove("dialog-open");
+      setFallbackInert(false);
+      fallbackDialogOpen = false;
+      lastTrigger?.focus();
     };
 
     document.querySelectorAll("[data-open-consultation]").forEach((trigger) => {
@@ -343,13 +381,47 @@
         if (trigger.matches("a")) event.preventDefault();
         lastTrigger = trigger;
         clearFeedback();
-        if (typeof dialog?.showModal === "function") dialog.showModal();
-        else dialog?.setAttribute("open", "");
-        form.querySelector("input, select, button")?.focus();
+        if (typeof dialog?.showModal === "function") {
+          dialog.showModal();
+        } else if (dialog) {
+          fallbackDialogOpen = true;
+          dialog.classList.add("is-fallback-open");
+          dialog.setAttribute("open", "");
+          document.body.classList.add("dialog-open");
+          setFallbackInert(true);
+        }
+        window.requestAnimationFrame(() => form.querySelector("input, select, button")?.focus());
       });
     });
     dialog?.querySelector("[data-close-consultation]")?.addEventListener("click", closeDialog);
-    dialog?.addEventListener("close", () => lastTrigger?.focus());
+    dialog?.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      closeDialog();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && fallbackDialogOpen) {
+        event.preventDefault();
+        closeDialog();
+        return;
+      }
+      if (event.key !== "Tab" || !fallbackDialogOpen) return;
+      const focusables = getDialogFocusables();
+      if (!focusables.length) return;
+      const currentIndex = focusables.indexOf(document.activeElement);
+      if (event.shiftKey && (currentIndex <= 0 || currentIndex === -1)) {
+        event.preventDefault();
+        focusables[focusables.length - 1].focus();
+      } else if (!event.shiftKey && (currentIndex === focusables.length - 1 || currentIndex === -1)) {
+        event.preventDefault();
+        focusables[0].focus();
+      }
+    });
+    dialog?.addEventListener("close", () => {
+      document.body.classList.remove("dialog-open");
+      setFallbackInert(false);
+      fallbackDialogOpen = false;
+      lastTrigger?.focus();
+    });
     dialog?.addEventListener("click", (event) => {
       if (event.target === dialog) closeDialog();
     });
@@ -375,12 +447,10 @@
       clearFeedback();
 
       if (phone) {
-        const normalizedPhone = phone.value.replace(/[\s\-+().]/g, "");
-        phone.setCustomValidity(
-          normalizedPhone.length >= 9 && normalizedPhone.length <= 11 && /^\d+$/.test(normalizedPhone)
-            ? ""
-            : "Số điện thoại cần có từ 9 đến 11 chữ số."
-        );
+        const normalizedPhone = phone.value.replace(/[\s-]/g, "");
+        const phoneGrammar = /^(?:\d[\s-]*){9,11}$/;
+        const isValidPhone = !phone.value || (phoneGrammar.test(phone.value.trim()) && /^\d{9,11}$/.test(normalizedPhone));
+        phone.setCustomValidity(isValidPhone ? "" : "Số điện thoại chỉ được gồm 9 đến 11 chữ số, có thể cách nhau bằng khoảng trắng hoặc dấu gạch nối.");
       }
 
       if (!form.checkValidity()) {
