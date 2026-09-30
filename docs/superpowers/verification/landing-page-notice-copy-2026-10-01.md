@@ -19,7 +19,7 @@ Discount deadline                             PASS  08/12/2026
 Registration/payment deadline                PASS  29/12/2026
 Official registration URL                     PASS  vienphuongnam.com.vn/phan-tich-du-lieu-voi-r
 Payment placeholder                           PASS  [Gói đăng ký]
-Faculty copy                                  PASS  UTS/UNSW Sydney, Garvan/UNSW and source-backed biographies with roles, research output and expertise
+Faculty copy                                  PASS  UTS/UNSW Sydney, Fellow of Australian Academy of Health and Medical Sciences, Garvan/UNSW and source-backed biographies with roles, research output and expertise
 Unsupported notice number/URL claims          PASS  Removed
 Book benefit                                  PASS  Gói 1–4, sách tham khảo của GS. Nguyễn Văn Tuấn (no unsupported signed-book claim)
 ```
