@@ -371,15 +371,6 @@ h3 {
   mask-image: linear-gradient(90deg, transparent, black 25%, transparent);
 }
 
-.hero-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  min-height: 426px;
-  grid-template-columns: minmax(0, 0.92fr) minmax(500px, 1.08fr);
-  align-items: center;
-  gap: clamp(28px, 5vw, 76px);
-}
 
 .hero-copy {
   max-width: 620px;
@@ -2638,9 +2629,6 @@ h3 {
   opacity: 0.54;
 }
 
-.hero-grid {
-  z-index: 2;
-}
 
 .hero-wave {
   position: absolute;
@@ -3022,99 +3010,6 @@ h3 {
   background: none;
 }
 
-.consultation-dialog {
-  width: min(900px, calc(100% - 28px));
-  max-width: 900px;
-  max-height: calc(100vh - 28px);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ink);
-}
-
-/* The static fallback mirrors the native dialog without relying on ::backdrop. */
-body.dialog-open {
-  overflow: hidden;
-}
-
-.consultation-dialog.is-fallback-open {
-  position: fixed;
-  z-index: 1000;
-  inset: 0;
-  display: grid;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: 14px;
-  place-items: center;
-  background: rgba(6, 21, 51, 0.58);
-}
-
-.consultation-dialog.is-fallback-open .consultation-modal {
-  width: min(900px, 100%);
-  max-height: calc(100vh - 28px);
-}
-
-.consultation-dialog::backdrop {
-  background: rgba(6, 21, 51, 0.58);
-}
-
-.consultation-modal {
-  max-height: calc(100vh - 28px);
-  overflow: auto;
-  padding: 30px;
-  border: 1px solid var(--line-strong);
-  background: var(--white);
-  box-shadow: 0 24px 80px rgba(3, 24, 64, 0.28);
-}
-
-.consultation-modal-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 22px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
-}
-
-.consultation-modal h2 {
-  margin: 7px 0 0;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-}
-
-.dialog-close {
-  display: grid;
-  width: 44px;
-  height: 44px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid var(--line-strong);
-  color: var(--ink);
-  background: var(--mist);
-  font-size: 25px;
-  line-height: 1;
-}
-
-.dialog-close:hover,
-.dialog-close:focus-visible {
-  border-color: var(--blue);
-  color: var(--blue);
-}
-
-.modal-note {
-  max-width: 75ch;
-  margin: 18px 0 24px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.consultation-dialog .consultation-form {
-  padding: 0;
-}
-
 .form-noscript {
   margin-top: 20px;
   padding: 12px 14px;
@@ -3157,23 +3052,9 @@ body.dialog-open {
     background: rgba(255, 255, 255, 0.94);
   }
 
-  .consultation-modal {
-    max-height: calc(100vh - 18px);
-    padding: 20px 16px;
-  }
-
-  .consultation-dialog {
-    width: calc(100% - 16px);
-    max-height: calc(100vh - 18px);
-  }
-
-  .consultation-modal-head {
-    gap: 12px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .consultation-dialog *,
   .consultation-preview-card,
   .price-card,
   .schedule-card {
@@ -3400,5 +3281,144 @@ body.dialog-open {
 
   .certificate-remove {
     align-self: start;
+  }
+}
+
+
+/* Center the course promise first; the curriculum carries the product illustration below. */
+.hero-section {
+  min-height: 630px;
+  padding: clamp(84px, 10vw, 132px) 0 92px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-height: 430px;
+  place-items: center;
+}
+
+.hero-copy {
+  width: min(100%, 1100px);
+  max-width: 1100px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.hero-copy h1 {
+  max-width: 1100px;
+  margin-inline: auto;
+  font-size: clamp(3.2rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.hero-lead,
+.hero-schedule {
+  margin-inline: auto;
+}
+
+.hero-lead {
+  max-width: 65ch;
+}
+
+.hero-note,
+.hero-schedule {
+  text-align: center;
+}
+
+.hero-actions {
+  justify-content: center;
+}
+
+.registration-section {
+  position: relative;
+  padding: 88px 0 96px;
+  background: var(--white);
+}
+
+.registration-heading {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.registration-heading > p:last-child {
+  max-width: 68ch;
+  margin-inline: auto;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.registration-card {
+  width: min(100%, 920px);
+  margin: 34px auto 0;
+  padding: 32px;
+  border: 1px solid var(--line-strong);
+  background: var(--white);
+  box-shadow: 0 24px 62px rgba(26, 57, 99, 0.13);
+}
+
+.registration-form {
+  color: var(--ink);
+}
+
+.registration-form .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.registration-form .consultation-actions {
+  justify-content: flex-start;
+}
+
+#contact {
+  scroll-margin-top: 116px;
+}
+
+@media (max-width: 900px) {
+  .hero-section {
+    min-height: 0;
+    padding: 88px 0 74px;
+  }
+
+  .hero-content {
+    min-height: 0;
+  }
+
+  .registration-card {
+    padding: 26px;
+  }
+
+  .registration-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section {
+    padding: 74px 0 64px;
+  }
+
+  .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(2.35rem, 12vw, 3.4rem);
+    line-height: 0.98;
+  }
+
+  .hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hero-actions .button {
+    width: 100%;
+  }
+
+  .registration-section {
+    padding: 70px 0 78px;
+  }
+
+  .registration-card {
+    padding: 20px 16px;
   }
 }

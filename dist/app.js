@@ -431,7 +431,6 @@
     const form = document.querySelector("#consultation-form");
     const error = document.querySelector("#consultation-error");
     const status = document.querySelector("#consultation-status");
-    const dialog = document.querySelector("#consultation-dialog");
     if (!form || !error || !status) return;
 
     const phone = form.elements.namedItem("phoneregister");
@@ -440,13 +439,10 @@
     const sourceOtherField = sourceOther?.closest(".consultation-other-field") || null;
     const certificateList = form.querySelector("[data-certificate-list]");
     const addCertificateButton = form.querySelector("[data-add-certificate]");
-    let lastTrigger = null;
-    let fallbackDialogOpen = false;
-    let fallbackInertElements = [];
     const initialCertificateIndexes = [...(certificateList?.querySelectorAll('input[name="cc_loai[]"]') || [])]
       .map((input) => Number((input.id.match(/-(\d+)$/) || [])[1] || 0));
     let nextCertificateIndex = Math.max(0, ...initialCertificateIndexes) + 1;
-    const dialogFocusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
     const syncSourceOther = () => {
       const requiresOther = sourceRadios.some((radio) => radio.checked && radio.value === "Khác");
       if (!sourceOther) return;
@@ -456,6 +452,7 @@
       sourceOtherField?.toggleAttribute("hidden", !requiresOther);
       sourceOtherField?.setAttribute("aria-hidden", String(!requiresOther));
     };
+
     const syncCertificateButtons = () => {
       if (!certificateList) return;
       const rows = [...certificateList.querySelectorAll(".certificate-row")];
@@ -464,6 +461,7 @@
         if (removeButton) removeButton.hidden = rows.length === 1;
       });
     };
+
     const addCertificate = () => {
       if (!certificateList) return;
       const firstRow = certificateList.querySelector(".certificate-row");
@@ -486,98 +484,13 @@
       syncCertificateButtons();
       row.querySelector("input")?.focus();
     };
+
     const clearFeedback = () => {
       error.hidden = true;
       status.hidden = true;
       error.textContent = "";
       status.textContent = "";
     };
-
-    const getDialogFocusables = () => [...(dialog?.querySelectorAll(dialogFocusableSelector) || [])]
-      .filter((element) => !element.hidden && element.getClientRects().length > 0);
-
-    const setFallbackInert = (isOpen) => {
-      if (isOpen) {
-        fallbackInertElements = [];
-        let current = dialog;
-        while (current?.parentElement) {
-          const parent = current.parentElement;
-          [...parent.children]
-            .filter((element) => element !== current && !element.hasAttribute("inert"))
-            .forEach((element) => fallbackInertElements.push(element));
-          if (parent === document.body) break;
-          current = parent;
-        }
-        fallbackInertElements.forEach((element) => element.setAttribute("inert", ""));
-        return;
-      }
-      fallbackInertElements.forEach((element) => element.removeAttribute("inert"));
-      fallbackInertElements = [];
-    };
-
-    const closeDialog = () => {
-      if (!dialog) return;
-      if (typeof dialog.close === "function" && dialog.open && !fallbackDialogOpen) {
-        dialog.close();
-        return;
-      }
-      dialog.removeAttribute("open");
-      dialog.classList.remove("is-fallback-open");
-      document.body.classList.remove("dialog-open");
-      setFallbackInert(false);
-      fallbackDialogOpen = false;
-      lastTrigger?.focus();
-    };
-
-    document.querySelectorAll("[data-open-consultation]").forEach((trigger) => {
-      trigger.addEventListener("click", (event) => {
-        if (trigger.matches("a")) event.preventDefault();
-        lastTrigger = trigger;
-        clearFeedback();
-        if (typeof dialog?.showModal === "function") {
-          dialog.showModal();
-        } else if (dialog) {
-          fallbackDialogOpen = true;
-          dialog.classList.add("is-fallback-open");
-          dialog.setAttribute("open", "");
-          document.body.classList.add("dialog-open");
-          setFallbackInert(true);
-        }
-        window.requestAnimationFrame(() => form.querySelector("input, select, button")?.focus());
-      });
-    });
-    dialog?.querySelector("[data-close-consultation]")?.addEventListener("click", closeDialog);
-    dialog?.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closeDialog();
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && fallbackDialogOpen) {
-        event.preventDefault();
-        closeDialog();
-        return;
-      }
-      if (event.key !== "Tab" || !fallbackDialogOpen) return;
-      const focusables = getDialogFocusables();
-      if (!focusables.length) return;
-      const currentIndex = focusables.indexOf(document.activeElement);
-      if (event.shiftKey && (currentIndex <= 0 || currentIndex === -1)) {
-        event.preventDefault();
-        focusables[focusables.length - 1].focus();
-      } else if (!event.shiftKey && (currentIndex === focusables.length - 1 || currentIndex === -1)) {
-        event.preventDefault();
-        focusables[0].focus();
-      }
-    });
-    dialog?.addEventListener("close", () => {
-      document.body.classList.remove("dialog-open");
-      setFallbackInert(false);
-      fallbackDialogOpen = false;
-      lastTrigger?.focus();
-    });
-    dialog?.addEventListener("click", (event) => {
-      if (event.target === dialog) closeDialog();
-    });
 
     form.addEventListener("input", clearFeedback);
     form.addEventListener("change", (event) => {
@@ -593,6 +506,7 @@
       removeButton.closest(".certificate-row")?.remove();
       syncCertificateButtons();
     });
+
     syncSourceOther();
     syncCertificateButtons();
     form.addEventListener("submit", (event) => {
@@ -617,7 +531,7 @@
       if (phone) phone.setCustomValidity("");
       status.textContent = "Trang giới thiệu hiện chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, tổ hợp khóa và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
       status.hidden = false;
-      status.focus();
+      status.focus({ preventScroll: true });
     });
   };
 

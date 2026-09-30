@@ -2,7 +2,7 @@
 
 ## Design direction
 
-This page uses the composition and interaction rhythm of a polished product landing page: a two-level header, two-column hero, product-style workbench, scenario tabs, pricing, advantages, FAQ, payment information, black closing CTA, footer, and a compact contact rail. It is an original implementation for Viện Phương Nam. It does not use Tencent branding, copy, assets, or URLs.
+This page uses the composition and interaction rhythm of a polished course landing page: a two-level header, centered course hero, visible registration form, curriculum workbench, scenario tabs, pricing, advantages, FAQ, payment information, black closing CTA, footer, and a compact contact rail. It is an original implementation for Viện Phương Nam. It does not use Tencent branding, copy, assets, or URLs.
 
 The previous Research Instrument / Data Observatory visual world is retired. The former Value section is intentionally removed to keep the page focused. Do not reintroduce readout panels, pipeline axes, pointer-follow signals, dark mesh, neon glow, or fabricated charts.
 
@@ -11,21 +11,21 @@ The previous Research Instrument / Data Observatory visual world is retired. The
 - **Palette:** action blue `#0052D9`, deep blue for hover, heading gradient `#0052D9 → #5A8ED9`, a contrast-safe blue surface gradient `#0052D9 → #0B72B1`, white, cool gray mist, black closing CTA, and dark text. The light heading endpoint is reserved for large accent text and is not used for small white copy.
 - **Type:** Inter or the system sans stack. Use the monospace stack only for course codes, dates, labels, and compact data values.
 - **Container:** centered desktop shell capped near `1200px`; generous section spacing; white and cool-gray sections alternate.
-- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. The consultation section uses a blue gradient with a localized white translucent preview card; transparency is localized and has an opaque fallback. Schedule, payment, combination price, and advantage surfaces share a controlled action-blue family. The foundational R/RStudio advantage card leads with a stronger border, surface, and shadow; the remaining cards stay compact and related without unrelated purple/teal accents.
+- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. The inline registration form uses an opaque white card with a light border and restrained shadow; the contact CTA uses the blue gradient reserved for action surfaces. Schedule, payment, combination price, and advantage surfaces share a controlled action-blue family. The foundational R/RStudio advantage card leads with a stronger border, surface, and shadow; the remaining cards stay compact and related without unrelated purple/teal accents.
 - **Hero:** light-blue wash, a faint 76px reference grid, and a restrained linked-particle field are allowed; workbench visuals are built in HTML/CSS and do not depend on external assets.
 - **Content:** all dates, codes, fees, contacts, payment details, faculty facts, and certificate conditions must remain reconciled to the source notices. Missing registration URL/QR stays explicitly unresolved. The registration statement in the promotion strip is user-supplied trust copy, kept at the user’s direction and not treated as a claim extracted from the four course notices.
 - **Heading treatment:** keep the main heading phrase black and apply the blue-to-light-blue gradient only to a short accent phrase in hero and section `h1`/`h2` headings. Card `h3` text and mono labels remain solid colors. The closing black CTA uses the lighter `#9BBCFF → #67E3D2` variant, while the blue consultation surface uses white-to-light-blue text so the accent remains readable. Card surfaces use the separate contrast-safe blue gradient rather than the pale heading endpoint.
-- **Consultation:** the static page opens a native dialog whose visible fields follow the supplied PHP grouping: course, email, split name, gender, birth date, phone, province, work position/unit, degree field, repeatable optional certificate rows, discovery source, and consent. The “Khác” discovery option reveals and requires its detail. PHP-only CAPTCHA/session/hidden endpoint fields are intentionally excluded because this static page has no confirmed backend. It validates locally, preserves entered values, and routes the learner to the real phone contact without claiming submission success.
+- **Registration:** the full inline form follows the supplied PHP grouping: course, email, split name, gender, birth date, phone, province, work position/unit, degree field, repeatable optional certificate rows, discovery source, and consent. The “Khác” discovery option reveals and requires its detail. PHP-only CAPTCHA/session/hidden endpoint fields are intentionally excluded because this static page has no confirmed backend. It validates locally, preserves entered values, and routes the learner to the real phone contact without claiming submission success.
 
 ## Information architecture
 
 1. Promotion strip with the user-supplied institutional registration statement and the source-backed 25/12/2026 registration/payment deadline.
 2. White navigation with Viện Phương Nam wordmark and internal anchors.
-3. Hero: source-backed headline, 03 courses, 08 days, 02 formats, real contact CTAs, and workbench demo marked as illustration.
-4. Three course scenarios: R basic, cost-effectiveness, and time-series tabs. Section labels are omitted to keep the page compact.
-5. Schedule, tuition combinations and discount conditions, advantages, skills, faculty, FAQ, and payment information. The former value section is intentionally removed.
-6. Consultation summary over a blue gradient surface, with the PHP-shaped fields in an accessible native dialog popup.
-7. Black CTA with phone and official website links.
+3. Hero: source-backed course title centered at large scale, date and format metadata, real registration/program CTAs, and no workbench beside the title.
+4. Registration: the full PHP-shaped field grouping is visible directly below the hero in an accessible inline form; the static page keeps local validation and the phone fallback.
+5. Curriculum: three course scenarios, R basic, cost-effectiveness, and time-series tabs, with the workbench demo marked as illustration.
+6. Schedule, tuition combinations and discount conditions, advantages, skills, faculty, FAQ, and payment information. The former value section is intentionally removed.
+7. Contact summary and black CTA with phone and official website links.
 8. Contact footer and fixed call, website, and back-to-top actions.
 
 ## Interaction and motion
@@ -38,11 +38,11 @@ The previous Research Instrument / Data Observatory visual world is retired. The
 - Mobile navigation opens from the hamburger, closes on link selection, outside click, resize, or Escape.
 - Native `<details>` provides FAQ disclosure without a JavaScript dependency.
 - Hover changes border, shadow, and a few pixels of translation. Buttons move the arrow slightly.
-- Consultation form validation keeps entered values, reports invalid fields, and shows the static-site phone fallback without a fake success state.
+- Registration form validation keeps entered values, reports invalid fields, and shows the static-site phone fallback without a fake success state. The full form is inline and does not depend on a dialog or focus trap.
 - `prefers-reduced-motion: reduce` removes loops and transforms while retaining readable content and active states.
-- Reference-inspired orientation: a compact floating table of contents maps to the existing `#top`, `#programs`, `#schedule`, and `#consultation` sections; it is a glass rail on wide screens and a safe-area-aware bottom bar on narrower screens.
+- Reference-inspired orientation: a compact floating table of contents maps to `#top`, `#registration`, `#programs`, and `#contact`; legacy `#consultation` and reference `#lp-form` aliases resolve to the inline form. It is a glass rail on wide screens and a safe-area-aware bottom bar on narrower screens.
 - The header remains sticky and gains a restrained shadow after scrolling; the hero ends with a white SVG wave to create the same section handoff rhythm as the reference without changing the light product palette.
-- Dialog fallback behavior keeps Escape, focus containment, focus restoration, and scroll locking when native `showModal()` is unavailable. The static form exposes a visible no-JavaScript phone fallback and never claims a backend submission.
+- Inline fallback behavior exposes a visible no-JavaScript phone fallback and never claims a backend submission. Submission status is focused without moving the learner away from the form, and entered values remain in place.
 
 ## Responsive and accessibility gates
 
