@@ -3,7 +3,7 @@
 ## Scope
 
 - Reconciled visible landing-page copy with `assets/THÔNG BÁO (v1)_CHUỖI KHÓA NCKH (01.2027) (1).docx`.
-- Updated official series name, course names, dates, six package prices, discount rules, faculty facts, URL/QR wording, payment format, contact details, and deadline.
+- Updated official series name, exact course names, dates, six package prices, discount rules, faculty facts, URL/QR wording, payment format, contact details, and deadline.
 - Preserved the approved centered hero, inline form, grid, particle canvas, workbench, animation, anchors, and static phone fallback.
 - Kept legacy course IDs as internal form/scenario values while removing them from public copy.
 
@@ -11,7 +11,7 @@
 
 ```text
 Official series name and metadata             PASS  Phân tích định lượng với R
-Course names                                  PASS  R cơ bản / CEA trong y tế / chuỗi thời gian
+Course names                                  PASS  Phân tích dữ liệu với R cơ bản / Phân tích chi phí - hiệu quả trong y tế / Phân tích dữ liệu chuỗi thời gian
 Schedule                                      PASS  08–10, 12–13, 15–17/01/2027
 Program window                                PASS  08/01/2027–17/01/2027
 Package prices                                PASS  8.800.000 / 6.700.000 / 7.500.000 / 6.700.000 / 3.500.000 / 4.500.000
@@ -19,9 +19,9 @@ Discount deadline                             PASS  08/12/2026
 Registration/payment deadline                PASS  29/12/2026
 Official registration URL                     PASS  vienphuongnam.com.vn/phan-tich-du-lieu-voi-r
 Payment placeholder                           PASS  [Gói đăng ký]
-Faculty copy                                  PASS  UTS/UNSW, Garvan/UNSW and source-backed biographies
+Faculty copy                                  PASS  UTS/UNSW Sydney, Garvan/UNSW and source-backed biographies with roles, research output and expertise
 Unsupported notice number/URL claims          PASS  Removed
-Book benefit                                  PASS  Gói 1–4, sách tham khảo của GS. Nguyễn Văn Tuấn
+Book benefit                                  PASS  Gói 1–4, sách tham khảo của GS. Nguyễn Văn Tuấn (no unsupported signed-book claim)
 ```
 
 The DOCX body was inspected through its XML and the embedded QR image was inspected separately. Full DOCX visual rendering was unavailable because the runtime did not have LibreOffice/pdf2image; the page does not embed the QR asset, so this does not block copy verification.
@@ -34,6 +34,7 @@ git diff --check                                 PASS (pre-existing .codebase-me
 HTML content/id/hash audit                       PASS (one h1, one form, 52 ids, no duplicates, no missing targets)
 Stale copy audit                                 PASS (old dates, prices, notice number, URL/QR claim absent)
 CSS brace/removed-dialog audit                   PASS (555 opening, 555 closing; no dialog selectors)
+Final copy polish audit                          PASS (full course labels, source-backed faculty details, and `gói đăng ký` fallback wording)
 ```
 
 ## Browser checks
@@ -56,11 +57,11 @@ Additional browser evidence:
 
 ## Release and rollback
 
-- Commit `36028b6` (`Reconcile landing page copy with latest course notice`) contains the product and verification changes; unrelated `.codebase-memory` changes and the source DOCX remain outside the commit.
+- Commit `36028b6` (`Reconcile landing page copy with latest course notice`) contains the initial product and verification changes. A follow-up copy-polish commit records the final exact labels, faculty details and form fallback wording; unrelated `.codebase-memory` changes and the source DOCX remain outside both commits.
 - GitHub Pages workflow `36761584309` completed successfully after the push.
 - Public checks returned HTTP 200:
   - `https://thaingocthienlong.github.io/landing-page-01.27/?v=20261001-notice-copy`
   - `https://thaingocthienlong.github.io/landing-page-01.27/app.js?v=20261001-notice-copy`
   - `https://thaingocthienlong.github.io/landing-page-01.27/styles.css?v=20261001-notice-copy`
 - The deployed page title is `Phân tích định lượng với R | Viện Phương Nam`; the public accessibility tree exposes the new deadline, exact course options, six prices, official URL, payment placeholders, and faculty copy.
-- Rollback is `git revert <copy-reconciliation-commit>`; no backend or migration rollback is required.
+- Rollback is `git revert <copy-reconciliation-commit>` followed by `git revert <copy-polish-commit>` when both releases must be reversed; no backend or migration rollback is required.

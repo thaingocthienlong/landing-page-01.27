@@ -529,7 +529,7 @@
       }
 
       if (phone) phone.setCustomValidity("");
-      status.textContent = "Trang giới thiệu hiện chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, tổ hợp khóa và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
+      status.textContent = "Trang giới thiệu hiện chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, gói đăng ký và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
       status.hidden = false;
       status.focus({ preventScroll: true });
     });
