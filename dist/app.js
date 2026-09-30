@@ -165,7 +165,7 @@
 
   const scenarios = {
     r: {
-      label: "R cơ bản",
+      label: "Phân tích dữ liệu với R cơ bản",
       code: "PTCBR01.27",
       date: "08–10/01/2027",
       duration: "03 ngày",
@@ -195,7 +195,7 @@
       windowLabel: "Câu hỏi nghiên cứu",
     },
     cea: {
-      label: "Chi phí - hiệu quả",
+      label: "Phân tích chi phí - hiệu quả trong y tế",
       code: "PTHQR01.27",
       date: "12–13/01/2027",
       duration: "02 ngày",
@@ -225,9 +225,9 @@
       windowLabel: "Câu hỏi kinh tế y tế",
     },
     time: {
-      label: "Chuỗi thời gian",
+      label: "Phân tích dữ liệu chuỗi thời gian",
       code: "PTTGR01.27",
-      date: "14–16/01/2027",
+      date: "15–17/01/2027",
       duration: "03 ngày",
       format: "R / dự báo",
       topicCount: "08",
@@ -307,7 +307,7 @@
       }
     }
 
-    setText("[data-scenario-kicker]", `${scenario.code} · ${scenario.date} · ${scenario.duration}`);
+    setText("[data-scenario-kicker]", `${scenario.date} · ${scenario.duration}`);
     setText("[data-scenario-title]", scenario.title);
     setText("[data-scenario-description]", scenario.description);
     setText("[data-scenario-format]", scenario.format);
