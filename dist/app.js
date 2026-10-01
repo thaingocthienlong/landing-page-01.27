@@ -173,6 +173,54 @@
     svgs.forEach((svg) => observer.observe(svg));
   };
 
+  /* ---------- autoplay: shared pause state, 5s per figure ---------- */
+
+  const autoplay = { paused: false, cycles: [] };
+  const toggles = [...document.querySelectorAll("[data-autoplay-toggle]")];
+
+  const syncToggles = () => toggles.forEach((button) => {
+    button.setAttribute("aria-pressed", String(autoplay.paused));
+    button.querySelector("span").textContent = autoplay.paused ? "Tự chuyển hình" : "Tạm dừng";
+    button.querySelector("use").setAttribute("href", autoplay.paused ? "#i-play" : "#i-pause");
+  });
+
+  const restartAll = () => autoplay.cycles.forEach((cycle) => cycle.restart());
+
+  toggles.forEach((button) => button.addEventListener("click", () => {
+    autoplay.paused = !autoplay.paused;
+    syncToggles();
+    restartAll();
+  }));
+  if (reducedMotion.matches) {
+    autoplay.paused = true;
+    toggles.forEach((button) => { button.hidden = true; });
+  }
+  document.addEventListener("visibilitychange", restartAll);
+
+  const makeCycle = (area, advance, ms = 5000) => {
+    let timer = 0;
+    let visible = false;
+    let hold = false;
+    const stop = () => window.clearTimeout(timer);
+    const restart = () => {
+      stop();
+      if (autoplay.paused || hold || !visible || document.hidden) return;
+      timer = window.setTimeout(() => { advance(); restart(); }, ms);
+    };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; restart(); }, { threshold: 0.3 }).observe(area);
+    } else {
+      visible = true;
+    }
+    area.addEventListener("mouseenter", () => { hold = true; stop(); });
+    area.addEventListener("mouseleave", () => { hold = false; restart(); });
+    area.addEventListener("focusin", () => { hold = true; stop(); });
+    area.addEventListener("focusout", () => { hold = false; restart(); });
+    const cycle = { restart };
+    autoplay.cycles.push(cycle);
+    return cycle;
+  };
+
   /* ---------- course tabs ---------- */
 
   const scenarios = {
@@ -212,6 +260,41 @@
       figure: "Hình 3.",
       caption: " Dự báo chuỗi thời gian: 60 tháng huấn luyện, 12 tháng ngoài mẫu, dải dự báo 80%. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
+  };
+
+  const scenarioKeys = Object.keys(scenarios);
+
+  const setupHero = () => {
+    const svg = document.querySelector("#hero-figure");
+    const caption = document.querySelector("#hero-figure-caption");
+    const plateEl = document.querySelector(".hero-plate");
+    const dots = [...document.querySelectorAll("[data-hero-dot]")];
+    if (!svg || !caption || !plateEl) return;
+    let index = 0;
+
+    const show = (next, { animate = true } = {}) => {
+      index = (next + scenarioKeys.length) % scenarioKeys.length;
+      const scenario = scenarios[scenarioKeys[index]];
+      renderFigure(svg, scenario.kind);
+      const strong = document.createElement("strong");
+      strong.textContent = scenario.figure;
+      caption.replaceChildren(strong, document.createTextNode(scenario.caption));
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === index);
+        dot.setAttribute("aria-pressed", String(i === index));
+      });
+      if (animate) {
+        plateEl.classList.remove("is-swapping");
+        if (!reducedMotion.matches) {
+          void plateEl.offsetWidth;
+          plateEl.classList.add("is-swapping");
+        }
+        plot(svg);
+      }
+    };
+
+    const cycle = makeCycle(plateEl, () => show(index + 1));
+    dots.forEach((dot, i) => dot.addEventListener("click", () => { show(i); cycle.restart(); }));
   };
 
   const setupTabs = () => {
@@ -263,8 +346,13 @@
       if (animate) plot(svg);
     };
 
+    const cycle = makeCycle(document.querySelector("#programs .shell"), () => {
+      const current = tabs.findIndex((tab) => tab.classList.contains("is-active"));
+      setScenario(tabs[(current + 1) % tabs.length].dataset.scenarioTab);
+    });
+
     tabs.forEach((tab, index) => {
-      tab.addEventListener("click", () => setScenario(tab.dataset.scenarioTab));
+      tab.addEventListener("click", () => { setScenario(tab.dataset.scenarioTab); cycle.restart(); });
       tab.addEventListener("keydown", (event) => {
         if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) return;
         event.preventDefault();
@@ -282,8 +370,150 @@
       if (window.location.hash.toLowerCase() === "#course-cea") setScenario("cea");
     };
     window.addEventListener("hashchange", syncHash);
+
+    const lockHeight = () => {
+      const active = tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.scenarioTab || "r";
+      panel.style.minHeight = "";
+      let tallest = 0;
+      scenarioKeys.forEach((key) => {
+        setScenario(key, { animate: false });
+        tallest = Math.max(tallest, panel.offsetHeight);
+      });
+      setScenario(active, { animate: false });
+      panel.style.minHeight = `${tallest}px`;
+    };
+
     setScenario("r", { animate: false });
     syncHash();
+    lockHeight();
+    document.fonts?.ready.then(lockHeight);
+    let lockTimer = 0;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(lockTimer);
+      lockTimer = window.setTimeout(lockHeight, 200);
+    }, { passive: true });
+  };
+
+  /* ---------- particle backdrop ---------- */
+
+  const setupBackdrop = () => {
+    const canvas = document.querySelector("#bg-canvas");
+    const context = canvas?.getContext("2d", { alpha: true });
+    if (!canvas || !context) return;
+
+    const link = 150;
+    const near = 120;
+    let width = 1;
+    let height = 1;
+    let particles = [];
+    let frame = 0;
+
+    const count = () => Math.min(90, Math.round((window.innerWidth * window.innerHeight) / 16000));
+
+    const seed = () => {
+      particles = Array.from({ length: count() }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.36,
+        vy: (Math.random() - 0.5) * 0.36,
+        r: Math.random() * 1.3 + 0.7,
+      }));
+    };
+
+    const resize = () => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      seed();
+    };
+
+    const draw = () => {
+      frame = 0;
+      context.clearRect(0, 0, width, height);
+      const neighbours = particles.map(() => []);
+      particles.forEach((p, i) => {
+        if (!reducedMotion.matches) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+        }
+        for (let k = i + 1; k < particles.length; k += 1) {
+          const q = particles[k];
+          const d = Math.hypot(p.x - q.x, p.y - q.y);
+          if (d > link) continue;
+          context.strokeStyle = `rgba(10, 61, 145, ${0.28 * (1 - d / link)})`;
+          context.lineWidth = 0.8;
+          context.beginPath();
+          context.moveTo(p.x, p.y);
+          context.lineTo(q.x, q.y);
+          context.stroke();
+          if (d < near) { neighbours[i].push(k); neighbours[k].push(i); }
+        }
+      });
+      context.fillStyle = "rgba(10, 61, 145, 0.035)";
+      neighbours.forEach((list, i) => {
+        for (let a = 0; a < list.length; a += 1) {
+          for (let b = a + 1; b < list.length; b += 1) {
+            const m = list[a];
+            const n = list[b];
+            if (i > m || i > n || !neighbours[m].includes(n)) continue;
+            context.beginPath();
+            context.moveTo(particles[i].x, particles[i].y);
+            context.lineTo(particles[m].x, particles[m].y);
+            context.lineTo(particles[n].x, particles[n].y);
+            context.closePath();
+            context.fill();
+          }
+        }
+      });
+      context.fillStyle = "rgba(10, 61, 145, 0.6)";
+      particles.forEach((p) => {
+        context.beginPath();
+        context.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        context.fill();
+      });
+      if (!reducedMotion.matches && !document.hidden) frame = window.requestAnimationFrame(draw);
+    };
+
+    const restart = () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = 0;
+      draw();
+    };
+
+    resize();
+    draw();
+    let resizeTimer = 0;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => { resize(); restart(); }, 150);
+    }, { passive: true });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && !frame) restart(); });
+    reducedMotion.addEventListener?.("change", restart);
+  };
+
+  /* ---------- side navigation ---------- */
+
+  const setupSideNav = () => {
+    const links = [...document.querySelectorAll("[data-side-target]")];
+    const pairs = links.map((link) => ({ link, section: document.getElementById(link.dataset.sideTarget) })).filter(({ section }) => section);
+    if (!pairs.length) return;
+    const activate = (id) => pairs.forEach(({ link, section }) => {
+      const on = section.id === id;
+      link.classList.toggle("is-active", on);
+      if (on) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+    activate("top");
+    if (!("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio).slice(0, 1).forEach((entry) => activate(entry.target.id));
+    }, { rootMargin: "-30% 0px -55% 0px", threshold: [0, 0.2, 0.5] });
+    pairs.forEach(({ section }) => observer.observe(section));
   };
 
   /* ---------- navigation ---------- */
@@ -490,13 +720,7 @@
         return;
       }
       const message = document.createElement("p");
-      message.textContent = "Thông tin hợp lệ nhưng chưa được gửi đi: trang này chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, gói đăng ký và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu. ";
-      const link = document.createElement("a");
-      link.href = "https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r";
-      link.target = "_blank";
-      link.rel = "noreferrer";
-      link.textContent = "Đăng ký tại trang chính thức";
-      message.append(link, ".");
+      message.textContent = "Thông tin hợp lệ nhưng chưa được gửi đi: trang này chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, gói đăng ký và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
       status.replaceChildren(message);
       status.hidden = false;
       status.focus({ preventScroll: true });
@@ -527,8 +751,12 @@
     });
   };
 
+  setupBackdrop();
   setupFigures();
+  syncToggles();
+  setupHero();
   setupTabs();
+  setupSideNav();
   setupMobileNav();
   setupForm();
   setupCopy();

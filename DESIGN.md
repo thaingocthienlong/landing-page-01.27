@@ -213,3 +213,12 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - **Don't** wrap content in bordered, shadowed cards when a rule or table will do.
 - **Don't** set body text below 17px or rendered chart text below 11px.
 - **Don't** introduce an invented notice number or unreconciled figures.
+
+## Additions after first release
+
+- **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 60% opacity below 720px.
+- **Logo:** official artwork from `assets/Logo VPN.png`, trimmed and resized to `dist/logo.png` (header, 56px tall; footer on a white chip) and `dist/favicon.png`. The full institute name sits beside it in the header and footer.
+- **Top strip:** registration line (A - 2619/Bộ Khoa Học và Công Nghệ) left, deadline right; no action link in the strip, the navbar holds the only register button above the fold.
+- **Side navigation:** fixed left rail of ticks from 1100px up (hidden below), active section tick lengthens in cobalt, label appears on hover/focus.
+- **Loops:** hero Figure and the programs tabs advance every 5s through Hình 1 to 3; paused on hover or focus, while off-screen or tab hidden, and by a visible "Tạm dừng" toggle; disabled under reduced motion. The programs panel min-height is locked to the tallest scenario to avoid layout shift.
+- **Registration links:** no link to the official registration page anywhere on the page; registration is the on-page form, phone, or in person.
