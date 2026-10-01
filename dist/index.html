@@ -88,10 +88,11 @@
             <h1 id="hero-title">Phân tích định lượng với R, <em>từ cơ bản đến chuyên sâu</em></h1>
             <p class="byline">Chuỗi khóa học do GS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy.</p>
             <dl class="abstract">
-              <div><dt>Thời gian tổ chức</dt><dd>03 khóa học (8 ngày), <a href="#schedule">chi tiết bên dưới</a></dd></div>
+              <div><dt>Thời gian tổ chức</dt><dd>Từ ngày 08/01/2027 đến ngày 17/01/2027 (8 ngày), <a href="#schedule">chi tiết bên dưới</a></dd></div>
+              <div><dt>Số lượng lớp/khóa học</dt><dd>3 khóa học</dd></div>
               <div><dt>Hình thức tổ chức</dt><dd>Học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom</dd></div>
               <div><dt>Địa điểm tổ chức</dt><dd>Viện Phương Nam – 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</dd></div>
-              <div><dt>Phần mềm sử dụng</dt><dd>R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu</dd></div>
+              <div class="is-wide"><dt>Phần mềm sử dụng</dt><dd>R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu</dd></div>
               <div class="is-wide is-deadline"><dt>Hạn chót</dt><dd>Đăng ký và hoàn tất học phí trước ngày 28/12/2026</dd></div>
             </dl>
             <div class="hero-actions">
@@ -120,7 +121,7 @@
             <aside class="reg-aside" aria-label="Quy trình đăng ký">
               <h3>Phiếu đăng ký</h3>
               <ol class="stepper" data-stepper>
-                <li class="is-current" data-stepper-item="1"><span class="step-no">1</span><span>Khóa học và liên hệ</span></li>
+                <li class="is-current" data-stepper-item="1"><span class="step-no">1</span><span>Gói đăng ký và liên hệ</span></li>
                 <li data-stepper-item="2"><span class="step-no">2</span><span>Thông tin cá nhân</span></li>
                 <li data-stepper-item="3"><span class="step-no">3</span><span>Công tác và xác nhận</span></li>
               </ol>
@@ -133,13 +134,18 @@
             <form id="consultation-form" class="reg-form" data-endpoint="https://script.google.com/macros/s/AKfycbypjIT2OI-pX3S1YiyNkBqSGpHQh-CnMwzEr9yzK1S2N-vn6cCuLRsYTWRFz8YXq-aS/exec" novalidate aria-describedby="registration-note">
               <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
               <fieldset class="step" data-step="1">
-                <legend>Khóa học và liên hệ</legend>
+                <legend>Gói đăng ký và liên hệ</legend>
                 <div class="form-grid">
                   <fieldset class="field field-wide choice-group">
-                    <legend>Khóa học quan tâm <span class="req" aria-hidden="true">*</span></legend>
-                    <label class="choice"><input type="radio" name="course_id" value="PTCBR01.27" required /><span><strong>Khóa 1 · Phân tích dữ liệu với R cơ bản</strong><small>08–10/01/2027 · 03 ngày</small></span></label>
-                    <label class="choice"><input type="radio" name="course_id" value="PTHQR01.27" /><span><strong>Khóa 2 · Phân tích chi phí - hiệu quả trong y tế</strong><small>12–13/01/2027 · 02 ngày</small></span></label>
-                    <label class="choice"><input type="radio" name="course_id" value="PTTGR01.27" /><span><strong>Khóa 3 · Phân tích dữ liệu chuỗi thời gian</strong><small>15–17/01/2027 · 03 ngày</small></span></label>
+                    <legend>Gói đăng ký quan tâm <span class="req" aria-hidden="true">*</span></legend>
+                    <div class="choice-grid">
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 1" required /><span><strong>Gói 1 · Cả 03 khóa</strong><small>08 ngày · 8.800.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 2" /><span><strong>Gói 2 · Khóa 1 + Khóa 2</strong><small>05 ngày · 6.700.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 3" /><span><strong>Gói 3 · Khóa 1 + Khóa 3</strong><small>06 ngày · 7.500.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 4" /><span><strong>Gói 4 · Khóa 2 + Khóa 3</strong><small>05 ngày · 6.700.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 5" /><span><strong>Gói 5 · Khóa 2</strong><small>02 ngày · 3.500.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 6" /><span><strong>Gói 6 · Khóa 3</strong><small>03 ngày · 4.500.000 đồng</small></span></label>
+                    </div>
                   </fieldset>
                   <div class="field field-wide"><label for="consultation-email">Email <span class="req" aria-hidden="true">*</span></label><input id="consultation-email" name="emailcontact" type="email" autocomplete="email" maxlength="255" required /></div>
                   <div class="field"><label for="consultation-holot">Họ và chữ lót <span class="req" aria-hidden="true">*</span></label><input id="consultation-holot" name="ho_lot" type="text" autocomplete="additional-name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn" required /></div>
@@ -195,7 +201,6 @@
         <div class="shell">
           <div class="section-head">
             <h2 id="programs-title">Chương trình chi tiết</h2>
-            <p>Chuỗi khóa học gồm 03 khóa học được thiết kế theo lộ trình từ nền tảng đến mang tính ứng dụng cao. Các khóa học có tính liên kết nhưng vẫn có mục tiêu và đối tượng riêng. Mỗi khóa kết thúc bằng một loại biểu đồ mà học viên tự dựng được bằng R.</p>
           </div>
 
           <div class="tabs" role="tablist" aria-label="Chọn khóa học">
@@ -231,8 +236,7 @@
         <div class="shell">
           <div class="split">
             <div class="section-head">
-              <h2 id="schedule-title">Lộ trình 03 khóa học trong 08 ngày</h2>
-              <p>Chuỗi khóa học là sự kết hợp liên tục của 3 khóa học liên quan đến phân tích dữ liệu bằng ngôn ngữ R và có sự hỗ trợ của AI.</p>
+              <h2 id="schedule-title">Lịch học</h2>
             </div>
             <div class="split-body">
               <div class="calendar" role="img" aria-label="Lịch tháng 01 năm 2027: khóa 1 từ ngày 08 đến 10, nghỉ ngày 11, khóa 2 ngày 12 và 13, nghỉ ngày 14, khóa 3 từ ngày 15 đến 17">
@@ -271,25 +275,24 @@
             <caption><strong>Bảng 2.</strong> Lựa chọn gói đăng ký</caption>
             <thead><tr><th scope="col">Gói đăng ký</th><th scope="col">Diễn giải</th><th scope="col" class="num">Thời lượng</th><th scope="col" class="num">Học phí/học viên</th></tr></thead>
             <tbody>
-              <tr class="is-featured"><th scope="row">Gói 1</th><td>Cả 03 khóa<span class="sub">Phân tích dữ liệu với R cơ bản, Chi phí - hiệu quả trong y tế, Chuỗi thời gian</span><span class="gift">Quà tặng: sách tham khảo của GS.TS. Nguyễn Văn Tuấn</span></td><td class="num">08 ngày</td><td class="num price">8.800.000<span class="cur"> đồng</span></td></tr>
+              <tr class="is-featured"><th scope="row">Gói 1</th><td>Cả 03 khóa<span class="sub">Phân tích dữ liệu với R cơ bản, Chi phí - hiệu quả trong y tế, Chuỗi thời gian</span></td><td class="num">08 ngày</td><td class="num price">8.800.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 2</th><td>Khóa 1 + Khóa 2<span class="sub">Phân tích dữ liệu với R cơ bản + Chi phí - hiệu quả trong y tế</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 3</th><td>Khóa 1 + Khóa 3<span class="sub">Phân tích dữ liệu với R cơ bản + Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">06 ngày</td><td class="num price">7.500.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 4</th><td>Khóa 2 + Khóa 3<span class="sub">Chi phí - hiệu quả trong y tế + Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 5</th><td>Khóa 2<span class="sub">Phân tích chi phí - hiệu quả trong y tế</span></td><td class="num">02 ngày</td><td class="num price">3.500.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 6</th><td>Khóa 3<span class="sub">Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">03 ngày</td><td class="num price">4.500.000<span class="cur"> đồng</span></td></tr>
             </tbody>
-            <tfoot><tr><td colspan="4">Mức học phí nêu trên đã bao gồm các khoản thuế, phí và lệ phí theo quy định. Quý anh/chị đăng ký tham gia từ gói 1 đến gói 4 sẽ được nhận quà tặng là sách tham khảo của GS.TS. Nguyễn Văn Tuấn.</td></tr></tfoot>
+            <tfoot><tr><td colspan="4">Mức học phí nêu trên đã bao gồm các khoản thuế, phí và lệ phí theo quy định.</td></tr></tfoot>
           </table>
 
           <table class="table table-discount">
             <caption><strong>Bảng 3.</strong> Ưu đãi học phí</caption>
-            <thead><tr><th scope="col">Đối tượng</th><th scope="col">Áp dụng cho</th><th scope="col" class="num">Hoàn tất học phí trước 08/12/2026</th><th scope="col" class="num">Hoàn tất học phí sau 08/12/2026</th></tr></thead>
+            <thead><tr><th scope="col">Điều kiện</th><th scope="col">Áp dụng cho</th><th scope="col">Ưu đãi</th></tr></thead>
             <tbody>
-              <tr><th scope="row">Học viên mới</th><td>Các gói từ 1 đến 4</td><td class="num rate">giảm 10%</td><td class="num none">không nêu ưu đãi</td></tr>
-              <tr><th scope="row">Học viên mới, hoàn tất học phí theo nhóm từ 3 người</th><td>Các gói từ 1 đến 4</td><td class="num rate">giảm 15%</td><td class="num rate">giảm 5%</td></tr>
-              <tr><th scope="row">Học viên cũ (không áp dụng đồng thời các ưu đãi khác)</th><td>Các gói từ 1 đến 4</td><td class="num rate">giảm 15%</td><td class="num rate">giảm 10%</td></tr>
-              <tr><th scope="row">Học viên mới</th><td>Gói 5 và gói 6</td><td class="num rate">giảm 10%</td><td class="num none">không nêu ưu đãi</td></tr>
-              <tr><th scope="row">Học viên cũ (không áp dụng đồng thời các ưu đãi khác)</th><td>Gói 5 và gói 6</td><td class="num rate" colspan="2">giảm 10%</td></tr>
+              <tr><th scope="row">Hoàn tất học phí trước 08/12/2026</th><td>Các gói từ 1 đến 4</td><td class="rate">giảm 10%</td></tr>
+              <tr><th scope="row">Hoàn tất học phí theo nhóm từ 3 người</th><td>Các gói từ 1 đến 4</td><td class="rate">giảm 5%</td></tr>
+              <tr><th scope="row">Học viên cũ (không áp dụng đồng thời các ưu đãi khác)</th><td>Các gói từ 1 đến 4</td><td class="rate">giảm 10% và giảm thêm 5% nếu hoàn tất học phí trước 08/12/2026</td></tr>
+              <tr><th scope="row">Hoàn tất học phí trước 08/12/2026</th><td>Gói 5 và gói 6</td><td class="rate">giảm 10%</td></tr>
             </tbody>
           </table>
 
@@ -312,7 +315,6 @@
               <li><strong>Thực hành với R, RStudio và AI</strong><span>Học viên thực hành với R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu trong suốt chuỗi khóa học.</span></li>
               <li><strong>Lộ trình liên kết</strong><span>Phân tích dữ liệu với R cơ bản là nền tảng phù hợp cho hai khóa học chuyên sâu tiếp theo.</span></li>
               <li><strong>Hình thức tổ chức</strong><span>Học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom.</span></li>
-              <li><strong>Quà tặng theo gói</strong><span>Học viên đăng ký từ gói 1 đến gói 4 nhận quà tặng là sách tham khảo của GS.TS. Nguyễn Văn Tuấn.</span></li>
             </ul>
           </div>
           <div>
@@ -396,11 +398,11 @@
 
     <footer class="site-footer">
       <div class="shell footer-grid">
-        <div class="footer-brand"><span class="footer-logo"><img src="./logo.png" alt="Phuong Nam Institute" width="84" height="80" loading="lazy" /></span><strong>Viện phát triển nguồn lực xã hội Phương Nam</strong><p>Chuỗi khóa học Phân tích định lượng với R · 01/2027</p></div>
+        <div class="footer-brand"><span class="footer-logo"><img src="./logo.png" alt="Phuong Nam Institute" width="84" height="80" loading="lazy" /></span><strong>Viện phát triển nguồn lực xã hội Phương Nam</strong><p>Chuỗi khóa học Phân tích định lượng với R – Từ cơ bản đến chuyên sâu · 01/2027</p></div>
         <div><h2>Liên hệ</h2><p>45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</p><a href="tel:02822426789">(028) 2242 6789</a><a href="tel:0949761636">0949 761 636 · Ms. Vy</a><a href="tel:0912114511">0912 114 511 · Ms. Thảo</a></div>
-        <div><h2>Website</h2><a href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">www.vienphuongnam.com.vn <svg class="i" aria-hidden="true"><use href="#i-ext" /></svg></a><p class="footer-note">Chi tiết về Chuỗi khóa học “Phân tích định lượng với R” tham khảo thêm tại website. Mã QR đăng ký được in trong thông báo chính thức.</p></div>
+        <div><h2>Website</h2><a href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">www.vienphuongnam.com.vn <svg class="i" aria-hidden="true"><use href="#i-ext" /></svg></a><p class="footer-note">Chi tiết về Chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” tham khảo thêm tại website. Mã QR đăng ký được in trong thông báo chính thức.</p></div>
       </div>
-      <div class="shell footer-bottom"><span>© 2026 Viện Phương Nam</span><span>Chuỗi khóa học Phân tích định lượng với R · 01/2027</span></div>
+      <div class="shell footer-bottom"><span>© 2026 Viện Phương Nam</span><span>Chuỗi khóa học Phân tích định lượng với R – Từ cơ bản đến chuyên sâu · 01/2027</span></div>
     </footer>
 
     <div class="mobile-bar" aria-label="Hành động nhanh">
