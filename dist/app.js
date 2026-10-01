@@ -200,9 +200,9 @@
       kind: "r",
       date: "Từ 08/01 đến 10/01/2027",
       duration: "03 ngày",
-      title: "Xây dựng nền tảng phân tích dữ liệu bằng R.",
-      description: "Dành cho nhà nghiên cứu, học viên sau đại học, giảng viên và người mới bắt đầu sử dụng R; không cần kinh nghiệm lập trình.",
-      skills: ["Nhập, quản lý, mô tả và hiển thị dữ liệu", "Chọn biểu đồ theo câu hỏi nghiên cứu", "Diễn giải kết quả trong bối cảnh nghiên cứu"],
+      title: "Phân tích dữ liệu với R cơ bản",
+      description: "Đối tượng: nhà nghiên cứu, nghiên cứu sinh và học viên sau đại học, giảng viên cao đẳng và đại học, người mới bắt đầu sử dụng R. Không cần kinh nghiệm lập trình.",
+      skills: ["Sử dụng R và RStudio cho những phân tích dữ liệu thông dụng", "Nhập, quản lí, mô tả và hiển thị dữ liệu", "Thực hiện các phân tích so sánh và phân tích mối liên quan"],
       figure: "Hình 1.",
       caption: " Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
@@ -210,9 +210,9 @@
       kind: "cea",
       date: "Ngày 12/01 và 13/01/2027",
       duration: "02 ngày",
-      title: "Từ câu hỏi nghiên cứu đến mô hình và từ mô hình đến quyết định.",
-      description: "Dành cho nhà quản lý, hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên y tế và kinh tế y tế, cùng nhân sự dược phẩm và công nghệ y tế.",
-      skills: ["Tính và diễn giải ICER/QALY", "Xây dựng cây quyết định hoặc mô hình Markov", "Kiểm tra độ nhạy của các giả định"],
+      title: "Phân tích chi phí - hiệu quả trong y tế",
+      description: "Đối tượng: người làm việc trong lĩnh vực y tế và dược phẩm, gồm nhà quản lí và hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên.",
+      skills: ["Xác định và đo lường chi phí và hiệu quả; hiểu utility và QALY", "Tính và diễn giải ICER; xây dựng decision tree và Markov model", "Thực hiện sensitivity analysis và diễn giải kết quả trong bối cảnh ra quyết định y tế"],
       figure: "Hình 2.",
       caption: " Mặt phẳng chi phí - hiệu quả: 260 lần mô phỏng, ICER và ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
@@ -220,9 +220,9 @@
       kind: "time",
       date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
-      title: "Nhận diện, xây dựng và đánh giá mô hình dự báo chuỗi thời gian.",
-      description: "Dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật, khoa học xã hội và các lĩnh vực liên quan.",
-      skills: ["Kiểm tra ACF/ADF và tính dừng", "Xây dựng và so sánh các mô hình dự báo, gồm ARIMA", "Diễn giải độ chính xác dự báo"],
+      title: "Phân tích dữ liệu chuỗi thời gian",
+      description: "Đối tượng: nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, kinh tế, tài chính, môi trường và các lĩnh vực liên quan.",
+      skills: ["Nhận diện đặc điểm chính của dữ liệu chuỗi thời gian; hiểu tính dừng, tự tương quan và các thành phần của chuỗi", "Xây dựng mô hình dự báo từ exponential smoothing đến ARIMA", "Đánh giá và so sánh các mô hình bằng những thước đo sai số"],
       figure: "Hình 3.",
       caption: " Dự báo chuỗi thời gian: 60 tháng huấn luyện, 12 tháng ngoài mẫu, dải dự báo 80%. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
@@ -531,9 +531,6 @@
     let current = 0;
     const endpoint = (form.dataset.endpoint || "").trim();
     const openedAt = Date.now();
-    if (endpoint) {
-      submitButton.firstChild.textContent = "Gửi đăng ký ";
-    }
 
     const hints = {
       emailcontact: "Ví dụ: ten@donvi.vn",

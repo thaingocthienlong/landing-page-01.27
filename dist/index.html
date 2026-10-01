@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20261001-ms" />
+    <link rel="stylesheet" href="./styles.css?v=20261001-ms2" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -91,12 +91,12 @@
               <div><dt>Thời gian tổ chức</dt><dd>Từ ngày 08/01/2027 đến ngày 17/01/2027 (8 ngày), <a href="#schedule">chi tiết bên dưới</a></dd></div>
               <div><dt>Số lượng lớp/khóa học</dt><dd>3 khóa học</dd></div>
               <div><dt>Hình thức tổ chức</dt><dd>Học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom</dd></div>
-              <div><dt>Địa điểm tổ chức</dt><dd>Viện Phương Nam – 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</dd></div>
+              <div><dt>Địa điểm tổ chức</dt><dd>Viện Phương Nam – 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP.&nbsp;Hồ&nbsp;Chí&nbsp;Minh</dd></div>
               <div class="is-wide"><dt>Phần mềm sử dụng</dt><dd>R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu</dd></div>
               <div class="is-wide is-deadline"><dt>Hạn chót</dt><dd>Đăng ký và hoàn tất học phí trước ngày 28/12/2026</dd></div>
             </dl>
             <div class="hero-actions">
-              <a class="button button-primary" href="#registration">Đăng ký tư vấn <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+              <a class="button button-primary" href="#registration">Đăng ký <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
               <a class="button button-ghost" href="#programs">Chương trình chi tiết</a>
             </div>
           </div>
@@ -113,8 +113,8 @@
         <span id="lp-form" class="hash-anchor" aria-hidden="true"></span>
         <div class="shell">
           <div class="section-head">
-            <h2 id="registration-title">Đăng ký tư vấn khóa học</h2>
-            <p id="registration-note">Vui lòng để lại thông tin để Viện Phương Nam hỗ trợ xác nhận khóa học, lịch học, ưu đãi và hình thức thanh toán.</p>
+            <h2 id="registration-title">Đăng ký khóa học</h2>
+            <p id="registration-note">Vui lòng kiểm tra thông tin trước khi gửi.</p>
           </div>
 
           <div class="registration-grid">
@@ -148,8 +148,9 @@
                     </div>
                   </fieldset>
                   <div class="field field-wide"><label for="consultation-email">Email <span class="req" aria-hidden="true">*</span></label><input id="consultation-email" name="emailcontact" type="email" autocomplete="email" maxlength="255" required /></div>
-                  <div class="field"><label for="consultation-holot">Họ và chữ lót <span class="req" aria-hidden="true">*</span></label><input id="consultation-holot" name="ho_lot" type="text" autocomplete="additional-name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn" required /></div>
-                  <div class="field"><label for="consultation-ten">Tên <span class="req" aria-hidden="true">*</span></label><input id="consultation-ten" name="ten" type="text" autocomplete="given-name" maxlength="50" placeholder="Ví dụ: An" required /></div>
+                  <div class="field"><label for="consultation-holot">Họ và chữ lót <span class="req" aria-hidden="true">*</span></label><input id="consultation-holot" name="ho_lot" type="text" autocomplete="additional-name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn" aria-describedby="name-hint" required /></div>
+                  <div class="field"><label for="consultation-ten">Tên <span class="req" aria-hidden="true">*</span></label><input id="consultation-ten" name="ten" type="text" autocomplete="given-name" maxlength="50" placeholder="Ví dụ: An" aria-describedby="name-hint" required /></div>
+                  <p class="field-hint field-wide" id="name-hint">Họ và tên được ghi trên giấy chứng nhận, vui lòng điền chính xác.</p>
                   <div class="field field-wide"><label for="consultation-phone">Số điện thoại <span class="req" aria-hidden="true">*</span></label><input id="consultation-phone" name="phoneregister" type="tel" inputmode="tel" autocomplete="tel" pattern="(?:[0-9][\s\-]*){9,11}" maxlength="20" required /></div>
                 </div>
               </fieldset>
@@ -161,7 +162,7 @@
                     <legend>Giới tính <span class="req" aria-hidden="true">*</span></legend>
                     <div class="radio-row"><label><input type="radio" name="gioi_tinh" value="Nam" required /> Nam</label><label><input type="radio" name="gioi_tinh" value="Nữ" /> Nữ</label></div>
                   </fieldset>
-                  <div class="field"><label for="consultation-birth">Ngày sinh <span class="req" aria-hidden="true">*</span></label><input id="consultation-birth" name="ngay_sinh" type="text" inputmode="numeric" autocomplete="bday" placeholder="Ví dụ: 01/01/1990" pattern="(?:0[1-9]|[12][0-9]|3[01])\/(?:0[1-9]|1[0-2])\/[0-9]{4}" maxlength="10" required /></div>
+                  <div class="field"><label for="consultation-birth">Ngày sinh <span class="req" aria-hidden="true">*</span></label><input id="consultation-birth" name="ngay_sinh" type="text" inputmode="numeric" autocomplete="bday" placeholder="Ví dụ: 01/01/1990" pattern="(?:0[1-9]|[12][0-9]|3[01])\/(?:0[1-9]|1[0-2])\/[0-9]{4}" maxlength="10" aria-describedby="birth-hint" required /><p class="field-hint" id="birth-hint">Ngày sinh được ghi trên giấy chứng nhận, vui lòng điền chính xác.</p></div>
                   <div class="field field-wide"><label for="consultation-province">Tỉnh/Thành phố (sau sáp nhập) đang sinh sống/làm việc <span class="req" aria-hidden="true">*</span></label><select id="consultation-province" name="tinh_thanh" required><option value="" selected disabled>Chọn tỉnh/thành từ danh sách</option><option>Tỉnh Tuyên Quang</option><option>Tỉnh Lào Cai</option><option>Tỉnh Thái Nguyên</option><option>Tỉnh Phú Thọ</option><option>Tỉnh Bắc Ninh</option><option>Tỉnh Hưng Yên</option><option>Thành phố Hải Phòng</option><option>Tỉnh Ninh Bình</option><option>Tỉnh Quảng Trị</option><option>Thành phố Đà Nẵng</option><option>Tỉnh Quảng Ngãi</option><option>Tỉnh Gia Lai</option><option>Tỉnh Khánh Hoà</option><option>Tỉnh Lâm Đồng</option><option>Tỉnh Đắk Lắk</option><option>Thành phố Hồ Chí Minh</option><option>Tỉnh Đồng Nai</option><option>Tỉnh Tây Ninh</option><option>Thành phố Cần Thơ</option><option>Tỉnh Vĩnh Long</option><option>Tỉnh Đồng Tháp</option><option>Tỉnh Cà Mau</option><option>Tỉnh An Giang</option><option>Thành phố Hà Nội</option><option>Thành phố Huế</option><option>Tỉnh Lai Châu</option><option>Tỉnh Điện Biên</option><option>Tỉnh Sơn La</option><option>Tỉnh Lạng Sơn</option><option>Tỉnh Quảng Ninh</option><option>Tỉnh Thanh Hoá</option><option>Tỉnh Nghệ An</option><option>Tỉnh Hà Tĩnh</option><option>Tỉnh Cao Bằng</option></select></div>
                 </div>
               </fieldset>
@@ -187,13 +188,13 @@
                 <p class="step-count" data-step-count aria-live="polite">Bước 1 / 3</p>
                 <button class="button button-quiet" type="button" data-step-prev hidden>Quay lại</button>
                 <button class="button button-primary" type="button" data-step-next>Tiếp tục <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></button>
-                <button class="button button-primary" type="submit" data-step-submit>Kiểm tra thông tin <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></button>
+                <button class="button button-primary" type="submit" data-step-submit>Đăng ký <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></button>
                 <a class="form-call" href="tel:02822426789">Gọi (028) 2242 6789</a>
               </div>
             </form>
           </div>
         </div>
-        <noscript><p class="form-noscript shell">JavaScript đang tắt. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để đăng ký tư vấn.</p></noscript>
+        <noscript><p class="form-noscript shell">JavaScript đang tắt. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để đăng ký.</p></noscript>
       </section>
 
       <section class="programs" id="programs" aria-labelledby="programs-title">
@@ -204,9 +205,9 @@
           </div>
 
           <div class="tabs" role="tablist" aria-label="Chọn khóa học">
-            <button type="button" role="tab" id="tab-r" aria-controls="scenario-panel" aria-selected="true" class="tab is-active" data-scenario-tab="r" tabindex="0"><span><strong>Hình 1.</strong> Phân tích dữ liệu với R cơ bản</span></button>
-            <button type="button" role="tab" id="tab-cea" aria-controls="scenario-panel" aria-selected="false" class="tab" data-scenario-tab="cea" tabindex="-1"><span><strong>Hình 2.</strong> Chi phí - hiệu quả trong y tế</span></button>
-            <button type="button" role="tab" id="tab-time" aria-controls="scenario-panel" aria-selected="false" class="tab" data-scenario-tab="time" tabindex="-1"><span><strong>Hình 3.</strong> Phân tích dữ liệu chuỗi thời gian</span></button>
+            <button type="button" role="tab" id="tab-r" aria-controls="scenario-panel" aria-selected="true" class="tab is-active" data-scenario-tab="r" tabindex="0"><span>Phân tích dữ liệu với R cơ bản</span></button>
+            <button type="button" role="tab" id="tab-cea" aria-controls="scenario-panel" aria-selected="false" class="tab" data-scenario-tab="cea" tabindex="-1"><span>Phân tích chi phí - hiệu quả trong y tế</span></button>
+            <button type="button" role="tab" id="tab-time" aria-controls="scenario-panel" aria-selected="false" class="tab" data-scenario-tab="time" tabindex="-1"><span>Phân tích dữ liệu chuỗi thời gian</span></button>
           </div>
 
           <div class="panel" id="scenario-panel" role="tabpanel" aria-labelledby="tab-r" data-scenario-panel>
@@ -215,12 +216,13 @@
               <figcaption data-scenario-caption></figcaption>
             </figure>
             <div class="panel-copy">
-              <h3 data-scenario-title>Xây dựng nền tảng phân tích dữ liệu bằng R.</h3>
-              <p data-scenario-description>Dành cho nhà nghiên cứu, học viên sau đại học, giảng viên và người mới bắt đầu sử dụng R; không cần kinh nghiệm lập trình.</p>
+              <h3 data-scenario-title>Phân tích dữ liệu với R cơ bản</h3>
+              <p data-scenario-description>Đối tượng: nhà nghiên cứu, nghiên cứu sinh và học viên sau đại học, giảng viên cao đẳng và đại học, người mới bắt đầu sử dụng R. Không cần kinh nghiệm lập trình.</p>
+              <p class="panel-label">Mục tiêu khóa học</p>
               <ul class="skill-list" data-scenario-skills>
-                <li>Nhập, quản lý, mô tả và hiển thị dữ liệu</li>
-                <li>Chọn biểu đồ theo câu hỏi nghiên cứu</li>
-                <li>Diễn giải kết quả trong bối cảnh nghiên cứu</li>
+                <li>Sử dụng R và RStudio cho những phân tích dữ liệu thông dụng</li>
+                <li>Nhập, quản lí, mô tả và hiển thị dữ liệu</li>
+                <li>Thực hiện các phân tích so sánh và phân tích mối liên quan</li>
               </ul>
               <dl class="facts">
                 <div><dt>Thời gian diễn ra</dt><dd data-scenario-date>Từ 08/01 đến 10/01/2027</dd></div>
@@ -257,7 +259,6 @@
                   <tr><td class="stt" data-stt="Khóa 2">2</td><th scope="row">Phân tích chi phí - hiệu quả trong y tế</th><td class="num">02 ngày</td><td class="num">Ngày 12/01 và 13/01/2027</td></tr>
                   <tr><td class="stt" data-stt="Khóa 3">3</td><th scope="row">Phân tích dữ liệu chuỗi thời gian</th><td class="num">03 ngày</td><td class="num">Từ 15/01 đến 17/01/2027</td></tr>
                 </tbody>
-                <tfoot><tr><td colspan="4">Giờ học mỗi ngày: 08:30–12:00 và 13:30–17:00. Ngày đầu tiên bắt đầu lúc 08:00.</td></tr></tfoot>
               </table>
             </div>
           </div>
@@ -275,10 +276,10 @@
             <caption><strong>Bảng 2.</strong> Lựa chọn gói đăng ký</caption>
             <thead><tr><th scope="col">Gói đăng ký</th><th scope="col">Diễn giải</th><th scope="col" class="num">Thời lượng</th><th scope="col" class="num">Học phí/học viên</th></tr></thead>
             <tbody>
-              <tr class="is-featured"><th scope="row">Gói 1</th><td>Cả 03 khóa<span class="sub">Phân tích dữ liệu với R cơ bản, Chi phí - hiệu quả trong y tế, Chuỗi thời gian</span></td><td class="num">08 ngày</td><td class="num price">8.800.000<span class="cur"> đồng</span></td></tr>
-              <tr><th scope="row">Gói 2</th><td>Khóa 1 + Khóa 2<span class="sub">Phân tích dữ liệu với R cơ bản + Chi phí - hiệu quả trong y tế</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
+              <tr class="is-featured"><th scope="row">Gói 1</th><td>Cả 03 khóa<span class="sub">Phân tích dữ liệu với R cơ bản, Phân tích chi phí - hiệu quả trong y tế, Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">08 ngày</td><td class="num price">8.800.000<span class="cur"> đồng</span></td></tr>
+              <tr><th scope="row">Gói 2</th><td>Khóa 1 + Khóa 2<span class="sub">Phân tích dữ liệu với R cơ bản + Phân tích chi phí - hiệu quả trong y tế</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 3</th><td>Khóa 1 + Khóa 3<span class="sub">Phân tích dữ liệu với R cơ bản + Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">06 ngày</td><td class="num price">7.500.000<span class="cur"> đồng</span></td></tr>
-              <tr><th scope="row">Gói 4</th><td>Khóa 2 + Khóa 3<span class="sub">Chi phí - hiệu quả trong y tế + Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
+              <tr><th scope="row">Gói 4</th><td>Khóa 2 + Khóa 3<span class="sub">Phân tích chi phí - hiệu quả trong y tế + Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">05 ngày</td><td class="num price">6.700.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 5</th><td>Khóa 2<span class="sub">Phân tích chi phí - hiệu quả trong y tế</span></td><td class="num">02 ngày</td><td class="num price">3.500.000<span class="cur"> đồng</span></td></tr>
               <tr><th scope="row">Gói 6</th><td>Khóa 3<span class="sub">Phân tích dữ liệu chuỗi thời gian</span></td><td class="num">03 ngày</td><td class="num price">4.500.000<span class="cur"> đồng</span></td></tr>
             </tbody>
@@ -380,14 +381,14 @@
         <div class="shell close-grid">
           <div class="close-copy">
             <h2 id="register-title">Sẵn sàng bắt đầu từ bộ dữ liệu đầu tiên?</h2>
-            <p>Đăng ký trước ngày 28/12/2026 để xác nhận chỗ, gói học và điều kiện ưu đãi. Gửi phiếu tư vấn trên trang này hoặc gọi Viện Phương Nam nếu cần xác nhận gói học, ưu đãi hoặc thông tin chuyển khoản.</p>
+            <p>Đăng ký trước ngày 28/12/2026 để xác nhận chỗ, gói học và điều kiện ưu đãi. Điền phiếu đăng ký trên trang này hoặc gọi Viện Phương Nam nếu cần xác nhận gói học, ưu đãi hoặc thông tin chuyển khoản.</p>
             <div class="close-actions">
-              <a class="button button-light" href="#registration">Gửi phiếu tư vấn <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
+              <a class="button button-light" href="#registration">Đăng ký <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
               <a class="button button-outline-light" href="tel:02822426789">Gọi (028) 2242 6789</a>
             </div>
           </div>
           <address class="close-contact">
-            <p class="close-place">Viện Phương Nam<br />45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</p>
+            <p class="close-place">Viện Phương Nam<br />45 Đinh Tiên Hoàng, Phường Sài Gòn, TP.&nbsp;Hồ&nbsp;Chí&nbsp;Minh</p>
             <a href="tel:02822426789"><span>Điện thoại</span>(028) 2242 6789</a>
             <a href="tel:0949761636"><span>Ms. Vy</span>0949 761 636</a>
             <a href="tel:0912114511"><span>Ms. Thảo</span>0912 114 511</a>
@@ -399,8 +400,8 @@
     <footer class="site-footer">
       <div class="shell footer-grid">
         <div class="footer-brand"><span class="footer-logo"><img src="./logo.png" alt="Phuong Nam Institute" width="84" height="80" loading="lazy" /></span><strong>Viện phát triển nguồn lực xã hội Phương Nam</strong><p>Chuỗi khóa học Phân tích định lượng với R – Từ cơ bản đến chuyên sâu · 01/2027</p></div>
-        <div><h2>Liên hệ</h2><p>45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh</p><a href="tel:02822426789">(028) 2242 6789</a><a href="tel:0949761636">0949 761 636 · Ms. Vy</a><a href="tel:0912114511">0912 114 511 · Ms. Thảo</a></div>
-        <div><h2>Website</h2><a href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">www.vienphuongnam.com.vn <svg class="i" aria-hidden="true"><use href="#i-ext" /></svg></a><p class="footer-note">Chi tiết về Chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” tham khảo thêm tại website. Mã QR đăng ký được in trong thông báo chính thức.</p></div>
+        <div><h2>Liên hệ</h2><p>45 Đinh Tiên Hoàng, Phường Sài Gòn, TP.&nbsp;Hồ&nbsp;Chí&nbsp;Minh</p><a href="tel:02822426789">(028) 2242 6789</a><a href="tel:0949761636">0949 761 636 · Ms. Vy</a><a href="tel:0912114511">0912 114 511 · Ms. Thảo</a></div>
+        <div><h2>Website</h2><a href="https://www.vienphuongnam.com.vn" target="_blank" rel="noreferrer">www.vienphuongnam.com.vn <svg class="i" aria-hidden="true"><use href="#i-ext" /></svg></a></div>
       </div>
       <div class="shell footer-bottom"><span>© 2026 Viện Phương Nam</span><span>Chuỗi khóa học Phân tích định lượng với R – Từ cơ bản đến chuyên sâu · 01/2027</span></div>
     </footer>
@@ -410,6 +411,6 @@
       <a class="button button-quiet" href="tel:02822426789"><svg class="i" aria-hidden="true"><use href="#i-phone" /></svg> Gọi</a>
     </div>
 
-    <script src="./app.js?v=20261001-ms" defer></script>
+    <script src="./app.js?v=20261001-ms2" defer></script>
   </body>
 </html>
