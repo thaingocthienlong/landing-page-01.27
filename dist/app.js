@@ -173,54 +173,24 @@
     svgs.forEach((svg) => observer.observe(svg));
   };
 
-  /* ---------- autoplay: shared pause state, 5s per figure ---------- */
+  /* ---------- endless 5s loops ---------- */
 
-  const autoplay = { paused: false, cycles: [] };
-  const toggles = [...document.querySelectorAll("[data-autoplay-toggle]")];
-
-  const syncToggles = () => toggles.forEach((button) => {
-    button.setAttribute("aria-pressed", String(autoplay.paused));
-    button.querySelector("span").textContent = autoplay.paused ? "Tự chuyển hình" : "Tạm dừng";
-    button.querySelector("use").setAttribute("href", autoplay.paused ? "#i-play" : "#i-pause");
-  });
-
-  const restartAll = () => autoplay.cycles.forEach((cycle) => cycle.restart());
-
-  toggles.forEach((button) => button.addEventListener("click", () => {
-    autoplay.paused = !autoplay.paused;
-    syncToggles();
-    restartAll();
-  }));
-  if (reducedMotion.matches) {
-    autoplay.paused = true;
-    toggles.forEach((button) => { button.hidden = true; });
-  }
-  document.addEventListener("visibilitychange", restartAll);
-
-  const makeCycle = (area, advance, { ms = 5000, endless = false } = {}) => {
+  const makeCycle = (area, advance, ms = 5000) => {
     let timer = 0;
     let visible = false;
-    let hold = false;
-    const stop = () => window.clearTimeout(timer);
     const restart = () => {
-      stop();
-      if (reducedMotion.matches || (!endless && (autoplay.paused || hold)) || !visible || document.hidden) return;
+      window.clearTimeout(timer);
+      if (reducedMotion.matches || !visible || document.hidden) return;
       timer = window.setTimeout(() => { advance(); restart(); }, ms);
     };
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; restart(); }, { threshold: 0.3 }).observe(area);
     } else {
       visible = true;
+      restart();
     }
-    if (!endless) {
-      area.addEventListener("mouseenter", () => { hold = true; stop(); });
-      area.addEventListener("mouseleave", () => { hold = false; restart(); });
-      area.addEventListener("focusin", () => { hold = true; stop(); });
-      area.addEventListener("focusout", () => { hold = false; restart(); });
-    }
-    const cycle = { restart };
-    autoplay.cycles.push(cycle);
-    return cycle;
+    document.addEventListener("visibilitychange", restart);
+    return { restart };
   };
 
   /* ---------- course tabs ---------- */
@@ -284,7 +254,7 @@
       }
     };
 
-    makeCycle(plateEl, () => show(index + 1), { endless: true });
+    makeCycle(plateEl, () => show(index + 1));
   };
 
   const setupTabs = () => {
@@ -558,10 +528,12 @@
     const sourceRadios = [...form.querySelectorAll('input[name="biet_qua"]')];
     const sourceOther = form.elements.namedItem("biet_qua_other");
     const sourceOtherField = sourceOther?.closest(".consultation-other-field") || null;
-    const certificateList = form.querySelector("[data-certificate-list]");
-    const addCertificateButton = form.querySelector("[data-add-certificate]");
     let current = 0;
-    let nextCertificateIndex = 2;
+    const endpoint = (form.dataset.endpoint || "").trim();
+    const openedAt = Date.now();
+    if (endpoint) {
+      submitButton.firstChild.textContent = "Gửi đăng ký ";
+    }
 
     const hints = {
       emailcontact: "Ví dụ: ten@donvi.vn",
@@ -597,7 +569,7 @@
       const label = labelOf(control);
       if (control.validity.valueMissing) {
         const verb = control.matches('input[type="radio"], select, input[type="checkbox"]') ? "chọn" : "nhập";
-        return control.type === "checkbox" ? "Vui lòng đồng ý để Viện Phương Nam liên hệ tư vấn trước khi tiếp tục." : `Vui lòng ${verb} “${label}”.`;
+        return control.type === "checkbox" ? "Vui lòng xác nhận đã đọc và đồng ý với Chính sách bảo mật thông tin của Viện Phương Nam." : `Vui lòng ${verb} “${label}”.`;
       }
       return `“${label}” chưa đúng định dạng. ${hints[control.name] || ""}`.trim();
     };
@@ -644,44 +616,11 @@
       sourceOtherField?.setAttribute("aria-hidden", String(!needsOther));
     };
 
-    const syncCertificateButtons = () => {
-      const rows = [...(certificateList?.querySelectorAll(".certificate-row") || [])];
-      rows.forEach((row) => {
-        const remove = row.querySelector("[data-remove-certificate]");
-        if (remove) remove.hidden = rows.length === 1;
-      });
-    };
-
-    const addCertificate = () => {
-      const first = certificateList?.querySelector(".certificate-row");
-      if (!first) return;
-      const row = first.cloneNode(true);
-      const index = nextCertificateIndex++;
-      row.querySelectorAll("input").forEach((input) => { input.value = ""; });
-      const [nameInput, dateInput] = row.querySelectorAll("input");
-      const [nameLabel, dateLabel] = row.querySelectorAll("label");
-      nameInput.id = `consultation-certificate-${index}`;
-      dateInput.id = `consultation-certificate-date-${index}`;
-      nameLabel.setAttribute("for", nameInput.id);
-      dateLabel.setAttribute("for", dateInput.id);
-      certificateList.append(row);
-      syncCertificateButtons();
-      nameInput.focus();
-    };
-
     form.addEventListener("input", clearFeedback);
     form.addEventListener("change", (event) => {
       clearFeedback();
       if (event.target?.name === "biet_qua") syncSourceOther();
     });
-    addCertificateButton?.addEventListener("click", addCertificate);
-    certificateList?.addEventListener("click", (event) => {
-      const remove = event.target.closest("[data-remove-certificate]");
-      if (!remove || certificateList.querySelectorAll(".certificate-row").length <= 1) return;
-      remove.closest(".certificate-row")?.remove();
-      syncCertificateButtons();
-    });
-
     nextButton.addEventListener("click", () => {
       clearFeedback();
       if (validateStep(current)) show(current + 1, { focus: true });
@@ -698,6 +637,47 @@
       });
     });
 
+    const collect = () => {
+      const data = new FormData(form);
+      const get = (name) => String(data.get(name) || "").trim();
+      const course = form.querySelector('input[name="course_id"]:checked')?.closest(".choice")?.querySelector("strong")?.textContent.trim() || "";
+      return {
+        course_id: get("course_id"), course, ho_lot: get("ho_lot"), ten: get("ten"), emailcontact: get("emailcontact"),
+        phoneregister: get("phoneregister"), gioi_tinh: get("gioi_tinh"), ngay_sinh: get("ngay_sinh"), tinh_thanh: get("tinh_thanh"),
+        vi_tri: get("vi_tri"), don_vi: get("don_vi"),
+        biet_qua: get("biet_qua"), biet_qua_other: get("biet_qua_other"), agreement: form.agreement.checked,
+        page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"),
+      };
+    };
+
+    const showMessage = (text) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = text;
+      status.replaceChildren(paragraph);
+      status.hidden = false;
+      status.focus({ preventScroll: true });
+    };
+
+    const send = async () => {
+      submitButton.disabled = true;
+      form.setAttribute("aria-busy", "true");
+      try {
+        const response = await fetch(form.dataset.endpoint.trim(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(collect()) });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || "rejected");
+        form.reset();
+        syncSourceOther();
+        show(0);
+        showMessage("Đã gửi đăng ký thành công. Viện Phương Nam sẽ liên hệ qua điện thoại hoặc email để xác nhận chỗ, gói học và thông tin thanh toán. Cần gấp, vui lòng gọi (028) 2242 6789.");
+      } catch {
+        error.textContent = "Chưa gửi được thông tin đăng ký. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
+        error.hidden = false;
+      } finally {
+        submitButton.disabled = false;
+        form.removeAttribute("aria-busy");
+      }
+    };
+
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       clearFeedback();
@@ -708,15 +688,14 @@
         bad?.focus();
         return;
       }
-      const message = document.createElement("p");
-      message.textContent = "Thông tin hợp lệ nhưng chưa được gửi đi: trang này chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, gói đăng ký và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.";
-      status.replaceChildren(message);
-      status.hidden = false;
-      status.focus({ preventScroll: true });
+      if ((form.dataset.endpoint || "").trim()) {
+        send();
+        return;
+      }
+      showMessage("Thông tin hợp lệ nhưng chưa được gửi đi: trang này chưa kết nối bộ xử lý đăng ký trực tuyến. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để xác nhận chỗ, gói đăng ký và thông tin thanh toán. Dữ liệu bạn đã nhập vẫn được giữ lại trong biểu mẫu.");
     });
 
     syncSourceOther();
-    syncCertificateButtons();
     show(0);
   };
 
@@ -742,7 +721,6 @@
 
   setupBackdrop();
   setupFigures();
-  syncToggles();
   setupHero();
   setupTabs();
   setupSideNav();
