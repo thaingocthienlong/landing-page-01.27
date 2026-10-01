@@ -193,7 +193,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - Three Figure tabs under a 2px ink rule; active tab is cobalt with a 5px inset underline. Roving tabindex with arrow, Home and End keys; panel swap is a 0.38s fade-rise.
 
 ### Registration form
-- Three steps (course, personal details, background and consent), a cobalt stepper aside with numbered discs, step counter. Validation is local only; the form checks and reports fields and never claims a successful submission, routing the learner to a real phone link.
+- Three steps (package and contact, personal details, background and consent), a cobalt stepper aside with numbered discs, step counter. Validation is local only; the form checks and reports fields and never claims a successful submission, routing the learner to a real phone link.
 
 ### Navigation
 - White sticky header, serif wordmark, sans links with a growing 2px cobalt underline, cobalt CTA. Below 900px a 48px toggle opens a stacked list and a fixed bottom bar offers Call and register.
@@ -201,7 +201,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 ## Do's and Don'ts
 
 ### Do:
-- **Do** write every date, fee, discount condition, contact, payment datum and faculty fact from the official notice (`assets\THÔNG BÁO_v.2_CHUỖI KHÓA NCKH (01.2027).docx`, the newest); the H1 follows its title "Phân tích định lượng với R – Từ cơ bản đến chuyên sâu".
+- **Do** write every date, fee, discount condition, contact, payment datum and faculty fact from the official notice (`assets\THÔNG BÁO_v.3_CHUỖI KHÓA NCKH (01.2027).docx`, the newest); the H1 follows its title "Phân tích định lượng với R – Từ cơ bản đến chuyên sâu".
 - **Do** label every generated figure as simulated illustration.
 - **Do** use rules and numbered captions to structure content.
 - **Do** keep course codes as internal form values, never public copy; do not duplicate the notice's QR asset.

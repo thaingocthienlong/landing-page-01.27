@@ -14,7 +14,7 @@ var NOTIFY_EMAILS = ['vanphong@vienphuongnam.com.vn'];
 var MIN_SECONDS_TO_FILL = 3;
 
 var HEADERS = [
-  'Thời gian', 'Mã khóa', 'Khóa học quan tâm', 'Họ và chữ lót', 'Tên', 'Email', 'Số điện thoại',
+  'Thời gian', 'Mã gói', 'Gói đăng ký quan tâm', 'Họ và chữ lót', 'Tên', 'Email', 'Số điện thoại',
   'Giới tính', 'Ngày sinh', 'Tỉnh/Thành phố', 'Vị trí công tác', 'Đơn vị công tác',
   'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái'
 ];
@@ -42,7 +42,7 @@ function doPost(e) {
     if (data.website) return json_({ ok: true });
     if (Number(data.elapsed) < MIN_SECONDS_TO_FILL) return json_({ ok: false, error: 'too-fast' });
 
-    var required = ['course_id', 'ho_lot', 'ten', 'emailcontact', 'phoneregister', 'gioi_tinh', 'ngay_sinh', 'tinh_thanh', 'vi_tri', 'don_vi', 'biet_qua'];
+    var required = ['package_id', 'ho_lot', 'ten', 'emailcontact', 'phoneregister', 'gioi_tinh', 'ngay_sinh', 'tinh_thanh', 'vi_tri', 'don_vi', 'biet_qua'];
     for (var i = 0; i < required.length; i++) {
       if (!clean_(data[required[i]])) return json_({ ok: false, error: 'missing-' + required[i] });
     }
@@ -51,12 +51,12 @@ function doPost(e) {
 
     var cache = CacheService.getScriptCache();
     var key = 'r_' + Utilities.base64EncodeWebSafe(
-      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [data.emailcontact, data.phoneregister, data.course_id].join('|'))
+      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [data.emailcontact, data.phoneregister, data.package_id].join('|'))
     );
     if (cache.get(key)) return json_({ ok: true, duplicate: true });
 
     var row = [
-      new Date(), data.course_id, data.course, data.ho_lot, data.ten, data.emailcontact, data.phoneregister,
+      new Date(), data.package_id, data.package, data.ho_lot, data.ten, data.emailcontact, data.phoneregister,
       data.gioi_tinh, data.ngay_sinh, data.tinh_thanh, data.vi_tri, data.don_vi,
       data.biet_qua, data.biet_qua_other || '', 'Có', data.page, 'Mới'
     ].map(clean_);
@@ -86,7 +86,7 @@ function notify_(data, row) {
   MailApp.sendEmail({
     to: to,
     replyTo: data.emailcontact,
-    subject: 'Đăng ký mới: ' + data.course_id + ' – ' + data.ho_lot + ' ' + data.ten,
+    subject: 'Đăng ký mới: ' + data.package_id + ' – ' + data.ho_lot + ' ' + data.ten,
     htmlBody: '<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px">' + rows + '</table>'
   });
 }

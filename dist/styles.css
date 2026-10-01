@@ -221,7 +221,8 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--cobalt); ou
 input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin: 0; accent-color: var(--cobalt); flex: none; }
 .choice-group { margin: 0; padding: 0; border: 0; min-width: 0; }
 .choice { display: flex; align-items: flex-start; gap: 14px; position: relative; padding: 15px 16px; border: 1px solid var(--hair); margin-top: -1px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
-.choice:first-of-type { margin-top: 0; }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.choice-grid .choice { margin-top: 0; }
 .choice input { margin-top: 3px; }
 .choice strong { display: block; font-weight: 600; line-height: 1.35; }
 .choice small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 0.9375rem; }
@@ -291,7 +292,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .table-price .is-featured { background: var(--cobalt); color: #fff; }
 .table-price .is-featured th, .table-price .is-featured td { border-bottom-color: var(--cobalt); padding-block: 22px; }
 .table-price .is-featured .price { font-size: 2.125rem; }
-.gift { display: block; margin-top: 6px; font-size: 0.9375rem; color: var(--cobalt-tint); }
 .table-discount { margin-top: 56px; }
 .table-discount .rate { font-weight: 600; color: var(--ink); }
 .table-discount .none { color: var(--ink-3); font-style: italic; }
@@ -410,7 +410,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .tab, .tab + .tab { padding: 14px 0; border-bottom: 1px solid var(--hair); box-shadow: inset 4px 0 0 transparent; padding-left: 14px; }
   .tab.is-active { box-shadow: inset 4px 0 0 var(--cobalt); background: var(--cobalt-wash); }
   .tabs { border-top: 2px solid var(--ink); }
-  .form-grid, .radio-grid { grid-template-columns: minmax(0, 1fr); }
+  .form-grid, .radio-grid, .choice-grid { grid-template-columns: minmax(0, 1fr); }
     .form-call { margin-left: 0; }
   .abstract { grid-template-columns: minmax(0, 1fr); }
   .abstract .is-wide { grid-column: auto; }
@@ -438,9 +438,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .table-discount tbody tr { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .table-discount td { text-align: left !important; }
   .table-discount td:nth-child(2)::before { content: "Áp dụng cho: "; color: var(--ink-3); font-weight: 400; }
-  .table-discount td:nth-child(3)::before { content: "Trước 08/12/2026: "; color: var(--ink-3); font-weight: 400; }
-  .table-discount td:nth-child(4)::before { content: "Sau 08/12/2026: "; color: var(--ink-3); font-weight: 400; }
-  .table-discount td[colspan]::before { content: none !important; }
+  .table-discount td:nth-child(3)::before { content: "Ưu đãi: "; color: var(--ink-3); font-weight: 400; }
   .close-contact a { font-size: 1.375rem; }
 }
 
