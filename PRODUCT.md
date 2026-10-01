@@ -16,7 +16,7 @@ Vietnamese researchers, postgraduate students, lecturers, and health/pharma/heal
 
 ## Product Purpose
 
-Sell seats in "Chuỗi khóa học Phân tích định lượng với R" (01/2027), run by Viện Phương Nam: three linked courses, 08/01–17/01/2027, in person at 45 Đinh Tiên Hoàng (TP. Hồ Chí Minh) or online via Zoom. Success is a completed registration and tuition payment by 29/12/2026 (early-bird deadline 08/12/2026).
+Sell seats in "Chuỗi khóa học Phân tích định lượng với R" (01/2027), run by Viện Phương Nam: three linked courses, 08/01–17/01/2027, in person at 45 Đinh Tiên Hoàng (TP. Hồ Chí Minh) or online via Zoom. Success is a completed registration and tuition payment by 28/12/2026 (early-bird deadline 08/12/2026).
 
 ## Positioning
 
@@ -31,7 +31,7 @@ Source of truth is the v2 notice (`assets/THÔNG BÁO_v.2_CHUỖI KHÓA NCKH (01
 - Official series name: "Phân tích định lượng với R". Approved H1 phrase: "Phân tích dữ liệu với R từ cơ bản đến nâng cao".
 - Courses: R cơ bản (08–10/01, 3 days), Chi phí - hiệu quả trong y tế (12–13/01, 2 days), Chuỗi thời gian (15–17/01, 3 days). Daily 08:30–12:00 and 13:30–17:00; first day starts 08:00.
 - Six tuition packages (8.800.000 / 6.700.000 / 7.500.000 / 6.700.000 / 3.500.000 / 4.500.000 đồng) with discount rules keyed to 08/12/2026; packages 1–4 include a reference book gift. All figures must stay reconciled to the notice.
-- Static site, no backend: the registration form validates locally and routes to phone/official link; it must never claim a successful submission. Field set follows the supplied PHP form (course, email, split name, gender, birth date, phone, province, position/unit, degree field, optional certificates, discovery source, consent); CAPTCHA/session fields are intentionally excluded.
+- Static site; registrations go to a Google Apps Script web app (`apps-script/Code.gs`, URL set in the form's `data-endpoint`) that appends to a Google Sheet and emails the owner. While `data-endpoint` is empty or a send fails, the form must never claim a successful submission and falls back to phone. Field set follows the supplied PHP form minus the degree-field and certificate fields, which were dropped on request (course, email, split name, gender, birth date, phone, province, position/unit, discovery source, consent to the privacy policy at https://vienphuongnam.com.vn/chinh-sach-bao-mat.php); CAPTCHA/session fields are intentionally excluded.
 - Course codes (PTCBR01.27, PTHQR01.27, PTTGR01.27) are internal form values, not public copy. Do not invent a notice number.
 - Contacts: (028) 2242 6789; 0949 761 636 (Ms. Vy); 0912 114 511 (Ms. Thảo).
 

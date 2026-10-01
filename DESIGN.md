@@ -118,7 +118,7 @@ Blue-black ink on white paper, one saturated cobalt, one signal red.
 - **Deep Cobalt** (#072c6b): hover for cobalt buttons; text on light-on-cobalt buttons.
 
 ### Secondary
-- **Signal Red** (#c4231a): the deadline value in the abstract list and the required-field mark, invalid-field border, certificate remove action. Nothing else.
+- **Signal Red** (#c4231a): the deadline value in the abstract list and the required-field mark and the invalid-field border. Nothing else.
 
 ### Neutral
 - **Paper** (#ffffff): page ground, header, inputs, sheets.
