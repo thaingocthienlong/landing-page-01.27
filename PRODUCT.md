@@ -16,7 +16,7 @@ Vietnamese researchers, postgraduate students, lecturers, and health/pharma/heal
 
 ## Product Purpose
 
-Sell seats in "Chuỗi chương trình Phân tích định lượng với R" (01/2027), run by Viện Phương Nam: three linked courses, 08/01–17/01/2027, in person at 45 Đinh Tiên Hoàng (TP. Hồ Chí Minh) or online via Zoom. Success is a completed registration and tuition payment by 29/12/2026 (early-bird deadline 08/12/2026).
+Sell seats in "Chuỗi khóa học Phân tích định lượng với R" (01/2027), run by Viện Phương Nam: three linked courses, 08/01–17/01/2027, in person at 45 Đinh Tiên Hoàng (TP. Hồ Chí Minh) or online via Zoom. Success is a completed registration and tuition payment by 29/12/2026 (early-bird deadline 08/12/2026).
 
 ## Positioning
 
@@ -24,7 +24,7 @@ Taught directly by GS.TS. Nguyễn Văn Tuấn (UTS / UNSW Sydney, 35+ years of 
 
 ## Operating Context
 
-Source of truth is the consolidated official notice (`assets/TB10.26_01.27_V1.docx` and the three per-course notices). Registration lives at https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r; the notice also carries a QR code that this page does not duplicate. Payment is by cash or bank transfer (OCB, Tân Thuận branch).
+Source of truth is the v2 notice (`assets/THÔNG BÁO_v.2_CHUỖI KHÓA NCKH (01.2027).docx`); page wording follows its terms (Chuỗi khóa học, Thời gian tổ chức, Hình thức tổ chức, Địa điểm tổ chức, Phần mềm sử dụng, Giảng viên, Gói đăng ký, Học phí/học viên, Ưu đãi học phí, Hình thức nộp học phí). The page deliberately carries no link to the official registration page; the notice's QR code is not duplicated. Payment is by cash or bank transfer (OCB, Tân Thuận branch).
 
 ## Capabilities and Constraints
 

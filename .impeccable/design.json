@@ -13,7 +13,7 @@
     "typographyMeta": {
       "display": { "displayName": "Display", "purpose": "The single H1; italic phrase in cobalt." },
       "headline": { "displayName": "Headline", "purpose": "Section h2." },
-      "title": { "displayName": "Title", "purpose": "Table row heads, ruled-list titles, FAQ questions, names." },
+      "title": { "displayName": "Title", "purpose": "Table row heads, ruled-list titles, names." },
       "body": { "displayName": "Body", "purpose": "Running text, never below 17px." },
       "label": { "displayName": "Label", "purpose": "Uppercase terms and table column heads." }
     },
