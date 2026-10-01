@@ -3810,3 +3810,304 @@ h3 {
     min-height: clamp(390px, calc(100svh - 250px), 520px);
   }
 }
+
+/* Approved first-section parity: keep the reference rhythm while preserving course facts and anchors. */
+.promo-bar {
+  position: absolute;
+  z-index: 31;
+  top: 0;
+  right: 0;
+  left: 0;
+  border-bottom: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.promo-inner {
+  min-height: 30px;
+  justify-content: center;
+  padding-inline: 16px;
+  color: rgba(224, 242, 255, 0.72);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.promo-inner > span {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.promo-inner a {
+  display: none;
+}
+
+.site-header {
+  top: 16px;
+  right: 18px;
+  left: 18px;
+}
+
+.hero-section {
+  min-height: max(600px, calc(100svh - 10px));
+  padding: clamp(96px, 13vh, 136px) 0 84px;
+}
+
+.hero-content {
+  min-height: clamp(360px, calc(100svh - 210px), 520px);
+}
+
+.hero-copy {
+  max-width: 900px;
+}
+
+.hero-copy h1 {
+  max-width: 18ch;
+  font-size: clamp(2.65rem, 6vw, 5rem);
+  line-height: 1.02;
+}
+
+.hero-copy h1 .heading-accent {
+  background: linear-gradient(100deg, #ffffff 0%, #a9e7ff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.hero-lead,
+.hero-schedule {
+  display: none;
+}
+
+.hero-note {
+  max-width: 620px;
+  margin-inline: auto;
+  font-size: clamp(12px, 1.3vw, 15px);
+  line-height: 1.45;
+}
+
+.hero-deadline {
+  margin: 8px auto 0;
+  color: rgba(205, 231, 250, 0.74);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.hero-actions {
+  margin-top: 26px;
+}
+
+.hero-actions .button-secondary {
+  color: rgba(236, 247, 255, 0.9);
+  border-color: rgba(224, 243, 255, 0.38);
+  background: transparent;
+}
+
+.floating-toc ul {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.floating-toc-link {
+  min-height: 44px;
+}
+
+.nav-quick-cta {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .promo-inner {
+    min-height: 26px;
+    padding-inline: 10px;
+    font-size: 10px;
+  }
+
+  .site-header {
+    top: 16px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .brand {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .brand-copy span {
+    display: none;
+  }
+
+  .nav-quick-cta {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 0 16px;
+    border-radius: 999px;
+    color: #08275f;
+    background: var(--white);
+    box-shadow: 0 8px 20px rgba(0, 9, 48, 0.2);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-toggle {
+    flex: 0 0 44px;
+    margin-left: 8px;
+  }
+
+  .hero-section {
+    min-height: max(580px, calc(100svh - 8px));
+    padding: 96px 0 calc(108px + env(safe-area-inset-bottom));
+  }
+
+  .hero-content {
+    min-height: 0;
+  }
+
+  .hero-copy h1 {
+    max-width: 17ch;
+    font-size: clamp(2.2rem, 8.4vw, 3.9rem);
+    line-height: 1.04;
+  }
+
+  .hero-note {
+    max-width: 540px;
+    font-size: 12px;
+  }
+
+  .hero-deadline {
+    font-size: 10px;
+  }
+
+  .hero-actions {
+    margin-top: 22px;
+  }
+
+  .floating-actions {
+    display: none;
+  }
+
+  .floating-toc {
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 10px;
+  }
+
+  .floating-toc-link {
+    min-height: 44px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 640px) {
+  .promo-inner {
+    display: none;
+  }
+
+  .site-header {
+    top: 12px;
+  }
+
+  .brand-copy strong {
+    font-size: 11px;
+  }
+
+  .nav-quick-cta {
+    min-height: 42px;
+    padding-inline: 13px;
+    font-size: 11px;
+  }
+
+  .nav-toggle {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .hero-section {
+    min-height: max(560px, calc(100svh - 8px));
+    padding: 86px 0 calc(102px + env(safe-area-inset-bottom));
+  }
+
+  .hero-copy h1 {
+    max-width: 16ch;
+    font-size: clamp(1.9rem, 7.4vw, 3.15rem);
+    line-height: 1.06;
+  }
+
+  .hero-note {
+    max-width: 340px;
+    font-size: 11px;
+  }
+
+  .hero-deadline {
+    margin-top: 6px;
+    font-size: 9px;
+  }
+
+  .hero-actions {
+    gap: 9px;
+  }
+
+  .hero-actions .button {
+    width: min(100%, 300px);
+    min-height: 48px;
+  }
+
+  .floating-toc {
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 8px;
+  }
+
+  .floating-toc-link {
+    gap: 4px;
+    padding-inline: 3px;
+    font-size: 8px;
+  }
+
+  .floating-toc-link > span:first-child {
+    width: 22px;
+    height: 22px;
+    flex-basis: 22px;
+  }
+}
+
+/* Final reference alignment: the first-screen chrome stays as compact as the live reference. */
+.promo-inner {
+  display: none;
+}
+
+.brand-copy {
+  display: none;
+}
+
+.eyebrow {
+  font-family: "Segoe Script", "Brush Script MT", cursive;
+  font-size: clamp(15px, 1.8vw, 21px);
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+@media (min-width: 901px) {
+  .primary-nav {
+    margin-left: auto;
+  }
+
+  .primary-nav > a:not(.nav-cta) {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .primary-nav > a:not(.nav-cta) {
+    display: flex;
+  }
+}
