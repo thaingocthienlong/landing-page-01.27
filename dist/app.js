@@ -531,9 +531,7 @@
     let current = 0;
     const endpoint = (form.dataset.endpoint || "").trim();
     const openedAt = Date.now();
-    const note = document.querySelector("#registration-note");
     if (endpoint) {
-      if (note) note.textContent = "Vui lòng để lại thông tin để Viện Phương Nam hỗ trợ xác nhận khóa học, lịch học, ưu đãi và hình thức thanh toán. Thông tin được gửi trực tiếp tới Viện; nếu cần gấp, vui lòng gọi (028) 2242 6789.";
       submitButton.firstChild.textContent = "Gửi đăng ký ";
     }
 

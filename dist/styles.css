@@ -139,6 +139,7 @@ section { padding-block: var(--section); }
 .abstract .is-wide { grid-column: 1 / -1; }
 .abstract dt { margin-bottom: 2px; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
 .abstract dd { font-size: 1.0625rem; line-height: 1.5; }
+.abstract dd a { color: var(--cobalt); font-weight: 600; }
 .abstract .is-deadline dd { color: var(--signal); font-weight: 700; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 
