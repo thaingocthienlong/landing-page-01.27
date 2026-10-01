@@ -1,58 +1,215 @@
-# Viện Phương Nam — WorkBuddy-like course landing page
+---
+name: Viện Phương Nam - Phân tích định lượng với R
+description: A journal manuscript on white paper. Sections are Figures and Tables, cobalt plates carry the evidence, signal red marks only the deadline and required fields.
+colors:
+  paper: "#ffffff"
+  plate: "#f3f6fb"
+  ink: "#0d1b2a"
+  ink-2: "#3a4a5f"
+  ink-3: "#566780"
+  hair: "#cbd4e1"
+  field: "#7f93b0"
+  cobalt: "#0a3d91"
+  cobalt-deep: "#072c6b"
+  cobalt-wash: "#eaf0fb"
+  cobalt-tint: "#cfe0ff"
+  signal: "#c4231a"
+typography:
+  display:
+    fontFamily: "Source Serif 4, Georgia, Cambria, Times New Roman, serif"
+    fontSize: "clamp(2.35rem, 1.1rem + 4vw, 4.5rem)"
+    fontWeight: 600
+    lineHeight: 1.08
+    letterSpacing: "-0.02em"
+  headline:
+    fontFamily: "Source Serif 4, Georgia, Cambria, Times New Roman, serif"
+    fontSize: "clamp(1.9rem, 1.3rem + 1.9vw, 3rem)"
+    fontWeight: 600
+    lineHeight: 1.12
+    letterSpacing: "-0.012em"
+  title:
+    fontFamily: "Source Serif 4, Georgia, Cambria, Times New Roman, serif"
+    fontSize: "1.1875rem"
+    fontWeight: 600
+    lineHeight: 1.35
+  body:
+    fontFamily: "Source Sans 3, Segoe UI, system-ui, -apple-system, Roboto, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.65
+  label:
+    fontFamily: "Source Sans 3, Segoe UI, system-ui, -apple-system, Roboto, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 700
+    letterSpacing: "0.07em"
+rounded:
+  sharp: "2px"
+  round: "50%"
+spacing:
+  xs: "8px"
+  sm: "12px"
+  md: "16px"
+  lg: "24px"
+  xl: "48px"
+  section: "clamp(64px, 8vw, 120px)"
+  gutter: "clamp(20px, 4vw, 48px)"
+components:
+  button-primary:
+    backgroundColor: "{colors.cobalt}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.sharp}"
+    padding: "12px 24px"
+    height: "50px"
+  button-primary-hover:
+    backgroundColor: "{colors.cobalt-deep}"
+  button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sharp}"
+    padding: "12px 24px"
+    height: "50px"
+  button-light:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.cobalt-deep}"
+    rounded: "{rounded.sharp}"
+    padding: "12px 24px"
+    height: "50px"
+  input:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.sharp}"
+    padding: "10px 14px"
+    height: "50px"
+  plate:
+    backgroundColor: "{colors.cobalt}"
+    textColor: "{colors.paper}"
+    padding: "28px"
+  sheet:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    padding: "20px"
+  tab-active:
+    textColor: "{colors.cobalt}"
+---
 
-## Design direction
+# Design System: Viện Phương Nam - Phân tích định lượng với R
 
-This page uses the composition and interaction rhythm of a polished course landing page: a two-level header, centered course hero, visible registration form, curriculum workbench, scenario tabs, pricing, advantages, FAQ, payment information, black closing CTA, footer, and a compact contact rail. It is an original implementation for Viện Phương Nam. It does not use Tencent branding, copy, assets, or URLs.
+## Overview
 
-The previous Research Instrument / Data Observatory visual world is retired. The former Value section is intentionally removed to keep the page focused. Do not reintroduce readout panels, pipeline axes, pointer-follow signals, dark mesh, neon glow, or fabricated charts.
+**Creative North Star: "The Manuscript"**
 
-## Visual contract
+The page is a journal manuscript. Each section is a Figure or a Table the learner will learn to make: a scatter with fit and 95% band, a cost-effectiveness plane, a forecast series, a schedule table, a price table, a discount table. Structure comes from rules (heavy 2px ink rule above, 1px hairline between rows), not from boxes. Voice is the figure caption: plain, numbered, exact.
 
-- **Palette:** action blue `#0052D9`, deep blue for hover, heading gradient `#0052D9 → #5A8ED9`, a contrast-safe blue surface gradient `#0052D9 → #0B72B1`, white, cool gray mist, black closing CTA, and dark text. The light heading endpoint is reserved for large accent text and is not used for small white copy.
-- **Type:** Inter or the system sans stack. Use the monospace stack only for course codes, dates, labels, and compact data values.
-- **Container:** centered desktop shell capped near `1200px`; generous section spacing; white and cool-gray sections alternate.
-- **Geometry:** mostly square buttons and cards with thin gray borders and restrained shadows. The inline registration form uses an opaque white card with a light border and restrained shadow; the contact CTA uses the blue gradient reserved for action surfaces. Schedule, payment, combination price, and advantage surfaces share a controlled action-blue family. The foundational R/RStudio advantage card leads with a stronger border, surface, and shadow; the remaining cards stay compact and related without unrelated purple/teal accents.
-- **Hero:** the first section follows the reference rhythm with a navy network atmosphere, faint 76px grid, floating glass chrome, a pill badge, centered display title, compact date/location metadata, and pill CTAs. The linked-particle field remains restrained and workbench visuals stay in the curriculum; the hero does not contain a competing dashboard.
-- **Content:** all dates, course names, fees, contacts, payment details, faculty facts, discount conditions, and stated benefits must remain reconciled to the latest consolidated notice. The official series name is “Phân tích định lượng với R”; the landing-page H1 remains the approved descriptive phrase “Phân tích dữ liệu với R từ cơ bản đến nâng cao”. Registration uses the official URL `https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r`; the notice also contains a QR code, but this page does not duplicate the QR asset. Course codes remain internal form values and are not rendered as public copy. Do not invent a notice number when the source leaves it blank.
-- **Heading treatment:** keep the main heading phrase black and apply the blue-to-light-blue gradient only to a short accent phrase in hero and section `h1`/`h2` headings. Card `h3` text and mono labels remain solid colors. The closing black CTA uses the lighter `#9BBCFF → #67E3D2` variant, while the blue consultation surface uses white-to-light-blue text so the accent remains readable. Card surfaces use the separate contrast-safe blue gradient rather than the pale heading endpoint.
-- **Registration:** the full inline form follows the supplied PHP grouping: course, email, split name, gender, birth date, phone, province, work position/unit, degree field, repeatable optional certificate rows, discovery source, and consent. The “Khác” discovery option reveals and requires its detail. PHP-only CAPTCHA/session/hidden endpoint fields are intentionally excluded because this static page has no confirmed backend. It validates locally, preserves entered values, and routes the learner to the real phone contact without claiming submission success.
+Density is editorial and calm. White paper carries text; a pale plate tint (#f3f6fb) alternates with it for section fields; one cobalt field carries evidence plates and the closing section. Red appears only where the reader must act or must not miss something: the registration deadline and required-field marks.
 
-## Information architecture
+**Key Characteristics:**
+- Booktabs rules: 2px ink top rule, 1px hairline row dividers, 2px ink bottom rule on tables and lists.
+- Serif for claims and numbers, sans for reading and controls.
+- One cobalt field per view at most: the plate, the registration aside, the close.
+- Figures are generated, labelled as simulated, and annotated with leader lines.
+- No gradients as decoration, no glass, no particle or canvas atmosphere, no fake product mockups.
 
-1. Promotion strip with the official series name and the source-backed 29/12/2026 registration/payment deadline.
-2. Floating dark glass navigation with the Viện Phương Nam wordmark, internal anchors, and a white scrolled state.
-3. Hero: source-backed course title centered at large scale on a navy reference-inspired surface, with a specialist-course badge, compact date/location metadata, real registration/program CTAs, particle/grid atmosphere, and no workbench beside the title.
-4. Registration: the full PHP-shaped field grouping is visible directly below the hero in an accessible inline form; the static page keeps local validation and the phone fallback.
-5. Curriculum: three course scenarios, R basic, cost-effectiveness, and time-series tabs, with the workbench demo marked as illustration.
-6. Schedule, six tuition packages and discount conditions, advantages, skills, faculty, FAQ, and payment information. The former value section is intentionally removed.
-7. Contact summary and black CTA with phone and official website links.
-8. Contact footer and fixed call, website, and back-to-top actions.
+## Colors
 
-## Interaction and motion
+Blue-black ink on white paper, one saturated cobalt, one signal red.
 
-- Hero and section reveal: one opacity plus small vertical translation, once per element.
-- Hero atmosphere: the network canvas uses 60 desktop particles or 30 mobile particles, pauses when the hero is out of view or the tab is hidden, and renders a single static frame when reduced motion is requested.
-- Workbench: one slow ambient float and a restrained status indicator; no competing loops.
-- Scenario tabs: keyboard-accessible `role="tablist"`, crossfade/translate around `240ms`, no autoplay.
-- Tab content is driven by the single `scenarios` object in `dist/app.js`; invalid keys fall back to `r`.
-- Mobile navigation opens from the hamburger, closes on link selection, outside click, resize, or Escape.
-- Native `<details>` provides FAQ disclosure without a JavaScript dependency.
-- Hover changes border, shadow, and a few pixels of translation. Buttons move the arrow slightly.
-- Registration form validation keeps entered values, reports invalid fields, and shows the static-site phone fallback without a fake success state. The full form is inline and does not depend on a dialog or focus trap.
-- Registration links point to the official course URL, while the local inline form remains a consultation fallback with no backend claim.
-- `prefers-reduced-motion: reduce` removes loops and transforms while retaining readable content and active states.
-- Reference-inspired orientation: a compact floating table of contents maps to `#top`, `#registration`, `#programs`, and `#contact`; legacy `#consultation` and reference `#lp-form` aliases resolve to the inline form. It is a glass rail on wide screens and a safe-area-aware bottom bar on narrower screens.
-- The header remains fixed as a dark glass capsule over the hero, switches to an opaque white surface after scrolling, and retains the existing mobile navigation behavior. The hero ends with a white SVG wave to create the same section handoff rhythm as the reference; the registration section remains an accessible white inline form.
-- Inline fallback behavior exposes a visible no-JavaScript phone fallback and never claims a backend submission. Submission status is focused without moving the learner away from the form, and entered values remain in place.
+### Primary
+- **Cobalt Plate** (#0a3d91): the only brand field. Evidence plates, registration aside, featured price row, schedule day cells, closing section, primary buttons, active tab, links.
+- **Deep Cobalt** (#072c6b): hover for cobalt buttons; text on light-on-cobalt buttons.
 
-## Responsive and accessibility gates
+### Secondary
+- **Signal Red** (#c4231a): the deadline value in the abstract list and the required-field mark, invalid-field border, certificate remove action. Nothing else.
 
-- Verify 1440px, 1280px, 768px, and 390px widths with no horizontal overflow.
-- Reserve the fixed contact rail lane across mobile section shells so it cannot cover controls or copy.
-- Hero collapses to one column; workbench sidebar becomes a compact tab rail; pricing becomes one column.
-- Keep one `h1`, continuous heading hierarchy, skip link, visible focus, real `tel:` links, `rel="noreferrer"` for new website tabs, and no hover-only information.
-- Preserve `#course-cea` as a compatible deep link that activates the CEA tab.
+### Neutral
+- **Paper** (#ffffff): page ground, header, inputs, sheets.
+- **Plate Tint** (#f3f6fb): alternate section field, hover and consent rows, rest days in the schedule.
+- **Blue-Black Ink** (#0d1b2a): text, heavy rules, promotion strip and footer ground.
+- **Ink 2** (#3a4a5f): secondary body copy. **Ink 3** (#566780): labels, captions, meta.
+- **Hairline** (#cbd4e1): row dividers and sheet borders. **Field Edge** (#7f93b0): input and quiet-button borders.
+- **Cobalt Wash** (#eaf0fb): checked choice and status feedback. **Cobalt Tint** (#cfe0ff): secondary text on cobalt.
 
-## Verification and rollback
+### Named Rules
+**The One Field Rule.** Cobalt is a field, not a trim. It fills a plate or a section; it is not used as a border colour on neutral cards or as a decorative gradient.
+**The Red Is An Instruction Rule.** Signal red means deadline or required. A decorative or brand use of red is wrong.
+**The Tinted Field Rule.** Section fields use the plate tint (#f3f6fb) instead of pure white. Known and accepted deviation from a pure-white paper; keep it as the only alternate ground.
 
-Run `node --check dist/app.js`, `git diff --check`, HTML/ID/link checks, content and fee arithmetic audits, visual browser QA, and Impeccable detect after the final visual pass. Keep the pre-redesign filesystem snapshot and the current private Site version available. Publish only after source checks and browser QA pass; if preview fails, leave the new version unpublished and restore the prior Site version.
+## Typography
+
+**Display Font:** Source Serif 4 (Georgia, Cambria fallback), optical sizing auto, loaded from Google Fonts.
+**Body Font:** Source Sans 3 (Segoe UI, system-ui fallback).
+
+**Character:** A journal's serif for headings, prices, captions-as-claims and dates; a humanist sans for reading, forms and axis text.
+
+### Hierarchy
+- **Display** (600, clamp 2.35rem to 4.5rem = 72px at wide, 1.08): the single H1; its italic phrase is cobalt.
+- **Headline** (600, clamp 1.9rem to 3rem, 1.12): section h2. Close h2 runs up to 3.75rem.
+- **Title** (600, 1.1875rem to 2.375rem serif): table row heads, ruled-list titles, author names, FAQ questions.
+- **Body** (400, 17px / 1.0625rem, 1.65): all running text; never below 17px. Reading measure 62ch to 72ch.
+- **Label** (700, 0.8125rem, 0.07em, uppercase): definition-list terms and table column heads only, in Ink 3.
+- **Chart text** (sans 500/600): ticks 14px, axis labels 15.5px, annotations 16px in the SVG viewBox; hero plate 16/17/17.5px; at 720px and below 17 to 21px. Rendered size must stay at or above 11px.
+
+### Named Rules
+**The Tabular Rule.** Dates, prices, phone numbers and step counts use tabular numerals.
+**The Caption Rule.** Figures and tables carry a numbered caption (Hình n, Bảng n) in bold lead plus plain sentence.
+
+## Layout
+
+Single column shell, max 1240px, gutter clamp(20px, 4vw, 48px). Section padding clamp(64px, 8vw, 120px). Patterns: hero grid 1.12fr / 0.88fr (text left, plate right); split 4fr / 8fr with a sticky heading column (top 112px); registration 4fr / 8fr with sticky cobalt aside; program panel 7fr / 5fr; two-column outcomes and authors; close 7fr / 5fr.
+
+First viewport: serif H1, byline, ruled abstract list (term 112px, value), two actions on the left; live Figure 1 on a cobalt plate on the right. Sticky header 72px over a 42px ink promotion strip.
+
+Responsive: single column at 900px and below (nav becomes toggle, fixed bottom call bar appears, aside becomes static); at 720px and below tables collapse to stacked rows with the head row hidden accessibly, tabs stack vertically with a 4px left indicator, chart text steps up. Gates: verify 1440 / 1280 / 768 / 390 with no horizontal overflow; one h1; skip link; visible focus (2px cobalt outline, 3px offset, white on cobalt/ink fields); tabs operable by arrow, Home and End; real `tel:` links; body at least 17px.
+
+## Elevation & Depth
+
+Flat. There are no drop shadows. Depth is tonal (paper, plate tint, cobalt field) and linear (rules). The only box-shadow uses are inset tab indicators and the 1px invalid ring. The sheet is a white figure area with a hairline border, not a lifted card.
+
+### Named Rules
+**The Rule-Not-Box Rule.** Group with a ruled list or table, not a bordered, shadowed container.
+
+## Shapes
+
+Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number discs and the status dot. Corners are never soft. Borders are 1px hairline or field-edge; heavy 2px ink rules open lists and tables.
+
+## Components
+
+### Buttons
+- **Primary:** cobalt on white text, 50px min height, 12px 24px, 2px radius, 600 weight; hover to deep cobalt, arrow icon shifts 3px.
+- **Ghost:** 1px ink border, fills ink on hover. **Quiet:** white with field-edge border. **Light / Outline-light:** for use on cobalt fields.
+- Text links are cobalt, 600, underlined or with an arrow.
+
+### Inputs / Fields
+- 50px high, 1px field-edge border, 2px radius, white. Hover darkens border to ink; focus is a 2px cobalt outline. Invalid: signal border with a 1px ring. Required mark is signal red. Choice rows are stacked hairline boxes that wash cobalt when checked.
+
+### Figure Plate and Sheet (signature)
+- Plate: cobalt field with white ink, hero Figure 1. Sheet: white with hairline border, used for program figures. Both use the same SVG vocabulary: grid hairlines, axes, 2.6px fit line, translucent band, points, leader line with dot and halo-stroked annotation text.
+- Figures are generated at runtime in `dist/app.js` from seeded synthetic data (a mulberry32-style PRNG with fixed seeds), drawn as SVG, with an accessible label and caption always stating "mô phỏng / minh họa, không phải kết quả nghiên cứu".
+- Authored motion, once on entering view: points plot in (staggered 11ms), fit line draws (1.1s), band and zone fade (0.95s delay), leader annotations fade (1.5s delay). Under `prefers-reduced-motion` everything renders in its final state with no animation or transition.
+
+### Tables
+- Booktabs: 2px ink top rule, 1px ink under header, hairline rows, 2px ink bottom rule on the footnote row. Column heads are labels; row heads are serif. Featured price row is a cobalt band. Tabular numerals.
+
+### Tabs
+- Three Figure tabs under a 2px ink rule; active tab is cobalt with a 5px inset underline. Roving tabindex with arrow, Home and End keys; panel swap is a 0.38s fade-rise.
+
+### Registration form
+- Three steps (course, personal details, background and consent), a cobalt stepper aside with numbered discs, step counter. Validation is local only; the form checks and reports fields and never claims a successful submission, routing the learner to a real phone link.
+
+### Navigation
+- White sticky header, serif wordmark, sans links with a growing 2px cobalt underline, cobalt CTA. Below 900px a 48px toggle opens a stacked list and a fixed bottom bar offers Call and register.
+
+## Do's and Don'ts
+
+### Do:
+- **Do** write every date, fee, discount condition, contact, payment datum and faculty fact from the official notice (`assets\THÔNG BÁO_v.2_CHUỖI KHÓA NCKH (01.2027).docx`, the newest); the H1 follows its title "Phân tích định lượng với R – Từ cơ bản đến chuyên sâu".
+- **Do** label every generated figure as simulated illustration.
+- **Do** use rules and numbered captions to structure content.
+- **Do** keep course codes as internal form values, never public copy; do not duplicate the notice's QR asset.
+- **Do** keep red for the deadline and required marks, and cobalt as a field.
+
+### Don't:
+- **Don't** present simulated data as research results, or the form as having submitted anything.
+- **Don't** add navy particle heroes, glass chrome, gradient text or fills, or an AI-chat/workbench mockup.
+- **Don't** wrap content in bordered, shadowed cards when a rule or table will do.
+- **Don't** set body text below 17px or rendered chart text below 11px.
+- **Don't** introduce an invented notice number or unreconciled figures.

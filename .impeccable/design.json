@@ -1,201 +1,125 @@
 {
-  "name": "Viện Phương Nam WorkBuddy-like course landing page",
-  "version": "2.2.0",
-  "mode": "persuade",
-  "dials": {
-    "DESIGN_VARIANCE": 5,
-    "MOTION_INTENSITY": 4,
-    "VISUAL_DENSITY": 5
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T00:00:00Z",
+  "title": "Design System: Viện Phương Nam - Phân tích định lượng với R",
+  "extensions": {
+    "colorMeta": {
+      "cobalt": { "role": "primary", "displayName": "Cobalt Plate", "canonical": "#0a3d91", "tonalRamp": ["#041a40", "#072c6b", "#0a3d91", "#3b64a8", "#6d8dc0", "#9fb6d8", "#cfe0ff", "#eaf0fb"] },
+      "cobalt-deep": { "role": "primary", "displayName": "Deep Cobalt", "canonical": "#072c6b", "tonalRamp": ["#030f26", "#051d47", "#072c6b", "#35568a", "#6380a9", "#91a9c8", "#c1d0e3", "#e6ecf4"] },
+      "signal": { "role": "secondary", "displayName": "Signal Red", "canonical": "#c4231a", "tonalRamp": ["#4a0d09", "#7a1510", "#c4231a", "#d4574f", "#e08a84", "#ebb5b1", "#f6dad8", "#fff4f3"] },
+      "ink": { "role": "neutral", "displayName": "Blue-Black Ink", "canonical": "#0d1b2a", "tonalRamp": ["#0d1b2a", "#243447", "#3a4a5f", "#566780", "#7f93b0", "#a9b8cc", "#cbd4e1", "#e9edf3"] },
+      "plate": { "role": "neutral", "displayName": "Plate Tint", "canonical": "#f3f6fb", "tonalRamp": ["#b9c3d3", "#cbd4e1", "#dde4ee", "#e8edf5", "#eff3f9", "#f3f6fb", "#f8fafd", "#ffffff"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The single H1; italic phrase in cobalt." },
+      "headline": { "displayName": "Headline", "purpose": "Section h2." },
+      "title": { "displayName": "Title", "purpose": "Table row heads, ruled-list titles, FAQ questions, names." },
+      "body": { "displayName": "Body", "purpose": "Running text, never below 17px." },
+      "label": { "displayName": "Label", "purpose": "Uppercase terms and table column heads." }
+    },
+    "shadows": [
+      { "name": "none", "value": "none", "purpose": "The system is flat; depth is tonal and linear. Only inset tab indicators and a 1px invalid ring exist." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All transitions and the figure plot-in." },
+      { "name": "figure-plot-in", "value": "points 0.5s (11ms stagger), fit line 1.1s at 0.55s, band 0.7s at 0.95s, annotations 0.6s at 1.5s", "purpose": "The one authored motion moment; disabled under prefers-reduced-motion." },
+      { "name": "panel-swap", "value": "0.38s fade and 8px rise", "purpose": "Tab panel change." }
+    ],
+    "breakpoints": [
+      { "name": "nav-condense", "value": "1060px" },
+      { "name": "single-column", "value": "900px" },
+      { "name": "stacked-tables", "value": "720px" }
+    ]
   },
-  "tokens": {
-    "colors": {
-      "action-blue": {
-        "role": "primary-action",
-        "hex": "#0052D9"
-      },
-      "blue-deep": {
-        "role": "hover-and-emphasis",
-        "hex": "#003B9A"
-      },
-      "heading-gradient-start": {
-        "role": "heading-accent-start",
-        "hex": "#0052D9"
-      },
-      "heading-gradient-end": {
-        "role": "heading-accent-end",
-        "hex": "#5A8ED9"
-      },
-      "heading-gradient-dark-start": {
-        "role": "dark-cta-heading-start",
-        "hex": "#9BBCFF"
-      },
-      "heading-gradient-dark-end": {
-        "role": "dark-cta-heading-end",
-        "hex": "#67E3D2"
-      },
-      "surface-gradient-start": {
-        "role": "schedule-price-payment-and-advantage-surface-start",
-        "hex": "#0052D9"
-      },
-      "surface-gradient-end": {
-        "role": "contrast-safe-blue-surface-end",
-        "hex": "#0B72B1"
-      },
-      "white": {
-        "role": "primary-surface",
-        "hex": "#FFFFFF"
-      },
-      "mist": {
-        "role": "cool-gray-surface",
-        "hex": "#F5F7FB"
-      },
-      "ink": {
-        "role": "primary-text",
-        "hex": "#111111"
-      },
-      "black": {
-        "role": "closing-cta",
-        "hex": "#000000"
-      }
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on paper and plate fields.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Đăng ký</a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 12px 24px; background: var(--cobalt, #0a3d91); color: #fff; border-radius: 2px; font: 600 1rem/1.2 'Source Sans 3', 'Segoe UI', sans-serif; text-decoration: none; transition: background-color 0.2s; } .ds-btn-primary:hover { background: var(--cobalt-deep, #072c6b); } .ds-btn-primary:focus-visible { outline: 2px solid #0a3d91; outline-offset: 3px; }"
     },
-    "typography": {
-      "display": {
-        "family": "Inter, Segoe UI, Arial, sans-serif",
-        "purpose": "Hero and section headings"
-      },
-      "body": {
-        "family": "Inter, Segoe UI, Arial, sans-serif",
-        "purpose": "Course and contact copy"
-      },
-      "data": {
-        "family": "SFMono-Regular, Consolas, monospace",
-        "purpose": "Codes, dates, labels, and compact values"
-      }
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action; fills ink on hover.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Xem chương trình</a>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 12px 24px; border: 1px solid #0d1b2a; border-radius: 2px; color: #0d1b2a; background: transparent; font: 600 1rem/1.2 'Source Sans 3', 'Segoe UI', sans-serif; text-decoration: none; transition: background-color 0.2s, color 0.2s; } .ds-btn-ghost:hover { background: #0d1b2a; color: #fff; } .ds-btn-ghost:focus-visible { outline: 2px solid #0a3d91; outline-offset: 3px; }"
     },
-    "layout": {
-      "shell": "1200px max-width",
-      "buttonHeight": "44px",
-      "sectionGap": "72-112px",
-      "cardRadius": "0-4px"
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Square 50px field with field-edge border.",
+      "html": "<label class=\"ds-field\">Email <span class=\"ds-req\">*</span><input class=\"ds-input\" type=\"email\" /></label>",
+      "css": ".ds-field { display: block; font: 600 0.9375rem 'Source Sans 3', sans-serif; color: #0d1b2a; } .ds-req { color: #c4231a; } .ds-input { display: block; width: 100%; min-height: 50px; margin-top: 7px; padding: 10px 14px; border: 1px solid #7f93b0; border-radius: 2px; background: #fff; color: #0d1b2a; font: 400 1rem 'Source Sans 3', sans-serif; transition: border-color 0.2s; } .ds-input:hover { border-color: #0d1b2a; } .ds-input:focus-visible { outline: 2px solid #0a3d91; outline-offset: 1px; border-color: #0a3d91; }"
     },
-    "motion": {
-      "ease": "cubic-bezier(0.22, 1, 0.36, 1)",
-      "heroEntrance": "650ms opacity + small translateY",
-      "tabTransition": "240ms crossfade + translateY",
-      "hover": "180ms border/shadow/small translate",
-      "reducedMotion": "disable loops and transforms"
+    {
+      "name": "Figure Plate",
+      "kind": "custom",
+      "refersTo": "plate",
+      "description": "Cobalt field holding a figure and its numbered caption.",
+      "html": "<figure class=\"ds-plate\"><svg viewBox=\"0 0 200 80\" width=\"100%\" aria-hidden=\"true\"><line x1=\"10\" y1=\"70\" x2=\"190\" y2=\"70\" stroke=\"#fff\" stroke-opacity=\".7\"/><line x1=\"10\" y1=\"10\" x2=\"10\" y2=\"70\" stroke=\"#fff\" stroke-opacity=\".7\"/><polyline points=\"10,62 190,22\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.6\" stroke-linecap=\"round\"/></svg><figcaption><strong>Hình 1.</strong> Dữ liệu mô phỏng, minh họa.</figcaption></figure>",
+      "css": ".ds-plate { margin: 0; padding: 28px; background: #0a3d91; color: #fff; } .ds-plate figcaption { margin-top: 14px; font: 400 0.9375rem/1.5 'Source Sans 3', sans-serif; color: #cfe0ff; } .ds-plate figcaption strong { color: #fff; }"
+    },
+    {
+      "name": "Ruled Abstract List",
+      "kind": "custom",
+      "refersTo": "typography.label",
+      "description": "Definition list with a heavy top rule and hairline rows; the deadline value is red.",
+      "html": "<dl class=\"ds-abstract\"><div><dt>Khai giảng</dt><dd>Ngày</dd></div><div class=\"is-deadline\"><dt>Hạn đăng ký</dt><dd>29/12/2026</dd></div></dl>",
+      "css": ".ds-abstract { margin: 0; border-top: 2px solid #0d1b2a; } .ds-abstract div { display: grid; grid-template-columns: 112px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid #cbd4e1; } .ds-abstract dt { padding-top: 4px; font: 700 0.8125rem 'Source Sans 3', sans-serif; letter-spacing: 0.07em; text-transform: uppercase; color: #566780; } .ds-abstract dd { margin: 0; font: 400 1.0625rem 'Source Sans 3', sans-serif; color: #0d1b2a; } .ds-abstract .is-deadline dd { color: #c4231a; font-weight: 700; }"
+    },
+    {
+      "name": "Booktabs Table",
+      "kind": "custom",
+      "refersTo": "typography.title",
+      "description": "Numbered-caption table with ink rules and tabular numerals.",
+      "html": "<table class=\"ds-table\"><caption><strong>Bảng 2.</strong> Học phí</caption><thead><tr><th>Gói</th><th class=\"n\">Học phí</th></tr></thead><tbody><tr><th>Gói A</th><td class=\"n\">0</td></tr></tbody></table>",
+      "css": ".ds-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; color: #0d1b2a; font-family: 'Source Sans 3', sans-serif; } .ds-table caption { text-align: left; margin-bottom: 14px; font-size: 0.9375rem; color: #3a4a5f; } .ds-table thead th { padding: 12px 16px 12px 0; text-align: left; border-top: 2px solid #0d1b2a; border-bottom: 1px solid #0d1b2a; font-size: 0.8125rem; letter-spacing: 0.07em; text-transform: uppercase; color: #566780; } .ds-table tbody th, .ds-table tbody td { padding: 16px 16px 16px 0; text-align: left; border-bottom: 1px solid #cbd4e1; } .ds-table tbody th { font: 600 1.125rem 'Source Serif 4', Georgia, serif; } .ds-table .n { text-align: right; }"
+    },
+    {
+      "name": "Figure Tab",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Tab on a 2px ink rule; active is cobalt with a 5px inset underline.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab is-active\" role=\"tab\" aria-selected=\"true\"><strong>Hình 1.</strong> R cơ bản</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\"><strong>Hình 2.</strong> Chi phí - hiệu quả</button></div>",
+      "css": ".ds-tabs { display: grid; grid-template-columns: repeat(2, 1fr); border-bottom: 2px solid #0d1b2a; } .ds-tab { padding: 16px 20px 18px 0; border: 0; background: none; text-align: left; cursor: pointer; font: 600 1.125rem/1.3 'Source Sans 3', sans-serif; color: #3a4a5f; box-shadow: inset 0 -5px 0 transparent; transition: box-shadow 0.25s, color 0.2s; } .ds-tab strong { color: #566780; } .ds-tab:hover { color: #0d1b2a; } .ds-tab.is-active { color: #0a3d91; box-shadow: inset 0 -5px 0 #0a3d91; } .ds-tab.is-active strong { color: #0a3d91; } .ds-tab:focus-visible { outline: 2px solid #0a3d91; outline-offset: 3px; }"
     }
-  },
-  "components": {
-    "header": {
-      "role": "promotion strip plus navigation",
-      "surface": "white"
-    },
-    "heroWorkbench": {
-      "role": "HTML/CSS course interface illustration",
-      "surface": "white/mist",
-      "externalAssets": false
-    },
-    "scenarioTabs": {
-      "role": "three source-backed course scenarios",
-      "element": "tabs + tabpanel"
-    },
-    "pricing": {
-      "role": "source-backed fees and conditions",
-      "element": "cards + details"
-    },
-    "faq": {
-      "role": "accessible disclosure",
-      "element": "details"
-    },
-    "consultationForm": {
-      "role": "source-shaped static consultation form in a native dialog popup with phone fallback",
-      "element": "dialog + form",
-      "endpoint": "none",
-      "fields": [
-        "course_id",
-        "emailcontact",
-        "ho_lot",
-        "ten",
-        "gioi_tinh",
-        "ngay_sinh",
-        "phoneregister",
-        "tinh_thanh",
-        "vi_tri",
-        "don_vi",
-        "nganh_tn",
-        "cc_loai[]",
-        "cc_ngay[]",
-        "biet_qua",
-        "biet_qua_other",
-        "agreement"
-      ],
-      "repeatableFields": [
-        "cc_loai[]",
-        "cc_ngay[]"
-      ]
-    },
-    "contactRail": {
-      "role": "real phone, website, and back-to-top actions",
-      "fakeChat": false
-    },
-    "payment": {
-      "role": "source-backed account and transfer instructions",
-      "element": "gradient information card"
-    }
-  },
-  "rules": [
-    {
-      "name": "Original reference grammar",
-      "body": "Use the WorkBuddy-like composition and rhythm without Tencent branding, copy, assets, or URLs."
-    },
-    {
-      "name": "Source truth",
-      "body": "Reconcile dates, codes, fees, contacts, payment, faculty facts, and certificate rules to the notices. Do not invent registration URLs, QR codes, standalone R pricing, or outcome claims."
-    },
-    {
-      "name": "Heading accent",
-      "body": "Use a blue-to-light-blue gradient only on short accent phrases in hero and section h1/h2 headings; keep the surrounding heading text black and card h3 text solid. On the blue consultation surface, use the documented white-to-mint contrast variant for readability."
-    },
-    {
-      "name": "Workbench honesty",
-      "body": "Mark the HTML/CSS product window as a demo and never present simulated rows or outputs as real research results."
-    },
-    {
-      "name": "Motion with purpose",
-      "body": "Use restrained reveal, tab transition, hover feedback, and one ambient workbench loop. Honor reduced motion."
-    },
-    {
-      "name": "Accessible structure",
-      "body": "Maintain one h1, visible focus, skip link, keyboard tabs, native FAQ details, real tel links, and no horizontal overflow."
-    },
-    {
-      "name": "Static PHP-shaped form boundary",
-      "body": "Use the visible field grouping from the supplied PHP form, but omit CAPTCHA/session/hidden endpoint credentials. Validate locally, preserve values, and show a phone fallback; never claim a static submission reached a backend."
-    },
-    {
-      "name": "Fee display truth",
-      "body": "Show source-backed base prices and discount percentages/conditions only. Never calculate or display final discounted totals in the interface."
-    },
-    {
-      "name": "Surface hierarchy",
-      "body": "Use the shared contrast-safe blue gradient (#0052D9 to #0B72B1) for schedule, payment, combination price cards, and advantage surfaces; use a light blue wash for the four advantage cards. Reserve translucent white surfaces for the consultation preview and keep other content surfaces opaque."
-    },
-    {
-      "name": "Accent scope",
-      "body": "Keep the pale blue heading gradient limited to short heading accent phrases. Do not reuse its light endpoint for white card text; use the documented surface gradient so schedule, pricing, payment, and advantage content remains readable."
-    },
-    {
-      "name": "Advantage hierarchy",
-      "body": "The foundational R/RStudio practice card leads the sequence with a stronger border, surface, and shadow; the remaining three cards remain compact follow-on choices."
-    },
-    {
-      "name": "Contrast and fallback",
-      "body": "Use contrast-safe endpoints for headings and white text on blue surfaces, keep focus rings visible on both light and blue backgrounds, and preserve a visible phone fallback when JavaScript or native dialog APIs are unavailable."
-    },
-    {
-      "name": "User-supplied trust line",
-      "body": "Keep the promotion registration statement exactly as supplied by the user, but do not cite it as content extracted from the four course notices."
-    }
-  ]
+  ],
+  "narrative": {
+    "northStar": "The Manuscript",
+    "overview": "The page is a journal manuscript. Each section is a Figure or a Table the learner will learn to make. Structure comes from rules (heavy 2px ink rule above, 1px hairline between rows), not from boxes. Voice is the figure caption: plain, numbered, exact.\n\nDensity is editorial and calm. White paper carries text; a pale plate tint (#f3f6fb) alternates with it for section fields; one cobalt field carries evidence plates and the closing section. Red appears only for the registration deadline and required-field marks.",
+    "keyCharacteristics": [
+      "Booktabs rules: 2px ink top rule, 1px hairline row dividers, 2px ink bottom rule on tables and lists.",
+      "Serif for claims and numbers, sans for reading and controls.",
+      "One cobalt field per view at most: the plate, the registration aside, the close.",
+      "Figures are generated, labelled as simulated, and annotated with leader lines.",
+      "No gradients as decoration, no glass, no particle or canvas atmosphere, no fake product mockups."
+    ],
+    "rules": [
+      { "name": "The One Field Rule", "body": "Cobalt is a field, not a trim. It fills a plate or a section; it is not used as a border colour on neutral cards or as a decorative gradient.", "section": "colors" },
+      { "name": "The Red Is An Instruction Rule", "body": "Signal red means deadline or required. A decorative or brand use of red is wrong.", "section": "colors" },
+      { "name": "The Tinted Field Rule", "body": "Section fields use the plate tint (#f3f6fb) instead of pure white. Known and accepted deviation from a pure-white paper; keep it as the only alternate ground.", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "Dates, prices, phone numbers and step counts use tabular numerals.", "section": "typography" },
+      { "name": "The Caption Rule", "body": "Figures and tables carry a numbered caption (Hình n, Bảng n) in bold lead plus plain sentence.", "section": "typography" },
+      { "name": "The Rule-Not-Box Rule", "body": "Group with a ruled list or table, not a bordered, shadowed container.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do write every date, fee, discount condition, contact, payment datum and faculty fact from the official notice (assets\\THÔNG BÁO_v.2_CHUỖI KHÓA NCKH (01.2027).docx, the newest); the H1 follows its title \"Phân tích định lượng với R – Từ cơ bản đến chuyên sâu\".",
+      "Do label every generated figure as simulated illustration.",
+      "Do use rules and numbered captions to structure content.",
+      "Do keep course codes as internal form values, never public copy; do not duplicate the notice's QR asset.",
+      "Do keep red for the deadline and required marks, and cobalt as a field."
+    ],
+    "donts": [
+      "Don't present simulated data as research results, or the form as having submitted anything.",
+      "Don't add navy particle heroes, glass chrome, gradient text or fills, or an AI-chat/workbench mockup.",
+      "Don't wrap content in bordered, shadowed cards when a rule or table will do.",
+      "Don't set body text below 17px or rendered chart text below 11px.",
+      "Don't introduce an invented notice number or unreconciled figures."
+    ]
+  }
 }
