@@ -143,7 +143,7 @@ Blue-black ink on white paper, one saturated cobalt, one signal red.
 ### Hierarchy
 - **Display** (600, clamp 2.35rem to 4.5rem = 72px at wide, 1.08): the single H1; its italic phrase is cobalt.
 - **Headline** (600, clamp 1.9rem to 3rem, 1.12): section h2. Close h2 runs up to 3.75rem.
-- **Title** (600, 1.1875rem to 2.375rem serif): table row heads, ruled-list titles, author names, FAQ questions.
+- **Title** (600, 1.1875rem to 2.375rem serif): table row heads, ruled-list titles, author names.
 - **Body** (400, 17px / 1.0625rem, 1.65): all running text; never below 17px. Reading measure 62ch to 72ch.
 - **Label** (700, 0.8125rem, 0.07em, uppercase): definition-list terms and table column heads only, in Ink 3.
 - **Chart text** (sans 500/600): ticks 14px, axis labels 15.5px, annotations 16px in the SVG viewBox; hero plate 16/17/17.5px; at 720px and below 17 to 21px. Rendered size must stay at or above 11px.
@@ -216,9 +216,9 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 
 ## Additions after first release
 
-- **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 60% opacity below 720px.
+- **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 48% opacity below 720px, 80% above.
 - **Logo:** official artwork from `assets/Logo VPN.png`, trimmed and resized to `dist/logo.png` (header, 56px tall; footer on a white chip) and `dist/favicon.png`. The full institute name sits beside it in the header and footer.
 - **Top strip:** registration line (A - 2619/Bộ Khoa Học và Công Nghệ) left, deadline right; no action link in the strip, the navbar holds the only register button above the fold.
 - **Side navigation:** fixed left rail of ticks from 1100px up (hidden below), active section tick lengthens in cobalt, label appears on hover/focus.
-- **Loops:** hero Figure and the programs tabs advance every 5s through Hình 1 to 3; paused on hover or focus, while off-screen or tab hidden, and by a visible "Tạm dừng" toggle; disabled under reduced motion. The programs panel min-height is locked to the tallest scenario to avoid layout shift.
+- **Loops:** the hero figure cycles Hình 1 to 3 every 5s endlessly with no controls (stops only while off-screen or the tab is hidden, static under reduced motion); the programs tabs advance every 5s too, pausing on hover or focus and via a visible "Tạm dừng" toggle. The programs panel min-height is locked to the tallest scenario to avoid layout shift, and the hero caption reserves three lines for the same reason.
 - **Registration links:** no link to the official registration page anywhere on the page; registration is the on-page form, phone, or in person.

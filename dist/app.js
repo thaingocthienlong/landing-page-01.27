@@ -197,14 +197,14 @@
   }
   document.addEventListener("visibilitychange", restartAll);
 
-  const makeCycle = (area, advance, ms = 5000) => {
+  const makeCycle = (area, advance, { ms = 5000, endless = false } = {}) => {
     let timer = 0;
     let visible = false;
     let hold = false;
     const stop = () => window.clearTimeout(timer);
     const restart = () => {
       stop();
-      if (autoplay.paused || hold || !visible || document.hidden) return;
+      if (reducedMotion.matches || (!endless && (autoplay.paused || hold)) || !visible || document.hidden) return;
       timer = window.setTimeout(() => { advance(); restart(); }, ms);
     };
     if ("IntersectionObserver" in window) {
@@ -212,10 +212,12 @@
     } else {
       visible = true;
     }
-    area.addEventListener("mouseenter", () => { hold = true; stop(); });
-    area.addEventListener("mouseleave", () => { hold = false; restart(); });
-    area.addEventListener("focusin", () => { hold = true; stop(); });
-    area.addEventListener("focusout", () => { hold = false; restart(); });
+    if (!endless) {
+      area.addEventListener("mouseenter", () => { hold = true; stop(); });
+      area.addEventListener("mouseleave", () => { hold = false; restart(); });
+      area.addEventListener("focusin", () => { hold = true; stop(); });
+      area.addEventListener("focusout", () => { hold = false; restart(); });
+    }
     const cycle = { restart };
     autoplay.cycles.push(cycle);
     return cycle;
@@ -226,10 +228,8 @@
   const scenarios = {
     r: {
       kind: "r",
-      date: "08–10/01/2027",
+      date: "Từ 08/01 đến 10/01/2027",
       duration: "03 ngày",
-      format: "R / RStudio",
-      level: "Nền tảng",
       title: "Xây dựng nền tảng phân tích dữ liệu bằng R.",
       description: "Dành cho nhà nghiên cứu, học viên sau đại học, giảng viên và người mới bắt đầu sử dụng R; không cần kinh nghiệm lập trình.",
       skills: ["Nhập, quản lý, mô tả và hiển thị dữ liệu", "Chọn biểu đồ theo câu hỏi nghiên cứu", "Diễn giải kết quả trong bối cảnh nghiên cứu"],
@@ -238,10 +238,8 @@
     },
     cea: {
       kind: "cea",
-      date: "12–13/01/2027",
+      date: "Ngày 12/01 và 13/01/2027",
       duration: "02 ngày",
-      format: "CEA / R",
-      level: "Chuyên sâu",
       title: "Từ câu hỏi nghiên cứu đến mô hình và từ mô hình đến quyết định.",
       description: "Dành cho nhà quản lý, hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên y tế và kinh tế y tế, cùng nhân sự dược phẩm và công nghệ y tế.",
       skills: ["Tính và diễn giải ICER/QALY", "Xây dựng cây quyết định hoặc mô hình Markov", "Kiểm tra độ nhạy của các giả định"],
@@ -250,10 +248,8 @@
     },
     time: {
       kind: "time",
-      date: "15–17/01/2027",
+      date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
-      format: "R / dự báo",
-      level: "Chuyên sâu",
       title: "Nhận diện, xây dựng và đánh giá mô hình dự báo chuỗi thời gian.",
       description: "Dành cho nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, y tế công cộng, sinh học, kinh tế, tài chính, môi trường, kỹ thuật, khoa học xã hội và các lĩnh vực liên quan.",
       skills: ["Kiểm tra ACF/ADF và tính dừng", "Xây dựng và so sánh các mô hình dự báo, gồm ARIMA", "Diễn giải độ chính xác dự báo"],
@@ -268,7 +264,6 @@
     const svg = document.querySelector("#hero-figure");
     const caption = document.querySelector("#hero-figure-caption");
     const plateEl = document.querySelector(".hero-plate");
-    const dots = [...document.querySelectorAll("[data-hero-dot]")];
     if (!svg || !caption || !plateEl) return;
     let index = 0;
 
@@ -279,10 +274,6 @@
       const strong = document.createElement("strong");
       strong.textContent = scenario.figure;
       caption.replaceChildren(strong, document.createTextNode(scenario.caption));
-      dots.forEach((dot, i) => {
-        dot.classList.toggle("is-active", i === index);
-        dot.setAttribute("aria-pressed", String(i === index));
-      });
       if (animate) {
         plateEl.classList.remove("is-swapping");
         if (!reducedMotion.matches) {
@@ -293,8 +284,7 @@
       }
     };
 
-    const cycle = makeCycle(plateEl, () => show(index + 1));
-    dots.forEach((dot, i) => dot.addEventListener("click", () => { show(i); cycle.restart(); }));
+    makeCycle(plateEl, () => show(index + 1), { endless: true });
   };
 
   const setupTabs = () => {
@@ -326,11 +316,10 @@
         panel.classList.add("is-swapping");
       }
 
-      setText("[data-scenario-kicker]", `${scenario.date} · ${scenario.duration}`);
+      setText("[data-scenario-date]", scenario.date);
+      setText("[data-scenario-duration]", scenario.duration);
       setText("[data-scenario-title]", scenario.title);
       setText("[data-scenario-description]", scenario.description);
-      setText("[data-scenario-format]", scenario.format);
-      setText("[data-scenario-level]", scenario.level);
 
       const list = document.querySelector("[data-scenario-skills]");
       list?.replaceChildren(...scenario.skills.map((skill) => Object.assign(document.createElement("li"), { textContent: skill })));
