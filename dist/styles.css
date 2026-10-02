@@ -146,6 +146,7 @@ section { padding-block: var(--section); }
 
 /* figure plates */
 .sheet { border: 1px solid var(--hair); background: #fff; padding: clamp(12px, 1.6vw, 20px); --f-ink: var(--ink); --f-mute: var(--ink-3); --f-grid: #dde4ee; --f-pt: rgba(10, 61, 145, 0.62); --f-fit: var(--ink); --f-band: rgba(10, 61, 145, 0.13); --f-hi: var(--signal); --f-halo: #fff; --f-s1: rgba(10, 61, 145, 0.85); --f-s2: rgba(10, 61, 145, 0.42); --f-s3: rgba(10, 61, 145, 0.14); }
+.fig-note { margin-bottom: 8px; font: 700 0.8125rem var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
 .sheet figcaption { margin-top: 12px; font-size: 0.9375rem; color: var(--ink-2); line-height: 1.5; }
 .sheet figcaption strong { color: var(--ink); }
 .figure-svg { display: block; width: 100%; height: auto; overflow: visible; }

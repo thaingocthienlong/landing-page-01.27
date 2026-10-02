@@ -528,11 +528,11 @@
   const scenarios = {
     r: {
       figures: [
-        { kind: "r_ci", figure: "Hình 1.1 · Bài 4.", caption: " Khoảng tin cậy 95%. Dữ liệu minh họa." },
-        { kind: "r_hist", figure: "Hình 1.2 · Bài 5.", caption: " Histogram. Dữ liệu minh họa." },
-        { kind: "r_box", figure: "Hình 1.3 · Bài 6.", caption: " Boxplot và t-test. Dữ liệu minh họa." },
-        { kind: "r", figure: "Hình 1.4 · Bài 7.", caption: " Hồi quy tuyến tính. Dữ liệu minh họa." },
-        { kind: "r_logit", figure: "Hình 1.5 · Bài 7.", caption: " Hồi quy logistic. Dữ liệu minh họa." },
+        { kind: "r_ci", figure: "Hình 1.1.", caption: " Khoảng tin cậy 95%." },
+        { kind: "r_hist", figure: "Hình 1.2.", caption: " Histogram." },
+        { kind: "r_box", figure: "Hình 1.3.", caption: " Boxplot và t-test." },
+        { kind: "r", figure: "Hình 1.4.", caption: " Hồi quy tuyến tính." },
+        { kind: "r_logit", figure: "Hình 1.5.", caption: " Hồi quy logistic." },
       ],
       date: "Từ 08/01 đến 10/01/2027",
       duration: "03 ngày",
@@ -542,11 +542,11 @@
     },
     cea: {
       figures: [
-        { kind: "cea_tree", figure: "Hình 2.1 · Bài 3.", caption: " Cây quyết định (decision tree). Dữ liệu minh họa." },
-        { kind: "cea_markov", figure: "Hình 2.2 · Bài 4.", caption: " Mô hình Markov. Dữ liệu minh họa." },
-        { kind: "cea_tornado", figure: "Hình 2.3 · Bài 5.", caption: " Biểu đồ tornado. Dữ liệu minh họa." },
-        { kind: "cea", figure: "Hình 2.4 · Bài 6.", caption: " Mặt phẳng chi phí - hiệu quả. Dữ liệu minh họa." },
-        { kind: "cea_ceac", figure: "Hình 2.5 · Bài 6.", caption: " Đường CEAC. Dữ liệu minh họa." },
+        { kind: "cea_tree", figure: "Hình 2.1.", caption: " Cây quyết định (decision tree)." },
+        { kind: "cea_markov", figure: "Hình 2.2.", caption: " Mô hình Markov." },
+        { kind: "cea_tornado", figure: "Hình 2.3.", caption: " Biểu đồ tornado." },
+        { kind: "cea", figure: "Hình 2.4.", caption: " Mặt phẳng chi phí - hiệu quả." },
+        { kind: "cea_ceac", figure: "Hình 2.5.", caption: " Đường CEAC." },
       ],
       date: "Ngày 12/01 và 13/01/2027",
       duration: "02 ngày",
@@ -556,10 +556,10 @@
     },
     time: {
       figures: [
-        { kind: "ts_acf", figure: "Hình 3.1 · Bài 2.", caption: " Hàm tự tương quan (ACF). Dữ liệu minh họa." },
-        { kind: "ts_decomp", figure: "Hình 3.2 · Bài 3.", caption: " Phân rã chuỗi thời gian. Dữ liệu minh họa." },
-        { kind: "time", figure: "Hình 3.3 · Bài 4.", caption: " Dự báo ngoài mẫu. Dữ liệu minh họa." },
-        { kind: "ts_err", figure: "Hình 3.4 · Bài 6.", caption: " So sánh MAE, RMSE, MAPE. Dữ liệu minh họa." },
+        { kind: "ts_acf", figure: "Hình 3.1.", caption: " Hàm tự tương quan (ACF)." },
+        { kind: "ts_decomp", figure: "Hình 3.2.", caption: " Phân rã chuỗi thời gian." },
+        { kind: "time", figure: "Hình 3.3.", caption: " Dự báo ngoài mẫu." },
+        { kind: "ts_err", figure: "Hình 3.4.", caption: " So sánh MAE, RMSE, MAPE." },
       ],
       date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
