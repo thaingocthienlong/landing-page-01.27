@@ -16,6 +16,8 @@ Trạng thái: chưa bắt đầu. Ưu tiên: 1 (cần cho giai đoạn ưu đã
 | P2 | 1080×1350 | Chuỗi đầy đủ, rút gọn chữ |
 | P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
 | P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
+| QC-A | 1080×1350 | **Đã dựng.** Quảng cáo học phí và thời gian: lịch 10 ngày, bảng 6 gói, mốc 08/12 và 28/12. `ads/A-hoc-phi-thoi-gian.html` |
+| QC-B | 1080×1350 | **Đã dựng.** Quảng cáo nội dung 3 khóa: tên, ngày, 3 kỹ năng mỗi khóa, Hình 1 đến 3. `ads/B-noi-dung-3-khoa.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
 
 ## Bố cục P1 (khối theo `../design-kit/README.md`)
@@ -54,6 +56,18 @@ Chỗ ảnh giảng viên: để khung chờ viền #7f93b0, ghi "Ảnh chính t
 ```
 
 Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng ở P4, P5; P3 thay bảng bằng một khóa và hình tương ứng.
+
+## Dựng và xuất QC-A, QC-B
+
+Hai poster quảng cáo dựng thẳng bằng HTML theo `../brand-kit/tokens.css`, không qua Claude Design. Sửa chữ trong file HTML, rồi xuất lại:
+
+```bash
+cd media/poster/ads && python render.py
+```
+
+`render.py` mở từng file bằng Chrome, chờ font, kiểm tra khung đúng 1080×1350 và nội dung không tràn, rồi ghi PNG 2160×2700 vào `export/`. Biểu đồ vẽ từ dữ liệu mô phỏng có seed cố định trong `ads/figures.js`, nên mỗi lần xuất ra cùng một hình.
+
+Kỹ năng từng khóa trong QC-B rút gọn từ nội dung khóa trên landing page (`dist/app.js`); ngày, gói, học phí, ưu đãi lấy từ `../brand-kit/content.md`.
 
 ## Cần từ Viện
 
