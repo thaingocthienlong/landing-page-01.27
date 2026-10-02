@@ -102,13 +102,15 @@ address { font-style: normal; }
 
 .site-header { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid var(--hair); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; }
-.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
-.brand-mark { width: auto; height: 56px; flex: none; }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; text-decoration: none; }
+.brand-logo { position: relative; flex: none; display: inline-flex; isolation: isolate; }
+.brand-logo::before { content: ""; position: absolute; inset: -18px; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(10, 61, 145, 0.42) 55%, rgba(10, 61, 145, 0) 100%); filter: blur(3px); animation: brand-aura 2.8s ease-in-out infinite; }
+@keyframes brand-aura { 0%, 100% { transform: scale(0.82); opacity: 0.55; } 50% { transform: scale(1.12); opacity: 1; } }
+.brand-mark { width: auto; height: 64px; }
 .brand-copy { display: flex; flex-direction: column; line-height: 1.2; }
-.brand-copy strong { font: 700 clamp(1rem, 0.9rem + 0.35vw, 1.1875rem) var(--serif); letter-spacing: -0.005em; line-height: 1.2; }
-.brand-copy span { font-size: 0.875rem; color: var(--ink-3); }
-.primary-nav { display: flex; align-items: center; gap: clamp(14px, 1.8vw, 28px); }
-.primary-nav a { padding: 8px 2px; font-size: 1rem; font-weight: 500; text-decoration: none; color: var(--ink-2); background: linear-gradient(var(--cobalt), var(--cobalt)) left bottom / 0 2px no-repeat; transition: background-size 0.3s var(--ease), color 0.2s; }
+.brand-copy strong { font: 700 clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem) var(--serif); letter-spacing: 0.01em; line-height: 1.2; text-transform: uppercase; text-wrap: balance; }
+.primary-nav { flex: none; display: flex; align-items: center; gap: clamp(14px, 1.8vw, 28px); }
+.primary-nav a { white-space: nowrap; padding: 8px 2px; font-size: 1rem; font-weight: 500; text-decoration: none; color: var(--ink-2); background: linear-gradient(var(--cobalt), var(--cobalt)) left bottom / 0 2px no-repeat; transition: background-size 0.3s var(--ease), color 0.2s; }
 .primary-nav a:hover { color: var(--ink); background-size: 100% 2px; }
 .primary-nav .nav-cta { margin-left: 8px; padding: 11px 22px; background: var(--cobalt); color: #fff; font-weight: 600; border-radius: 2px; }
 .primary-nav .nav-cta:hover { background: var(--cobalt-deep); color: #fff; }
@@ -523,7 +525,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .pkg-body { display: none; min-width: 0; padding: 4px 20px 24px; opacity: 1; visibility: visible; }
   .pkg.is-open .pkg-body { display: flex; }
   .pkg-deals li { grid-template-columns: 6.75rem minmax(0, 1fr); }
-  .brand-copy span { display: none; }
   .primary-nav a:not(.nav-cta):nth-child(n + 5) { display: none; }
 }
 
@@ -554,7 +555,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .tl-mark, .tl-mark-1, .tl-mark-2 { position: relative; left: auto; top: auto; transform: none; padding: 0 0 0 38px; text-align: left; white-space: normal; }
   .tl-mark::before, .tl-mark-2::before { left: 0; top: 0; margin-left: 0; }
   .tl-mark small, .tl-mark-2 small { max-width: none; margin: 3px 0 0; text-align: left; }
-  .brand-mark { height: 48px; }
+  .brand-mark { height: 54px; }
   .lesson-head { grid-template-columns: 2.5rem minmax(0, 1fr) 1.5rem; column-gap: 10px; }
   .lesson-no { font-size: 1.625rem; }
   .lesson-body { padding-left: 0; }
