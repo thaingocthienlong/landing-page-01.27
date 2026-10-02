@@ -16,7 +16,7 @@ Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác ch�
 | P2 | 1080×1350 | Chuỗi đầy đủ, rút gọn chữ |
 | P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
 | P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
-| ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo: 3 khóa và ngày, 6 gói và học phí, ưu đãi (10% trước 08/12, nhóm 3 người, học viên cũ), hạn chót 28/12. `ads/story-khoa-goi-uu-dai.html` |
+| ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo: 3 khóa và ngày, 6 gói dạng thẻ (ô số khóa trong gói, số ngày, học phí), 3 phiếu ưu đãi, hạn chót 28/12. `ads/story-khoa-goi-uu-dai.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
 
 ## Bố cục P1 (khối theo `../design-kit/README.md`)
@@ -58,11 +58,13 @@ Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng �
 
 ## ST1: Story quảng cáo
 
-**Phong cách:** theo bộ mẫu "Gradient science templates set" (magnific.com/serie/18774762) mà Viện chọn ngày 02/10/2026. Nền xanh da trời chuyển màu, thanh bo tròn chạy chéo ở mép, cụm nút tròn nối nhau ở góc, dải trắng chứa tiêu đề in hoa chữ hẹp. Đây là ngoại lệ có chủ đích so với phong cách "The Manuscript" của brand kit: gradient xanh lấy từ gradient trong logo; font Oswald (tiêu đề) và Montserrat (chữ thân) để khớp mẫu, cả hai có bộ dấu tiếng Việt. Hình khối tự vẽ bằng SVG trong file, không dùng file của mẫu. Không có ảnh vì chưa có ảnh chính thức.
+**Phong cách:** theo bộ mẫu "Gradient science templates set" (magnific.com/serie/18774762) mà Viện chọn ngày 02/10/2026, ghép với bố cục của các poster đã duyệt (khóa "Thiết kế nghiên cứu và Đạo đức khoa học", khóa "Quản trị dữ liệu nhân sự"): dải đầu xanh đậm có logo trong khung tròn trắng và tên Viện, khối thông tin có icon tròn, ưu đãi dạng phiếu giảm giá (số lớn bên trái, điều kiện bên phải), dải chân trắng có icon điện thoại, địa chỉ, website. Đây là ngoại lệ có chủ đích so với phong cách "The Manuscript" của brand kit: gradient xanh lấy từ gradient trong logo; font Oswald (tiêu đề) và Montserrat (chữ thân) để khớp mẫu, cả hai có bộ dấu tiếng Việt. Hình khối và icon tự vẽ bằng SVG trong file, không dùng file của mẫu. Không có ảnh vì chưa có ảnh chính thức.
 
-**Vùng an toàn:** chữ chính nằm trong khoảng 172–1594 px. Khoảng 170 px trên cùng (thanh tiến trình, tên tài khoản) và khoảng 300 px dưới cùng (nút CTA của quảng cáo, ô trả lời) chỉ có hình trang trí.
+**Gói đăng ký:** không dùng bảng. Mỗi gói là một thẻ có 3 ô số khóa: ô tô xanh là khóa có trong gói, ô viền nét đứt là khóa không có. Chú thích cách đọc ở dưới thẻ.
 
-**Màu:** chữ trên nền xanh dùng `--royal-ink` #1a4aa8 và `--muted-ink` #34456c (đo trên nền thật: từ 5.17:1 trở lên). Chữ trắng trên đầu sáng của thanh "Giảm 10%" chỉ đạt 3.84:1, nên ở đó chỉ đặt chữ cỡ lớn. Ngày 28/12/2026 giữ màu đỏ signal theo brand kit.
+**Bố cục dọc:** dải đầu 0–150 px, nội dung 150–1816 px, dải chân 1816–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và một phần dải hạn chót. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy dải hạn chót lên trên phiếu ưu đãi.
+
+**Màu:** chữ trên nền xanh dùng `--royal-ink` #1a4aa8 và `--muted-ink` #34456c (từ 5.17:1 trở lên trên nền thật). Số của khóa không có trong gói dùng #6b82a8 (3.90:1, chữ lớn đậm). Chữ trắng trên đầu sáng của các thanh xanh chỉ dùng cho chữ lớn. Ngày 28/12/2026 giữ màu đỏ signal theo brand kit.
 
 **Xuất lại** sau khi sửa chữ trong file HTML:
 
