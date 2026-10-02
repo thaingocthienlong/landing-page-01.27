@@ -336,25 +336,28 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .pkg-cta { align-self: flex-start; margin-top: auto; }
 .pkg-deals + .pkg-cta { margin-top: 26px; }
 
-.deals { margin-top: clamp(48px, 6vw, 80px); padding: clamp(28px, 4vw, 52px); background: var(--cobalt); color: #fff; }
+.deals { margin-top: clamp(48px, 6vw, 80px); padding-top: clamp(28px, 4vw, 44px); border-top: 4px solid var(--cobalt); color: var(--cobalt); }
 .deals-title { font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem); }
-.timeline { position: relative; display: flex; height: 8px; margin: 52px 0 64px; }
-.tl-before { flex: 3; background: #fff; }
-.tl-after { flex: 1.35; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0 10px, transparent 10px 18px); }
-.tl-before span, .tl-after span { position: absolute; top: -34px; font: 600 0.9375rem var(--sans); color: var(--cobalt-tint); white-space: nowrap; }
-.tl-before span { left: 0; }
-.tl-after span { right: 0; }
+.timeline { position: relative; display: flex; height: 8px; margin: 96px 0 72px; --now: 0%; }
+.tl-before { flex: 68; background: var(--cobalt); }
+.tl-after { flex: 20; background: repeating-linear-gradient(90deg, rgba(10, 61, 145, 0.65) 0 10px, transparent 10px 18px); }
+.tl-now { position: absolute; z-index: 2; left: var(--now); top: -60px; width: 0; height: 60px; }
+.tl-now::before { content: ""; position: absolute; left: -1px; top: 30px; width: 2px; height: 30px; background: var(--cobalt-deep); }
+.tl-now::after { content: ""; position: absolute; left: -9px; top: 51px; width: 18px; height: 18px; background: var(--cobalt-deep); border: 3px solid var(--paper); border-radius: 50%; }
+.tl-now-label { position: absolute; left: 0; top: 0; transform: translateX(-50%); padding: 4px 12px; background: var(--cobalt-deep); color: #fff; font: 600 0.9375rem/1.4 var(--sans); white-space: nowrap; }
+.tl-now[data-edge="start"] .tl-now-label { transform: translateX(-12px); }
+.tl-now[data-edge="end"] .tl-now-label { transform: translateX(calc(-100% + 12px)); }
 .tl-mark { position: absolute; top: 0; transform: translateX(-50%); padding-top: 22px; font: 700 1.125rem var(--serif); text-align: center; white-space: nowrap; line-height: 1.2; }
-.tl-mark::before { content: ""; position: absolute; left: 50%; top: -8px; width: 24px; height: 24px; margin-left: -12px; background: var(--cobalt); border: 3px solid #fff; border-radius: 50%; }
-.tl-mark small { display: block; margin-top: 3px; font: 500 0.875rem var(--sans); color: var(--cobalt-tint); white-space: normal; max-width: 150px; margin-inline: auto; }
-.tl-mark-1 { left: calc(3 / 4.35 * 100%); }
+.tl-mark::before { content: ""; position: absolute; left: 50%; top: -8px; width: 24px; height: 24px; margin-left: -12px; background: var(--paper); border: 3px solid var(--cobalt); border-radius: 50%; }
+.tl-mark small { display: block; margin-top: 3px; font: 500 0.875rem var(--sans); white-space: normal; max-width: 150px; margin-inline: auto; }
+.tl-mark-1 { left: calc(68 / 88 * 100%); }
 .tl-mark-2 { left: auto; right: 0; transform: none; }
 .tl-mark-2::before { left: auto; right: 0; margin-left: 0; }
 .tl-mark-2 small { width: max-content; max-width: 260px; text-align: right; margin-left: auto; }
 
-.deal-notes { display: grid; gap: 8px; margin-top: 8px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.3); max-width: 78ch; }
-.deal-notes li { position: relative; padding-left: 18px; font-size: 0.9375rem; line-height: 1.55; color: var(--cobalt-tint); }
-.deal-notes li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 2px; background: #fff; }
+.deal-notes { display: grid; gap: 8px; margin-top: 8px; padding-top: 20px; border-top: 1px solid rgba(10, 61, 145, 0.3); max-width: 78ch; }
+.deal-notes li { position: relative; padding-left: 18px; font-size: 0.9375rem; line-height: 1.55; }
+.deal-notes li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 2px; background: var(--cobalt); }
 
 /* outcomes, faculty, faq, payment */
 .outcomes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 6vw, 96px); align-items: start; }
@@ -461,6 +464,9 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 @media (max-width: 720px) {
   .timeline { display: grid; gap: 22px; height: auto; margin: 28px 0 40px; }
   .tl-before, .tl-after { display: none; }
+  .tl-now { position: relative; left: auto; top: auto; width: auto; height: auto; }
+  .tl-now::before, .tl-now::after { display: none; }
+  .tl-now .tl-now-label, .tl-now[data-edge] .tl-now-label { position: static; display: inline-block; transform: none; }
   .tl-mark, .tl-mark-1, .tl-mark-2 { position: relative; left: auto; top: auto; transform: none; padding: 0 0 0 38px; text-align: left; white-space: normal; }
   .tl-mark::before, .tl-mark-2::before { left: 0; top: 0; margin-left: 0; }
   .tl-mark small, .tl-mark-2 small { max-width: none; margin: 3px 0 0; text-align: left; }
