@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brand kit · Phân tích định lượng với R · Viện Phương Nam</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--sans); }
+  .board { max-width: 1440px; margin: 0 auto; padding: 48px 48px 80px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; }
+  h1 { font-size: 44px; line-height: 1.1; letter-spacing: -0.015em; }
+  h2 { font-size: 26px; line-height: 1.2; }
+  h3 { font-size: 19px; }
+  .label { font: 700 13px/1.3 var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
+  .meta { color: var(--ink-3); font-size: 15px; }
+  section { border-top: var(--rule-heavy); padding-top: 20px; margin-top: 56px; }
+  section > header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  section > header .label { min-width: 32px; }
+  .top { display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: end; }
+  .top img { height: 96px; }
+
+  /* Logo */
+  .logos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .logo-cell { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 28px; border: var(--rule-hair); }
+  .logo-cell img { max-width: 62%; max-height: 82%; }
+  .logo-cell.plate { background: var(--plate); }
+  .logo-cell.cobalt { background: var(--cobalt); border-color: var(--cobalt); }
+  .logo-cell.ink { background: var(--ink); border-color: var(--ink); }
+  .logo-cell.clear img { outline: 1px dashed var(--field); outline-offset: 14px; }
+  .cap { margin-top: 8px; font-size: 15px; color: var(--ink-2); }
+  .draft { color: var(--signal); font-weight: 700; }
+
+  /* Colors */
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .sw .chip { height: 88px; border: var(--rule-hair); }
+  .sw b { display: block; font-family: var(--serif); font-size: 18px; margin-top: 8px; }
+  .sw span { display: block; font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* Type */
+  .type { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; }
+  .display { font-family: var(--serif); font-weight: 600; font-size: 64px; line-height: 1.06; letter-spacing: -0.02em; }
+  .display em { color: var(--cobalt); font-style: italic; }
+  .spec { border-top: var(--rule-hair); padding: 12px 0; display: grid; grid-template-columns: 140px 1fr; gap: 16px; }
+  .spec:last-child { border-bottom: var(--rule-hair); }
+  .diacritics { font-family: var(--serif); font-size: 26px; }
+
+  /* Components */
+  .comp { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; align-items: start; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  thead th { text-align: left; padding: 10px 12px 10px 0; border-top: var(--rule-heavy); border-bottom: 1px solid var(--ink); }
+  tbody td { padding: 12px 12px 12px 0; border-bottom: var(--rule-hair); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: var(--rule-heavy); }
+  td.course { font-family: var(--serif); font-weight: 600; font-size: 19px; }
+  tr.on td { background: var(--cobalt-wash); }
+  tr.on td:first-child { padding-left: 8px; }
+  .deadlines { margin-top: 32px; }
+  .deadlines div { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 12px 0; border-top: var(--rule-hair); }
+  .deadlines div:first-child { border-top: var(--rule-heavy); }
+  .deadlines strong { font-family: var(--serif); font-size: 22px; color: var(--signal); font-variant-numeric: tabular-nums; }
+
+  .plate { background: var(--cobalt); color: var(--paper); padding: 28px; }
+  .plate svg { display: block; width: 100%; height: auto; }
+  .plate figcaption { color: var(--cobalt-tint); font-size: 15px; margin-top: 12px; }
+  .plate figcaption b { color: var(--paper); }
+  figure { margin: 0; }
+
+  .faculty { display: grid; grid-template-columns: 120px 1fr; gap: 20px; margin-top: 32px; padding-top: 16px; border-top: var(--rule-heavy); }
+  .photo { aspect-ratio: 3 / 4; border: 1px solid var(--field); display: grid; place-items: center; text-align: center; padding: 8px; font-size: 13px; color: var(--ink-3); }
+
+  .contact { margin-top: 40px; background: var(--ink); color: var(--paper); display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 20px 24px; font-variant-numeric: tabular-nums; }
+  .contact p { margin: 0; }
+  .contact .sub { color: var(--cobalt-tint); font-size: 15px; }
+  .qr { width: 104px; height: 104px; background: var(--paper); color: var(--ink-3); display: grid; place-items: center; text-align: center; font-size: 12px; line-height: 1.3; padding: 8px; }
+
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+  .role { height: 56px; display: grid; place-items: center; font: 700 15px var(--sans); letter-spacing: 0.07em; }
+  .role.r-learner { color: var(--cobalt); border-top: 6px solid var(--cobalt); border-bottom: var(--rule-hair); }
+  .role.r-faculty { background: var(--cobalt); color: var(--paper); }
+  .role.r-staff { background: var(--ink); color: var(--paper); }
+
+  /* Rules */
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .rules ul { margin: 0; padding: 0; list-style: none; }
+  .rules li { padding: 10px 0; border-top: var(--rule-hair); }
+  .rules li:last-child { border-bottom: var(--rule-hair); }
+
+  @media (max-width: 900px) {
+    .board { padding: 24px 20px 56px; }
+    .top, .type, .comp, .rules { grid-template-columns: 1fr; }
+    .logos { grid-template-columns: 1fr 1fr; }
+    .swatches { grid-template-columns: repeat(2, 1fr); }
+    .display { font-size: 42px; }
+    .deadlines div { grid-template-columns: 1fr; gap: 2px; }
+    .roles { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main class="board">
+
+  <div class="top">
+    <img src="logo/logo-color.png" alt="Logo Viện Phương Nam">
+    <div>
+      <p class="label">Brand kit · Chuỗi khóa học 01/2027</p>
+      <h1>Phân tích định lượng với R</h1>
+    </div>
+    <p class="meta">Bản đầu, 02/10/2026<br>Chờ Viện Phương Nam duyệt</p>
+  </div>
+
+  <section>
+    <header><span class="label">01</span><h2>Logo</h2></header>
+    <div class="logos">
+      <div><div class="logo-cell clear"><img src="logo/logo-color.png" alt="Logo màu trên nền trắng"></div><p class="cap">Màu trên nền trắng. Nét đứt: vùng an toàn, bằng chiều cao chữ PHUONG NAM.</p></div>
+      <div><div class="logo-cell plate"><img src="logo/logo-color.png" alt="Logo màu trên nền plate"></div><p class="cap">Màu trên nền plate #f3f6fb.</p></div>
+      <div><div class="logo-cell cobalt"><img src="logo/logo-reverse-white-DRAFT.png" alt="Logo trắng trên nền cobalt"></div><p class="cap"><span class="draft">Nháp.</span> Trắng trên cobalt, chờ Viện xác nhận bản đơn sắc chính thức.</p></div>
+      <div><div class="logo-cell ink"><img src="logo/logo-reverse-white-DRAFT.png" alt="Logo trắng trên nền ink"></div><p class="cap"><span class="draft">Nháp.</span> Trắng trên ink #0d1b2a.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <header><span class="label">02</span><h2>Màu</h2><p class="meta">Một mảng cobalt trên mỗi mặt. Đỏ chỉ cho hai mốc hạn.</p></header>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:var(--paper)"></div><b>Paper</b><span>#ffffff · nền chính</span></div>
+      <div class="sw"><div class="chip" style="background:var(--plate)"></div><b>Plate</b><span>#f3f6fb · nền phụ</span></div>
+      <div class="sw"><div class="chip" style="background:var(--ink)"></div><b>Ink</b><span>#0d1b2a · chữ, kẻ đậm · 17.39:1</span></div>
+      <div class="sw"><div class="chip" style="background:var(--ink-3)"></div><b>Ink 3</b><span>#566780 · nhãn · 5.76:1</span></div>
+      <div class="sw"><div class="chip" style="background:var(--cobalt)"></div><b>Cobalt</b><span>#0a3d91 · mảng nhận diện · trắng 10.05:1</span></div>
+      <div class="sw"><div class="chip" style="background:var(--signal)"></div><b>Signal</b><span>#c4231a · chỉ mốc hạn · 5.83:1</span></div>
+      <div class="sw"><div class="chip" style="background:var(--ink-2)"></div><b>Ink 2</b><span>#3a4a5f · chữ phụ</span></div>
+      <div class="sw"><div class="chip" style="background:var(--hair)"></div><b>Hair</b><span>#cbd4e1 · kẻ mảnh</span></div>
+      <div class="sw"><div class="chip" style="background:var(--field)"></div><b>Field</b><span>#7f93b0 · viền, không cho chữ</span></div>
+      <div class="sw"><div class="chip" style="background:var(--cobalt-deep)"></div><b>Cobalt deep</b><span>#072c6b</span></div>
+      <div class="sw"><div class="chip" style="background:var(--cobalt-wash)"></div><b>Cobalt wash</b><span>#eaf0fb · dòng làm nổi</span></div>
+      <div class="sw"><div class="chip" style="background:var(--cobalt-tint)"></div><b>Cobalt tint</b><span>#cfe0ff · chữ phụ trên cobalt</span></div>
+    </div>
+  </section>
+
+  <section>
+    <header><span class="label">03</span><h2>Chữ</h2></header>
+    <div class="type">
+      <div>
+        <p class="label">Chuỗi khóa học · 01/2027</p>
+        <p class="display">Phân tích định lượng với R<br><em>Từ cơ bản đến chuyên sâu</em></p>
+        <p style="max-width:62ch">Mỗi loại dữ liệu đòi hỏi một cách tiếp cận phân tích khác nhau: từ tổ chức, xử lý và phân tích dữ liệu thông thường; lượng hóa mối quan hệ giữa lợi ích và chi phí trong các quyết định y tế; đến nhận diện xu hướng, tính mùa vụ và dự báo đối với dữ liệu biến đổi theo thời gian.</p>
+        <p class="diacritics">Ữ ặ ộ ỹ ẫ ừ ợ · Đinh Tiên Hoàng · 8.800.000 đồng</p>
+      </div>
+      <div>
+        <div class="spec"><span class="label">Serif</span><span>Source Serif 4, 600 và nghiêng 600. Tiêu đề, con số, tên người.</span></div>
+        <div class="spec"><span class="label">Sans</span><span>Source Sans 3, 400, 600, 700. Đoạn văn, bảng, liên hệ, phụ đề.</span></div>
+        <div class="spec"><span class="label">Nhãn</span><span>Sans 700 in hoa, giãn 0.07em. Chỉ cho tên cột và nhãn mục.</span></div>
+        <div class="spec"><span class="label">Số</span><span>Chữ số đều trong bảng, lịch, học phí, điện thoại.</span></div>
+        <div class="spec"><span class="label">Cỡ in</span><span>A4: thân 11 pt. A3: 14 pt. Standee: 36 pt. Backdrop: 72 pt. Bảng đầy đủ trong design kit.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <header><span class="label">04</span><h2>Khối dùng chung</h2><p class="meta">Mã khối theo design-kit/README.md</p></header>
+    <div class="comp">
+      <div>
+        <p class="label">C · Lộ trình 3 khóa</p>
+        <table>
+          <thead><tr><th class="label">STT</th><th class="label">Tên khóa học</th><th class="label">Thời lượng</th><th class="label">Thời gian diễn ra</th></tr></thead>
+          <tbody>
+            <tr class="on"><td>1</td><td class="course">Phân tích dữ liệu với R cơ bản</td><td>03 ngày</td><td>Từ 08/01 đến 10/01/2027</td></tr>
+            <tr><td>2</td><td class="course">Phân tích chi phí - hiệu quả trong y tế</td><td>02 ngày</td><td>Ngày 12/01 và 13/01/2027</td></tr>
+            <tr><td>3</td><td class="course">Phân tích dữ liệu chuỗi thời gian</td><td>03 ngày</td><td>Từ 15/01 đến 17/01/2027</td></tr>
+          </tbody>
+        </table>
+
+        <div class="deadlines">
+          <p class="label">E · Mốc hạn</p>
+          <div><strong>08/12/2026</strong><span>Hoàn tất học phí trước ngày này: giảm 10%</span></div>
+          <div><strong>28/12/2026</strong><span>Hạn chót đăng ký và hoàn tất học phí</span></div>
+        </div>
+
+        <div class="faculty">
+          <div class="photo">Ảnh chính thức do Viện cung cấp</div>
+          <div>
+            <p class="label">D · Giảng viên</p>
+            <h3>GS.TS. Nguyễn Văn Tuấn</h3>
+            <p class="meta" style="margin:4px 0 0">Đại học Công nghệ Sydney (UTS) và Đại học New South Wales (UNSW Sydney). Hơn 35 năm kinh nghiệm nghiên cứu y khoa, tác giả và đồng tác giả hơn 350 bài báo khoa học.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="label">G · Mảng hình</p>
+        <figure class="plate">
+          <svg id="fig1" viewBox="0 0 480 320" role="img" aria-label="Biểu đồ hồi quy minh họa từ dữ liệu mô phỏng"></svg>
+          <figcaption><b>Hình 1.</b> Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu.</figcaption>
+        </figure>
+
+        <div class="contact">
+          <div>
+            <p class="label" style="color:var(--cobalt-tint)">F · Dải liên hệ</p>
+            <p>(028) 2242 6789 · 0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo)</p>
+            <p class="sub">45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh · www.vienphuongnam.com.vn</p>
+          </div>
+          <div class="qr">H · Ô QR<br>chờ chốt đích đến</div>
+        </div>
+
+        <div class="roles" aria-label="I · Dải vai trò trên thẻ đeo">
+          <div class="role r-learner">HỌC VIÊN</div>
+          <div class="role r-faculty">GIẢNG VIÊN</div>
+          <div class="role r-staff">BAN TỔ CHỨC</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <header><span class="label">05</span><h2>Quy tắc</h2></header>
+    <div class="rules">
+      <ul>
+        <li>Chữ lấy từ thông báo v4, chép trong content.md.</li>
+        <li>Đường kẻ đậm mở đầu khối, kẻ mảnh giữa dòng. Không khung hộp, không bóng đổ.</li>
+        <li>Biểu đồ luôn có chú thích "Dữ liệu minh họa, không phải kết quả nghiên cứu."</li>
+        <li>Bo góc 2 px. Gradient chỉ nằm trong logo.</li>
+      </ul>
+      <ul>
+        <li>Không ảnh stock, ảnh AI, minh họa nhân vật; chưa có ảnh thật thì để khung chờ.</li>
+        <li>Không số học viên, cảm nhận, kết quả khóa trước; không quà tặng sách.</li>
+        <li>Không mã khóa nội bộ, không tự điền số thông báo.</li>
+        <li>Không dùng đỏ ngoài hai mốc 08/12/2026 và 28/12/2026.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+<script>
+  // Seeded data so the board renders the same figure every time, like dist/app.js.
+  (function () {
+    var seed = 20270108;
+    function rand() { seed |= 0; seed = seed + 0x6d2b79f5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+    function gauss() { return Math.sqrt(-2 * Math.log(rand() || 1e-9)) * Math.cos(2 * Math.PI * rand()); }
+    var n = 48, xs = [], ys = [];
+    for (var i = 0; i < n; i++) { var x = rand() * 10; xs.push(x); ys.push(2 + 0.6 * x + gauss() * 1.1); }
+    var mx = xs.reduce(function (a, b) { return a + b; }) / n, my = ys.reduce(function (a, b) { return a + b; }) / n;
+    var sxx = 0, sxy = 0; for (i = 0; i < n; i++) { sxx += (xs[i] - mx) * (xs[i] - mx); sxy += (xs[i] - mx) * (ys[i] - my); }
+    var b = sxy / sxx, a = my - b * mx, sse = 0;
+    for (i = 0; i < n; i++) { var r = ys[i] - a - b * xs[i]; sse += r * r; }
+    var s = Math.sqrt(sse / (n - 2));
+    var L = 44, R = 464, T = 16, B = 284;
+    function px(x) { return L + x / 10 * (R - L); }
+    function py(y) { return B - y / 10 * (B - T); }
+    var svg = '';
+    for (var g = 0; g <= 10; g += 2.5) svg += '<line x1="' + L + '" x2="' + R + '" y1="' + py(g) + '" y2="' + py(g) + '" stroke="#cfe0ff" stroke-opacity=".25"/>';
+    var up = [], lo = [];
+    for (var k = 0; k <= 20; k++) {
+      var xx = k / 2, se = s * Math.sqrt(1 / n + (xx - mx) * (xx - mx) / sxx) * 2.01, yy = a + b * xx;
+      up.push(px(xx) + ',' + py(yy + se)); lo.unshift(px(xx) + ',' + py(yy - se));
+    }
+    svg += '<polygon points="' + up.concat(lo).join(' ') + '" fill="#ffffff" fill-opacity=".18"/>';
+    for (i = 0; i < n; i++) svg += '<circle cx="' + px(xs[i]).toFixed(1) + '" cy="' + py(ys[i]).toFixed(1) + '" r="4" fill="#ffffff" fill-opacity=".85"/>';
+    svg += '<line x1="' + px(0) + '" y1="' + py(a) + '" x2="' + px(10) + '" y2="' + py(a + 10 * b) + '" stroke="#ffffff" stroke-width="2.6"/>';
+    svg += '<line x1="' + L + '" x2="' + R + '" y1="' + B + '" y2="' + B + '" stroke="#ffffff"/><line x1="' + L + '" x2="' + L + '" y1="' + T + '" y2="' + B + '" stroke="#ffffff"/>';
+    svg += '<text x="' + R + '" y="' + (B + 28) + '" text-anchor="end" fill="#cfe0ff" font-size="15" font-family="Source Sans 3, sans-serif">Biến giải thích (x)</text>';
+    svg += '<text x="' + (L - 30) + '" y="' + (T + 6) + '" fill="#cfe0ff" font-size="15" font-family="Source Sans 3, sans-serif" transform="rotate(-90 ' + (L - 30) + ' ' + (T + 6) + ')" text-anchor="end">Kết cục (y)</text>';
+    document.getElementById('fig1').innerHTML = svg;
+  })();
+</script>
+</body>
+</html>

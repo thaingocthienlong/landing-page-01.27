@@ -4,6 +4,28 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const scrollBehavior = () => (reducedMotion.matches ? "auto" : "smooth");
 
+  /* ---------- analytics: no-ops until window.VPN_TRACKING has IDs ---------- */
+
+  const track = (name, params = {}, fb) => {
+    if (typeof window.gtag === "function") window.gtag("event", name, params);
+    if (fb && typeof window.fbq === "function") window.fbq("track", fb.name, fb.params || {});
+  };
+
+  const trackLead = (payload) => {
+    const value = Number(((payload.package.match(/(\d{1,3}(?:\.\d{3})+)/) || [])[1] || "0").replace(/\./g, ""));
+    track("generate_lead", { currency: "VND", value, package: payload.package_id }, { name: "Lead", params: { currency: "VND", value, content_name: payload.package_id } });
+    const t = window.VPN_TRACKING || {};
+    if (t.adsId && t.adsLeadLabel && typeof window.gtag === "function") {
+      window.gtag("event", "conversion", { send_to: `${t.adsId}/${t.adsLeadLabel}`, currency: "VND", value });
+    }
+  };
+
+  const setupTracking = () => {
+    document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
+      link.addEventListener("click", () => track("phone_click", { phone_number: link.getAttribute("href").slice(4) }, { name: "Contact" }));
+    });
+  };
+
   /* ---------- figures: seeded synthetic data, drawn as SVG ---------- */
 
   const NS = "http://www.w3.org/2000/svg";
@@ -618,9 +640,15 @@
       clearFeedback();
       if (event.target?.name === "biet_qua") syncSourceOther();
     });
+    let started = false;
     nextButton.addEventListener("click", () => {
       clearFeedback();
-      if (validateStep(current)) show(current + 1, { focus: true });
+      if (!validateStep(current)) return;
+      if (!started) {
+        started = true;
+        track("form_start", { form_id: form.id });
+      }
+      show(current + 1, { focus: true });
     });
     prevButton.addEventListener("click", () => {
       clearFeedback();
@@ -660,9 +688,11 @@
       submitButton.disabled = true;
       form.setAttribute("aria-busy", "true");
       try {
-        const response = await fetch(form.dataset.endpoint.trim(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(collect()) });
+        const payload = collect();
+        const response = await fetch(form.dataset.endpoint.trim(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!result.ok) throw new Error(result.error || "rejected");
+        trackLead(payload);
         form.reset();
         syncSourceOther();
         show(0);
@@ -725,4 +755,5 @@
   setupMobileNav();
   setupForm();
   setupCopy();
+  setupTracking();
 })();
