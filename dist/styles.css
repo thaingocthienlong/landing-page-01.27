@@ -147,6 +147,7 @@ section { padding-block: var(--section); }
 .abstract dd { font-size: 1.0625rem; line-height: 1.5; }
 .abstract dd a { color: var(--cobalt); font-weight: 600; }
 .abstract .is-deadline dd { color: var(--signal); font-weight: 700; }
+.abstract .is-count dd { font: 700 1.75rem/1.2 var(--serif); color: var(--cobalt); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 
 /* figure plates */
