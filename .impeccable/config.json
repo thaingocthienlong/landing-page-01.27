@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T02:33:47.188Z",
+        "reason": "agent triage: top (not side) 6px cobalt rule on the HỌC VIÊN role-band sample, specified as block I in media/design-kit/README.md and badge/README.md"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T02:33:47.378Z",
+        "reason": "agent triage: uppercase only on short .label column/section labels and 2-3 word role bands, per DESIGN.md Label rule; no uppercase paragraphs"
+      }
+    ]
+  }
+}
