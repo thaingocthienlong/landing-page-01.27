@@ -74,6 +74,51 @@
         ],
         "createdAt": "2026-10-02T07:44:19.345Z",
         "reason": "agent triage: the inline SVG is the decorative capsule/node background of the magnific 'Gradient science' style the user asked for (2026-10-02), not an illustration standing in for content"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T08:57:16.975Z",
+        "reason": "agent triage 2026-10-02: detector composites the two radial lights over the white page (#a7c7ec) instead of the navy canvas; sampled on the rendered PNG every text element is >=5.12:1, node labels white on #1a78e0 centre 4.37:1 (large bold), 28/12 red on white pill 5.83:1"
+      },
+      {
+        "rule": "radial-spotlight-glow",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T08:57:17.206Z",
+        "reason": "agent triage: two soft background lights matching the glow of the institute's approved posters (data-lab canvas the user asked for), no text depends on them"
+      },
+      {
+        "rule": "repeating-stripes-gradient",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T08:57:17.445Z",
+        "reason": "agent triage: the repeating gradient is the one-line-per-day gridline of the packages bar chart, not decoration"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T08:57:17.713Z",
+        "reason": "agent triage: JetBrains Mono (Vietnamese subset) sets the R-comment section labels and the lm(y ~ x) annotation for the R-language feel the user asked for"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T08:57:17.965Z",
+        "reason": "agent triage: same as jetbrains, value as reported"
       }
     ]
   }

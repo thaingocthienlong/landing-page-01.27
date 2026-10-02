@@ -16,7 +16,7 @@ Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác ch�
 | P2 | 1080×1350 | Chuỗi đầy đủ, rút gọn chữ |
 | P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
 | P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
-| ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo: 3 khóa và ngày, 6 gói dạng thẻ (ô số khóa trong gói, số ngày, học phí), 3 phiếu ưu đãi, hạn chót 28/12. `ads/story-khoa-goi-uu-dai.html` |
+| ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo dạng "mọi thông tin là một biểu đồ": lộ trình 3 khóa trên đường hồi quy, 6 gói là biểu đồ cột chồng theo số ngày, ưu đãi là đồ thị nút, mốc thời gian là trục có ngắt. `ads/story-khoa-goi-uu-dai.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
 
 ## Bố cục P1 (khối theo `../design-kit/README.md`)
@@ -58,13 +58,21 @@ Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng �
 
 ## ST1: Story quảng cáo
 
-**Phong cách:** theo bộ mẫu "Gradient science templates set" (magnific.com/serie/18774762) mà Viện chọn ngày 02/10/2026, ghép với bố cục của các poster đã duyệt (khóa "Thiết kế nghiên cứu và Đạo đức khoa học", khóa "Quản trị dữ liệu nhân sự"): dải đầu xanh đậm có logo trong khung tròn trắng và tên Viện, khối thông tin có icon tròn, ưu đãi dạng phiếu giảm giá (số lớn bên trái, điều kiện bên phải), dải chân trắng có icon điện thoại, địa chỉ, website. Đây là ngoại lệ có chủ đích so với phong cách "The Manuscript" của brand kit: gradient xanh lấy từ gradient trong logo; font Oswald (tiêu đề) và Montserrat (chữ thân) để khớp mẫu, cả hai có bộ dấu tiếng Việt. Hình khối và icon tự vẽ bằng SVG trong file, không dùng file của mẫu. Không có ảnh vì chưa có ảnh chính thức.
+**Ý tưởng:** mọi khối thông tin được vẽ thành một loại đồ thị mà chuỗi khóa dạy, trên cùng một nền xanh đậm kiểu phòng thí nghiệm dữ liệu, không dùng ô trắng dán lên nền (góp ý ngày 02/10/2026: bản trước trông như nền và ô thông tin chồng lên nhau, thiếu tính khoa học, công nghệ, ngôn ngữ R, mô hình đồ thị).
 
-**Gói đăng ký:** không dùng bảng. Mỗi gói là một thẻ có 3 ô số khóa: ô tô xanh là khóa có trong gói, ô viền nét đứt là khóa không có. Chú thích cách đọc ở dưới thẻ.
+- **Lộ trình 3 khóa:** đường hồi quy đi lên với dải tin cậy và điểm dữ liệu mô phỏng (ghi "dữ liệu minh họa"); 3 khóa là 3 điểm mốc trên đường, có đường gióng xuống trục và nhãn tên khóa, ngày học.
+- **6 gói:** biểu đồ cột chồng nằm ngang; mỗi đoạn là một khóa (K1, K2, K3), độ dài đúng số ngày (8, 5, 6, 5, 2, 3); học phí canh phải.
+- **Ưu đãi:** đồ thị nút nối bằng một trục dọc; diện tích nút theo mức giảm (5%, 10%, vòng nét đứt tới 15% cho học viên cũ).
+- **Mốc thời gian:** trục có ngắt trục: 08/12/2026 (hạn ưu đãi 10%), 28/12/2026 (hạn chót, pill trắng chữ đỏ), 08/01/2027 (khai giảng).
+- **Chất R:** nhãn mục viết như comment R (`# 6 gói đăng ký`), chữ R trong hình lục giác như sticker gói R, chú thích `lm(y ~ x)` trên đường hồi quy.
+- **Mã màu K1/K2/K3** (cyan #5ad8ff, xanh #3f86ff, xanh băng #c3dbff) dùng chung cho điểm mốc, nhãn khóa và các đoạn cột.
+- **Khung theo poster đã duyệt:** dải đầu có logo trong khung tròn trắng và tên Viện; dải chân trắng có icon điện thoại, địa chỉ, website.
 
-**Bố cục dọc:** dải đầu 0–150 px, nội dung 150–1816 px, dải chân 1816–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và một phần dải hạn chót. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy dải hạn chót lên trên phiếu ưu đãi.
+Font: Oswald (tiêu đề, số), Montserrat (chữ thân), JetBrains Mono (chữ kiểu code R); cả ba có bộ dấu tiếng Việt. Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
 
-**Màu:** chữ trên nền xanh dùng `--royal-ink` #1a4aa8 và `--muted-ink` #34456c (từ 5.17:1 trở lên trên nền thật). Số của khóa không có trong gói dùng #6b82a8 (3.90:1, chữ lớn đậm). Chữ trắng trên đầu sáng của các thanh xanh chỉ dùng cho chữ lớn. Ngày 28/12/2026 giữ màu đỏ signal theo brand kit.
+**Bố cục dọc:** dải đầu 0–150 px, nội dung 150–1816 px, dải chân 1816–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và một phần trục thời gian. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy trục thời gian lên trên.
+
+**Tương phản** (đo trên ảnh render, vì bộ dò tự động tính sai nền nhiều lớp): chữ trắng, xanh nhạt, cyan trên nền xanh đậm từ 5.12:1 trở lên; chữ trên các đoạn cột dùng xanh đen #06205a / #041a4a (từ 4.85:1); chữ trắng trên tâm nút ưu đãi 4.37:1 (chữ lớn đậm); ngày 28/12/2026 đỏ signal trên pill trắng 5.83:1.
 
 **Xuất lại** sau khi sửa chữ trong file HTML:
 

@@ -4,151 +4,148 @@
 <meta charset="utf-8">
 <title>Story · Khóa học, gói, học phí, ưu đãi · Phân tích định lượng với R</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   /*
-    Style: the "Gradient science" template series the client chose (magnific.com/serie/18774762),
-    combined with the structure of the institute's approved posters: header strip with logo and
-    institute name, icon footer strip, coupon-style discounts. Blue gradient comes from the logo.
-    All shapes and icons are drawn here; no template files are used.
+    Concept: every block of information is drawn as a chart the courses teach, on one "data lab" canvas.
+    Route of the 3 courses = rising regression line with 3 milestones; 6 packages = stacked bar chart
+    (segment = course, length = days); discounts = node graph sized by percentage; dates = time axis with a break.
+    R touches: section labels written as R comments, the R set in a hex sticker. Colour code K1/K2/K3 is shared
+    by every chart. Blues come from the logo gradient and the institute's approved posters.
   */
   :root {
-    --sky-0: #eaf6ff; --sky-1: #cfe8fc; --sky-2: #a6d4f7;
-    --royal: #1f5fcf; --royal-ink: #1a4aa8; --navy: #1f2a5a; --muted: #4a5d86; --muted-ink: #34456c;
-    --deep: #0a3d91; --tint: #cfe0ff; --signal: #c4231a; --line: #d6e6f7; --off: #9cc7f0;
-    --grad: linear-gradient(90deg, #1683ea, #0d55c9);
+    --bg-0: #061a4d; --bg-1: #0a2f7f; --bg-2: #0c3f9e;
+    --k1: #5ad8ff; --k2: #3f86ff; --k2-text: #8fb8ff; --k3: #c3dbff;
+    --ink-dark: #06205a; --tint: #cfe0ff; --soft: #a8c4f0; --signal: #c4231a; --grid: rgba(255, 255, 255, 0.09);
     --display: "Oswald", "Arial Narrow", sans-serif;
     --text: "Montserrat", "Segoe UI", sans-serif;
+    --code: "JetBrains Mono", Consolas, monospace;
+    --day: 56px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #dfe7f0; }
 
   .ad {
-    width: 1080px; height: 1920px; margin: 0 auto; position: relative; overflow: hidden;
-    background: linear-gradient(162deg, var(--sky-0) 0%, var(--sky-1) 46%, var(--sky-2) 100%);
-    font-family: var(--text); color: var(--navy); font-variant-numeric: lining-nums tabular-nums;
+    width: 1080px; height: 1920px; margin: 0 auto; position: relative; overflow: hidden; color: #fff;
+    background:
+      radial-gradient(620px 520px at 82% 34%, rgba(22, 115, 227, 0.42), transparent 70%),
+      radial-gradient(520px 420px at 10% 74%, rgba(22, 115, 227, 0.28), transparent 70%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 42%, var(--bg-2) 100%);
+    font-family: var(--text); font-variant-numeric: lining-nums tabular-nums;
     display: flex; flex-direction: column;
   }
-  .decor { position: absolute; inset: 0; width: 1080px; height: 1920px; }
-  .decor.front { z-index: 3; pointer-events: none; }
-  .ad > header, .ad > main, .ad > footer { position: relative; z-index: 2; }
+  .hexes { position: absolute; right: -40px; top: 120px; width: 420px; height: 420px; opacity: 0.1; }
+  .ad > * { position: relative; }
+  .ad > .hexes { position: absolute; }
+  .wrap { width: 940px; margin: 0 auto; }
 
-  /* Header strip, as on the approved posters */
-  .top { flex: none; height: 150px; background: linear-gradient(100deg, #0a3d91 0%, #0d4bb0 60%, #1466d6 100%); color: #fff;
-         display: flex; align-items: center; gap: 22px; padding: 0 54px; overflow: hidden; }
-  .top .badge { flex: none; width: 112px; height: 112px; border-radius: 50%; background: #fff; display: grid; place-items: center;
-                box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.25); }
-  .top .badge img { width: 92px; }
-  .top p { font: 600 37px/1.3 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
-  .top p small { display: block; font: 500 23px/1.3 var(--text); text-transform: none; letter-spacing: 0; color: #fff; margin-top: 2px; }
+  /* Header, as on the approved posters, on the same canvas */
+  .top { flex: none; height: 150px; display: flex; align-items: center; gap: 22px; padding: 0 54px;
+         border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, var(--k1), rgba(90, 216, 255, 0)) 1; }
+  .badge { flex: none; width: 104px; height: 104px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.28); }
+  .badge img { width: 86px; }
+  .top p { font: 600 36px/1.3 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
+  .top p small { display: block; font: 500 22px/1.3 var(--text); text-transform: none; letter-spacing: 0; color: var(--tint); }
 
-  main { flex: 1; display: flex; flex-direction: column; align-items: center; }
-  .col { width: 940px; }
+  .code { font: 500 25px/1.3 var(--code); color: var(--k1); }
+  .code .dim { color: var(--soft); }
 
-  .band { margin-top: 24px; width: 100%; background: #fff; padding: 22px 70px 20px; text-align: center; }
-  .band h1 { white-space: nowrap; font: 700 75px/1.16 var(--display); color: var(--royal); text-transform: uppercase; letter-spacing: 0.005em; }
-  .band hr { border: 0; height: 3px; width: 620px; margin: 8px auto 12px; background: linear-gradient(90deg, transparent, var(--off) 18%, var(--off) 82%, transparent); }
-  .band p { font: 700 28px/1.25 var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
+  /* Title lockup */
+  .title { margin-top: 24px; }
+  .title h1 { margin-top: 4px; white-space: nowrap; font: 700 89px/1.08 var(--display); text-transform: uppercase; letter-spacing: 0.002em; }
+  .title .row2 { display: flex; align-items: center; gap: 22px; margin-top: 4px; }
+  .title .row2 b { font: 700 89px/1 var(--display); text-transform: uppercase; }
+  .hex { flex: none; width: 112px; height: 128px; filter: drop-shadow(0 0 14px rgba(90, 216, 255, 0.55)); }
+  .title .row2 span { font: 700 29px/1.3 var(--text); text-transform: uppercase; letter-spacing: 0.05em; color: var(--tint); }
+  .title .row2 span em { display: block; margin-top: 8px; font: 600 23px/1.3 var(--text); text-transform: none; letter-spacing: 0; font-style: normal; color: var(--k1); }
 
-  .facts { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  /* Facts */
+  .facts { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .fact { display: flex; align-items: center; gap: 16px; }
-  .ico { flex: none; width: 66px; height: 66px; border-radius: 50%; background: var(--grad); display: grid; place-items: center; }
-  .ico svg { width: 36px; height: 36px; }
-  .fact b { display: block; font: 700 40px/1.05 var(--display); color: var(--royal-ink); letter-spacing: 0.01em; }
-  .fact span { display: block; font: 600 23px/1.3 var(--text); margin-top: 2px; }
-  .teach { margin-top: 14px; text-align: center; font: 600 25px/1.35 var(--text); }
-  .teach b { color: var(--royal-ink); }
+  .ring { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--k1); background: rgba(90, 216, 255, 0.12); display: grid; place-items: center; }
+  .ring svg { width: 32px; height: 32px; }
+  .fact b { display: block; font: 600 38px/1.05 var(--display); letter-spacing: 0.01em; }
+  .fact span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); margin-top: 3px; }
+  .teach { margin-top: 16px; font: 600 25px/1.35 var(--text); }
+  .teach em { font-style: normal; color: var(--k1); }
 
-  .label { display: flex; align-items: baseline; justify-content: space-between; margin-top: 22px; padding-bottom: 8px; border-bottom: 3px solid var(--royal-ink); }
-  .label h2 { font: 700 38px/1.1 var(--display); color: var(--royal-ink); text-transform: uppercase; letter-spacing: 0.02em; }
-  .label span { font: 600 22px/1.2 var(--text); color: var(--muted-ink); }
+  .sec { display: flex; justify-content: space-between; align-items: baseline; margin-top: 30px; }
+  .sec small { font: 500 22px/1 var(--code); color: var(--soft); }
 
-  .courses { margin-top: 18px; border-top: 2px solid rgba(255, 255, 255, 0.8); }
-  .course { display: grid; grid-template-columns: 136px 1fr auto; align-items: center; column-gap: 18px; padding: 8px 0; border-bottom: 2px solid rgba(255, 255, 255, 0.8); }
-  .pill { display: inline-flex; justify-content: center; align-items: center; height: 46px; border-radius: 23px; color: #fff;
-          background: var(--grad); font: 600 26px/1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; }
-  .course .name { font: 700 27px/1.25 var(--text); }
-  .course .when { font: 700 28px/1 var(--display); color: var(--royal-ink); letter-spacing: 0.02em; }
+  /* Chart 1: route of the 3 courses */
+  .route svg { display: block; width: 940px; height: 170px; margin-top: 4px; overflow: visible; }
+  .route .cols { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
+  .route .cols div { text-align: center; padding: 0 10px; }
+  .route .cols b { display: block; font: 600 28px/1.15 var(--display); letter-spacing: 0.02em; }
+  .route .cols span { display: block; margin-top: 4px; font: 600 23px/1.3 var(--text); }
+  .c1 { color: var(--k1); } .c2 { color: var(--k2-text); } .c3 { color: var(--k3); }
 
-  /* Packages as cards: which courses (dots 1-2-3), days, fee */
-  .packs { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .pack { background: #fff; border-radius: 24px; padding: 14px 20px 12px; }
-  .pack .hd { display: flex; justify-content: space-between; align-items: baseline; }
-  .pack .hd b { font: 700 34px/1 var(--display); color: var(--royal); text-transform: uppercase; }
-  .pack .hd span { font: 600 22px/1 var(--text); color: var(--muted); }
-  .dots { display: flex; gap: 8px; margin-top: 10px; }
-  .dot { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font: 600 24px/1 var(--display); font-style: normal; }
-  .dot.on { background: var(--grad); color: #fff; }
-  .dot.off { border: 2px dashed var(--off); color: #6b82a8; }
-  .pack .fee { margin-top: 10px; font: 700 44px/1 var(--display); color: var(--navy); letter-spacing: 0.01em; }
-  .pack .fee small { font: 600 24px var(--text); color: var(--muted); margin-left: 2px; }
-  .tax { margin-top: 8px; font: 500 22px/1.3 var(--text); color: var(--muted-ink); text-align: center; }
+  /* Chart 2: packages as stacked bars, segment = course, length = days */
+  .bars { margin-top: 10px; }
+  .bar { display: grid; grid-template-columns: 104px auto 1fr auto; align-items: center; column-gap: 12px; height: 49px; }
+  .bar .pk { font: 600 30px/1 var(--display); text-transform: uppercase; }
+  .track { display: flex; gap: 3px; height: 34px; }
+  .seg { display: grid; place-items: center; height: 34px; font: 600 20px/1 var(--display); letter-spacing: 0.04em; font-style: normal; }
+  .seg:first-child { border-radius: 17px 0 0 17px; } .seg:last-child { border-radius: 0 17px 17px 0; } .seg:only-child { border-radius: 17px; }
+  .s1 { width: calc(var(--day) * 3); background: var(--k1); color: var(--ink-dark); }
+  .s2 { width: calc(var(--day) * 2); background: var(--k2); color: #041a4a; }
+  .s3 { width: calc(var(--day) * 3); background: var(--k3); color: var(--ink-dark); }
+  .bar .d { font: 500 22px/1 var(--text); color: var(--soft); }
+  .bar .fee { font: 700 40px/1 var(--display); letter-spacing: 0.01em; text-align: right; }
+  .bar .fee small { font: 600 24px var(--text); color: var(--tint); margin-left: 2px; }
+  .note { margin-top: 6px; font: 500 22px/1.3 var(--text); color: var(--tint); }
+  .bars-wrap { position: relative; }
+  .bars-wrap::before { content: ""; position: absolute; left: 116px; top: 10px; width: calc(var(--day) * 8 + 6px); height: calc(49px * 6);
+    background: repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px var(--day)); pointer-events: none; }
 
-  /* Discounts as coupons, as on the approved poster */
-  .coupons { margin-top: 12px; display: grid; gap: 10px; }
-  .coupon { background: #fff; border-radius: 22px; display: grid; grid-template-columns: 196px 22px 1fr; align-items: center; min-height: 96px; }
-  .coupon .stub { text-align: center; padding: 10px 0; }
-  .coupon .stub small { display: block; font: 700 22px/1 var(--text); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
-  .coupon .stub b { display: block; margin-top: 4px; font: 700 62px/1 var(--display); color: var(--royal); letter-spacing: 0.01em; }
-  .coupon .stub b.sm { font-size: 50px; }
-  .perf { display: grid; gap: 10px; justify-items: center; }
-  .perf i { display: block; width: 9px; height: 22px; border-radius: 5px; background: var(--deep); }
-  .coupon p { padding: 12px 26px 12px 18px; font: 600 25px/1.32 var(--text); }
-  .coupon p em { font-style: normal; color: var(--royal-ink); font-weight: 700; }
-  .coupon p small { display: block; margin-top: 2px; font: 500 22px/1.3 var(--text); color: var(--muted); }
+  /* Chart 3: discounts as a node graph, node area follows the percentage */
+  .deals { list-style: none; margin-top: 12px; position: relative; }
+  .deals::before { content: ""; position: absolute; left: 64px; top: 40px; bottom: 60px; width: 3px; background: linear-gradient(var(--k1), var(--k3)); opacity: 0.7; }
+  .deals li { display: grid; grid-template-columns: 130px 1fr; align-items: center; column-gap: 20px; }
+  .deals li + li { margin-top: 8px; }
+  .node { justify-self: center; position: relative; display: grid; place-items: center; border-radius: 50%; font: 700 30px/1 var(--display); letter-spacing: 0.01em;
+          background: radial-gradient(circle at 35% 28%, #4fbaf8 0%, #1a78e0 45%, #0d55c9 78%); color: #fff; text-shadow: 0 1px 4px rgba(6, 32, 90, 0.5); }
+  .n10 { width: 78px; height: 78px; font-size: 28px; }
+  .n5 { width: 55px; height: 55px; font-size: 22px; }
+  .n15 { width: 78px; height: 78px; font-size: 21px; margin: 9px; }
+  .n15::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px dashed var(--k1); }
+  .deals p { font: 600 25px/1.3 var(--text); }
+  .deals p em { font-style: normal; color: var(--k1); }
+  .deals p small { display: block; margin-top: 3px; font: 500 22px/1.3 var(--text); color: var(--tint); }
 
-  .deadline { margin-top: 20px; width: 100%; background: var(--deep); color: #fff; padding: 16px 70px 18px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
-  .deadline .lbl { font: 700 23px/1.3 var(--text); color: var(--tint); text-transform: uppercase; letter-spacing: 0.02em; }
-  .deadline .lbl small { display: block; margin-top: 4px; font: 600 22px/1.3 var(--text); color: #fff; text-transform: none; letter-spacing: 0; }
-  .deadline .date { background: #fff; color: var(--signal); border-radius: 40px; padding: 9px 26px 7px; font: 700 48px/1 var(--display); letter-spacing: 0.02em; white-space: nowrap; }
+  /* Chart 4: time axis with a break */
+  .time { position: relative; height: 136px; margin-top: 22px; }
+  .time .line { position: absolute; left: 0; right: 0; top: 74px; height: 3px; background: linear-gradient(90deg, var(--k1), var(--k3)); }
+  .time .brk { position: absolute; top: 60px; width: 30px; height: 30px; left: 640px; background: var(--bg-2); }
+  .time .brk::before, .time .brk::after { content: ""; position: absolute; top: 0; width: 3px; height: 30px; background: var(--k3); transform: skewX(-20deg); }
+  .time .brk::before { left: 6px; } .time .brk::after { left: 20px; }
+  .mk { position: absolute; top: 0; transform: translateX(-50%); text-align: center; }
+  .mk .ev { height: 58px; display: flex; align-items: flex-end; justify-content: center; font: 600 22px/1.25 var(--text); color: var(--tint); white-space: nowrap; }
+  .mk .dt { display: inline-block; margin-top: 30px; font: 700 34px/1 var(--display); letter-spacing: 0.02em; }
+  .mk::before { content: ""; position: absolute; left: 50%; top: 66px; width: 19px; height: 19px; margin-left: -9.5px; border-radius: 50%; background: var(--k1); box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.25); }
+  .mk.hot::before { background: #fff; box-shadow: 0 0 0 6px rgba(196, 35, 26, 0.55); }
+  .mk.hot .ev { color: #fff; font-weight: 700; }
+  .mk.hot .dt { margin-top: 22px; background: #fff; color: var(--signal); border-radius: 30px; padding: 8px 22px 6px; font-size: 44px; }
+  .mk.k3::before { background: var(--k3); }
+
+  .contact { margin-top: 6px; text-align: center; font: 600 24px/1.3 var(--text); }
+  .contact span { color: var(--tint); font-weight: 500; }
 
   /* Footer strip, as on the approved posters */
   .foot { flex: none; height: 104px; margin-top: auto; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; }
-  .foot div { display: flex; align-items: center; gap: 10px; font: 500 25px/1 var(--display); color: var(--navy); white-space: nowrap; }
-  .foot .ico { width: 46px; height: 46px; background: var(--deep); }
-  .foot .ico svg { width: 26px; height: 26px; }
+  .foot div { display: flex; align-items: center; gap: 10px; font: 500 25px/1 var(--display); color: #1f2a5a; white-space: nowrap; }
+  .foot .ico { width: 46px; height: 46px; border-radius: 50%; background: #0a3d91; display: grid; place-items: center; }
+  .foot .ico svg { width: 24px; height: 24px; }
 </style>
 </head>
 <body>
 <article class="ad" id="ad" data-size="1080x1920">
 
-  <svg class="decor" viewBox="0 0 1080 1920" aria-hidden="true">
-    <defs>
-      <linearGradient id="capsule" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#4fbaf8"/>
-        <stop offset="1" stop-color="#1673e3"/>
-      </linearGradient>
-    </defs>
-    <polygon points="0,150 640,150 0,790" fill="#fff" opacity=".28"/>
-    <polygon points="1080,1816 1080,1180 446,1816" fill="#fff" opacity=".16"/>
-
-    <!-- upper left, beside the band and facts -->
-    <rect x="-6" y="430" width="64" height="300" rx="32" fill="url(#capsule)" transform="rotate(45 26 580)"/>
-    <rect x="40" y="170" width="52" height="220" rx="26" fill="#fff" opacity=".6" transform="rotate(45 66 280)"/>
-    <g stroke="#fff" stroke-width="3" opacity=".85" stroke-linecap="round">
-      <line x1="150" y1="250" x2="280" y2="150"/>
-      <line x1="176" y1="262" x2="310" y2="158"/>
-    </g>
-
-    <!-- upper right: data nodes -->
-    <g fill="#fff" opacity=".85">
-      <g stroke="#fff" stroke-width="8" stroke-linecap="round">
-        <line x1="962" y1="236" x2="1030" y2="196"/>
-        <line x1="962" y1="236" x2="996" y2="300"/>
-        <line x1="962" y1="236" x2="896" y2="206"/>
-      </g>
-      <circle cx="962" cy="236" r="28" fill="none" stroke="#fff" stroke-width="10"/>
-      <circle cx="1030" cy="196" r="15"/>
-      <circle cx="996" cy="300" r="12"/>
-      <circle cx="896" cy="206" r="10"/>
-    </g>
-
-    <!-- middle edges -->
-    <rect x="1010" y="760" width="60" height="300" rx="30" fill="url(#capsule)" transform="rotate(45 1040 910)"/>
-    <rect x="-10" y="1130" width="56" height="280" rx="28" fill="#8cc6f3" opacity=".7" transform="rotate(45 18 1270)"/>
-    <rect x="1020" y="1300" width="56" height="260" rx="28" fill="#fff" opacity=".6" transform="rotate(45 1048 1430)"/>
-    <circle cx="44" cy="1560" r="13" fill="#fff" opacity=".75"/>
-    <circle cx="1046" cy="1180" r="11" fill="#fff" opacity=".75"/>
+  <svg class="hexes" viewBox="0 0 420 420" aria-hidden="true" fill="none" stroke="#fff" stroke-width="3">
+    <polygon points="210,20 290,66 290,158 210,204 130,158 130,66"/>
+    <polygon points="330,158 410,204 410,296 330,342 250,296 250,204"/>
+    <polygon points="90,158 170,204 170,296 90,342 10,296 10,204"/>
+    <polygon points="210,296 290,342 290,434 210,480 130,434 130,342"/>
   </svg>
 
   <header class="top">
@@ -156,79 +153,114 @@
     <p>Viện Phát triển Nguồn lực Xã hội Phương Nam<small>Liên hiệp các Hội Khoa học và Kỹ thuật Việt Nam</small></p>
   </header>
 
-  <main>
-    <section class="band">
-      <h1>Phân tích định lượng với R</h1>
-      <hr>
-      <p>Chuỗi 3 khóa học từ cơ bản đến chuyên sâu</p>
-    </section>
+  <section class="wrap title">
+    <p class="code"># Chuỗi khóa học · 01/2027</p>
+    <h1>Phân tích định lượng</h1>
+    <div class="row2">
+      <b>với</b>
+      <svg class="hex" viewBox="0 0 112 128" aria-label="R">
+        <polygon points="56,4 108,34 108,94 56,124 4,94 4,34" fill="rgba(90,216,255,0.16)" stroke="#5ad8ff" stroke-width="6" stroke-linejoin="round"/>
+        <text x="56" y="92" text-anchor="middle" fill="#fff" font-family="Oswald, sans-serif" font-weight="700" font-size="86">R</text>
+      </svg>
+      <span>Từ cơ bản<br>đến chuyên sâu<em>GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch</em></span>
+    </div>
+  </section>
 
-    <div class="col facts">
-      <div class="fact">
-        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/></svg></span>
-        <div><b>08/01 – 17/01/2027</b><span>Thời gian tổ chức</span></div>
-      </div>
-      <div class="fact">
-        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="9" r="2.2"/><path d="M8.5 14c.6-1.6 2-2.4 3.5-2.4s2.9.8 3.5 2.4"/></svg></span>
-        <div><b>Offline / Online</b><span>TP. Hồ Chí Minh hoặc Zoom</span></div>
+  <section class="wrap facts">
+    <div class="fact">
+      <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/></svg></span>
+      <div><b>08/01 – 17/01/2027</b><span>Thời gian tổ chức</span></div>
+    </div>
+    <div class="fact">
+      <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="9" r="2.2"/><path d="M8.5 14c.6-1.6 2-2.4 3.5-2.4s2.9.8 3.5 2.4"/></svg></span>
+      <div><b>Offline / Online</b><span>TP. Hồ Chí Minh hoặc Zoom</span></div>
+    </div>
+  </section>
+
+  <section class="wrap route" aria-label="Ba khóa học">
+    <div class="sec"><p class="code"># 3 khóa học: từ nền tảng đến chuyên sâu</p><small>dữ liệu minh họa</small></div>
+    <svg id="route" viewBox="0 0 940 170" aria-hidden="true"></svg>
+    <div class="cols">
+      <div><b class="c1">Khóa 1 · 08–10/01</b><span>Phân tích dữ liệu với R cơ bản</span></div>
+      <div><b class="c2">Khóa 2 · 12–13/01</b><span>Phân tích chi phí - hiệu quả trong y tế</span></div>
+      <div><b class="c3">Khóa 3 · 15–17/01</b><span>Phân tích dữ liệu chuỗi thời gian</span></div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-label="Gói đăng ký và học phí">
+    <div class="sec"><p class="code"># 6 gói đăng ký <span class="dim">· học phí/học viên</span></p><small>độ dài = số ngày học</small></div>
+    <div class="bars-wrap">
+      <div class="bars">
+        <div class="bar"><span class="pk">Gói 1</span><span class="track"><i class="seg s1">K1</i><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">08 ngày</span><b class="fee">8.800.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 2</span><span class="track"><i class="seg s1">K1</i><i class="seg s2">K2</i></span><span class="d">05 ngày</span><b class="fee">6.700.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 3</span><span class="track"><i class="seg s1">K1</i><i class="seg s3">K3</i></span><span class="d">06 ngày</span><b class="fee">7.500.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 4</span><span class="track"><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">05 ngày</span><b class="fee">6.700.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 5</span><span class="track"><i class="seg s2">K2</i></span><span class="d">02 ngày</span><b class="fee">3.500.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 6</span><span class="track"><i class="seg s3">K3</i></span><span class="d">03 ngày</span><b class="fee">4.500.000<small>đ</small></b></div>
       </div>
     </div>
-    <p class="col teach">Giảng viên: <b>GS.TS. Nguyễn Văn Tuấn</b>, <b>TS. Trần Sơn Thạch</b></p>
+    <p class="note">Học phí đã gồm thuế, phí và lệ phí theo quy định.</p>
+  </section>
 
-    <section class="col" aria-label="Ba khóa học">
-      <div class="courses">
-        <div class="course"><span class="pill">Khóa 1</span><span class="name">Phân tích dữ liệu với R cơ bản</span><span class="when">08–10/01</span></div>
-        <div class="course"><span class="pill">Khóa 2</span><span class="name">Phân tích chi phí - hiệu quả trong y tế</span><span class="when">12–13/01</span></div>
-        <div class="course"><span class="pill">Khóa 3</span><span class="name">Phân tích dữ liệu chuỗi thời gian</span><span class="when">15–17/01</span></div>
-      </div>
-    </section>
+  <section class="wrap" aria-label="Ưu đãi học phí">
+    <div class="sec"><p class="code"># Ưu đãi học phí</p><small>kích thước nút = mức giảm</small></div>
+    <ul class="deals">
+      <li><span class="node n10">10%</span><p>Hoàn tất học phí trước <em>08/12/2026</em><small>Áp dụng cho cả 6 gói</small></p></li>
+      <li><span class="node n5">5%</span><p>Hoàn tất học phí <em>theo nhóm từ 3 người</em>, cùng 1 gói<small>Áp dụng cho gói 1 đến 4</small></p></li>
+      <li><span class="node n15">10–15%</span><p><em>Học viên cũ</em> các khóa của GS. Nguyễn Văn Tuấn tại Viện<small>Giảm 10%, thêm 5% nếu hoàn tất trước 08/12/2026. Gói 1 đến 4, không cộng gộp với ưu đãi khác.</small></p></li>
+    </ul>
+  </section>
 
-    <section class="col" aria-label="Gói đăng ký và học phí">
-      <div class="label"><h2>6 gói đăng ký</h2><span>Học phí/học viên</span></div>
-      <div class="packs">
-        <div class="pack"><div class="hd"><b>Gói 1</b><span>08 ngày</span></div><div class="dots"><i class="dot on">1</i><i class="dot on">2</i><i class="dot on">3</i></div><p class="fee">8.800.000<small>đ</small></p></div>
-        <div class="pack"><div class="hd"><b>Gói 2</b><span>05 ngày</span></div><div class="dots"><i class="dot on">1</i><i class="dot on">2</i><i class="dot off">3</i></div><p class="fee">6.700.000<small>đ</small></p></div>
-        <div class="pack"><div class="hd"><b>Gói 3</b><span>06 ngày</span></div><div class="dots"><i class="dot on">1</i><i class="dot off">2</i><i class="dot on">3</i></div><p class="fee">7.500.000<small>đ</small></p></div>
-        <div class="pack"><div class="hd"><b>Gói 4</b><span>05 ngày</span></div><div class="dots"><i class="dot off">1</i><i class="dot on">2</i><i class="dot on">3</i></div><p class="fee">6.700.000<small>đ</small></p></div>
-        <div class="pack"><div class="hd"><b>Gói 5</b><span>02 ngày</span></div><div class="dots"><i class="dot off">1</i><i class="dot on">2</i><i class="dot off">3</i></div><p class="fee">3.500.000<small>đ</small></p></div>
-        <div class="pack"><div class="hd"><b>Gói 6</b><span>03 ngày</span></div><div class="dots"><i class="dot off">1</i><i class="dot off">2</i><i class="dot on">3</i></div><p class="fee">4.500.000<small>đ</small></p></div>
-      </div>
-      <p class="tax">Ô số tô xanh: khóa có trong gói. Học phí đã gồm thuế, phí và lệ phí theo quy định.</p>
-    </section>
-
-    <section class="col" aria-label="Ưu đãi học phí">
-      <div class="label"><h2>Ưu đãi học phí</h2><span>Khi hoàn tất học phí</span></div>
-      <div class="coupons">
-        <div class="coupon"><div class="stub"><small>Giảm</small><b>10%</b></div><div class="perf"><i></i><i></i><i></i></div>
-          <p>Hoàn tất học phí trước <em>08/12/2026</em><small>Áp dụng cho cả 6 gói</small></p></div>
-        <div class="coupon"><div class="stub"><small>Giảm</small><b>5%</b></div><div class="perf"><i></i><i></i><i></i></div>
-          <p>Hoàn tất học phí <em>theo nhóm từ 3 người</em>, cùng 1 gói<small>Áp dụng cho gói 1 đến 4</small></p></div>
-        <div class="coupon"><div class="stub"><small>Giảm</small><b class="sm">10–15%</b></div><div class="perf"><i></i><i></i><i></i></div>
-          <p><em>Học viên cũ</em> các khóa do GS. Nguyễn Văn Tuấn phụ trách tại Viện<small>Giảm 10%, thêm 5% nếu hoàn tất trước 08/12/2026. Gói 1 đến 4, không cộng gộp với ưu đãi khác.</small></p></div>
-      </div>
-    </section>
-
-    <section class="deadline" aria-label="Hạn chót">
-      <p class="lbl">Hạn chót đăng ký và hoàn tất học phí<small>0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo)</small></p>
-      <span class="date">28/12/2026</span>
-    </section>
-  </main>
+  <section class="wrap" aria-label="Mốc thời gian">
+    <div class="time">
+      <div class="line"></div>
+      <span class="brk"></span>
+      <div class="mk" style="left: 100px"><span class="ev">Hạn ưu đãi 10%</span><span class="dt">08/12/2026</span></div>
+      <div class="mk hot" style="left: 432px"><span class="ev">Hạn chót đăng ký và hoàn tất học phí</span><span class="dt">28/12/2026</span></div>
+      <div class="mk k3" style="left: 820px"><span class="ev">Khai giảng</span><span class="dt">08/01/2027</span></div>
+    </div>
+    <p class="contact">0949 761 636 <span>(Ms. Vy)</span> · 0912 114 511 <span>(Ms. Thảo)</span></p>
+  </section>
 
   <footer class="foot">
     <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3.5l1.8 4.5-2.3 1.4a11 11 0 0 0 5.1 5.1l1.4-2.3 4.5 1.8V18a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>(028) 2242 6789</div>
     <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z"/><circle cx="12" cy="9.6" r="2.4"/></svg></span>45 Đinh Tiên Hoàng, P. Sài Gòn, TP.HCM</div>
     <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z"/></svg></span>vienphuongnam.com.vn</div>
   </footer>
-
-  <svg class="decor front" viewBox="0 0 1080 1920" aria-hidden="true">
-    <defs>
-      <linearGradient id="capsule-front" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#4fbaf8"/>
-        <stop offset="1" stop-color="#1673e3"/>
-      </linearGradient>
-    </defs>
-    <rect x="1030" y="287" width="60" height="170" rx="30" fill="url(#capsule-front)" transform="rotate(45 1060 372)"/>
-  </svg>
 </article>
+
+<script>
+  // Route chart: simulated scatter around a rising fit line, 95% band, three course milestones.
+  (function () {
+    var seed = 20270108;
+    function rand() { seed |= 0; seed = seed + 0x6d2b79f5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+    function gauss() { return Math.sqrt(-2 * Math.log(rand() || 1e-9)) * Math.cos(2 * Math.PI * rand()); }
+    var L = 30, R = 930, T = 12, B = 150;
+    function fit(x) { return 140 - (x - L) / (R - L) * 112; }
+    var s = '';
+    for (var g = 1; g <= 2; g++) s += '<line x1="' + L + '" x2="' + R + '" y1="' + (T + g * 46) + '" y2="' + (T + g * 46) + '" stroke="rgba(255,255,255,.09)"/>';
+    for (var v = 1; v <= 5; v++) s += '<line y1="' + T + '" y2="' + B + '" x1="' + (L + v * 150) + '" x2="' + (L + v * 150) + '" stroke="rgba(255,255,255,.09)"/>';
+    var up = [], lo = [];
+    for (var x = L; x <= R; x += 30) { var w = 10 + Math.abs(x - 480) / 450 * 10; up.push(x + ',' + (fit(x) - w).toFixed(1)); lo.unshift(x + ',' + (fit(x) + w).toFixed(1)); }
+    s += '<polygon points="' + up.concat(lo).join(' ') + '" fill="#5ad8ff" fill-opacity=".16"/>';
+    for (var i = 0; i < 64; i++) {
+      var px = L + 10 + rand() * (R - L - 20), py = Math.min(B - 6, Math.max(T + 6, fit(px) + gauss() * 13));
+      s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="4.6" fill="#cfe0ff" fill-opacity=".7"/>';
+    }
+    s += '<line x1="' + L + '" y1="' + fit(L) + '" x2="' + R + '" y2="' + fit(R) + '" stroke="#5ad8ff" stroke-width="4" style="filter: drop-shadow(0 0 6px rgba(90,216,255,.8))"/>';
+    s += '<path d="M' + L + ' ' + T + 'V' + B + 'H' + (R + 6) + '" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/>';
+    s += '<path d="M' + (R + 6) + ' ' + (B - 6) + 'l12 6-12 6z" fill="rgba(255,255,255,.55)"/><path d="M' + (L - 6) + ' ' + T + 'l6-12 6 12z" fill="rgba(255,255,255,.55)"/>';
+    s += '<text x="' + (L + 14) + '" y="' + (T + 18) + '" fill="#a8c4f0" font-family="Montserrat, sans-serif" font-weight="600" font-size="22">chuyên sâu</text>';
+    s += '<text x="' + (R - 4) + '" y="' + (B - 12) + '" text-anchor="end" fill="#a8c4f0" font-family="Montserrat, sans-serif" font-weight="600" font-size="22">thời gian</text>';
+    s += '<text x="' + (R - 4) + '" y="' + (B - 44) + '" text-anchor="end" fill="#5ad8ff" font-family="JetBrains Mono, monospace" font-weight="500" font-size="22">lm(y ~ x)</text>';
+    var ms = [[157, '#5ad8ff'], [470, '#3f86ff'], [783, '#c3dbff']];
+    ms.forEach(function (m) {
+      var y = fit(m[0]);
+      s += '<line x1="' + m[0] + '" x2="' + m[0] + '" y1="' + (y + 16) + '" y2="' + (B + 18) + '" stroke="' + m[1] + '" stroke-width="2.5" stroke-dasharray="6 6"/>';
+      s += '<circle cx="' + m[0] + '" cy="' + y + '" r="15" fill="' + m[1] + '" stroke="#fff" stroke-width="4" style="filter: drop-shadow(0 0 10px ' + m[1] + ')"/>';
+    });
+    document.getElementById('route').innerHTML = s;
+  })();
+</script>
 </body>
 </html>
