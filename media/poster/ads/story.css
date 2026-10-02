@@ -4,17 +4,7 @@ Concept: every block of information is drawn as a chart the courses teach, on on
 Colour code K1/K2/K3 is shared by every chart. Blues come from the logo gradient and the institute's
 approved posters. Grid: 70 px side margins; bars and discount text both start at x = 186.
 */
-:root {
-  --bg-0: #061a4d; --bg-1: #0a2f7f; --bg-2: #0c3f9e;
-  --k1: #5ad8ff; --k2: #3f86ff; --k2-text: #8fb8ff; --k3: #c3dbff;
-  --ink-dark: #06205a; --tint: #cfe0ff; --soft: #a8c4f0; --signal: #c4231a; --grid: rgba(255, 255, 255, 0.09);
-  --display: "Oswald", "Arial Narrow", sans-serif;
-  --text: "Montserrat", "Segoe UI", sans-serif;
-  --code: "JetBrains Mono", Consolas, monospace;
-  --serif: "Source Serif 4", Georgia, Cambria, serif;
-  --day: 56px;
-  --lead: 116px; /* label column + gap: bars and discount text start here */
-}
+@import url("../../brand-kit/tokens.css");
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: #dfe7f0; }
 

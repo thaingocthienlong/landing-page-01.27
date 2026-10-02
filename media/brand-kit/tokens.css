@@ -1,44 +1,43 @@
 /*
-  Token cho mọi sản phẩm truyền thông của chuỗi khóa học Phân tích định lượng với R.
-  Màu và font trùng tên với dist/styles.css; nguồn gốc là DESIGN.md. Đổi màu thì đổi cả ba nơi.
-  Cỡ chữ in tính bằng pt, khoảng cách in tính bằng mm: dùng cho template HTML xuất PDF đúng khổ.
+  Brand kit v2 tokens for "Phân tích định lượng với R" (01/2027), Viện Phương Nam.
+  Single source for every media product: media/poster/ads/story.css imports this file.
+  Two modes share fonts and the K1/K2/K3 course code:
+    - Data Lab (dark canvas): ads, posters, standee, backdrop, video, email, Zoom, badges, covers.
+    - Paper (light): certificates and printed documents; same palette as the landing page (DESIGN.md).
+  Contrast ratios in brand-kit/README.md were measured on rendered output.
 */
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&display=swap");
 
 :root {
-  /* Màu: RGB cho màn hình. CMYK do nhà in chuyển theo profile của họ, in thử trước khi in hàng loạt. */
-  --paper: #ffffff;
-  --plate: #f3f6fb;
-  --ink: #0d1b2a;
-  --ink-2: #3a4a5f;
-  --ink-3: #566780;
-  --hair: #cbd4e1;
-  --field: #7f93b0;
-  --cobalt: #0a3d91;
-  --cobalt-deep: #072c6b;
-  --cobalt-wash: #eaf0fb;
-  --cobalt-tint: #cfe0ff;
-  --signal: #c4231a;
-  --logo-navy: #1f2a5a; /* màu chữ PHUONG NAM trong logo; chỉ để đối chiếu, không dùng làm màu nền */
+  /* Data Lab canvas */
+  --bg-0: #061a4d; --bg-1: #0a2f7f; --bg-2: #0c3f9e;
+  --light-a: rgba(22, 115, 227, 0.42); --light-b: rgba(22, 115, 227, 0.28);
 
-  --serif: "Source Serif 4", Georgia, Cambria, "Times New Roman", serif;
-  --sans: "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  /* Course code, shared by every chart: K1 cyan, K2 blue, K3 ice */
+  --k1: #5ad8ff; --k2: #3f86ff; --k2-text: #8fb8ff; --k3: #c3dbff;
+  --ink-dark: #06205a; /* text on K1 and K3 fills */
+  --ink-k2: #041a4a;   /* text on K2 fills */
 
-  /* Đường kẻ kiểu booktabs */
-  --rule-heavy: 2px solid var(--ink);
-  --rule-hair: 1px solid var(--hair);
-  --radius: 2px;
+  /* Text and lines on the dark canvas */
+  --tint: #cfe0ff; --soft: #a8c4f0; --quiet: #9fb4da;
+  --signal: #c4231a; /* deadline only, on a white pill */
+  --grid: rgba(255, 255, 255, 0.09);
 
-  /* Thang chữ in cho khổ A4/A3 xem ở khoảng cách tay cầm. Khổ lớn nhân theo bảng trong design-kit/README.md */
-  --pt-display: 54pt;
-  --pt-headline: 32pt;
-  --pt-title: 18pt;
-  --pt-body: 11pt;
-  --pt-caption: 9pt;
-  --pt-label: 8pt;
+  /* Paper mode (landing-page palette) */
+  --paper: #ffffff; --plate: #f3f6fb; --ink: #0d1b2a; --ink-2: #3a4a5f; --ink-3: #566780;
+  --hair: #cbd4e1; --cobalt: #0a3d91; --cobalt-deep: #072c6b; --cobalt-wash: #eaf0fb; --logo-navy: #1f2a5a;
+  --k1-on-paper: #0a6f9f; --k2-on-paper: #1f5fcf; --k3-on-paper: #4a6596;
 
-  /* Lề in */
+  /* Type */
+  --display: "Oswald", "Arial Narrow", sans-serif;
+  --text: "Montserrat", "Segoe UI", sans-serif;
+  --code: "JetBrains Mono", Consolas, monospace;
+  --serif: "Source Serif 4", Georgia, Cambria, serif;
+
+  /* Story grid (1080 x 1920): one day of a package bar; label column + gap before bars */
+  --day: 56px;
+  --lead: 116px;
+
+  /* Print */
   --bleed: 3mm;
-  --safe-a4: 12mm;
-  --safe-a3: 15mm;
 }

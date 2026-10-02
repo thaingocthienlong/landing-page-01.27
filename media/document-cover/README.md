@@ -1,55 +1,55 @@
 # Bìa tài liệu
 
-Trạng thái: chưa bắt đầu. Ưu tiên: 3 (nộp in trước 03/01/2027; phụ thuộc tài liệu giảng viên).
+Trạng thái: chưa dựng. Phong cách: brand kit v2, nền tối "Data Lab". Ưu tiên: 3 (nộp in trước 03/01/2027; phụ thuộc tài liệu giảng viên).
 
 ## Mục đích
 
-Bìa tài liệu học viên nhận trong lớp (offline) và bản PDF gửi học viên online. Một bìa cho mỗi khóa, cùng khung, khác tên khóa và hình.
+Bìa tài liệu học viên nhận trong lớp (offline) và trang đầu bản PDF gửi học viên online. Mỗi khóa một bìa, cùng khung, khác màu K, tên khóa và hình chính.
 
 ## Biến thể
 
-| Mã | Khóa | Hình | Ngày |
-|---|---|---|---|
-| D1 | Phân tích dữ liệu với R cơ bản | Hình 1 | Từ 08/01 đến 10/01/2027 |
-| D2 | Phân tích chi phí - hiệu quả trong y tế | Hình 2 | Ngày 12/01 và 13/01/2027 |
-| D3 | Phân tích dữ liệu chuỗi thời gian | Hình 3 | Từ 15/01 đến 17/01/2027 |
+| Mã | Khóa | Hình chính (từ `story.js`) | Màu | Ngày · thời lượng |
+|---|---|---|---|---|
+| D1 | Phân tích dữ liệu với R cơ bản | Hồi quy | K1 #5ad8ff | 08–10/01/2027 · 3 ngày (6 buổi) |
+| D2 | Phân tích chi phí - hiệu quả trong y tế | Mặt phẳng chi phí - hiệu quả | K2 #3f86ff | 12 và 13/01/2027 · 2 ngày (4 buổi) |
+| D3 | Phân tích dữ liệu chuỗi thời gian | Dự báo chuỗi thời gian | K3 #c3dbff | 15–17/01/2027 · 3 ngày (6 buổi) |
 
-Bìa sau (chung cho 3 bìa): khối F rút gọn (điện thoại, địa chỉ, website), không QR đăng ký vì người cầm đã là học viên.
+Bìa sau (chung): liên hệ và dải chân, không QR (người cầm đã là học viên). Gáy chỉ cần nếu tài liệu đóng keo; bề rộng gáy theo số trang và giấy.
 
-Gáy: chỉ cần nếu tài liệu đóng keo. Bề rộng gáy tính theo số trang và loại giấy; hỏi nhà in khi có số trang.
+## Bố cục (design kit v2, mục 6 "Bìa tài liệu"; sơ đồ trong `design-kit/kit.html`)
 
-## Bố cục bìa trước
-
-1. Trên cùng, trang trọng: dòng cơ quan chủ quản "LIÊN HIỆP CÁC HỘI KHOA HỌC VÀ KỸ THUẬT VIỆT NAM", dưới là "VIỆN PHÁT TRIỂN NGUỒN LỰC XÃ HỘI PHƯƠNG NAM", logo bên trái.
-2. Nhãn: "CHUỖI KHÓA HỌC PHÂN TÍCH ĐỊNH LƯỢNG VỚI R · KHÓA n".
-3. Tên khóa: serif 40–54 pt.
-4. Dòng "Tài liệu học viên".
-5. G: mảng cobalt nửa dưới với hình của khóa. Chú thích theo design kit mục 5.
-6. Đáy: "GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch" và "TP. Hồ Chí Minh, tháng 01/2027".
+1. Dải đầu: logo khung tròn, tên Viện.
+2. Nhãn `# Khóa n · Tài liệu học viên` (JetBrains Mono, màu K của khóa).
+3. Tên khóa: Source Serif 4 600, cỡ lớn (khoảng 54 pt), 2 dòng.
+4. Hình chính: hình nhỏ của khóa phóng lớn (`VPN.mini`, xuất vector), đường và điểm màu K, trục trắng mờ. Không chú thích "dữ liệu minh họa" trên bìa; trong tài liệu, các hình mô phỏng ghi lại chú thích này.
+5. Ngày, số buổi, "GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch".
+6. Tiêu đề chuỗi một dòng: "Phân tích định lượng với [R lục giác]".
+7. Dải chân trắng (điện thoại, địa chỉ, website).
 
 ## Prompt Claude Design (D1)
 
 ```
-Dùng design system "VPN · Phân tích định lượng với R". Thiết kế bìa trước tài liệu A4 dọc (210×297 mm, tràn lề 3 mm, vùng an toàn 12 mm). Phong cách bản thảo tạp chí khoa học, trang trọng, nền trắng, đường kẻ thay khung.
+Dùng design system "VPN · Phân tích định lượng với R (v2 Data Lab)". Đính kèm brand-board.png, kit.png và poster ST2 (story-khoa-hoc-lich-hoc.png) làm mẫu. Thiết kế bìa trước tài liệu A4 dọc (210×297 mm, tràn lề 3 mm, vùng an toàn 12 mm).
 
-Chữ:
-- Đầu trang, sans 700 in hoa, cỡ 9 pt: LIÊN HIỆP CÁC HỘI KHOA HỌC VÀ KỸ THUẬT VIỆT NAM / VIỆN PHÁT TRIỂN NGUỒN LỰC XÃ HỘI PHƯƠNG NAM, logo màu bên trái cao khoảng 22 mm.
-- Nhãn: CHUỖI KHÓA HỌC PHÂN TÍCH ĐỊNH LƯỢNG VỚI R · KHÓA 1
-- Tên khóa, serif 600 cỡ 48 pt: Phân tích dữ liệu với R cơ bản
-- Tài liệu học viên
-- Từ 08/01 đến 10/01/2027
-- Nửa dưới: mảng cobalt #0a3d91 tràn lề trái, phải, dưới, chứa biểu đồ hồi quy màu trắng; chú thích cobalt-tint #cfe0ff: "Hình 1. Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu."
-- Trên mảng cobalt, chữ trắng: GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch ; TP. Hồ Chí Minh, tháng 01/2027
-Không thêm số thông báo, không mã khóa, không ảnh.
+Nền như poster: gradient xanh đậm, hai vệt sáng, lưới chấm mờ, cụm lục giác góc trên phải, code R dọc hai lề.
+Từ trên xuống:
+1. Dải đầu: logo màu trong khung tròn trắng, "VIỆN PHÁT TRIỂN NGUỒN LỰC XÃ HỘI PHƯƠNG NAM" Oswald in hoa trắng.
+2. "# Khóa 1 · Tài liệu học viên" JetBrains Mono, cyan #5ad8ff.
+3. "Phân tích dữ liệu với R cơ bản" Source Serif 4 600 trắng, khoảng 54 pt, 2 dòng.
+4. Hình chính chiếm khoảng 1/3 trang: biểu đồ hồi quy (điểm trắng, đường hồi quy và dải tin cậy cyan #5ad8ff, trục trắng mờ), vẽ trực tiếp trên nền.
+5. "08–10/01/2027 · 3 ngày (6 buổi)" Oswald; "GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch" Montserrat.
+6. "Phân tích định lượng với" serif + chữ R trong lục giác viền cyan.
+7. Dải chân trắng: (028) 2242 6789 · 45 Đinh Tiên Hoàng, P. Sài Gòn, TP.HCM · vienphuongnam.com.vn, icon tròn navy.
+Không ảnh, không số thông báo, không mã khóa.
 ```
 
-D2, D3: đổi số khóa, tên khóa, ngày, hình và chú thích.
+D2, D3: đổi số khóa, tên khóa, màu K, hình chính và ngày theo bảng biến thể.
 
 ## Cần từ Viện
 
 - Tài liệu in hay chỉ PDF; số trang; đóng ghim hay keo.
-- Có cần dòng cơ quan chủ quản trên bìa không (đang theo phần đầu thông báo).
+- Có cần dòng cơ quan chủ quản trên bìa không (poster đã bỏ dòng này theo yêu cầu).
 
 ## Xuất
 
-`document-cover/export/D1-front.pdf`... và `back.pdf`, A4 có tràn lề. Bản PDF gửi học viên online: ghép bìa vào trang 1 của tài liệu, sRGB.
+`document-cover/export/D1-front.pdf`, `D2-front.pdf`, `D3-front.pdf`, `back.pdf`: A4 có tràn lề, hình chính dạng vector. Bản PDF cho học viên online: ghép bìa vào trang 1, sRGB.
