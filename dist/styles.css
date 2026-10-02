@@ -104,8 +104,11 @@ address { font-style: normal; }
 .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; }
 .brand { display: flex; align-items: center; gap: 14px; min-width: 0; text-decoration: none; }
 .brand-logo { position: relative; flex: none; display: inline-flex; isolation: isolate; }
-.brand-logo::before { content: ""; position: absolute; inset: -18px; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(10, 61, 145, 0.42) 55%, rgba(10, 61, 145, 0) 100%); filter: blur(3px); animation: brand-aura 2.8s ease-in-out infinite; }
-@keyframes brand-aura { 0%, 100% { transform: scale(0.82); opacity: 0.55; } 50% { transform: scale(1.12); opacity: 1; } }
+/* two pale concentric rings behind the logo, breathing out of step */
+.brand-logo::before, .brand-logo::after { content: ""; position: absolute; left: 50%; top: 50%; z-index: -1; border-radius: 50%; transform: translate(-50%, -50%); animation: brand-aura 3s ease-in-out infinite; }
+.brand-logo::before { width: 92px; height: 92px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.09), rgba(0, 72, 255, 0.11)); }
+.brand-logo::after { width: 76px; height: 76px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.14), rgba(0, 72, 255, 0.17)); animation-delay: 0.45s; }
+@keyframes brand-aura { 0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.55; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; } }
 .brand-mark { width: auto; height: 64px; }
 .brand-copy { display: flex; flex-direction: column; line-height: 1.2; }
 .brand-copy strong { font: 700 clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem) var(--serif); letter-spacing: 0.01em; line-height: 1.2; text-transform: uppercase; text-wrap: balance; }
