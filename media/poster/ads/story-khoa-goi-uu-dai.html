@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Story · Khóa học, gói, học phí, ưu đãi · Phân tích định lượng với R</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&display=swap" rel="stylesheet">
 <style>
   /*
     Concept: every block of information is drawn as a chart the courses teach, on one "data lab" canvas.
@@ -21,6 +21,7 @@
     --display: "Oswald", "Arial Narrow", sans-serif;
     --text: "Montserrat", "Segoe UI", sans-serif;
     --code: "JetBrains Mono", Consolas, monospace;
+    --serif: "Source Serif 4", Georgia, Cambria, serif;
     --day: 56px;
     --lead: 116px; /* label column + gap: bars and discount text start here */
   }
@@ -36,46 +37,46 @@
     font-family: var(--text); font-variant-numeric: lining-nums tabular-nums;
     display: flex; flex-direction: column;
   }
-  .hexes { position: absolute; right: -40px; top: 104px; width: 420px; height: 420px; opacity: 0.1; }
+  .bgfx { position: absolute; inset: 0; width: 1080px; height: 1920px; }
   .ad > * { position: relative; }
-  .ad > .hexes { position: absolute; }
+  .ad > .bgfx { position: absolute; }
   .wrap { width: 940px; margin: 0 auto; }
 
   /* Header, as on the approved posters, on the same canvas */
   .top { flex: none; height: 124px; display: flex; align-items: center; gap: 24px; padding: 0 70px;
          border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, var(--k1), rgba(90, 216, 255, 0)) 1; }
-  .badge { flex: none; width: 92px; height: 92px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.28); }
-  .badge img { width: 76px; }
+  .badge { flex: none; width: 100px; height: 100px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.28); }
+  .badge img { width: 64px; }
   .top p { font: 600 38px/1.3 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
 
   .code { font: 500 25px/1.3 var(--code); color: var(--k1); }
   .code .dim { color: var(--soft); }
 
   /* Title lockup */
-  .title { margin-top: 28px; }
-  .title h1 { white-space: nowrap; font: 700 89px/1.08 var(--display); text-transform: uppercase; letter-spacing: 0.002em; }
-  .title .row2 { display: flex; align-items: center; gap: 22px; margin-top: 4px; }
-  .title .row2 b { font: 700 89px/1 var(--display); text-transform: uppercase; }
+  .title { margin-top: 24px; }
+  .title h1 { white-space: nowrap; font: 600 112px/1.04 var(--serif); letter-spacing: -0.02em; }
+  .title .row2 { display: flex; align-items: center; gap: 22px; margin-top: 2px; }
+  .title .row2 b { font: 600 112px/1 var(--serif); letter-spacing: -0.02em; }
   .hex { flex: none; width: 112px; height: 128px; filter: drop-shadow(0 0 14px rgba(90, 216, 255, 0.55)); }
-  .title .row2 span { font: 700 29px/1.3 var(--text); text-transform: uppercase; letter-spacing: 0.05em; color: var(--tint); }
-  .title .row2 span em { display: block; margin-top: 8px; font: 600 23px/1.3 var(--text); text-transform: none; letter-spacing: 0; font-style: normal; color: var(--k1); }
+  .title .row2 span { font: italic 600 48px/1.06 var(--serif); color: var(--k1); }
+  .title .row2 span em { display: block; margin-top: 10px; font: 600 22px/1.3 var(--text); font-style: normal; color: var(--tint); }
 
   /* Facts */
-  .facts { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .facts { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .fact { display: flex; align-items: center; gap: 16px; }
   .ring { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--k1); background: rgba(90, 216, 255, 0.12); display: grid; place-items: center; }
   .ring svg { width: 32px; height: 32px; }
   .fact b { display: block; font: 600 38px/1.05 var(--display); letter-spacing: 0.01em; }
-  .fact span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); margin-top: 3px; }
+  .fact div span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); margin-top: 3px; }
 
-  .sec { margin-top: 26px; }
+  .sec { margin-top: 24px; }
 
   /* Chart 1: route of the 3 courses */
   .route svg { display: block; width: 940px; height: 124px; margin-top: 6px; overflow: visible; }
   .route .cols { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
   .route .cols div { text-align: center; padding: 0 10px; }
   .route .cols b { display: block; font: 600 28px/1.15 var(--display); letter-spacing: 0.02em; }
-  .route .cols span { display: block; margin-top: 4px; font: 600 23px/1.3 var(--text); }
+  .route .cols span { display: block; margin-top: 4px; font: 600 25px/1.22 var(--serif); text-wrap: balance; }
   .c1 { color: var(--k1); } .c2 { color: var(--k2-text); } .c3 { color: var(--k3); }
 
   /* Chart 2: packages as stacked bars, segment = course, length = days */
@@ -108,10 +109,10 @@
   .n15::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px dashed var(--k1); }
   .deals p { font: 600 25px/1.3 var(--text); }
   .deals p em { font-style: normal; color: var(--k1); }
-  .deals p small { display: block; margin-top: 3px; font: 500 22px/1.3 var(--text); color: var(--tint); }
+  .deals p small { display: block; margin-top: 3px; font: 500 22px/1.3 var(--text); color: var(--tint); text-wrap: pretty; }
 
   /* Closing block: time axis with a break on the left, registration QR on the right */
-  .end { margin-top: 28px; display: grid; grid-template-columns: 1fr 272px; column-gap: 28px; align-items: center; }
+  .end { margin-top: 24px; display: grid; grid-template-columns: 1fr 272px; column-gap: 28px; align-items: center; }
   .time { position: relative; height: 136px; }
   .time .line { position: absolute; left: 0; right: 0; top: 74px; height: 3px; background: linear-gradient(90deg, var(--k1), var(--k3)); }
   .time .brk { position: absolute; top: 60px; width: 30px; height: 30px; left: 452px; background: #0b3a95; }
@@ -142,11 +143,29 @@
 <body>
 <article class="ad" id="ad" data-size="1080x1920">
 
-  <svg class="hexes" viewBox="0 0 420 420" aria-hidden="true" fill="none" stroke="#fff" stroke-width="3">
-    <polygon points="210,20 290,66 290,158 210,204 130,158 130,66"/>
-    <polygon points="330,158 410,204 410,296 330,342 250,296 250,204"/>
-    <polygon points="90,158 170,204 170,296 90,342 10,296 10,204"/>
-    <polygon points="210,296 290,342 290,434 210,480 130,434 130,342"/>
+  <svg class="bgfx" viewBox="0 0 1080 1920" aria-hidden="true">
+    <defs>
+      <pattern id="dots" width="36" height="36" patternUnits="userSpaceOnUse"><circle cx="18" cy="18" r="1.7" fill="#cfe0ff"/></pattern>
+      <radialGradient id="fadeA" cx="0.88" cy="0.16" r="0.62"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="fadeB" cx="0.06" cy="0.86" r="0.5"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <mask id="dotmask"><rect width="1080" height="1920" fill="url(#fadeA)"/><rect width="1080" height="1920" fill="url(#fadeB)"/></mask>
+    </defs>
+    <!-- graph-paper dots: the poster is a plotting canvas -->
+    <rect width="1080" height="1920" fill="url(#dots)" mask="url(#dotmask)" opacity=".3"/>
+    <!-- honeycomb of R package stickers -->
+    <g fill="none" stroke="#cfe0ff" stroke-width="2.5" opacity=".13">
+      <polygon points="1000,128 1072,170 1072,254 1000,296 928,254 928,170"/>
+      <polygon points="1072,254 1144,296 1144,380 1072,422 1000,380 1000,296"/>
+      <polygon points="928,254 1000,296 1000,380 928,422 856,380 856,296"/>
+      <polygon points="1000,380 1072,422 1072,506 1000,548 928,506 928,422"/>
+      <polygon points="856,128 928,170 928,254 856,296 784,254 784,170"/>
+    </g>
+    <polygon points="1000,380 1072,422 1072,506 1000,548 928,506 928,422" fill="#5ad8ff" opacity=".07"/>
+    <!-- R code from the course outlines, running along both side margins -->
+    <g font-family="JetBrains Mono, monospace" font-size="19" font-weight="500" fill="#5ad8ff" opacity=".34">
+      <text transform="translate(42 1790) rotate(-90)">library(ggplot2)   t.test(y ~ nhom)   chisq.test(bang)   lm(y ~ x)   glm(y ~ x, family = binomial)</text>
+      <text transform="translate(1040 560) rotate(90)">icer &lt;- (C1 - C0) / (E1 - E0)   library(forecast)   fit &lt;- auto.arima(y)   forecast(fit, h = 12)</text>
+    </g>
   </svg>
 
   <header class="top">
@@ -160,9 +179,9 @@
       <b>với</b>
       <svg class="hex" viewBox="0 0 112 128" aria-label="R">
         <polygon points="56,4 108,34 108,94 56,124 4,94 4,34" fill="rgba(90,216,255,0.16)" stroke="#5ad8ff" stroke-width="6" stroke-linejoin="round"/>
-        <text x="56" y="92" text-anchor="middle" fill="#fff" font-family="Oswald, sans-serif" font-weight="700" font-size="86">R</text>
+        <text x="56" y="98" text-anchor="middle" fill="#fff" font-family="Oswald, sans-serif" font-weight="700" font-size="86">R</text>
       </svg>
-      <span>Từ cơ bản<br>đến chuyên sâu<em>GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch</em></span>
+      <span>từ cơ bản<br>đến chuyên sâu<em>GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch</em></span>
     </div>
   </section>
 

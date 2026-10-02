@@ -119,6 +119,15 @@
         ],
         "createdAt": "2026-10-02T08:57:17.965Z",
         "reason": "agent triage: same as jetbrains, value as reported"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:36:53.817Z",
+        "reason": "agent triage: 1.06 is the two-line italic display phrase 'từ cơ bản / đến chuyên sâu' at 48px beside the R hex, set tight like the landing-page hero; body text keeps >=1.3"
       }
     ]
   }

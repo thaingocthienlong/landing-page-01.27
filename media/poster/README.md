@@ -69,7 +69,11 @@ Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng �
 - **Khung theo poster đã duyệt:** dải đầu có logo trong khung tròn trắng và tên Viện (một dòng, bỏ dòng Liên hiệp hội theo yêu cầu); dải chân trắng có icon điện thoại, địa chỉ, website.
 - **Lưới:** lề hai bên 70 px; cột gói và chữ ưu đãi cùng bắt đầu ở x = 186; vòng nút lớn nhất chạm lề trái.
 
-Font: Oswald (tiêu đề, số), Montserrat (chữ thân), JetBrains Mono (chữ kiểu code R); cả ba có bộ dấu tiếng Việt. Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
+Font (góp ý 02/10/2026: cần nhiều font hơn, uyển chuyển như landing page): Source Serif 4 cho tiêu đề "Phân tích định lượng với R", cụm in nghiêng "từ cơ bản đến chuyên sâu" (giống hero landing page) và tên khóa; Oswald cho số, ngày, nhãn K1/K2/K3 và tên gói; Montserrat cho chữ thân; JetBrains Mono cho chữ kiểu code R. Cả bốn có bộ dấu tiếng Việt.
+
+Nền (góp ý: nền còn đơn giản): lưới chấm kiểu giấy vẽ đồ thị mờ dần từ góc trên phải và góc dưới trái; cụm lục giác như sticker gói R ở góc trên phải; hai dòng code R chạy dọc hai lề, chỉ dùng hàm và gói có trong outline (ggplot2, t.test, chisq.test, lm, glm, công thức ICER, forecast, auto.arima); hai vệt sáng nhẹ.
+
+Chi tiết đã sửa: logo thu nhỏ để cả khối nằm gọn trong khung tròn; chữ R đặt theo chiều cao thật của chữ hoa Oswald (68 px ở cỡ 86 px) nên tâm chữ trùng tâm lục giác; icon trong vòng tròn được căn giữa (trước đó bị quy tắc `.fact span` ghi đè `display: grid`). Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
 
 **Bố cục dọc:** dải đầu 0–124 px, nội dung 124–1824 px, dải chân 1824–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và phần dưới của mã QR. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy khối cuối lên trên.
 
