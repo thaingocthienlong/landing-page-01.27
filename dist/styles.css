@@ -45,6 +45,7 @@ body {
 
 ::selection { background: var(--cobalt); color: #fff; }
 
+h4, h5 { margin: 0; }
 h1, h2, h3 { font-family: var(--serif); font-optical-sizing: auto; font-weight: 600; margin: 0; text-wrap: balance; }
 p { margin: 0; }
 a { color: inherit; text-underline-offset: 0.2em; }
@@ -289,25 +290,65 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .table .num { text-align: right; white-space: nowrap; }
 .table th.num, .table td.num { padding-right: 16px; }
 .table tfoot td { padding: 16px 0 0; border-bottom: 2px solid var(--ink); padding-bottom: 16px; font-size: 0.9375rem; color: var(--ink-2); line-height: 1.55; }
-.table-price { margin-top: 44px; }
-.table-price thead th, .table-price tbody th, .table-price tbody td, .table-price tfoot td { padding-left: 16px; }
-.table-price th.num, .table-price td.num { padding-right: 16px; }
-.table-price .price { font: 600 1.5rem var(--serif); }
-.table-discount { margin-top: 56px; }
-.table-discount .rate { font-weight: 600; color: var(--ink); }
-.table-discount .none { color: var(--ink-3); font-style: italic; }
 
 
-.table-price .sub { display: block; margin-top: 3px; font-size: 0.9375rem; color: var(--ink-3); }
-.table-price .cur { font: 600 1rem var(--sans); }
 .table-schedule tbody tr:last-child > * { border-bottom: 2px solid var(--ink); }
 .table-schedule .stt { width: 72px; padding-right: 8px; text-align: left; color: var(--ink-3); font: 600 1.125rem var(--serif); }
 .table-schedule thead .stt { font: 700 0.8125rem var(--sans); }
-.notes { margin-top: 32px; max-width: 72ch; }
-.notes h3 { font: 700 0.8125rem var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
-.notes li { position: relative; margin-top: 8px; padding-left: 18px; color: var(--ink-2); }
-.notes li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 2px; background: var(--cobalt); }
 .ledger .is-deadline dd { color: var(--signal); }
+
+
+/* tuition */
+.price-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px 48px; align-items: end; margin-top: clamp(32px, 4vw, 52px); padding: 28px 0 32px; border-top: 4px solid var(--cobalt); border-bottom: 1px solid var(--hair); }
+.price-hero h3 { font-size: clamp(2.25rem, 1.6rem + 2vw, 3.25rem); line-height: 1.05; }
+.price-hero-lead { margin-top: 6px; font: 600 1.1875rem var(--sans); color: var(--ink-2); }
+.price-courses { margin-top: 16px; display: grid; gap: 4px; color: var(--ink-2); }
+.price-courses li { position: relative; padding-left: 18px; }
+.price-courses li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 2px; background: var(--cobalt); }
+.price-hero-fee { text-align: right; line-height: 1; }
+.price-hero-fee strong { display: block; font: 600 clamp(3.25rem, 1.8rem + 5vw, 5.75rem)/1 var(--serif); letter-spacing: -0.02em; color: var(--cobalt); font-variant-numeric: lining-nums tabular-nums; }
+.price-hero-fee span { display: block; margin-top: 10px; font: 600 1.0625rem var(--sans); color: var(--ink-2); }
+
+.price-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); column-gap: clamp(24px, 3vw, 44px); margin-top: 8px; }
+.price-item { grid-column: span 2; display: flex; flex-direction: column; padding: 24px 0 26px; border-bottom: 1px solid var(--hair); }
+.price-item-half { grid-column: span 3; }
+.price-item h3 { font: 700 0.875rem var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--cobalt); }
+.price-combo { margin-top: 6px; font: 600 1.625rem/1.2 var(--serif); }
+.price-names { margin-top: 6px; font-size: 0.9375rem; line-height: 1.5; color: var(--ink-3); }
+.price-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 18px; }
+.price-foot span { font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.price-foot strong { font: 600 2.125rem/1 var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+.price-foot small { font: 600 1rem var(--sans); color: var(--ink-2); }
+.price-note { margin-top: 18px; font-size: 0.9375rem; color: var(--ink-2); }
+
+.deals { margin-top: clamp(48px, 6vw, 80px); padding: clamp(28px, 4vw, 52px); background: var(--cobalt); color: #fff; }
+.deals-title { font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem); }
+.timeline { position: relative; display: flex; height: 8px; margin: 52px 0 64px; }
+.tl-before { flex: 3; background: #fff; }
+.tl-after { flex: 1.35; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.7) 0 10px, transparent 10px 18px); }
+.tl-before span, .tl-after span { position: absolute; top: -34px; font: 600 0.9375rem var(--sans); color: var(--cobalt-tint); white-space: nowrap; }
+.tl-before span { left: 0; }
+.tl-after span { right: 0; }
+.tl-mark { position: absolute; top: 0; transform: translateX(-50%); padding-top: 22px; font: 700 1.125rem var(--serif); text-align: center; white-space: nowrap; line-height: 1.2; }
+.tl-mark::before { content: ""; position: absolute; left: 50%; top: -8px; width: 24px; height: 24px; margin-left: -12px; background: var(--cobalt); border: 3px solid #fff; border-radius: 50%; }
+.tl-mark small { display: block; margin-top: 3px; font: 500 0.875rem var(--sans); color: var(--cobalt-tint); white-space: normal; max-width: 150px; margin-inline: auto; }
+.tl-mark-1 { left: calc(3 / 4.35 * 100%); }
+.tl-mark-2 { left: 100%; transform: translateX(-80%); }
+.tl-mark-2::before { left: 80%; }
+.tl-mark-2 small { text-align: right; max-width: 250px; margin-left: auto; }
+
+.deal-groups { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); }
+.deal-group h4 { padding-bottom: 12px; border-bottom: 2px solid #fff; font: 700 0.875rem var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--cobalt-tint); }
+.deal-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 clamp(24px, 3vw, 40px); }
+.deal { padding-top: 20px; }
+.deal-fig { font: 600 clamp(3.5rem, 2.2rem + 3.6vw, 5.25rem)/1 var(--serif); letter-spacing: -0.02em; font-variant-numeric: lining-nums; }
+.deal-fig span { font-weight: 600; }
+.deal-fig small { font-size: 0.45em; letter-spacing: 0; color: var(--cobalt-tint); }
+.deal h5 { margin-top: 14px; font: 600 1.25rem/1.25 var(--serif); }
+.deal p:not(.deal-fig) { margin-top: 6px; font-size: 1rem; line-height: 1.5; color: var(--cobalt-tint); }
+.deal-notes { display: grid; gap: 8px; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.3); max-width: 78ch; }
+.deal-notes li { position: relative; padding-left: 18px; font-size: 0.9375rem; line-height: 1.55; color: var(--cobalt-tint); }
+.deal-notes li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 2px; background: #fff; }
 
 /* outcomes, faculty, faq, payment */
 .outcomes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 6vw, 96px); align-items: start; }
@@ -396,6 +437,16 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 }
 
 @media (max-width: 720px) {
+  .price-hero { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .price-hero-fee { text-align: left; }
+  .price-grid { grid-template-columns: minmax(0, 1fr); }
+  .price-item, .price-item-half { grid-column: auto; }
+  .deal-groups { grid-template-columns: minmax(0, 1fr); }
+  .timeline { display: grid; gap: 22px; height: auto; margin: 28px 0 40px; }
+  .tl-before, .tl-after { display: none; }
+  .tl-mark, .tl-mark-1, .tl-mark-2 { position: relative; left: auto; top: auto; transform: none; padding: 0 0 0 38px; text-align: left; white-space: normal; }
+  .tl-mark::before, .tl-mark-2::before { left: 0; top: 0; margin-left: 0; }
+  .tl-mark small, .tl-mark-2 small { max-width: none; margin: 3px 0 0; text-align: left; }
   .brand-mark { height: 48px; }
   .strip .strip-deadline { display: none; }
   .strip { font-size: 0.8125rem; }
@@ -428,18 +479,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .table-schedule .stt::before { content: attr(data-stt); }
   .table-schedule td.stt { font-size: 0; }
   .table-schedule td.stt::before { font-size: 0.8125rem; }
-  .table-price th.num, .table-price td.num, .table-price thead th, .table-price tbody th, .table-price tbody td { padding-left: 0; padding-right: 0; }
-  .table-price tbody tr { padding-inline: 0; }
-  .table-price tbody th { grid-column: 1; grid-row: 1; }
-  .table-price td.price { grid-column: 2; grid-row: 1; text-align: right; }
-  .table-price tbody td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
-  .table-price tbody td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; color: var(--ink-3); text-align: left; }
-  .table-price tfoot td, .table-discount tfoot td, .table-schedule tfoot td { padding-left: 0; }
-  .table-discount tbody tr { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-  .table-discount td { text-align: left !important; }
-  .table-discount td:nth-child(2)::before { content: "Áp dụng cho: "; color: var(--ink-3); font-weight: 400; }
-  .table-discount td:nth-child(3)::before { content: "Ưu đãi: "; color: var(--ink-3); font-weight: 400; }
-  .close-contact a { font-size: 1.375rem; }
+                        .close-contact a { font-size: 1.375rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

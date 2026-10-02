@@ -222,3 +222,8 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - **Side navigation:** fixed left rail of ticks from 1100px up (hidden below), active section tick lengthens in cobalt, label appears on hover/focus.
 - **Loops:** the hero figure cycles Hình 1 to 3 every 5s endlessly with no controls (stops only while off-screen or the tab is hidden, static under reduced motion); the programs tabs advance every 5s too, pausing on hover or focus and via a visible "Tạm dừng" toggle. The programs panel min-height is locked to the tallest scenario to avoid layout shift, and the hero caption reserves three lines for the same reason.
 - **Registration links:** no link to the official registration page anywhere on the page; registration is the on-page form, phone, or in person.
+
+## Tuition section (price list and discount band)
+
+- Prices are not a table: Gói 1 is a hero entry with a 4px cobalt top rule and the fee at display size; Gói 2 to Gói 6 sit in a 3 + 2 grid of ruled entries (label, combo in serif, course names, duration and fee). Fees are tabular lining numerals; "đồng" is the small unit.
+- Discounts are a committed cobalt band: a timeline (solid bar before 08/12/2026, dashed bar to the 28/12/2026 deadline; stacked list on mobile), then big serif percentages grouped by package range, with the notice's two notes beneath. No images, no chart data, nothing invented.
