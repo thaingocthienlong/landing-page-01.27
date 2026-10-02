@@ -65,6 +65,15 @@
         ],
         "createdAt": "2026-10-02T07:15:08.980Z",
         "reason": "agent triage: uppercase only on short template-style labels (band subtitle, deadline label, pills), each under 40 characters"
+      },
+      {
+        "rule": "shape-assembled-illustration",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:44:19.345Z",
+        "reason": "agent triage: the inline SVG is the decorative capsule/node background of the magnific 'Gradient science' style the user asked for (2026-10-02), not an illustration standing in for content"
       }
     ]
   }
