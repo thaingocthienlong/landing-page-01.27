@@ -797,6 +797,58 @@
     pointer.hidden = false;
   };
 
+  /* ---------- course outline: tabs, lesson accordion ---------- */
+
+  const setupOutline = () => {
+    const tabs = [...document.querySelectorAll("[data-outline-tab]")];
+    if (!tabs.length) return;
+    const panels = tabs.map((tab) => document.getElementById(tab.getAttribute("aria-controls")));
+    const select = (index, focus) => {
+      tabs.forEach((tab, i) => {
+        const on = i === index;
+        tab.classList.toggle("is-active", on);
+        tab.setAttribute("aria-selected", String(on));
+        tab.tabIndex = on ? 0 : -1;
+        panels[i].hidden = !on;
+      });
+      if (focus) tabs[index].focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(i));
+      tab.addEventListener("keydown", (event) => {
+        const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        select((next + tabs.length) % tabs.length, true);
+      });
+    });
+
+    const setLesson = (lesson, open) => {
+      lesson.classList.toggle("is-open", open);
+      lesson.querySelector(".lesson-head").setAttribute("aria-expanded", String(open));
+    };
+    document.querySelectorAll(".lesson-head").forEach((head) => {
+      head.addEventListener("click", () => {
+        const lesson = head.closest(".lesson");
+        setLesson(lesson, !lesson.classList.contains("is-open"));
+        const panel = lesson.closest(".outline-panel");
+        const lessons = [...panel.querySelectorAll(".lesson")];
+        const all = lessons.every((item) => item.classList.contains("is-open"));
+        const toggle = panel.querySelector("[data-outline-toggle]");
+        toggle.setAttribute("aria-pressed", String(all));
+        toggle.textContent = all ? "Thu gọn tất cả" : "Mở tất cả";
+      });
+    });
+    document.querySelectorAll("[data-outline-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const on = toggle.getAttribute("aria-pressed") !== "true";
+        toggle.closest(".outline-panel").querySelectorAll(".lesson").forEach((lesson) => setLesson(lesson, on));
+        toggle.setAttribute("aria-pressed", String(on));
+        toggle.textContent = on ? "Thu gọn tất cả" : "Mở tất cả";
+      });
+    });
+  };
+
   /* ---------- copy account number ---------- */
 
   const setupCopy = () => {
@@ -822,6 +874,7 @@
   setupHero();
   setupTabs();
   setupPackages();
+  setupOutline();
   setupTimelineNow();
   setupExpiry();
   setupSideNav();
