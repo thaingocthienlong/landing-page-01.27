@@ -249,6 +249,7 @@
         <li><a href="#programs" data-side-target="programs"><span class="tick" aria-hidden="true"></span><span class="label">Chương trình</span></a></li>
         <li><a href="#schedule" data-side-target="schedule"><span class="tick" aria-hidden="true"></span><span class="label">Lịch học</span></a></li>
         <li><a href="#tuition" data-side-target="tuition"><span class="tick" aria-hidden="true"></span><span class="label">Học phí</span></a></li>
+        <li><a href="#outline" data-side-target="outline"><span class="tick" aria-hidden="true"></span><span class="label">Outline</span></a></li>
         <li><a href="#faculty" data-side-target="faculty"><span class="tick" aria-hidden="true"></span><span class="label">Giảng viên</span></a></li>
         <li><a href="#contact" data-side-target="contact"><span class="tick" aria-hidden="true"></span><span class="label">Liên hệ</span></a></li>
       </ul>
@@ -636,92 +637,519 @@
         </div>
       </section>
 
-      <section class="outline-pending" id="outline" aria-labelledby="outline-title">
+      <section class="outline" id="outline" aria-labelledby="outline-title">
         <div class="shell">
           <div class="section-head">
             <h2 id="outline-title">Outline chi tiết ba khóa học</h2>
-            <p class="outline-status" role="status"><span class="outline-dot" aria-hidden="true"></span>Đang cập nhật: nội dung outline đang được duyệt và sẽ hiển thị tại đây khi hoàn tất.</p>
+            <p class="section-command">Nội dung chính của từng bài giảng, theo outline đã được duyệt.</p>
           </div>
-          <ol class="outline-grid">
-          <li class="outline-col">
-            <p class="outline-kicker">Khóa 1 · 08–10/01/2027</p>
-            <h3>Phân tích dữ liệu với R cơ bản</h3>
-            <div class="skel-stack" aria-hidden="true">
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
+          <div class="tabs" role="tablist" aria-label="Chọn khóa học để xem outline">
+            <button type="button" role="tab" id="outline-tab-1" aria-controls="outline-panel-1" aria-selected="true" class="tab is-active" data-outline-tab="1" tabindex="0"><span>Khóa 1 · 7 bài</span><strong>08–10/01/2027 · 3 ngày (6 buổi)</strong></button>
+            <button type="button" role="tab" id="outline-tab-2" aria-controls="outline-panel-2" aria-selected="false" class="tab" data-outline-tab="2" tabindex="-1"><span>Khóa 2 · 8 bài</span><strong>12–13/01/2027 · 2 ngày (4 buổi)</strong></button>
+            <button type="button" role="tab" id="outline-tab-3" aria-controls="outline-panel-3" aria-selected="false" class="tab" data-outline-tab="3" tabindex="-1"><span>Khóa 3 · 8 bài</span><strong>15–17/01/2027 · 3 ngày (6 buổi)</strong></button>
+          </div>
+          <div class="outline-panel" id="outline-panel-1" role="tabpanel" aria-labelledby="outline-tab-1">
+            <aside class="outline-side">
+              <h3>Phân tích dữ liệu với R cơ bản</h3>
+              <p class="outline-meta">08–10/01/2027 · 3 ngày (6 buổi)</p>
+              <h4>Yêu cầu khi tham gia</h4>
+              <ul class="outline-need">
+                <li>Học viên không cần có kinh nghiệm lập trình trước khi tham dự khóa học.</li>
+                <li>Khi tham gia khóa học, học viên cần mang theo máy tính cá nhân.</li>
+                <li>Hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết sẽ được gửi đến học viên trước ngày khai giảng.</li>
+              </ul>
+              <details class="outline-method">
+                <summary>Phương pháp học</summary>
+                <p>Khóa học được thiết kế theo phương châm học qua thực hành. Mỗi chủ đề bắt đầu bằng một câu hỏi nghiên cứu, sau đó xác định cấu trúc dữ liệu, lựa chọn phương pháp, thực hiện phân tích bằng R và diễn giải kết quả.</p>
+                <p>Học viên sẽ sử dụng R, RStudio và AI trong suốt khóa học. Các bộ dữ liệu thực tế sẽ được sử dụng để minh họa, và R code sẽ được cung cấp để học viên có thể tái lập các phân tích sau khóa học.</p>
+              </details>
+            </aside>
+            <div class="outline-main">
+              <div class="outline-bar">
+                <p>7 bài giảng</p>
+                <button type="button" class="outline-toggle" data-outline-toggle aria-pressed="false">Mở tất cả</button>
               </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
+              <ol class="lessons">
+              <li class="lesson is-open">
+                <button type="button" class="lesson-head" aria-expanded="true" aria-controls="lesson-1-1">
+                  <span class="lesson-no" aria-hidden="true">01</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 1</span>Giới thiệu R và RStudio</span>
+                  <span class="lesson-peek" aria-hidden="true">Làm quen với môi trường R và RStudio; object, vector, data frame;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-1" role="region" aria-label="Bài 1: Giới thiệu R và RStudio">
+                  <ul>
+                    <li>Làm quen với môi trường R và RStudio; object, vector, data frame;
+                    </li>
+                    <li>Nhập và quản lý dữ liệu;
+                    </li>
+                    <li>Cấu trúc một chương trình phân tích;
+                    </li>
+                    <li>Nguyên tắc phân tích có khả năng tái lập.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-2">
+                  <span class="lesson-no" aria-hidden="true">02</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 2</span>Ứng dụng AI trong viết R code</span>
+                  <span class="lesson-peek" aria-hidden="true">Cách sử dụng AI để viết code, giải thích code, phát hiện và sửa lỗi;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-2" role="region" aria-label="Bài 2: Ứng dụng AI trong viết R code">
+                  <ul>
+                    <li>Cách sử dụng AI để viết code, giải thích code, phát hiện và sửa lỗi;
+                    </li>
+                    <li>Cách đặt câu hỏi cho AI;
+                    </li>
+                    <li>Kiểm tra code do AI tạo ra;
+                    </li>
+                    <li>Những sai sót thường gặp khi phụ thuộc vào AI trong phân tích dữ liệu.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-3">
+                  <span class="lesson-no" aria-hidden="true">03</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 3</span>Hiển thị dữ liệu – Data visualization</span>
+                  <span class="lesson-peek" aria-hidden="true">Nguyên lý trình bày dữ liệu bằng biểu đồ; histogram, boxplot, scatter plot và các dạng biểu đồ thông dụng;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-3" role="region" aria-label="Bài 3: Hiển thị dữ liệu – Data visualization">
+                  <ul>
+                    <li>Nguyên lý trình bày dữ liệu bằng biểu đồ; histogram, boxplot, scatter plot và các dạng biểu đồ thông dụng;
+                    </li>
+                    <li>Giới thiệu ggplot2;
+                    </li>
+                    <li>Lựa chọn biểu đồ phù hợp với câu hỏi nghiên cứu.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-4">
+                  <span class="lesson-no" aria-hidden="true">04</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 4</span>Kiểm định giả thuyết, trị số P và khoảng tin cậy</span>
+                  <span class="lesson-peek" aria-hidden="true">Ý tưởng về biến thiên ngẫu nhiên và phân bố lấy mẫu;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-4" role="region" aria-label="Bài 4: Kiểm định giả thuyết, trị số P và khoảng tin cậy">
+                  <ul>
+                    <li>Ý tưởng về biến thiên ngẫu nhiên và phân bố lấy mẫu;
+                    </li>
+                    <li>Giả thuyết thống kê; trị số P; khoảng tin cậy; độ ảnh hưởng;
+                    </li>
+                    <li>Những sai lầm thường gặp trong diễn giải kết quả thống kê.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-5">
+                  <span class="lesson-no" aria-hidden="true">05</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 5</span>Phân tích mô tả</span>
+                  <span class="lesson-peek" aria-hidden="true">Mô tả biến liên tục và biến phân loại; trung bình, trung vị, độ lệch chuẩn, phân vị, tỷ lệ;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-5" role="region" aria-label="Bài 5: Phân tích mô tả">
+                  <ul>
+                    <li>Mô tả biến liên tục và biến phân loại; trung bình, trung vị, độ lệch chuẩn, phân vị, tỷ lệ;
+                    </li>
+                    <li>Khảo sát phân bố dữ liệu;
+                    </li>
+                    <li>Phát hiện các giá trị bất thường và dữ liệu thiếu.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-6">
+                  <span class="lesson-no" aria-hidden="true">06</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 6</span>Phân tích so sánh</span>
+                  <span class="lesson-peek" aria-hidden="true">So sánh trung bình bằng t-test;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-6" role="region" aria-label="Bài 6: Phân tích so sánh">
+                  <ul>
+                    <li>So sánh trung bình bằng t-test;
+                    </li>
+                    <li>So sánh tỷ lệ bằng binomial test và chi-squared test;
+                    </li>
+                    <li>Ước tính độ khác biệt và khoảng tin cậy;
+                    </li>
+                    <li>Phân biệt ý nghĩa thống kê và ý nghĩa thực tế.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-1-7">
+                  <span class="lesson-no" aria-hidden="true">07</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 7</span>Phân tích mối liên quan</span>
+                  <span class="lesson-peek" aria-hidden="true">Giới thiệu tư duy mô hình hóa; hồi quy tuyến tính cho biến kết cục liên tục; hồi quy logistic cho biến kết cục nhị phân; hệ số hồi quy, odds ratio, khoảng tin cậy và cách diễn giải kết quả.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-1-7" role="region" aria-label="Bài 7: Phân tích mối liên quan">
+                  <ul>
+                    <li>Giới thiệu tư duy mô hình hóa; hồi quy tuyến tính cho biến kết cục liên tục; hồi quy logistic cho biến kết cục nhị phân; hệ số hồi quy, odds ratio, khoảng tin cậy và cách diễn giải kết quả.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              </ol>
             </div>
-          </li>
-          <li class="outline-col">
-            <p class="outline-kicker">Khóa 2 · 12–13/01/2027</p>
-            <h3>Phân tích chi phí - hiệu quả trong y tế</h3>
-            <div class="skel-stack" aria-hidden="true">
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
+          </div>
+          <div class="outline-panel" id="outline-panel-2" role="tabpanel" aria-labelledby="outline-tab-2" hidden>
+            <aside class="outline-side">
+              <h3>Phân tích chi phí - hiệu quả trong y tế</h3>
+              <p class="outline-meta">12–13/01/2027 · 2 ngày (4 buổi)</p>
+              <h4>Yêu cầu khi tham gia</h4>
+              <ul class="outline-need">
+                <li>Học viên nên có kiến thức căn bản về nghiên cứu và phân tích dữ liệu.</li>
+                <li>Học viên đã hoàn thành khóa “Phân tích dữ liệu với R cơ bản” sẽ là nền tảng phù hợp để tham gia.</li>
+                <li>Khi tham gia khóa học, học viên cần mang theo máy tính cá nhân. Hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết sẽ được gửi đến học viên trước ngày khai giảng.</li>
+              </ul>
+              <details class="outline-method">
+                <summary>Phương pháp học</summary>
+                <p>Các khái niệm kinh tế và thống kê sẽ được giải thích ở mức cần thiết để học viên hiểu logic của phương pháp. Sau đó, học viên sẽ triển khai trực tiếp bằng R và RStudio.</p>
+                <p>R code, dữ liệu mẫu và tài liệu thực hành sẽ được cung cấp để học viên có thể tái lập toàn bộ phân tích sau khóa học.</p>
+              </details>
+            </aside>
+            <div class="outline-main">
+              <div class="outline-flow">
+                <p class="outline-flow-label">Quy trình của Bài 7</p>
+                <ol>
+                  <li>Câu hỏi</li>
+                  <li>Mô hình</li>
+                  <li>Tham số</li>
+                  <li>Chi phí</li>
+                  <li>QALY</li>
+                  <li>ICER</li>
+                  <li>Uncertainty</li>
+                  <li>Decision</li>
+                </ol>
               </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
+              <div class="outline-bar">
+                <p>8 bài giảng</p>
+                <button type="button" class="outline-toggle" data-outline-toggle aria-pressed="false">Mở tất cả</button>
               </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
+              <ol class="lessons">
+              <li class="lesson is-open">
+                <button type="button" class="lesson-head" aria-expanded="true" aria-controls="lesson-2-1">
+                  <span class="lesson-no" aria-hidden="true">01</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 1</span>Nguyên lý phân tích chi phí – hiệu quả</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ làm quen với các khái niệm về đánh giá kinh tế (economic evaluation), lựa chọn giải pháp so sánh (comparator), quan điểm phân tích (perspective), khung thời gian phân tích (time horizon), điều chỉnh giá trị (discounting) và phân tích giá trị tăng thêm (incremental analysis);</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-1" role="region" aria-label="Bài 1: Nguyên lý phân tích chi phí – hiệu quả">
+                  <ul>
+                    <li>Học viên sẽ làm quen với các khái niệm về đánh giá kinh tế (economic evaluation), lựa chọn giải pháp so sánh (comparator), quan điểm phân tích (perspective), khung thời gian phân tích (time horizon), điều chỉnh giá trị (discounting) và phân tích giá trị tăng thêm (incremental analysis);
+                    </li>
+                    <li>Phần này cũng phân biệt phân tích chi phí – hiệu quả (cost-effectiveness analysis) với phân tích chi phí – giá trị thỏa dụng (cost-utility analysis), phân tích chi phí – lợi ích (cost-benefit analysis) và tối thiểu hóa chi phí (cost-minimization analysis); đồng thời giải thích tại sao một phân tích kinh tế luôn phải đặt trong bối cảnh của một quyết định cụ thể.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-2">
+                  <span class="lesson-no" aria-hidden="true">02</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 2</span>Đo lường chi phí, hiệu quả và utility</span>
+                  <span class="lesson-peek" aria-hidden="true">Tìm hiểu cách xác định, đo lường và định giá các nguồn lực được sử dụng; chi phí y tế trực tiếp (direct medical costs), chi phí phi y tế trực tiếp (non-medical costs) và chi phí gián tiếp (productivity costs);</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-2" role="region" aria-label="Bài 2: Đo lường chi phí, hiệu quả và utility">
+                  <ul>
+                    <li>Tìm hiểu cách xác định, đo lường và định giá các nguồn lực được sử dụng; chi phí y tế trực tiếp (direct medical costs), chi phí phi y tế trực tiếp (non-medical costs) và chi phí gián tiếp (productivity costs);
+                    </li>
+                    <li>Tìm hiểu khái niệm utility và cách kết hợp thời gian sống với chất lượng cuộc sống;
+                    </li>
+                    <li>Một khái niệm trung tâm được giới thiệu trong phần này là quality-adjusted life year (QALY), thước đo thường được sử dụng để so sánh hiệu quả giữa những can thiệp rất khác nhau.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-3">
+                  <span class="lesson-no" aria-hidden="true">03</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 3</span>ICER và Decision Tree</span>
+                  <span class="lesson-peek" aria-hidden="true">Học cách tính và diễn giải chỉ số chi phí gia tăng và hiệu quả (incremental cost-effectiveness ratio – ICER), incremental costs và incremental QALYs;</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-3" role="region" aria-label="Bài 3: ICER và Decision Tree">
+                  <ul>
+                    <li>Học cách tính và diễn giải chỉ số chi phí gia tăng và hiệu quả (incremental cost-effectiveness ratio – ICER), incremental costs và incremental QALYs;
+                    </li>
+                    <li>Giới thiệu decision tree, một phương pháp trực quan để mô hình hóa những quyết định có diễn tiến tương đối ngắn và các kết cục có thể xác định rõ;
+                    </li>
+                    <li>Xây dựng một decision tree bằng R và tính expected costs, expected QALYs và ICER cho các chiến lược khác nhau.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-4">
+                  <span class="lesson-no" aria-hidden="true">04</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 4</span>Markov Model</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ học các khái niệm health states, transition probabilities, cycles, transition matrix, absorbing state và time horizon; sau đó xây dựng một Markov model đơn giản bằng R.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-4" role="region" aria-label="Bài 4: Markov Model">
+                  <ul>
+                    <li>Học viên sẽ học các khái niệm health states, transition probabilities, cycles, transition matrix, absorbing state và time horizon; sau đó xây dựng một Markov model đơn giản bằng R.
+                    </li>
+                    <li>Từ mô hình này, học viên sẽ tính tổng chi phí, số năm sống, QALYs và ICER của các chiến lược điều trị.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-5">
+                  <span class="lesson-no" aria-hidden="true">05</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 5</span>Xây dựng tham số và Sensitivity Analysis</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ tìm hiểu cách xác định và xây dựng các tham số cho mô hình, lựa chọn nguồn dữ liệu và biểu diễn uncertainty bằng các phân bố xác suất phù hợp.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-5" role="region" aria-label="Bài 5: Xây dựng tham số và Sensitivity Analysis">
+                  <ul>
+                    <li>Học viên sẽ tìm hiểu cách xác định và xây dựng các tham số cho mô hình, lựa chọn nguồn dữ liệu và biểu diễn uncertainty bằng các phân bố xác suất phù hợp.
+                    </li>
+                    <li>Phần này giới thiệu one-way sensitivity analysis, scenario analysis và probabilistic sensitivity analysis (PSA).
+                    </li>
+                    <li>Học viên sẽ sử dụng R để thay đổi các tham số, thực hiện Monte Carlo simulation và khảo sát mức độ ổn định của kết luận.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-6">
+                  <span class="lesson-no" aria-hidden="true">06</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 6</span>Từ ICER đến Decision Making</span>
+                  <span class="lesson-peek" aria-hidden="true">Tìm hiểu cost-effectiveness plane, net monetary benefit và cost-effectiveness acceptability curve (CEAC), qua đó chuyển từ một con số ICER đơn lẻ sang cách diễn giải xác suất và bất định phù hợp hơn cho người ra quyết định.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-6" role="region" aria-label="Bài 6: Từ ICER đến Decision Making">
+                  <ul>
+                    <li>Tìm hiểu cost-effectiveness plane, net monetary benefit và cost-effectiveness acceptability curve (CEAC), qua đó chuyển từ một con số ICER đơn lẻ sang cách diễn giải xác suất và bất định phù hợp hơn cho người ra quyết định.
+                    </li>
+                    <li>Phần này cũng thảo luận một câu hỏi thực tế: khi nào có thể nói một can thiệp có khả năng cost-effective, và bằng chứng còn bất định đến mức nào?
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-7">
+                  <span class="lesson-no" aria-hidden="true">07</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 7</span>Tổng quan và ca nghiên cứu</span>
+                  <span class="lesson-peek" aria-hidden="true">Từ một câu hỏi cụ thể về thuốc, chương trình sàng lọc hoặc can thiệp y tế, học viên sẽ xác định comparator và perspective, xây dựng mô hình, tìm các tham số, ước tính chi phí và QALY, tính ICER, thực hiện sensitivity analysis và diễn giải kết quả.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-7" role="region" aria-label="Bài 7: Tổng quan và ca nghiên cứu">
+                  <ul>
+                    <li>Từ một câu hỏi cụ thể về thuốc, chương trình sàng lọc hoặc can thiệp y tế, học viên sẽ xác định comparator và perspective, xây dựng mô hình, tìm các tham số, ước tính chi phí và QALY, tính ICER, thực hiện sensitivity analysis và diễn giải kết quả.
+                    </li>
+                    <li>Quy trình sẽ đi từ: Câu hỏi → Mô hình → Tham số → Chi phí → QALY → ICER → Uncertainty → Decision.
+                    </li>
+                    <li>Mục tiêu của phần này là giúp học viên thấy CEA như một quá trình phân tích hoàn chỉnh, thay vì một tập hợp các công thức rời rạc.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-2-8">
+                  <span class="lesson-no" aria-hidden="true">08</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 8</span>Ứng dụng AI trong phân tích chi phí – hiệu quả</span>
+                  <span class="lesson-peek" aria-hidden="true">AI có thể hỗ trợ tìm kiếm và tổng hợp thông tin, viết R code, xây dựng cấu trúc ban đầu của decision tree và mô hình Markov, chuyển đổi tham số, thực hiện mô phỏng, và tạo các biểu đồ phục vụ cho phân tích nhạy.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-2-8" role="region" aria-label="Bài 8: Ứng dụng AI trong phân tích chi phí – hiệu quả">
+                  <ul>
+                    <li>AI có thể hỗ trợ tìm kiếm và tổng hợp thông tin, viết R code, xây dựng cấu trúc ban đầu của decision tree và mô hình Markov, chuyển đổi tham số, thực hiện mô phỏng, và tạo các biểu đồ phục vụ cho phân tích nhạy.
+                    </li>
+                    <li>Nhưng CEA cũng là lãnh vực mà một sai sót nhỏ trong giả định có thể dẫn đến một kết luận rất khác. Một xác suất chuyển tiếp (transition probability) sai, một utility được lấy từ quần thể không phù hợp, hoặc lựa chọn sai khung thời gian đều có thể làm thay đổi ICER
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              </ol>
             </div>
-          </li>
-          <li class="outline-col">
-            <p class="outline-kicker">Khóa 3 · 15–17/01/2027</p>
-            <h3>Phân tích dữ liệu chuỗi thời gian</h3>
-            <div class="skel-stack" aria-hidden="true">
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
+          </div>
+          <div class="outline-panel" id="outline-panel-3" role="tabpanel" aria-labelledby="outline-tab-3" hidden>
+            <aside class="outline-side">
+              <h3>Phân tích dữ liệu chuỗi thời gian</h3>
+              <p class="outline-meta">15–17/01/2027 · 3 ngày (6 buổi)</p>
+              <h4>Yêu cầu khi tham gia</h4>
+              <ul class="outline-need">
+                <li>Học viên nên có kiến thức căn bản về nghiên cứu và phân tích dữ liệu.</li>
+                <li>Học viên đã hoàn thành khóa “Phân tích dữ liệu với R cơ bản” sẽ là nền tảng phù hợp để tham gia.</li>
+                <li>Khi tham gia khóa học, học viên cần mang theo máy tính cá nhân. Hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết sẽ được gửi đến học viên trước ngày khai giảng.</li>
+              </ul>
+              <details class="outline-method">
+                <summary>Phương pháp học</summary>
+                <p>Khóa học theo phương châm học qua thực hành. Các khái niệm toán học sẽ được giải thích ở mức cần thiết để hiểu phương pháp, sau đó được minh họa trực tiếp bằng dữ liệu và R.</p>
+                <p>Toàn bộ khóa học được thực hiện bằng R và RStudio. Học viên sẽ được cung cấp dữ liệu và R code cho các ví dụ để có thể tái lập toàn bộ phân tích.</p>
+                <p>AI sẽ được sử dụng để hỗ trợ viết code, giải thích các câu lệnh, debugging và đề xuất các cách triển khai mô hình. Tuy nhiên, khóa học đặc biệt chú trọng đến việc kiểm tra những đề xuất do AI tạo ra.</p>
+                <p>Trong time series analysis, một đoạn code có thể chạy hoàn toàn bình thường nhưng vẫn tạo ra một mô hình sai nếu người phân tích không hiểu stationarity, autocorrelation, temporal ordering hoặc data leakage. Vì vậy, AI được sử dụng như trợ lý phân tích, còn việc lựa chọn mô hình và đánh giá kết quả vẫn thuộc về người nghiên cứu.</p>
+              </details>
+            </aside>
+            <div class="outline-main">
+              <div class="outline-flow">
+                <p class="outline-flow-label">Quy trình của Bài 8</p>
+                <ol>
+                  <li>Dữ liệu</li>
+                  <li>Hiển thị</li>
+                  <li>Khám phá cấu trúc</li>
+                  <li>Stationarity</li>
+                  <li>Xây dựng mô hình</li>
+                  <li>Kiểm tra mô hình</li>
+                  <li>Dự báo</li>
+                  <li>Đánh giá sai số</li>
+                  <li>So sánh mô hình</li>
+                  <li>Diễn giải kết quả</li>
+                </ol>
               </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
+              <div class="outline-bar">
+                <p>8 bài giảng</p>
+                <button type="button" class="outline-toggle" data-outline-toggle aria-pressed="false">Mở tất cả</button>
               </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
-              <div class="skel-group">
-                <span class="skel skel-head"></span>
-                <span class="skel"></span>
-                <span class="skel skel-short"></span>
-              </div>
+              <ol class="lessons">
+              <li class="lesson is-open">
+                <button type="button" class="lesson-head" aria-expanded="true" aria-controls="lesson-3-1">
+                  <span class="lesson-no" aria-hidden="true">01</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 1</span>Giới thiệu dữ liệu chuỗi thời gian</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ làm quen với những khái niệm đầu tiên như time index, lag, frequency, autocorrelation và forecasting, đồng thời học cách nhận diện các cấu trúc quan trọng từ biểu đồ dữ liệu.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-1" role="region" aria-label="Bài 1: Giới thiệu dữ liệu chuỗi thời gian">
+                  <ul>
+                    <li class="lesson-plain">Học viên sẽ làm quen với những khái niệm đầu tiên như time index, lag, frequency, autocorrelation và forecasting, đồng thời học cách nhận diện các cấu trúc quan trọng từ biểu đồ dữ liệu.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-2">
+                  <span class="lesson-no" aria-hidden="true">02</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 2</span>Tính dừng, ACF và ADF</span>
+                  <span class="lesson-peek" aria-hidden="true">Một khái niệm trung tâm của phân tích chuỗi thời gian là tính dừng (stationarity). Học viên sẽ tìm hiểu tại sao tính dừng quan trọng đối với nhiều mô hình time series và cách nhận diện một chuỗi chưa dừng.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-2" role="region" aria-label="Bài 2: Tính dừng, ACF và ADF">
+                  <ul>
+                    <li>Một khái niệm trung tâm của phân tích chuỗi thời gian là tính dừng (stationarity). Học viên sẽ tìm hiểu tại sao tính dừng quan trọng đối với nhiều mô hình time series và cách nhận diện một chuỗi chưa dừng.
+                    </li>
+                    <li>Phần này giới thiệu Autocorrelation Function (ACF) để khảo sát sự phụ thuộc giữa các quan sát theo thời gian và Augmented Dickey-Fuller test (ADF) để đánh giá tính dừng. Các phương pháp biến đổi dữ liệu và differencing cũng sẽ được minh họa bằng R.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-3">
+                  <span class="lesson-no" aria-hidden="true">03</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 3</span>Exponential smoothing: trend, seasonality, cycle và noise</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ học cách nhận diện và phân rã các thành phần này, sau đó tiếp cận các phương pháp smoothing từ simple exponential smoothing đến các mô hình có trend và seasonality. Mục tiêu là hiểu mối liên hệ giữa cấu trúc quan sát được trong dữ liệu và mô hình được lựa chọn để dự báo</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-3" role="region" aria-label="Bài 3: Exponential smoothing: trend, seasonality, cycle và noise">
+                  <ul>
+                    <li>Học viên sẽ học cách nhận diện và phân rã các thành phần này, sau đó tiếp cận các phương pháp smoothing từ simple exponential smoothing đến các mô hình có trend và seasonality. Mục tiêu là hiểu mối liên hệ giữa cấu trúc quan sát được trong dữ liệu và mô hình được lựa chọn để dự báo
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-4">
+                  <span class="lesson-no" aria-hidden="true">04</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 4</span>Đánh giá sai số dự báo: MAE, RMSE và MAPE</span>
+                  <span class="lesson-peek" aria-hidden="true">Phần này giới thiệu ba thước đo thường dùng.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-4" role="region" aria-label="Bài 4: Đánh giá sai số dự báo: MAE, RMSE và MAPE">
+                  <ul>
+                    <li>Phần này giới thiệu ba thước đo thường dùng.
+                      <ul class="lesson-sub">
+                        <li>Mean Absolute Error (MAE)</li>
+                        <li>Root Mean Squared Error (RMSE)</li>
+                        <li>Mean Absolute Percentage Error (MAPE)</li>
+                      </ul>
+                    </li>
+                    <li>Học viên sẽ tìm hiểu ý nghĩa, ưu điểm và hạn chế của từng chỉ số, cách chia dữ liệu thành training và testing sets, và cách đánh giá forecast accuracy bằng R.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-5">
+                  <span class="lesson-no" aria-hidden="true">05</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 5</span>Mô hình AR, MA và ARIMA</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ lần lượt tiếp cận Autoregressive model (AR), Moving Average model (MA) và Autoregressive Integrated Moving Average model (ARIMA).</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-5" role="region" aria-label="Bài 5: Mô hình AR, MA và ARIMA">
+                  <ul>
+                    <li>Học viên sẽ lần lượt tiếp cận Autoregressive model (AR), Moving Average model (MA) và Autoregressive Integrated Moving Average model (ARIMA).
+                    </li>
+                    <li>Thay vì xem ARIMA như một công thức, khóa học sẽ đi từ câu hỏi trực quan: giá trị hiện tại phụ thuộc như thế nào vào các giá trị trước đó và các sai số trước đó.
+                    </li>
+                    <li>Học viên sẽ thực hành xác định các tham số của mô hình, fitting model, kiểm tra residuals và thực hiện dự báo bằng R.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-6">
+                  <span class="lesson-no" aria-hidden="true">06</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 6</span>So sánh và lựa chọn mô hình</span>
+                  <span class="lesson-peek" aria-hidden="true">Phần này tập trung vào nguyên lý so sánh mô hình dựa trên goodness-of-fit, AIC, BIC và quan trọng hơn là khả năng dự báo trên dữ liệu ngoài mẫu.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-6" role="region" aria-label="Bài 6: So sánh và lựa chọn mô hình">
+                  <ul>
+                    <li>Phần này tập trung vào nguyên lý so sánh mô hình dựa trên goodness-of-fit, AIC, BIC và quan trọng hơn là khả năng dự báo trên dữ liệu ngoài mẫu.
+                    </li>
+                    <li>Học viên sẽ so sánh exponential smoothing và ARIMA trên cùng một bộ dữ liệu để thấy rằng mô hình phức tạp hơn chưa chắc dự báo tốt hơn.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-7">
+                  <span class="lesson-no" aria-hidden="true">07</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 7</span>Prophet và neural network</span>
+                  <span class="lesson-peek" aria-hidden="true">Học viên sẽ được giới thiệu Prophet, một phương pháp dự báo có khả năng xử lí trend và seasonality linh hoạt, và các mô hình neural network dành cho dữ liệu chuỗi thời gian.</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-7" role="region" aria-label="Bài 7: Prophet và neural network">
+                  <ul>
+                    <li>Học viên sẽ được giới thiệu Prophet, một phương pháp dự báo có khả năng xử lí trend và seasonality linh hoạt, và các mô hình neural network dành cho dữ liệu chuỗi thời gian.
+                    </li>
+                    <li>Mục tiêu của phần này không phải biến học viên thành chuyên gia machine learning sau một bài giảng, mà giúp học viên hiểu cách các phương pháp này tiếp cận bài toán dự báo, cách triển khai bằng R, và cách so sánh chúng một cách công bằng với những mô hình truyền thống.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="lesson">
+                <button type="button" class="lesson-head" aria-expanded="false" aria-controls="lesson-3-8">
+                  <span class="lesson-no" aria-hidden="true">08</span>
+                  <span class="lesson-title"><span class="lesson-label">Bài 8</span>Thực hành: từ dữ liệu đến dự báo</span>
+                  <span class="lesson-peek" aria-hidden="true">Phần cuối dành cho một bài thực hành tổng hợp</span>
+                  <span class="lesson-mark" aria-hidden="true"></span>
+                </button>
+                <div class="lesson-body" id="lesson-3-8" role="region" aria-label="Bài 8: Thực hành: từ dữ liệu đến dự báo">
+                  <ul>
+                    <li>Phần cuối dành cho một bài thực hành tổng hợp
+                    </li>
+                    <li>Từ một bộ dữ liệu thực tế, học viên sẽ thực hiện toàn bộ quy trình: Dữ liệu → Hiển thị → Khám phá cấu trúc → Stationarity → Xây dựng mô hình → Kiểm tra mô hình → Dự báo → Đánh giá sai số → So sánh mô hình → Diễn giải kết quả.
+                    </li>
+                    <li>Học viên sẽ sử dụng nhiều phương pháp đã học để trả lời cùng một bài toán và lựa chọn mô hình dựa trên bằng chứng từ dữ liệu.
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              </ol>
             </div>
-          </li>
-          </ol>
+          </div>
         </div>
       </section>
 
