@@ -1,79 +1,74 @@
 # Sản phẩm truyền thông: Chuỗi khóa học Phân tích định lượng với R (01/2027)
 
-Ngày lập: 02/10/2026. Nguồn chữ: `assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01.2027).docx`, chép sẵn trong `brand-kit/content.md`. Kế hoạch kênh và UTM: `../docs/marketing/campaign-plan-2026-10.md`.
+Cập nhật: 02/10/2026. Nguồn chữ: `assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01.2027).docx` và outline 3 khóa (`assets/Outline khoá 1-3_v2`), chép sẵn trong `brand-kit/content.md`. Kế hoạch kênh và UTM: `../docs/marketing/campaign-plan-2026-10.md`.
+
+**Phong cách đã chốt:** brand kit v2 "Data Lab", rút ra từ 3 poster Story đã duyệt ngày 02/10/2026 (`poster/export/story-*.png`). Nền xanh đậm, thông tin vẽ thành biểu đồ mà khóa học dạy, tiêu đề serif với chữ R trong lục giác, mã màu K1/K2/K3. Giấy chứng nhận và tài liệu in dùng chế độ nền sáng của cùng hệ.
 
 ## Cấu trúc
 
 | Thư mục | Nội dung |
 |---|---|
-| `brand-kit/` | Logo, màu, chữ, giọng văn, nội dung chuẩn, token CSS, bảng nhận diện |
-| `design-kit/` | Khổ, lề, thang chữ theo khổ, lưới, 10 khối dùng chung (A đến J), checklist xuất file |
-| `poster/` | Poster in A3/A2, poster số, ảnh chia sẻ link 1200×630 |
+| `brand-kit/` | v2: phân tích, logo, màu, chữ, khối tiêu đề, hệ biểu đồ, nền; `tokens.css` (nguồn duy nhất); `content.md`; bảng nhận diện `brand-board.html` và `export/brand-board.png` |
+| `design-kit/` | v2: khổ, lưới, thang chữ theo khổ, thư viện thành phần, công thức bố cục, chuyển động, sản xuất, checklist; sơ đồ khung `kit.html` và `export/kit.png` |
+| `poster/` | 3 poster Story đã chốt; `ads/story.css`, `ads/story.js` (khối dùng chung), `ads/render.py`; asset tách nền `ads/assets/`; brief poster in A3/A2 và poster số |
 | `standee/` | Standee 60×160 cm |
 | `document-cover/` | Bìa tài liệu cho 3 khóa |
-| `certificate/` | Giấy chứng nhận hoàn thành khóa |
+| `certificate/` | Giấy chứng nhận (nền sáng) |
 | `backdrop/` | Backdrop phòng học, nền Zoom, màn chờ |
 | `video/` | Video 15 giây, video từng khóa, video nhắc hạn, màn chờ lặp |
 | `badge/` | Thẻ đeo học viên, giảng viên, Ban tổ chức |
 | `email-banner/` | Ảnh đầu email cho 4 đợt gửi |
 
-Mỗi thư mục sản phẩm có `README.md` gồm: mục đích, biến thể, bố cục theo khối, prompt Claude Design, việc cần Viện trả lời, tên file xuất. File xuất đặt trong `<sản phẩm>/export/`.
+Mỗi thư mục ấn phẩm có `README.md`: mục đích, biến thể, bố cục theo công thức design kit v2, prompt Claude Design, việc cần Viện trả lời, tên file xuất.
 
 ## Lịch
 
 Mốc cố định: ưu đãi sớm đến 08/12/2026; hạn chót 28/12/2026; khóa học 08/01 đến 17/01/2027.
 
-| Đợt | Hạn duyệt | Sản phẩm | Lý do thứ tự |
+| Đợt | Hạn duyệt | Sản phẩm | Trạng thái |
 |---|---|---|---|
-| 0 | 09/10/2026 | Brand kit, design kit, design system trong Claude Design | Mọi sản phẩm sau dùng chung |
-| 1 | 16/10/2026 | Email E1, poster số P2, P5 (ảnh chia sẻ), P3a–c | Chạy giai đoạn ưu đãi sớm; P5 thay ảnh chia sẻ đang thiếu trên landing page |
-| 2 | 31/10/2026 | Poster in P1 (A3, A2), video V1, V2a–c | In và phát tới đơn vị; Meta cần video trước tháng 11 |
-| 3 | 25/11/2026 | Email E2, poster P4, video V3 (bản 08/12) | Gửi khoảng 01/12 |
-| 4 | 15/12/2026 | Email E3, P4 và V3 (bản 28/12); standee S1; mẫu thẻ đeo; mẫu giấy chứng nhận | Standee đặt trước hạn chót; mẫu cần Viện duyệt sớm |
-| 5 | 31/12/2026 | Backdrop B1–B3, bìa tài liệu D1–D3, email E4, thẻ đeo in theo danh sách, video V4 | Danh sách học viên chốt sau 28/12; in xong trước 07/01/2027 |
-| 6 | 10/01, 13/01, 17/01/2027 | In giấy chứng nhận theo từng khóa | Cấp cuối mỗi khóa |
+| 0 | 09/10/2026 | Brand kit, design kit, design system trong Claude Design | Brand kit và design kit v2 xong |
+| 1 | 16/10/2026 | Poster Story ST1–ST3; email E1; poster số P2, P5 | ST1–ST3 đã chốt; E1, P2, P5 chưa dựng |
+| 2 | 31/10/2026 | Poster in P1 (A3, A2), video V1, V2a–c | Chưa dựng |
+| 3 | 25/11/2026 | Email E2, poster P4, video V3 (bản 08/12) | Chưa dựng |
+| 4 | 15/12/2026 | Email E3, P4 và V3 (bản 28/12); standee S1; mẫu thẻ đeo; mẫu giấy chứng nhận | Chưa dựng |
+| 5 | 31/12/2026 | Backdrop B1–B3, bìa tài liệu D1–D3, email E4, thẻ đeo theo danh sách, video V4 | Chưa dựng |
+| 6 | 10/01, 13/01, 17/01/2027 | In giấy chứng nhận theo từng khóa | Chờ mẫu của Viện |
 
-## Quy trình với Claude Design
+## Quy trình
 
-Claude Design (claude.ai/design) dựng thiết kế từ prompt, đọc được codebase và file đính kèm để tạo design system dùng chung cho mọi dự án, cho sửa bằng bình luận và chỉnh trực tiếp, xuất PDF, PPTX, HTML, gửi sang Canva hoặc chuyển cho Claude Code. Kiểm tra lại các lựa chọn xuất trong ứng dụng vì sản phẩm còn đang cập nhật.
+**Cách 1, dựng bằng HTML như 3 poster đã chốt (khuyến nghị cho bản cuối):** chép một file `poster/ads/story-*.html`, đổi khổ và khối theo công thức design kit, xuất bằng `render.py` (PNG) hoặc in PDF khổ thật. Hình giống hệt poster vì dùng chung `story.css`, `story.js`.
 
-**Bước 1: tạo design system (một lần).**
-1. Tạo design system tên **"VPN · Phân tích định lượng với R"**.
-2. Nạp: repo này (hoặc tải lên `DESIGN.md`, `media/brand-kit/README.md`, `media/brand-kit/tokens.css`, `media/design-kit/README.md`), logo `media/brand-kit/logo/logo-color.png`, ảnh chụp `media/brand-kit/brand-board.html`, ảnh chụp landing page.
-3. Kiểm tra Claude Design đọc đúng: 2 font Source Serif 4 và Source Sans 3; màu cobalt #0a3d91, ink #0d1b2a, signal #c4231a; bo góc 2 px; không bóng đổ. Sửa ngay nếu nó tự thêm gradient hoặc góc bo tròn.
+**Cách 2, phác bằng Claude Design (claude.ai/design):**
+1. Tạo design system **"VPN · Phân tích định lượng với R (v2 Data Lab)"**. Nạp: `brand-kit/README.md`, `brand-kit/tokens.css`, `design-kit/README.md`, `brand-kit/export/brand-board.png`, `design-kit/export/kit.png`, 3 poster `poster/export/story-*.png`, logo `brand-kit/logo/logo-color.png`, mã QR.
+2. Kiểm tra nó đọc đúng: 4 font (Source Serif 4, Oswald, Montserrat, JetBrains Mono); nền #061a4d → #0c3f9e; K1 #5ad8ff, K2 #3f86ff, K3 #c3dbff; đỏ #c4231a chỉ cho ngày hạn chót; thông tin vẽ thành biểu đồ, không hộp trắng.
+3. Dán prompt trong README của ấn phẩm; sửa bằng bình luận; đối chiếu chữ với `brand-kit/content.md` mỗi vòng.
+4. Bản cuối: chuyển sang Claude Code dựng HTML khổ thật (cách 1) để đúng từng pixel với hệ. Video: storyboard ở Claude Design, dựng MP4 bằng HyperFrames.
 
-**Bước 2: từng sản phẩm.**
-1. Mở dự án mới trong design system trên, dán prompt trong `README.md` của sản phẩm.
-2. Đính kèm SVG biểu đồ (design kit mục 5) để hình thống nhất.
-3. Sửa bằng bình luận. Mỗi vòng, đối chiếu chữ với `brand-kit/content.md`.
-4. Chạy checklist `design-kit/README.md` mục 6 trước khi gửi duyệt.
-
-**Bước 3: xuất.**
-- Sản phẩm số (poster số, email, nền Zoom): xuất PNG ở 2x.
-- Sản phẩm in: xuất PDF, rồi kiểm tra khổ thật và tràn lề. Nếu bản xuất thiếu tràn lề hoặc sai khổ, chuyển cho Claude Code dựng HTML khổ thật (mm) với `tokens.css` và in PDF bằng Chrome headless. Nhà in chuyển CMYK và in thử bông màu.
-- Video: Claude Design làm storyboard; dựng MP4 bằng HyperFrames (xem `video/README.md`).
-- Thẻ đeo, giấy chứng nhận: Claude Design làm mẫu; ghép danh sách bằng template HTML (xem README từng sản phẩm).
+Trước khi gửi duyệt: checklist `design-kit/README.md` mục 9.
 
 ## Cần Viện cung cấp hoặc quyết định
 
 | # | Việc | Chặn sản phẩm |
 |---|---|---|
-| 1 | Logo vector (AI, SVG hoặc PDF) và bản logo trắng/đơn sắc chính thức | standee, backdrop; mọi bản trên nền tối |
-| 2 | Ảnh chính thức GS.TS. Nguyễn Văn Tuấn, TS. Trần Sơn Thạch và quyền dùng; ảnh, video lớp các khóa trước | poster, standee, video (có thể chạy bản không ảnh trước) |
-| 3 | Đích của mã QR: trang đăng ký trong thông báo hay landing page | poster in, standee |
+| 1 | Logo vector (AI, SVG hoặc PDF) | standee, backdrop khổ lớn |
+| 2 | Ảnh chính thức GS.TS. Nguyễn Văn Tuấn, TS. Trần Sơn Thạch và quyền dùng; ảnh, video lớp các khóa trước | video có giảng viên; poster có ảnh (bản hiện tại không cần) |
+| 3 | Quét thử mã QR (`assets/Mã QR chuỗi PTDL R 01.27.png`), xác nhận đích đến; có cần mã riêng theo kênh để gắn UTM không | mọi ấn phẩm có QR |
 | 4 | Mẫu giấy chứng nhận hiện hành, quy tắc số hiệu, người ký (7 câu trong `certificate/README.md`) | giấy chứng nhận |
 | 5 | Kích thước tường phòng học, ảnh chụp phòng, cách treo | backdrop |
-| 6 | Nhà in, chất liệu, số lượng, ngân sách in | mọi bản in |
+| 6 | Nhà in, chất liệu, số lượng, ngân sách; in thử bông màu nền xanh đậm và K1/K2/K3 | mọi bản in |
 | 7 | Vỏ thẻ và dây đeo; có in đơn vị công tác không | thẻ đeo |
 | 8 | Tài liệu in hay PDF, số trang, cách đóng | bìa tài liệu |
 | 9 | Công cụ gửi email | email banner |
-| 10 | Giờ học: xác nhận 08:30–12:00, 13:30–17:00, ngày đầu 08:00 (thông báo v4 không ghi) | standee S2, màn chờ, email E4 |
+| 10 | Giờ học hằng ngày (thông báo v4 và outline không ghi) | standee S2, màn chờ, email E4 |
+| 11 | Số thông báo: v4 để trống, outline ghi "số 10/2026/TB-VPN" | mọi văn bản có số thông báo |
 
 ## Trạng thái
 
 | Sản phẩm | Trạng thái |
 |---|---|
-| Brand kit | Bản đầu, chờ Viện duyệt (logo trắng là nháp) |
-| Design kit | Bản đầu, chờ chốt khổ với nhà in |
-| Poster, standee, bìa, backdrop, video, thẻ đeo, email | Có brief và prompt, chưa dựng |
-| Giấy chứng nhận | Có brief, chờ mẫu hiện hành của Viện |
+| Brand kit, design kit | v2, rút ra từ 3 poster đã chốt |
+| Poster Story ST1, ST2, ST3 | Đã chốt; asset lộ trình tách nền đã xuất |
+| Poster in P1, poster số P2, P4, P5 | Có công thức và prompt v2, chưa dựng |
+| Standee, bìa, backdrop, video, thẻ đeo, email | Có công thức và prompt v2, chưa dựng |
+| Giấy chứng nhận | Có công thức nền sáng, chờ mẫu hiện hành của Viện |

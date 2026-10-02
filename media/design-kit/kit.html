@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Design kit v2 · Công thức bố cục · Phân tích định lượng với R</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../brand-kit/tokens.css">
+<style>
+  /* Wireframes for every product, drawn from the RECIPES table below (fractions of width and height). */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-0); }
+  .kit { width: 1440px; margin: 0 auto; padding: 40px 70px 70px; color: #fff; font-family: var(--text);
+         background: radial-gradient(900px 700px at 85% 6%, var(--light-a), transparent 70%), linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2)); }
+  .kit > header { display: flex; align-items: baseline; gap: 24px; padding-bottom: 26px; border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, var(--k1), rgba(90, 216, 255, 0)) 1; }
+  .kit > header h1 { font: 600 52px/1.05 var(--serif); letter-spacing: -0.02em; }
+  .kit > header h1 em { font-style: italic; color: var(--k1); }
+  .kit > header p { margin-left: auto; font: 500 20px/1.5 var(--code); color: var(--soft); text-align: right; }
+  .legend { display: flex; flex-wrap: wrap; gap: 22px; margin: 22px 0 6px; font: 500 18px/1.3 var(--code); color: var(--tint); }
+  .legend i { display: inline-block; width: 26px; height: 16px; margin-right: 8px; vertical-align: -2px; border-radius: 3px; }
+  h2.group { margin-top: 38px; font: 500 24px/1.3 var(--code); color: var(--k1); }
+  .grid { display: grid; gap: 34px 30px; margin-top: 18px; align-items: start; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .card h3 { font: 600 28px/1.2 var(--serif); }
+  .card .spec { margin-top: 4px; font: 500 17px/1.4 var(--code); color: var(--soft); }
+  .card svg { display: block; width: 100%; height: auto; margin-top: 12px; border-radius: 6px; }
+  .card ul { margin-top: 10px; padding-left: 20px; }
+  .card li { font: 500 18px/1.45 var(--text); color: var(--tint); }
+  .strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-top: 14px; }
+  .strip figcaption { margin-top: 6px; font: 500 16px/1.35 var(--code); color: var(--soft); }
+</style>
+</head>
+<body>
+<main class="kit">
+  <header>
+    <h1>Design kit v2 · <em>công thức bố cục</em></h1>
+    <p># sơ đồ khung đúng tỷ lệ<br># khối = lớp trong story.css</p>
+  </header>
+  <div class="legend">
+    <span><i style="background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.55)"></i>nhận diện: dải đầu, dải chân, logo</span>
+    <span><i style="background: rgba(90,216,255,.22); border: 1px solid #5ad8ff"></i>khối tiêu đề, tên</span>
+    <span><i style="background: rgba(63,134,255,.24); border: 1px solid #8fb8ff"></i>biểu đồ</span>
+    <span><i style="background: rgba(195,219,255,.14); border: 1px solid #c3dbff"></i>chữ, thông tin</span>
+    <span><i style="background: #fff"></i>QR, pill hạn chót</span>
+    <span><i style="border: 1.5px dashed rgba(255,255,255,.7)"></i>vùng để trống</span>
+  </div>
+
+  <h2 class="group"># Khổ dọc</h2>
+  <div class="grid g3" id="portrait"></div>
+
+  <h2 class="group"># Khổ ngang</h2>
+  <div class="grid g2" id="landscape"></div>
+
+  <h2 class="group"># Video 9:16 · 15 giây, 5 nhịp</h2>
+  <div class="strip" id="video"></div>
+</main>
+<script>
+  // label, x0, y0, x1, y1 (fractions), kind
+  var RECIPES = [
+    { id: "portrait", name: "Story / Reel (đã chốt)", spec: "1080×1920 px · nền tối · mẫu gốc ST1", ratio: 16 / 9, mode: "dark", safe: [0.065, 0.065],
+      blocks: [["dải đầu", 0, 0, 1, 0.065, "id"], ["khối tiêu đề", 0.065, 0.08, 0.935, 0.21, "lock"], ["thông tin", 0.065, 0.215, 0.935, 0.26, "text"],
+               ["lộ trình", 0.065, 0.27, 0.935, 0.41, "chart"], ["cột gói", 0.065, 0.42, 0.935, 0.6, "chart"], ["nút ưu đãi", 0.065, 0.61, 0.935, 0.76, "chart"],
+               ["trục thời gian", 0.065, 0.785, 0.66, 0.9, "chart"], ["QR", 0.68, 0.775, 0.935, 0.935, "qr"], ["dải chân", 0, 0.95, 1, 1, "id"]],
+      notes: ["ST2, ST3 thay khối giữa: hàng khóa học, lịch, hình thức; hoặc chú giải và cột gói lớn"] },
+    { id: "portrait", name: "Poster in A3, A2", spec: "297×420 mm · tràn lề 3 mm · an toàn 15 mm", ratio: 420 / 297, mode: "dark", safe: [0.05, 0.036],
+      blocks: [["dải đầu", 0, 0, 1, 0.06, "id"], ["khối tiêu đề", 0.07, 0.075, 0.93, 0.215, "lock"], ["thông tin", 0.07, 0.225, 0.93, 0.265, "text"],
+               ["lộ trình", 0.07, 0.28, 0.93, 0.47, "chart"], ["cột gói", 0.07, 0.49, 0.58, 0.72, "chart"], ["nút ưu đãi", 0.62, 0.49, 0.93, 0.72, "chart"],
+               ["trục thời gian", 0.07, 0.745, 0.66, 0.87, "chart"], ["QR ≥ 25 mm", 0.7, 0.735, 0.93, 0.905, "qr"], ["dải chân", 0, 0.93, 1, 1, "id"]],
+      notes: ["Nội dung như ST1, chia hai cột vì khổ rộng hơn", "Lưới chấm in 45%"] },
+    { id: "portrait", name: "Standee", spec: "60×160 cm · an toàn 5 cm · xem 2 đến 3 m", ratio: 160 / 60, mode: "dark", safe: [0.083, 0.031],
+      blocks: [["dải đầu", 0, 0, 1, 0.05, "id"], ["khối tiêu đề", 0.083, 0.065, 0.917, 0.185, "lock"], ["thông tin (2 hàng)", 0.083, 0.195, 0.917, 0.245, "text"],
+               ["lộ trình", 0.083, 0.26, 0.917, 0.41, "chart"], ["hạn chót 28/12", 0.2, 0.43, 0.8, 0.5, "pill"], ["QR ≥ 40 mm", 0.3, 0.52, 0.7, 0.66, "qr"],
+               ["liên hệ", 0.083, 0.675, 0.917, 0.71, "text"], ["dải chân", 0, 0.725, 1, 0.77, "id"], ["chân đế 15 cm: để trống", 0, 0.906, 1, 1, "zone"]],
+      notes: ["Không bảng gói: từ xa không đọc được 6 hàng số"] },
+    { id: "portrait", name: "Thẻ đeo", spec: "90×130 mm · an toàn 6 mm · 4 thẻ/A4", ratio: 130 / 90, mode: "dark", safe: [0.067, 0.046],
+      blocks: [["lỗ đục 15 mm", 0, 0, 1, 0.115, "zone"], ["logo · Viện Phương Nam", 0.067, 0.13, 0.933, 0.22, "id"], ["# Phân tích định lượng với R", 0.067, 0.235, 0.933, 0.28, "text"],
+               ["họ tên · serif 24 pt", 0.067, 0.33, 0.933, 0.52, "lock"], ["đơn vị", 0.067, 0.54, 0.933, 0.6, "text"], ["chip K1 K2 K3", 0.067, 0.64, 0.6, 0.72, "chart"],
+               ["dải vai trò", 0, 0.8, 1, 0.94, "band"]],
+      notes: ["Học viên: dải trắng, chữ navy", "Giảng viên: gradient logo, chữ trắng", "Ban tổ chức: nền bg-0, viền cyan"] },
+    { id: "portrait", name: "Bìa tài liệu (mỗi khóa)", spec: "A4 210×297 mm · an toàn 12 mm", ratio: 297 / 210, mode: "dark", safe: [0.057, 0.04],
+      blocks: [["dải đầu", 0, 0, 1, 0.07, "id"], ["# Khóa n · Tài liệu học viên", 0.07, 0.1, 0.93, 0.13, "text"], ["tên khóa · serif", 0.07, 0.15, 0.93, 0.3, "lock"],
+               ["hình của khóa · màu K", 0.07, 0.34, 0.93, 0.7, "chart"], ["ngày · số buổi · giảng viên", 0.07, 0.74, 0.93, 0.83, "text"],
+               ["tiêu đề chuỗi một dòng", 0.07, 0.86, 0.93, 0.91, "lock"], ["dải chân", 0, 0.94, 1, 1, "id"]],
+      notes: ["K1 hồi quy, K2 mặt phẳng chi phí - hiệu quả, K3 dự báo", "Bìa sau: liên hệ, không QR"] },
+    { id: "portrait", name: "Poster số vuông", spec: "1080×1080 px · an toàn 60 px", ratio: 1, mode: "dark", safe: [0.056, 0.056],
+      blocks: [["dải đầu", 0, 0, 1, 0.1, "id"], ["khối tiêu đề", 0.065, 0.14, 0.935, 0.39, "lock"], ["lộ trình", 0.065, 0.44, 0.935, 0.74, "chart"],
+               ["ngày hoặc hạn chót", 0.065, 0.79, 0.62, 0.9, "pill"]],
+      notes: ["Một biểu đồ, một dòng ngày"] },
+    { id: "landscape", name: "Backdrop phòng học", spec: "3×2 m (chờ đo tường) · an toàn 10 cm · xem 4 đến 8 m", ratio: 2 / 3, mode: "dark", safe: [0.033, 0.05],
+      blocks: [["dải đầu thu gọn", 0.04, 0.05, 0.42, 0.15, "id"], ["khối tiêu đề", 0.04, 0.2, 0.56, 0.48, "lock"], ["thông tin", 0.04, 0.51, 0.56, 0.61, "text"],
+               ["lộ trình lớn", 0.6, 0.18, 0.96, 0.62, "chart"], ["1/3 dưới: chỉ nền (người đứng)", 0, 0.67, 1, 1, "zone"]],
+      notes: ["Không QR, học phí, hạn chót: dùng trong tuần học", "Code R chạy ngang mép dưới"] },
+    { id: "landscape", name: "Giấy chứng nhận", spec: "A4 ngang 297×210 mm · nền sáng · an toàn 15 mm", ratio: 210 / 297, mode: "paper", safe: [0.05, 0.071],
+      blocks: [["logo · tên Viện", 0.05, 0.07, 0.5, 0.2, "id"], ["số hiệu (theo Viện)", 0.72, 0.07, 0.95, 0.12, "text"], ["GIẤY CHỨNG NHẬN", 0.25, 0.25, 0.75, 0.35, "lock"],
+               ["họ tên · serif cobalt", 0.2, 0.4, 0.8, 0.52, "lock"], ["tên khóa · chuỗi khóa học · thời gian", 0.2, 0.55, 0.8, 0.68, "text"],
+               ["nơi ký · chữ ký · dấu", 0.6, 0.72, 0.95, 0.93, "text"], ["đường kẻ màu K", 0.05, 0.952, 0.95, 0.966, "chart"]],
+      notes: ["Nội dung pháp lý theo mẫu Viện", "Lưới chấm rất nhạt ở hai góc"] },
+    { id: "landscape", name: "Email banner", spec: "1200×480 (hiển thị 600×240) · an toàn 48 px", ratio: 0.4, mode: "dark", safe: [0.04, 0.1],
+      blocks: [["logo", 0.04, 0.15, 0.12, 0.45, "id"], ["tiêu đề một dòng", 0.14, 0.15, 0.6, 0.45, "lock"], ["một dòng theo đợt gửi", 0.14, 0.55, 0.6, 0.75, "text"],
+               ["lộ trình thu nhỏ", 0.63, 0.12, 0.96, 0.88, "chart"]],
+      notes: ["Thông tin chính có lại trong nội dung HTML", "Không nút giả trong ảnh"] },
+    { id: "landscape", name: "Nền Zoom", spec: "1920×1080 px", ratio: 9 / 16, mode: "dark", safe: [0.04, 0.06],
+      blocks: [["logo · tiêu đề", 0.04, 0.06, 0.28, 0.2, "lock"], ["ngày tổ chức", 0.04, 0.22, 0.28, 0.28, "text"], ["vùng người ngồi", 0.32, 0.16, 0.72, 1, "zone"],
+               ["lộ trình mờ", 0.04, 0.7, 0.28, 0.94, "chart"]],
+      notes: ["Không bật Mirror khi kiểm tra chữ"] },
+    { id: "landscape", name: "Ảnh chia sẻ link", spec: "1200×630 px · an toàn 50 px", ratio: 630 / 1200, mode: "dark", safe: [0.042, 0.08],
+      blocks: [["logo", 0.05, 0.12, 0.13, 0.32, "id"], ["tiêu đề một dòng", 0.15, 0.12, 0.62, 0.32, "lock"], ["lộ trình", 0.05, 0.42, 0.95, 0.8, "chart"],
+               ["ngày tổ chức", 0.05, 0.84, 0.6, 0.94, "text"]],
+      notes: ["Thay og:image trên landing page"] }
+  ];
+  var VIDEO = [
+    ["0 đến 3 s", [["khối tiêu đề", 0.065, 0.18, 0.935, 0.42, "lock"]]],
+    ["3 đến 6 s", [["lộ trình vẽ dần", 0.065, 0.3, 0.935, 0.55, "chart"]]],
+    ["6 đến 9 s", [["cột gói mọc", 0.065, 0.28, 0.935, 0.6, "chart"]]],
+    ["9 đến 12 s", [["nút ưu đãi", 0.065, 0.3, 0.935, 0.58, "chart"]]],
+    ["12 đến 15 s", [["trục thời gian", 0.065, 0.3, 0.935, 0.5, "chart"], ["QR · liên hệ", 0.18, 0.55, 0.82, 0.74, "qr"]]]
+  ];
+
+  var STYLE = {
+    dark:  { bg: ["#061a4d", "#0c3f9e"], id: ["rgba(255,255,255,.14)", "rgba(255,255,255,.55)", "#fff"], lock: ["rgba(90,216,255,.22)", "#5ad8ff", "#fff"],
+             chart: ["rgba(63,134,255,.24)", "#8fb8ff", "#fff"], text: ["rgba(195,219,255,.14)", "#c3dbff", "#fff"], qr: ["#fff", "#fff", "#06205a"],
+             pill: ["#fff", "#fff", "#c4231a"], band: ["rgba(255,255,255,.9)", "#fff", "#06205a"], zone: ["none", "rgba(255,255,255,.7)", "#cfe0ff"], safe: "rgba(207,224,255,.35)" },
+    paper: { bg: ["#ffffff", "#f3f6fb"], id: ["rgba(10,61,145,.08)", "#0a3d91", "#0d1b2a"], lock: ["rgba(10,61,145,.14)", "#0a3d91", "#0d1b2a"],
+             chart: ["rgba(31,95,207,.2)", "#1f5fcf", "#0d1b2a"], text: ["rgba(86,103,128,.1)", "#566780", "#0d1b2a"], qr: ["#fff", "#0d1b2a", "#0d1b2a"],
+             pill: ["#fff", "#c4231a", "#c4231a"], band: ["#0a3d91", "#0a3d91", "#fff"], zone: ["none", "#566780", "#566780"], safe: "rgba(86,103,128,.5)" }
+  };
+
+  function frame(W, ratio, mode, safe, blocks, uid) {
+    var H = Math.round(W * ratio), st = STYLE[mode], s = "";
+    s += '<defs><linearGradient id="g' + uid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + st.bg[0] + '"/><stop offset="1" stop-color="' + st.bg[1] + '"/></linearGradient></defs>';
+    s += '<rect width="' + W + '" height="' + H + '" fill="url(#g' + uid + ')"/>';
+    s += '<rect x="' + (safe[0] * W) + '" y="' + (safe[1] * H) + '" width="' + ((1 - 2 * safe[0]) * W) + '" height="' + ((1 - 2 * safe[1]) * H) + '" fill="none" stroke="' + st.safe + '" stroke-dasharray="4 4"/>';
+    blocks.forEach(function (b) {
+      var c = st[b[5]], x = b[1] * W, y = b[2] * H, w = (b[3] - b[1]) * W, h = (b[4] - b[2]) * H;
+      var dash = b[5] === "zone" ? ' stroke-dasharray="6 5"' : "";
+      s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + (b[5] === "pill" ? Math.min(h / 2, 14) : 3) + '" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="1.2"' + dash + '/>';
+      var fs = Math.max(11, Math.min(15, h * 0.42)), ty = y + h / 2 + fs * 0.35;
+      s += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + ty.toFixed(1) + '" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="' + fs.toFixed(1) + '" fill="' + c[2] + '">' + b[0] + '</text>';
+    });
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sơ đồ khung">' + s + '</svg>';
+  }
+
+  RECIPES.forEach(function (r, i) {
+    var W = r.id === "portrait" ? 400 : 640;
+    var el = document.createElement("article"); el.className = "card";
+    el.innerHTML = "<h3>" + r.name + '</h3><p class="spec">' + r.spec + "</p>" + frame(W, r.ratio, r.mode, r.safe, r.blocks, i) +
+      "<ul>" + r.notes.map(function (n) { return "<li>" + n + "</li>"; }).join("") + "</ul>";
+    document.getElementById(r.id).appendChild(el);
+  });
+  VIDEO.forEach(function (v, i) {
+    var f = document.createElement("figure");
+    f.innerHTML = frame(220, 16 / 9, "dark", [0.1, 0.1], v[1], "v" + i) + "<figcaption>" + v[0] + "</figcaption>";
+    document.getElementById("video").appendChild(f);
+  });
+</script>
+</body>
+</html>

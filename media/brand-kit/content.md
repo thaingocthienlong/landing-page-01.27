@@ -29,7 +29,7 @@ Nguồn: `assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01.2027).docx`. Mọi sản
 | Hình thức tổ chức | Học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom |
 | Địa điểm tổ chức | Viện Phương Nam, 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh |
 | Phần mềm sử dụng | R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu |
-| Giờ học | 08:30–12:00 và 13:30–17:00; ngày đầu mỗi khóa bắt đầu 08:00 (theo PRODUCT.md, đối chiếu lại với Viện trước khi in) |
+| Giờ học | Chưa có nguồn: thông báo v4 và outline không ghi giờ học hằng ngày. Ghi chú nội bộ (PRODUCT.md) có 08:30–12:00, 13:30–17:00, ngày đầu 08:00; không in cho tới khi Viện xác nhận. |
 
 ## Ba khóa học
 
@@ -40,6 +40,18 @@ Nguồn: `assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01.2027).docx`. Mọi sản
 | 3 | Phân tích dữ liệu chuỗi thời gian | 03 ngày | Từ 15/01 đến 17/01/2027 |
 
 Mã khóa (PTCBR01.27, PTHQR01.27, PTTGR01.27) là mã nội bộ, không in lên sản phẩm truyền thông.
+
+## Nội dung từng khóa (từ outline đã duyệt)
+
+Nguồn: `assets/Outline khoá 1_v2_(01.2027).docx`, `Outline khoá 2_v2`, `Outline khoá 3_v2`. Bản rút gọn dưới đây đã dùng trên poster Story; giữ nguyên ý, không thêm hứa hẹn.
+
+| Khóa | Thời lượng | Nội dung chính (bản rút gọn) | Ghi chú |
+|---|---|---|---|
+| 1 | 3 ngày (6 buổi), 7 bài | R, RStudio: nhập, quản lý, mô tả và hiển thị dữ liệu · Kiểm định giả thuyết, trị số P và khoảng tin cậy · So sánh, mối liên quan; dùng AI hỗ trợ viết R code | Không cần kinh nghiệm lập trình. Là nền tảng cho hai khóa chuyên sâu. |
+| 2 | 2 ngày (4 buổi), 8 bài | Đo lường chi phí, hiệu quả; utility và QALY · Tính và diễn giải ICER; decision tree, Markov model · Sensitivity analysis cho ra quyết định y tế | Nên có kiến thức căn bản về nghiên cứu và phân tích dữ liệu; đã học Khóa 1 là nền tảng phù hợp. |
+| 3 | 3 ngày (6 buổi), 8 bài | Tính dừng, tự tương quan, các thành phần của chuỗi · Exponential smoothing đến ARIMA; MAE, RMSE, MAPE · Bước đầu với Prophet và neural network | Nên có kiến thức căn bản; đã học Khóa 1 là nền tảng phù hợp. |
+
+Chung cho cả 3 khóa: mang theo máy tính cá nhân; hướng dẫn cài đặt R, RStudio và các gói câu lệnh được gửi trước ngày khai giảng. Gói R được outline nêu tên: ggplot2 (Khóa 1), forecast (Khóa 3).
 
 ## Giảng viên
 
@@ -96,6 +108,7 @@ Không nhắc quà tặng sách: thông báo v3 trở đi đã bỏ.
 ## Đăng ký và liên hệ
 
 - Đăng ký trực tuyến: https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r (hoặc quét mã QR)
+- Mã QR: `assets/Mã QR chuỗi PTDL R 01.27.png` (Viện cung cấp, có logo ở giữa). Chưa giải mã được trên máy để kiểm tra đích đến; quét thử trước mỗi lần xuất bản.
 - Đăng ký trực tiếp: Viện Phương Nam, Số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh
 - Điện thoại: (028) 2242 6789 · 0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo)
 
@@ -109,7 +122,7 @@ Không nhắc quà tặng sách: thông báo v3 trở đi đã bỏ.
 
 ## Không được in
 
-- Số thông báo (thông báo đang để trống "Số: /2026/TB-VPN"): không tự điền.
+- Số thông báo: thông báo v4 để trống "Số: /2026/TB-VPN", trong khi outline ghi "Kèm theo Thông báo số 10/2026/TB-VPN". Chưa thống nhất nên không in số nào cho tới khi Viện xác nhận.
 - Số học viên, tỷ lệ hài lòng, kết quả khóa trước, cảm nhận học viên: chưa có nguồn.
 - Ảnh stock người học, ảnh lớp học không phải của Viện.
 - Mã khóa nội bộ.

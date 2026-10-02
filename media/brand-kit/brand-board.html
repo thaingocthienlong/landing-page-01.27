@@ -2,265 +2,244 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brand kit · Phân tích định lượng với R · Viện Phương Nam</title>
-<link rel="stylesheet" href="tokens.css">
+<title>Brand kit v2 · Phân tích định lượng với R · Viện Phương Nam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../poster/ads/story.css">
 <style>
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--sans); }
-  .board { max-width: 1440px; margin: 0 auto; padding: 48px 48px 80px; }
-  h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; }
-  h1 { font-size: 44px; line-height: 1.1; letter-spacing: -0.015em; }
-  h2 { font-size: 26px; line-height: 1.2; }
-  h3 { font-size: 19px; }
-  .label { font: 700 13px/1.3 var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
-  .meta { color: var(--ink-3); font-size: 15px; }
-  section { border-top: var(--rule-heavy); padding-top: 20px; margin-top: 56px; }
-  section > header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
-  section > header .label { min-width: 32px; }
-  .top { display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: end; }
-  .top img { height: 96px; }
-
-  /* Logo */
-  .logos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .logo-cell { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 28px; border: var(--rule-hair); }
-  .logo-cell img { max-width: 62%; max-height: 82%; }
-  .logo-cell.plate { background: var(--plate); }
-  .logo-cell.cobalt { background: var(--cobalt); border-color: var(--cobalt); }
-  .logo-cell.ink { background: var(--ink); border-color: var(--ink); }
-  .logo-cell.clear img { outline: 1px dashed var(--field); outline-offset: 14px; }
-  .cap { margin-top: 8px; font-size: 15px; color: var(--ink-2); }
-  .draft { color: var(--signal); font-weight: 700; }
-
-  /* Colors */
-  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
-  .sw .chip { height: 88px; border: var(--rule-hair); }
-  .sw b { display: block; font-family: var(--serif); font-size: 18px; margin-top: 8px; }
-  .sw span { display: block; font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-
-  /* Type */
-  .type { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; }
-  .display { font-family: var(--serif); font-weight: 600; font-size: 64px; line-height: 1.06; letter-spacing: -0.02em; }
-  .display em { color: var(--cobalt); font-style: italic; }
-  .spec { border-top: var(--rule-hair); padding: 12px 0; display: grid; grid-template-columns: 140px 1fr; gap: 16px; }
-  .spec:last-child { border-bottom: var(--rule-hair); }
-  .diacritics { font-family: var(--serif); font-size: 26px; }
-
-  /* Components */
-  .comp { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; align-items: start; }
-  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-  thead th { text-align: left; padding: 10px 12px 10px 0; border-top: var(--rule-heavy); border-bottom: 1px solid var(--ink); }
-  tbody td { padding: 12px 12px 12px 0; border-bottom: var(--rule-hair); vertical-align: top; }
-  tbody tr:last-child td { border-bottom: var(--rule-heavy); }
-  td.course { font-family: var(--serif); font-weight: 600; font-size: 19px; }
-  tr.on td { background: var(--cobalt-wash); }
-  tr.on td:first-child { padding-left: 8px; }
-  .deadlines { margin-top: 32px; }
-  .deadlines div { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 12px 0; border-top: var(--rule-hair); }
-  .deadlines div:first-child { border-top: var(--rule-heavy); }
-  .deadlines strong { font-family: var(--serif); font-size: 22px; color: var(--signal); font-variant-numeric: tabular-nums; }
-
-  .plate { background: var(--cobalt); color: var(--paper); padding: 28px; }
-  .plate svg { display: block; width: 100%; height: auto; }
-  .plate figcaption { color: var(--cobalt-tint); font-size: 15px; margin-top: 12px; }
-  .plate figcaption b { color: var(--paper); }
-  figure { margin: 0; }
-
-  .faculty { display: grid; grid-template-columns: 120px 1fr; gap: 20px; margin-top: 32px; padding-top: 16px; border-top: var(--rule-heavy); }
-  .photo { aspect-ratio: 3 / 4; border: 1px solid var(--field); display: grid; place-items: center; text-align: center; padding: 8px; font-size: 13px; color: var(--ink-3); }
-
-  .contact { margin-top: 40px; background: var(--ink); color: var(--paper); display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; padding: 20px 24px; font-variant-numeric: tabular-nums; }
-  .contact p { margin: 0; }
-  .contact .sub { color: var(--cobalt-tint); font-size: 15px; }
-  .qr { width: 104px; height: 104px; background: var(--paper); color: var(--ink-3); display: grid; place-items: center; text-align: center; font-size: 12px; line-height: 1.3; padding: 8px; }
-
-  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
-  .role { height: 56px; display: grid; place-items: center; font: 700 15px var(--sans); letter-spacing: 0.07em; }
-  .role.r-learner { color: var(--cobalt); border-top: 6px solid var(--cobalt); border-bottom: var(--rule-hair); }
-  .role.r-faculty { background: var(--cobalt); color: var(--paper); }
-  .role.r-staff { background: var(--ink); color: var(--paper); }
-
-  /* Rules */
-  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-  .rules ul { margin: 0; padding: 0; list-style: none; }
-  .rules li { padding: 10px 0; border-top: var(--rule-hair); }
-  .rules li:last-child { border-bottom: var(--rule-hair); }
-
-  @media (max-width: 900px) {
-    .board { padding: 24px 20px 56px; }
-    .top, .type, .comp, .rules { grid-template-columns: 1fr; }
-    .logos { grid-template-columns: 1fr 1fr; }
-    .swatches { grid-template-columns: repeat(2, 1fr); }
-    .display { font-size: 42px; }
-    .deadlines div { grid-template-columns: 1fr; gap: 2px; }
-    .roles { grid-template-columns: 1fr; }
-  }
+  /* Board layout only. Every component below is the real one from story.css / story.js. */
+  html, body { background: var(--bg-0); }
+  .board { width: 1440px; margin: 0 auto; padding: 0 0 80px; color: #fff; font-family: var(--text);
+           background: radial-gradient(900px 700px at 85% 8%, var(--light-a), transparent 70%), linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2)); }
+  .board > header { display: flex; align-items: center; gap: 28px; padding: 40px 70px 32px; border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, var(--k1), rgba(90, 216, 255, 0)) 1; }
+  .board > header h1 { font: 600 56px/1.05 var(--serif); letter-spacing: -0.02em; }
+  .board > header h1 em { font-style: italic; color: var(--k1); }
+  .board > header p { margin-left: auto; text-align: right; font: 500 20px/1.5 var(--code); color: var(--soft); }
+  .row { display: grid; grid-template-columns: 940px 1fr; gap: 50px; padding: 44px 70px 0; align-items: start; }
+  .row > aside h2 { font: 500 24px/1.3 var(--code); color: var(--k1); }
+  .row > aside p, .row > aside li { margin-top: 10px; font: 500 20px/1.5 var(--text); color: var(--tint); }
+  .row > aside ul { padding-left: 22px; }
+  .row > aside b { color: #fff; font-weight: 600; }
+  .frame { position: relative; width: 940px; color: #fff; font-family: var(--text); }
+  .frame.pad { padding: 28px 0; }
+  .sw { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .sw div { font: 500 18px/1.35 var(--code); color: var(--tint); }
+  .sw i { display: block; height: 74px; border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.14); }
+  .sw b { display: block; font: 600 20px/1.2 var(--text); color: #fff; }
+  .kcode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+  .kcode div { border-top: 3px solid var(--kc); padding-top: 10px; }
+  .kcode b { display: block; font: 600 26px/1.2 var(--display); color: var(--kc); }
+  .kcode span { display: block; margin-top: 4px; font: 500 19px/1.4 var(--code); color: var(--tint); }
+  .type div { padding: 18px 0; border-top: 1px solid var(--grid); display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: baseline; }
+  .type small { font: 500 19px/1.4 var(--code); color: var(--soft); }
+  .t-serif { font: 600 58px/1.1 var(--serif); letter-spacing: -0.02em; }
+  .t-serif em { font-style: italic; color: var(--k1); }
+  .t-display { font: 700 52px/1.1 var(--display); }
+  .t-text { font: 500 24px/1.45 var(--text); color: var(--tint); }
+  .t-code { font: 500 26px/1.4 var(--code); color: var(--k1); }
+  .tex { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tex figure { margin: 0; }
+  .tex svg { display: block; width: 100%; height: 170px; border-radius: 12px; background: linear-gradient(180deg, var(--bg-1), var(--bg-2)); }
+  .tex figcaption { margin-top: 8px; font: 500 18px/1.4 var(--code); color: var(--soft); }
+  .paper { background: var(--paper); color: var(--ink); border-radius: 14px; padding: 36px 40px; }
+  .paper .lock { font: 600 64px/1.05 var(--serif); letter-spacing: -0.02em; color: var(--ink); }
+  .paper .lock em { font-style: italic; color: var(--cobalt); }
+  .paper .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
+  .paper .row3 div { border-top: 3px solid var(--kc); padding-top: 10px; }
+  .paper .row3 b { display: block; font: 600 24px/1.2 var(--display); color: var(--kc); }
+  .paper .row3 span { display: block; margin-top: 4px; font: 600 22px/1.3 var(--serif); color: var(--ink); }
+  .paper .p1 { --kc: var(--k1-on-paper); } .paper .p2 { --kc: var(--k2-on-paper); } .paper .p3 { --kc: var(--k3-on-paper); }
+  .apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .apps img { display: block; width: 100%; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18); }
+  .apps figcaption { margin-top: 8px; font: 500 18px/1.4 var(--code); color: var(--soft); }
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+  .rules li { list-style: none; padding: 12px 0; border-top: 1px solid var(--grid); font: 500 20px/1.45 var(--text); color: var(--tint); }
+  .rules li b { color: #fff; }
 </style>
 </head>
 <body>
 <main class="board">
+  <header>
+    <span class="badge"><img src="logo/logo-color.png" alt="Logo Viện Phương Nam"></span>
+    <h1>Brand kit v2 · <em>Data Lab</em></h1>
+    <p># Phân tích định lượng với R · 01/2027<br># chốt từ 3 poster Story, 02/10/2026</p>
+  </header>
 
-  <div class="top">
-    <img src="logo/logo-color.png" alt="Logo Viện Phương Nam">
-    <div>
-      <p class="label">Brand kit · Chuỗi khóa học 01/2027</p>
-      <h1>Phân tích định lượng với R</h1>
-    </div>
-    <p class="meta">Bản đầu, 02/10/2026<br>Chờ Viện Phương Nam duyệt</p>
-  </div>
-
-  <section>
-    <header><span class="label">01</span><h2>Logo</h2></header>
-    <div class="logos">
-      <div><div class="logo-cell clear"><img src="logo/logo-color.png" alt="Logo màu trên nền trắng"></div><p class="cap">Màu trên nền trắng. Nét đứt: vùng an toàn, bằng chiều cao chữ PHUONG NAM.</p></div>
-      <div><div class="logo-cell plate"><img src="logo/logo-color.png" alt="Logo màu trên nền plate"></div><p class="cap">Màu trên nền plate #f3f6fb.</p></div>
-      <div><div class="logo-cell cobalt"><img src="logo/logo-reverse-white-DRAFT.png" alt="Logo trắng trên nền cobalt"></div><p class="cap"><span class="draft">Nháp.</span> Trắng trên cobalt, chờ Viện xác nhận bản đơn sắc chính thức.</p></div>
-      <div><div class="logo-cell ink"><img src="logo/logo-reverse-white-DRAFT.png" alt="Logo trắng trên nền ink"></div><p class="cap"><span class="draft">Nháp.</span> Trắng trên ink #0d1b2a.</p></div>
-    </div>
-  </section>
-
-  <section>
-    <header><span class="label">02</span><h2>Màu</h2><p class="meta">Một mảng cobalt trên mỗi mặt. Đỏ chỉ cho hai mốc hạn.</p></header>
-    <div class="swatches">
-      <div class="sw"><div class="chip" style="background:var(--paper)"></div><b>Paper</b><span>#ffffff · nền chính</span></div>
-      <div class="sw"><div class="chip" style="background:var(--plate)"></div><b>Plate</b><span>#f3f6fb · nền phụ</span></div>
-      <div class="sw"><div class="chip" style="background:var(--ink)"></div><b>Ink</b><span>#0d1b2a · chữ, kẻ đậm · 17.39:1</span></div>
-      <div class="sw"><div class="chip" style="background:var(--ink-3)"></div><b>Ink 3</b><span>#566780 · nhãn · 5.76:1</span></div>
-      <div class="sw"><div class="chip" style="background:var(--cobalt)"></div><b>Cobalt</b><span>#0a3d91 · mảng nhận diện · trắng 10.05:1</span></div>
-      <div class="sw"><div class="chip" style="background:var(--signal)"></div><b>Signal</b><span>#c4231a · chỉ mốc hạn · 5.83:1</span></div>
-      <div class="sw"><div class="chip" style="background:var(--ink-2)"></div><b>Ink 2</b><span>#3a4a5f · chữ phụ</span></div>
-      <div class="sw"><div class="chip" style="background:var(--hair)"></div><b>Hair</b><span>#cbd4e1 · kẻ mảnh</span></div>
-      <div class="sw"><div class="chip" style="background:var(--field)"></div><b>Field</b><span>#7f93b0 · viền, không cho chữ</span></div>
-      <div class="sw"><div class="chip" style="background:var(--cobalt-deep)"></div><b>Cobalt deep</b><span>#072c6b</span></div>
-      <div class="sw"><div class="chip" style="background:var(--cobalt-wash)"></div><b>Cobalt wash</b><span>#eaf0fb · dòng làm nổi</span></div>
-      <div class="sw"><div class="chip" style="background:var(--cobalt-tint)"></div><b>Cobalt tint</b><span>#cfe0ff · chữ phụ trên cobalt</span></div>
-    </div>
-  </section>
-
-  <section>
-    <header><span class="label">03</span><h2>Chữ</h2></header>
-    <div class="type">
-      <div>
-        <p class="label">Chuỗi khóa học · 01/2027</p>
-        <p class="display">Phân tích định lượng với R<br><em>Từ cơ bản đến chuyên sâu</em></p>
-        <p style="max-width:62ch">Mỗi loại dữ liệu đòi hỏi một cách tiếp cận phân tích khác nhau: từ tổ chức, xử lý và phân tích dữ liệu thông thường; lượng hóa mối quan hệ giữa lợi ích và chi phí trong các quyết định y tế; đến nhận diện xu hướng, tính mùa vụ và dự báo đối với dữ liệu biến đổi theo thời gian.</p>
-        <p class="diacritics">Ữ ặ ộ ỹ ẫ ừ ợ · Đinh Tiên Hoàng · 8.800.000 đồng</p>
-      </div>
-      <div>
-        <div class="spec"><span class="label">Serif</span><span>Source Serif 4, 600 và nghiêng 600. Tiêu đề, con số, tên người.</span></div>
-        <div class="spec"><span class="label">Sans</span><span>Source Sans 3, 400, 600, 700. Đoạn văn, bảng, liên hệ, phụ đề.</span></div>
-        <div class="spec"><span class="label">Nhãn</span><span>Sans 700 in hoa, giãn 0.07em. Chỉ cho tên cột và nhãn mục.</span></div>
-        <div class="spec"><span class="label">Số</span><span>Chữ số đều trong bảng, lịch, học phí, điện thoại.</span></div>
-        <div class="spec"><span class="label">Cỡ in</span><span>A4: thân 11 pt. A3: 14 pt. Standee: 36 pt. Backdrop: 72 pt. Bảng đầy đủ trong design kit.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <header><span class="label">04</span><h2>Khối dùng chung</h2><p class="meta">Mã khối theo design-kit/README.md</p></header>
-    <div class="comp">
-      <div>
-        <p class="label">C · Lộ trình 3 khóa</p>
-        <table>
-          <thead><tr><th class="label">STT</th><th class="label">Tên khóa học</th><th class="label">Thời lượng</th><th class="label">Thời gian diễn ra</th></tr></thead>
-          <tbody>
-            <tr class="on"><td>1</td><td class="course">Phân tích dữ liệu với R cơ bản</td><td>03 ngày</td><td>Từ 08/01 đến 10/01/2027</td></tr>
-            <tr><td>2</td><td class="course">Phân tích chi phí - hiệu quả trong y tế</td><td>02 ngày</td><td>Ngày 12/01 và 13/01/2027</td></tr>
-            <tr><td>3</td><td class="course">Phân tích dữ liệu chuỗi thời gian</td><td>03 ngày</td><td>Từ 15/01 đến 17/01/2027</td></tr>
-          </tbody>
-        </table>
-
-        <div class="deadlines">
-          <p class="label">E · Mốc hạn</p>
-          <div><strong>08/12/2026</strong><span>Hoàn tất học phí trước ngày này: giảm 10%</span></div>
-          <div><strong>28/12/2026</strong><span>Hạn chót đăng ký và hoàn tất học phí</span></div>
-        </div>
-
-        <div class="faculty">
-          <div class="photo">Ảnh chính thức do Viện cung cấp</div>
-          <div>
-            <p class="label">D · Giảng viên</p>
-            <h3>GS.TS. Nguyễn Văn Tuấn</h3>
-            <p class="meta" style="margin:4px 0 0">Đại học Công nghệ Sydney (UTS) và Đại học New South Wales (UNSW Sydney). Hơn 35 năm kinh nghiệm nghiên cứu y khoa, tác giả và đồng tác giả hơn 350 bài báo khoa học.</p>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <p class="label">G · Mảng hình</p>
-        <figure class="plate">
-          <svg id="fig1" viewBox="0 0 480 320" role="img" aria-label="Biểu đồ hồi quy minh họa từ dữ liệu mô phỏng"></svg>
-          <figcaption><b>Hình 1.</b> Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu.</figcaption>
-        </figure>
-
-        <div class="contact">
-          <div>
-            <p class="label" style="color:var(--cobalt-tint)">F · Dải liên hệ</p>
-            <p>(028) 2242 6789 · 0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo)</p>
-            <p class="sub">45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh · www.vienphuongnam.com.vn</p>
-          </div>
-          <div class="qr">H · Ô QR<br>chờ chốt đích đến</div>
-        </div>
-
-        <div class="roles" aria-label="I · Dải vai trò trên thẻ đeo">
-          <div class="role r-learner">HỌC VIÊN</div>
-          <div class="role r-faculty">GIẢNG VIÊN</div>
-          <div class="role r-staff">BAN TỔ CHỨC</div>
+  <section class="row">
+    <div class="frame">
+      <div class="title" style="margin: 0">
+        <h1>Phân tích định lượng</h1>
+        <div class="row2">
+          <b>với</b>
+          <svg class="hex" viewBox="0 0 112 128" aria-label="R">
+            <polygon points="56,4 108,34 108,94 56,124 4,94 4,34" fill="rgba(90,216,255,0.16)" stroke="#5ad8ff" stroke-width="6" stroke-linejoin="round"/>
+            <text x="56" y="98" text-anchor="middle" fill="#fff" font-family="Oswald, sans-serif" font-weight="700" font-size="86">R</text>
+          </svg>
+          <span>từ cơ bản<br>đến chuyên sâu<em>GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch</em></span>
         </div>
       </div>
     </div>
+    <aside>
+      <h2># 01 Khối tiêu đề</h2>
+      <p>Source Serif 4 600, cụm nghiêng cyan, chữ R Oswald trong lục giác như sticker gói R. Tâm chữ R trùng tâm lục giác.</p>
+      <p>Bản rút gọn một dòng cho email, thẻ đeo, nền Zoom.</p>
+    </aside>
   </section>
 
-  <section>
-    <header><span class="label">05</span><h2>Quy tắc</h2></header>
-    <div class="rules">
-      <ul>
-        <li>Chữ lấy từ thông báo v4, chép trong content.md.</li>
-        <li>Đường kẻ đậm mở đầu khối, kẻ mảnh giữa dòng. Không khung hộp, không bóng đổ.</li>
-        <li>Biểu đồ luôn có chú thích "Dữ liệu minh họa, không phải kết quả nghiên cứu."</li>
-        <li>Bo góc 2 px. Gradient chỉ nằm trong logo.</li>
+  <section class="row">
+    <div class="frame">
+      <div class="sw">
+        <div><i style="background: var(--bg-0)"></i><b>bg-0</b>#061a4d</div>
+        <div><i style="background: var(--bg-1)"></i><b>bg-1</b>#0a2f7f</div>
+        <div><i style="background: var(--bg-2)"></i><b>bg-2</b>#0c3f9e</div>
+        <div><i style="background: var(--tint)"></i><b>tint</b>#cfe0ff · 7.1:1</div>
+        <div><i style="background: var(--soft)"></i><b>soft</b>#a8c4f0 · 5.3:1</div>
+      </div>
+      <div class="kcode">
+        <div class="k1"><b>K1 · #5ad8ff</b><span>chữ trên ô: #06205a<br>trên giấy: #0a6f9f</span></div>
+        <div class="k2"><b>K2 · #3f86ff</b><span>chữ trên nền tối: #8fb8ff<br>trên giấy: #1f5fcf</span></div>
+        <div class="k3"><b>K3 · #c3dbff</b><span>chữ trên ô: #06205a<br>trên giấy: #4a6596</span></div>
+      </div>
+      <p style="margin-top: 22px"><span class="dl"><span class="pill" style="margin: 0; font-size: 40px">28/12/2026</span></span>
+        <span style="margin-left: 16px; font: 500 20px/1.4 var(--code); color: var(--soft)">signal #c4231a: chỉ ngày hạn chót</span></p>
+    </div>
+    <aside>
+      <h2># 02 Màu</h2>
+      <p>Nền gradient xanh đậm và hai vệt sáng lấy từ gradient trong logo.</p>
+      <p><b>K1, K2, K3</b> là mã màu khóa học, dùng chung cho mọi biểu đồ và không dùng cho việc khác.</p>
+      <p>Tương phản đo trên ảnh render.</p>
+    </aside>
+  </section>
+
+  <section class="row">
+    <div class="frame type">
+      <div><small>Source Serif 4<br>tiêu đề, tên khóa</small><p class="t-serif">Phân tích dữ liệu <em>chuỗi thời gian</em></p></div>
+      <div><small>Oswald<br>số, nhãn, tên gói</small><p class="t-display">GÓI 1 · 8.800.000đ · 08–10/01</p></div>
+      <div><small>Montserrat<br>chữ thân</small><p class="t-text">Hoàn tất học phí theo nhóm từ 3 người, cùng 1 gói: giảm 5%. Ữ ặ ộ ỹ ẫ ừ ợ.</p></div>
+      <div><small>JetBrains Mono<br>comment R, code</small><p class="t-code"># Ưu đãi học phí · lm(y ~ x)</p></div>
+    </div>
+    <aside>
+      <h2># 03 Chữ</h2>
+      <p>Bốn font, mỗi font một vai. Cả bốn có bộ dấu tiếng Việt.</p>
+      <p>Ở khổ 1080 px: tiêu đề 112, cụm nghiêng 48, số 40 đến 44, chữ thân 22 đến 25; không dưới 22.</p>
+    </aside>
+  </section>
+
+  <section class="row">
+    <div class="frame">
+      <div class="route"><svg id="route" viewBox="0 0 940 124" aria-hidden="true"></svg>
+        <div class="cols">
+          <div><b class="c1">Khóa 1 · 08–10/01</b><span>Phân tích dữ liệu với R cơ bản</span></div>
+          <div><b class="c2">Khóa 2 · 12–13/01</b><span>Phân tích chi phí - hiệu quả trong y tế</span></div>
+          <div><b class="c3">Khóa 3 · 15–17/01</b><span>Phân tích dữ liệu chuỗi thời gian</span></div>
+        </div>
+      </div>
+      <div class="bars-wrap" style="margin-top: 34px">
+        <div class="bar"><span class="pk">Gói 1</span><span class="track"><i class="seg s1">K1</i><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">08 ngày</span><b class="fee">8.800.000<small>đ</small></b></div>
+        <div class="bar"><span class="pk">Gói 4</span><span class="track"><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">05 ngày</span><b class="fee">6.700.000<small>đ</small></b></div>
+      </div>
+      <ul class="deals" style="margin-top: 26px">
+        <li><span class="node n10">10%</span><p>Hoàn tất học phí trước <em>08/12/2026</em><small>Áp dụng cho cả 6 gói</small></p></li>
+        <li><span class="node n15">10–15%</span><p><em>Học viên cũ</em> các khóa của GS. Nguyễn Văn Tuấn tại Viện<small>Diện tích nút theo mức giảm; vòng nét đứt là phần cộng thêm.</small></p></li>
       </ul>
-      <ul>
-        <li>Không ảnh stock, ảnh AI, minh họa nhân vật; chưa có ảnh thật thì để khung chờ.</li>
-        <li>Không số học viên, cảm nhận, kết quả khóa trước; không quà tặng sách.</li>
-        <li>Không mã khóa nội bộ, không tự điền số thông báo.</li>
-        <li>Không dùng đỏ ngoài hai mốc 08/12/2026 và 28/12/2026.</li>
-      </ul>
+      <div class="time wide" style="margin-top: 26px">
+        <div class="line"></div><span class="brk" style="left: 664px"></span>
+        <div class="mk" style="left: 110px"><span class="ev">Hạn ưu đãi 10%</span><span class="dt">08/12/2026</span></div>
+        <div class="mk hot" style="left: 440px"><span class="ev">Hạn chót đăng ký và hoàn tất học phí</span><span class="dt">28/12/2026</span></div>
+        <div class="mk k3" style="left: 830px"><span class="ev">Khai giảng</span><span class="dt">08/01/2027</span></div>
+      </div>
     </div>
+    <aside>
+      <h2># 04 Hệ biểu đồ</h2>
+      <p>Thông tin được vẽ thành loại biểu đồ mà khóa học dạy, ngay trên nền, không đặt trong hộp.</p>
+      <ul>
+        <li><b>Lộ trình</b>: đường hồi quy, 3 điểm mốc</li>
+        <li><b>Gói</b>: cột chồng, đoạn = khóa, dài = số ngày</li>
+        <li><b>Ưu đãi</b>: nút, diện tích = mức giảm</li>
+        <li><b>Mốc</b>: trục thời gian có ngắt</li>
+      </ul>
+    </aside>
   </section>
 
+  <section class="row">
+    <div class="frame">
+      <div class="gantt">
+        <div class="days">
+          <span><small>T6</small><b>08</b></span><span><small>T7</small><b>09</b></span><span><small>CN</small><b>10</b></span><span class="off"><small>T2</small><b>11</b></span>
+          <span><small>T3</small><b>12</b></span><span><small>T4</small><b>13</b></span><span class="off"><small>T5</small><b>14</b></span>
+          <span><small>T6</small><b>15</b></span><span><small>T7</small><b>16</b></span><span><small>CN</small><b>17</b></span>
+        </div>
+        <div class="lane"><i class="g k1" style="grid-column: 1 / 4">Khóa 1 · 6 buổi</i><i class="g k2" style="grid-column: 5 / 7">Khóa 2 · 4 buổi</i><i class="g k3" style="grid-column: 8 / 11">Khóa 3 · 6 buổi</i></div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 180px); gap: 40px; margin-top: 30px">
+        <svg class="mini" id="m1" style="width: 180px; height: 120px"></svg>
+        <svg class="mini" id="m2" style="width: 180px; height: 120px"></svg>
+        <svg class="mini" id="m3" style="width: 180px; height: 120px"></svg>
+      </div>
+    </div>
+    <aside>
+      <h2># 05 Lịch và hình nhỏ</h2>
+      <p>Lịch Gantt theo ngày; ngày không có buổi học dùng <b>quiet #9fb4da</b>.</p>
+      <p>Hình nhỏ theo khóa: hồi quy (K1), mặt phẳng chi phí - hiệu quả (K2), dự báo chuỗi thời gian (K3).</p>
+    </aside>
+  </section>
+
+  <section class="row">
+    <div class="frame">
+      <div class="tex">
+        <figure><svg viewBox="0 0 300 170"><defs><pattern id="d1" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="9" cy="9" r="1.4" fill="#cfe0ff"/></pattern></defs><rect width="300" height="170" fill="url(#d1)" opacity=".45"/></svg><figcaption>lưới chấm · 30%, mờ dần</figcaption></figure>
+        <figure><svg viewBox="0 0 300 170"><g fill="none" stroke="#cfe0ff" stroke-width="2.5" opacity=".35"><polygon points="150,18 202,48 202,108 150,138 98,108 98,48"/><polygon points="254,48 306,78 306,138 254,168 202,138 202,78"/><polygon points="46,48 98,78 98,138 46,168 -6,138 -6,78"/></g><polygon points="150,18 202,48 202,108 150,138 98,108 98,48" fill="#5ad8ff" opacity=".12"/></svg><figcaption>lục giác · sticker gói R</figcaption></figure>
+        <figure><svg viewBox="0 0 300 170"><g font-family="JetBrains Mono, monospace" font-size="15" fill="#5ad8ff" opacity=".7"><text x="16" y="44">library(ggplot2)</text><text x="16" y="72">t.test(y ~ nhom)</text><text x="16" y="100">fit &lt;- auto.arima(y)</text><text x="16" y="128">forecast(fit, h = 12)</text></g></svg><figcaption>code R · chỉ hàm có trong outline</figcaption></figure>
+      </div>
+    </div>
+    <aside>
+      <h2># 06 Nền</h2>
+      <p>Chất liệu chỉ ở lề và vùng trống, không đặt sau chữ nhỏ. Trên ấn phẩm, các lớp này mờ hơn mẫu ở đây.</p>
+    </aside>
+  </section>
+
+  <section class="row">
+    <div class="frame">
+      <div class="paper">
+        <p class="lock">Phân tích định lượng với R, <em>từ cơ bản đến chuyên sâu</em></p>
+        <div class="row3">
+          <div class="p1"><b>Khóa 1 · #0a6f9f</b><span>Phân tích dữ liệu với R cơ bản</span></div>
+          <div class="p2"><b>Khóa 2 · #1f5fcf</b><span>Phân tích chi phí - hiệu quả trong y tế</span></div>
+          <div class="p3"><b>Khóa 3 · #4a6596</b><span>Phân tích dữ liệu chuỗi thời gian</span></div>
+        </div>
+      </div>
+    </div>
+    <aside>
+      <h2># 07 Nền sáng</h2>
+      <p>Cho giấy chứng nhận và tài liệu in. Cùng font, cùng mã khóa đậm hơn để đọc trên giấy; bảng màu trùng landing page.</p>
+    </aside>
+  </section>
+
+  <section class="row">
+    <div class="frame">
+      <div class="apps">
+        <figure><img src="../poster/export/story-khoa-goi-uu-dai.png" alt="Poster Story tổng hợp"><figcaption>ST1 · tổng hợp</figcaption></figure>
+        <figure><img src="../poster/export/story-khoa-hoc-lich-hoc.png" alt="Poster Story khóa học"><figcaption>ST2 · khóa, lịch, hình thức</figcaption></figure>
+        <figure><img src="../poster/export/story-goi-hoc-phi-uu-dai.png" alt="Poster Story học phí"><figcaption>ST3 · gói, học phí, ưu đãi</figcaption></figure>
+      </div>
+      <ul class="rules" style="margin-top: 26px">
+        <li><b>Nên</b> vẽ thông tin thành biểu đồ trên nền</li><li><b>Không</b> đặt hộp trắng chứa chữ lên nền trang trí</li>
+        <li><b>Nên</b> dùng một mã màu K cho mọi biểu đồ</li><li><b>Không</b> dùng đỏ ngoài ngày hạn chót</li>
+        <li><b>Nên</b> căn lề 70 px, cột dữ liệu từ 186 px</li><li><b>Không</b> in giờ học, số thông báo, số tài khoản</li>
+      </ul>
+    </div>
+    <aside>
+      <h2># 08 Ứng dụng đã chốt</h2>
+      <p>Ba poster Story 1080×1920 là mẫu gốc của hệ. Mọi ấn phẩm khác lắp từ cùng các khối này (xem design kit).</p>
+    </aside>
+  </section>
 </main>
+<script src="../poster/ads/story.js"></script>
 <script>
-  // Seeded data so the board renders the same figure every time, like dist/app.js.
-  (function () {
-    var seed = 20270108;
-    function rand() { seed |= 0; seed = seed + 0x6d2b79f5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
-    function gauss() { return Math.sqrt(-2 * Math.log(rand() || 1e-9)) * Math.cos(2 * Math.PI * rand()); }
-    var n = 48, xs = [], ys = [];
-    for (var i = 0; i < n; i++) { var x = rand() * 10; xs.push(x); ys.push(2 + 0.6 * x + gauss() * 1.1); }
-    var mx = xs.reduce(function (a, b) { return a + b; }) / n, my = ys.reduce(function (a, b) { return a + b; }) / n;
-    var sxx = 0, sxy = 0; for (i = 0; i < n; i++) { sxx += (xs[i] - mx) * (xs[i] - mx); sxy += (xs[i] - mx) * (ys[i] - my); }
-    var b = sxy / sxx, a = my - b * mx, sse = 0;
-    for (i = 0; i < n; i++) { var r = ys[i] - a - b * xs[i]; sse += r * r; }
-    var s = Math.sqrt(sse / (n - 2));
-    var L = 44, R = 464, T = 16, B = 284;
-    function px(x) { return L + x / 10 * (R - L); }
-    function py(y) { return B - y / 10 * (B - T); }
-    var svg = '';
-    for (var g = 0; g <= 10; g += 2.5) svg += '<line x1="' + L + '" x2="' + R + '" y1="' + py(g) + '" y2="' + py(g) + '" stroke="#cfe0ff" stroke-opacity=".25"/>';
-    var up = [], lo = [];
-    for (var k = 0; k <= 20; k++) {
-      var xx = k / 2, se = s * Math.sqrt(1 / n + (xx - mx) * (xx - mx) / sxx) * 2.01, yy = a + b * xx;
-      up.push(px(xx) + ',' + py(yy + se)); lo.unshift(px(xx) + ',' + py(yy - se));
-    }
-    svg += '<polygon points="' + up.concat(lo).join(' ') + '" fill="#ffffff" fill-opacity=".18"/>';
-    for (i = 0; i < n; i++) svg += '<circle cx="' + px(xs[i]).toFixed(1) + '" cy="' + py(ys[i]).toFixed(1) + '" r="4" fill="#ffffff" fill-opacity=".85"/>';
-    svg += '<line x1="' + px(0) + '" y1="' + py(a) + '" x2="' + px(10) + '" y2="' + py(a + 10 * b) + '" stroke="#ffffff" stroke-width="2.6"/>';
-    svg += '<line x1="' + L + '" x2="' + R + '" y1="' + B + '" y2="' + B + '" stroke="#ffffff"/><line x1="' + L + '" x2="' + L + '" y1="' + T + '" y2="' + B + '" stroke="#ffffff"/>';
-    svg += '<text x="' + R + '" y="' + (B + 28) + '" text-anchor="end" fill="#cfe0ff" font-size="15" font-family="Source Sans 3, sans-serif">Biến giải thích (x)</text>';
-    svg += '<text x="' + (L - 30) + '" y="' + (T + 6) + '" fill="#cfe0ff" font-size="15" font-family="Source Sans 3, sans-serif" transform="rotate(-90 ' + (L - 30) + ' ' + (T + 6) + ')" text-anchor="end">Kết cục (y)</text>';
-    document.getElementById('fig1').innerHTML = svg;
-  })();
+  VPN.route("route");
+  VPN.mini("m1", "reg", "#5ad8ff");
+  VPN.mini("m2", "cea", "#3f86ff");
+  VPN.mini("m3", "ts", "#c3dbff");
 </script>
 </body>
 </html>

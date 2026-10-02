@@ -1,96 +1,156 @@
-# Brand kit: Phân tích định lượng với R (01/2027)
+# Brand kit v2: Phân tích định lượng với R (01/2027)
 
-Bộ nhận diện cho mọi sản phẩm truyền thông của chuỗi khóa học. Kế thừa hệ thiết kế của landing page (`DESIGN.md`, ý tưởng "The Manuscript": trang bản thảo tạp chí khoa học) và chuyển sang in ấn, video, email.
+Phiên bản 2, ngày 02/10/2026. Rút ra từ bộ 3 poster Story đã chốt (`media/poster/export/story-*.png`) và áp dụng cho mọi ấn phẩm còn lại. Bản v1 ("The Manuscript", nền trắng) vẫn là hệ của landing page (`DESIGN.md`) và trở thành **chế độ nền sáng** của bộ này.
 
 | File | Nội dung |
 |---|---|
-| `README.md` | Quy tắc logo, màu, chữ, giọng văn |
-| `content.md` | Chữ chuẩn lấy từ thông báo v4: ngày, khóa, gói, học phí, ưu đãi, liên hệ |
-| `tokens.css` | Biến màu, font, cỡ chữ in cho template HTML và Claude Design |
-| `brand-board.html` | Bảng nhận diện một trang để duyệt và để nạp vào Claude Design |
-| `logo/logo-color.png` | Logo màu, đã cắt sát, nền trong suốt, 2000 px |
-| `logo/logo-reverse-white-DRAFT.png` | Logo trắng cho nền cobalt hoặc ink. **Bản nháp tự dựng, chờ Viện duyệt** |
+| `README.md` | Phân tích, quy tắc logo, màu, chữ, khối tiêu đề, hệ biểu đồ, nền, biểu tượng, giọng văn |
+| `tokens.css` | Nguồn duy nhất cho màu, font, lưới; `media/poster/ads/story.css` import file này |
+| `content.md` | Chữ chuẩn: thông báo v4 và outline đã duyệt |
+| `brand-board.html` | Bảng nhận diện dựng từ chính các thành phần của poster; ảnh xem nhanh `export/brand-board.png` |
+| `logo/logo-color.png` | Logo màu, cắt sát, nền trong suốt |
+| `logo/logo-reverse-white-DRAFT.png` | Logo trắng, bản nháp tự dựng; poster đã chốt dùng logo màu trong khung tròn trắng thay cho bản này |
 
-Logo gốc: `assets/Logo VPN.png` (4501 px, nền trong suốt) và `assets/Logo VPN - Nền trắng.png`.
+## 1. Phân tích bộ poster đã chốt
 
-## 1. Ý tưởng
+Mỗi vòng góp ý để lại một quy tắc. Các quy tắc dưới đây là những gì bộ poster đã chốt thể hiện, không phải sở thích mới.
 
-Mỗi sản phẩm trông như một trang trong bài báo khoa học: chữ có chân cho tiêu đề và con số, đường kẻ thay cho khung hộp, hình có chú thích đánh số. Hình ảnh chủ đạo là biểu đồ học viên sẽ tự làm được sau khóa học (đường hồi quy với dải tin cậy, mặt phẳng chi phí - hiệu quả, chuỗi thời gian có dự báo), không phải ảnh stock.
+| Góp ý trong quá trình làm | Quy tắc rút ra |
+|---|---|
+| "Nền và các ô thông tin đè lên nhau" | Không đặt hộp trắng lên nền. Thông tin được vẽ thành biểu đồ ngay trên nền (đồ thị lộ trình, cột gói, nút ưu đãi, trục thời gian). |
+| "Thiếu khoa học, công nghệ, nghiên cứu, ngôn ngữ R, mô hình đồ thị" | Hình ảnh chính là loại biểu đồ mà khóa học dạy; nhãn mục viết như comment R (`# 6 gói đăng ký`); chữ R đặt trong lục giác như sticker gói R; nền có lưới chấm, cụm lục giác, dòng code R. |
+| "Phần trên và dưới còn trống" (so với poster đã duyệt của Viện) | Dải đầu có logo và tên Viện; dải chân trắng có icon điện thoại, địa chỉ, website; nội dung kín khung. |
+| "Dùng font uyển chuyển như landing page" | Tiêu đề Source Serif 4, cụm "từ cơ bản đến chuyên sâu" in nghiêng; con số và nhãn dùng Oswald. |
+| "Bỏ thông tin thừa" | Không chú thích cách đọc biểu đồ trên ấn phẩm quảng cáo; mỗi biểu đồ tự giải thích bằng nhãn. |
+| "Logo bị cắt, chữ R hơi cao, icon lệch" | Logo nằm gọn trong khung tròn (64/100); chữ R đặt theo chiều cao chữ hoa thật; icon căn giữa vòng tròn. Kiểm tra bằng ảnh render, không bằng mắt trên code. |
 
-Ba nguyên tắc từ landing page giữ nguyên khi in:
-1. **Thông báo là sự thật.** Chữ lấy từ `content.md`.
-2. **Một mảng cobalt trên mỗi mặt.** Cobalt là mảng nền chứa bằng chứng (biểu đồ, khối thông tin chính), không dùng làm viền trang trí.
-3. **Đỏ là chỉ dẫn.** Màu đỏ signal chỉ dành cho hai mốc 08/12/2026 và 28/12/2026.
+## 2. Hai chế độ
 
-## 2. Logo
-
-- Dùng bản đầy đủ (dấu PN có mũ tốt nghiệp + PHUONG NAM INSTITUTE). Không tách chữ khỏi dấu, không xoay, không đổi màu gradient, không thêm bóng hay viền.
-- Gradient xanh trong logo là nhận diện sẵn có của Viện, được phép tồn tại **chỉ trong logo**. Bố cục xung quanh không lặp lại gradient đó.
-- Nền cho logo màu: trắng (`--paper`) hoặc plate tint (`--plate`). Trên nền cobalt hoặc ink dùng bản trắng; bản trắng hiện là nháp, cần Viện xác nhận có bản đơn sắc chính thức hay không.
-- Vùng an toàn: khoảng trống mỗi cạnh tối thiểu bằng chiều cao chữ "PHUONG NAM" trong logo (khoảng 1/10 chiều rộng logo).
-- Cỡ tối thiểu: in 25 mm chiều rộng; màn hình 120 px chiều rộng. Nhỏ hơn thì chữ INSTITUTE không đọc được.
-- Đi kèm logo trên sản phẩm trang trọng (giấy chứng nhận, bìa tài liệu): dòng cơ quan chủ quản và tên đầy đủ của Viện, xem `content.md`.
-- Khổ lớn (standee, backdrop): file PNG 4501 px đủ cho logo rộng tới khoảng 38 cm ở 300 dpi, 76 cm ở 150 dpi. Lớn hơn cần file vector (AI, SVG hoặc PDF) từ Viện.
-
-## 3. Màu
-
-Giá trị RGB lấy từ `DESIGN.md`. Tỷ lệ tương phản đo bằng `contrast-check.py` của antislop.
-
-| Token | HEX | Vai trò | Cặp chữ/nền đã đo |
-|---|---|---|---|
-| `paper` | #ffffff | Nền chính | ink trên paper 17.39:1 |
-| `plate` | #f3f6fb | Nền phụ xen kẽ | ink-3 trên plate 5.31:1 |
-| `ink` | #0d1b2a | Chữ, đường kẻ đậm, mảng nền tối (dải chân trang, nền video) | paper trên ink 17.39:1 |
-| `ink-2` | #3a4a5f | Chữ phụ | trên plate 8.34:1 |
-| `ink-3` | #566780 | Nhãn, chú thích | trên paper 5.76:1 |
-| `hair` | #cbd4e1 | Đường kẻ mảnh giữa các dòng | chỉ là đường, không dùng cho chữ |
-| `field` | #7f93b0 | Viền ô, viền khung chờ ảnh | 3.13:1, không dùng cho chữ |
-| `cobalt` | #0a3d91 | Mảng nhận diện duy nhất | paper trên cobalt 10.05:1; cobalt-tint trên cobalt 7.54:1 |
-| `cobalt-deep` | #072c6b | Chữ trên nút sáng đặt trên nền cobalt | |
-| `cobalt-wash` | #eaf0fb | Nền ô được chọn, dòng làm nổi trong bảng | |
-| `cobalt-tint` | #cfe0ff | Chữ phụ trên nền cobalt | |
-| `signal` | #c4231a | Hai mốc hạn | trên paper 5.83:1 |
-
-In ấn: chưa có thông số CMYK hay Pantone chính thức. Gửi nhà in giá trị HEX, nhờ họ chuyển theo profile máy in và **in thử một bông màu cobalt và signal** trước khi in hàng loạt. Cobalt dễ bị in ra tím hoặc xỉn trên hiflex (backdrop) và decal; duyệt bông màu theo từng chất liệu.
-
-Không dùng: gradient trang trí, nền cyan của logo làm mảng lớn, màu tím, màu neon, đỏ cho trang trí hay cho tiêu đề.
-
-## 4. Chữ
-
-| Vai trò | Font | Dùng cho |
+| | Nền tối "Data Lab" | Nền sáng "Paper" |
 |---|---|---|
-| Serif | Source Serif 4 (600, nghiêng 600 cho cụm nhấn) | Tên chuỗi khóa, tiêu đề, con số (ngày, học phí), tên giảng viên, tên học viên trên giấy chứng nhận |
-| Sans | Source Sans 3 (400, 600, 700) | Đoạn văn, nhãn, bảng, thông tin liên hệ, phụ đề video |
+| Dùng cho | Quảng cáo, poster, standee, backdrop, video, email, nền Zoom, thẻ đeo, bìa tài liệu | Giấy chứng nhận, trang trong tài liệu, văn bản in, landing page |
+| Nền | Gradient xanh đậm `--bg-0` → `--bg-2`, hai vệt sáng, lưới chấm, lục giác, code R | Trắng `--paper`, nền phụ `--plate`, lưới chấm rất nhạt ở góc |
+| Chữ chính | Trắng | Ink `--ink` |
+| Mã màu khóa | `--k1` `--k2` `--k3` | `--k1-on-paper` `--k2-on-paper` `--k3-on-paper` |
+| Logo | Logo màu trong khung tròn trắng | Logo màu trực tiếp trên giấy |
 
-Cả hai font miễn phí (giấy phép SIL OFL), có đủ dấu tiếng Việt, tải từ Google Fonts. Gửi nhà in file PDF đã nhúng font hoặc chuyển chữ thành đường nét (outline).
+Cùng một bộ font, cùng khối tiêu đề, cùng từ vựng biểu đồ. Không trộn hai chế độ trên một mặt.
 
-Quy tắc:
-- Số dùng dạng chữ số đều (tabular) trong bảng và lịch.
-- Nhãn in hoa (sans 700, giãn 0.07em) chỉ cho tên cột bảng và nhãn mục. Không in hoa cả đoạn.
-- Cụm nhấn trong tiêu đề: serif nghiêng, màu cobalt (trên nền trắng) hoặc cobalt-tint (trên nền cobalt).
-- Kiểm tra dấu: "ữ, ặ, ộ, ỹ" phải đúng font, không rơi về font dự phòng.
-- Cỡ chữ theo khổ: xem `../design-kit/README.md`.
+## 3. Logo
 
-## 5. Giọng văn
+- Nền tối: logo màu đặt trong khung tròn trắng; logo rộng 64% đường kính để cả khối chữ PHUONG NAM INSTITUTE nằm gọn trong vòng tròn. Viền ngoài khung: 5 px cyan 28% (ở khổ 1080 px).
+- Nền sáng: logo màu đặt trực tiếp, không khung.
+- Vùng an toàn: tối thiểu bằng chiều cao chữ "PHUONG NAM" mỗi cạnh.
+- Cỡ tối thiểu: khung tròn 100 px ở khổ 1080 px; in 25 mm chiều rộng logo.
+- Không: kéo giãn, xoay, đổi màu gradient, đặt logo màu trực tiếp lên nền xanh đậm, thêm bóng đổ.
+- Bản logo trắng trong `logo/` là nháp tự dựng; chưa dùng trên ấn phẩm nào.
 
-Viết như chú thích hình trong bài báo: rõ, có số, chính xác.
+## 4. Màu
+
+Đo trên ảnh render thật (nền tối nhiều lớp làm công cụ dò tự động tính sai, nên mọi số dưới đây lấy từ pixel).
+
+**Nền tối**
+
+| Token | HEX | Dùng cho | Tương phản |
+|---|---|---|---|
+| `--bg-0` / `--bg-1` / `--bg-2` | #061a4d / #0a2f7f / #0c3f9e | Nền gradient từ trên xuống | |
+| `--light-a`, `--light-b` | #1673e3 ở 42% và 28% | Hai vệt sáng tròn | |
+| trắng | #ffffff | Tiêu đề, số, chữ chính | 9.46:1 trở lên |
+| `--tint` | #cfe0ff | Chữ phụ | 7.10:1 trở lên |
+| `--soft` | #a8c4f0 | Chữ phụ thứ ba, phần mờ của comment R | 5.3:1 trở lên |
+| `--quiet` | #9fb4da | Ngày không có buổi học trên lịch | 4.51:1 trở lên |
+| `--grid` | trắng 9% | Đường lưới biểu đồ | |
+| `--signal` | #c4231a | Chỉ ngày hạn chót, trên pill trắng | 5.83:1 |
+
+**Mã màu khóa** (dùng chung cho mọi biểu đồ; không dùng cho việc khác)
+
+| Khóa | Nền tối | Chữ trên nền tối | Chữ trên ô màu | Nền sáng (chữ) |
+|---|---|---|---|---|
+| K1 · R cơ bản | `--k1` #5ad8ff | #5ad8ff (5.7:1) | `--ink-dark` #06205a (9.33:1) | `--k1-on-paper` #0a6f9f (5.54:1) |
+| K2 · Chi phí - hiệu quả | `--k2` #3f86ff | `--k2-text` #8fb8ff (4.71:1) | `--ink-k2` #041a4a (4.85:1) | `--k2-on-paper` #1f5fcf (5.84:1) |
+| K3 · Chuỗi thời gian | `--k3` #c3dbff | #c3dbff (6.7:1) | `--ink-dark` #06205a (10.94:1) | `--k3-on-paper` #4a6596 (5.84:1) |
+
+**Nền sáng**: trùng bảng màu landing page (`DESIGN.md`): paper, plate, ink, ink-2, ink-3, hair, cobalt.
+
+Không dùng: tím, neon, đỏ ngoài ngày hạn chót, gradient trên chữ, màu K cho thứ không phải khóa học.
+
+## 5. Chữ
+
+| Font | Vai trò | Kiểu dùng |
+|---|---|---|
+| **Source Serif 4** | Tiêu đề chuỗi, cụm in nghiêng "từ cơ bản đến chuyên sâu", tên khóa, tên người trên giấy chứng nhận | 600; nghiêng 600 cho cụm nhấn; giãn -0.02em ở cỡ lớn |
+| **Oswald** | Con số (ngày, học phí), nhãn khóa K1/K2/K3, tên gói, tên Viện ở dải đầu, chữ R trong lục giác | 500 đến 700; in hoa cho tên Viện và tên gói |
+| **Montserrat** | Chữ thân, điều kiện ưu đãi, liên hệ, chú thích | 500, 600, 700 |
+| **JetBrains Mono** | Nhãn mục dạng comment R, dòng code R trên nền | 500; luôn bắt đầu bằng `# ` |
+
+Cả bốn font có bộ dấu tiếng Việt và tải từ Google Fonts (giấy phép OFL). File in: nhúng font hoặc chuyển chữ thành nét.
+
+Cỡ chữ ở khổ chuẩn 1080 px: tiêu đề 112 px, cụm nghiêng 48, số học phí 40 đến 44, nhãn mục 25, chữ thân 22 đến 25; không chữ nào dưới 22 px. Khổ khác: xem `../design-kit/README.md` mục 3.
+
+## 6. Khối tiêu đề
+
+Cấu trúc cố định, dùng trên mọi ấn phẩm nền tối:
+
+```
+Phân tích định lượng                         (Source Serif 4 600, cỡ T)
+với  [R trong lục giác]  từ cơ bản           (serif 600 cỡ T; lục giác cao 1.14T; nghiêng 0.43T, cyan)
+                         đến chuyên sâu
+                         GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch   (Montserrat 600, 0.2T)
+```
+
+- Lục giác đỉnh nhọn trên dưới (như sticker gói R), viền cyan dày 6/128 chiều cao, nền cyan 16%, glow nhẹ; chữ R Oswald 700 trắng, tâm chữ hoa trùng tâm lục giác.
+- Bản rút gọn cho khổ thấp (email, thẻ đeo, nền Zoom): một dòng "Phân tích định lượng với [R]", bỏ dòng giảng viên.
+- Nền sáng: chữ ink, cụm nghiêng `--cobalt`, lục giác viền cobalt nền cobalt-wash.
+
+## 7. Hệ biểu đồ
+
+Biểu đồ là hình ảnh chính, thay cho ảnh minh họa. Mỗi biểu đồ chở một thông tin thật:
+
+| Biểu đồ | Thông tin | Nguồn số liệu |
+|---|---|---|
+| Đường hồi quy đi lên, 3 điểm mốc | Lộ trình 3 khóa và ngày học | Ngày từ thông báo; điểm nền là dữ liệu mô phỏng |
+| Cột chồng nằm ngang | 6 gói: khóa nào, bao nhiêu ngày, học phí | Thông báo v4 |
+| Đồ thị nút | 3 ưu đãi; diện tích nút theo mức giảm | Thông báo v4 |
+| Trục thời gian có ngắt | 08/12/2026, 28/12/2026, 08/01/2027 | Thông báo v4 |
+| Lịch Gantt | Ngày và số buổi từng khóa | Thông báo v4, outline |
+| Hình nhỏ theo khóa | Hồi quy (K1), mặt phẳng chi phí - hiệu quả (K2), dự báo (K3) | Dữ liệu mô phỏng |
+
+- Dữ liệu mô phỏng chỉ làm nền hình, không bao giờ mang con số như kết quả nghiên cứu.
+- Trên ấn phẩm quảng cáo không ghi chú thích "dữ liệu minh họa" (quyết định của Viện ngày 02/10/2026). Tài liệu học thuật và in ấn dùng hình làm minh họa nội dung thì ghi lại chú thích này.
+- Mỗi biểu đồ dùng đúng màu K của khóa; điểm nền màu `--tint` 70%.
+
+## 8. Nền và chất liệu (chế độ nền tối)
+
+| Lớp | Thông số ở khổ 1080 px | Mục đích |
+|---|---|---|
+| Gradient | `--bg-0` 0% → `--bg-1` 42% → `--bg-2` 100%, từ trên xuống | Mặt nền |
+| Vệt sáng | 620×520 px tại 82% 30%; 520×420 px tại 10% 72% | Chiều sâu, giống ánh sáng trên poster đã duyệt |
+| Lưới chấm | chấm 1.7 px cách 36 px, `--tint`, 30%, mờ dần từ góc trên phải và góc dưới trái | Giấy vẽ đồ thị |
+| Cụm lục giác | 5 lục giác viền `--tint` 13%, 1 lục giác nền cyan 7%, góc trên phải | Hệ sinh thái gói R |
+| Dòng code R | JetBrains Mono 19 px, cyan 34%, chạy dọc hai lề | Ngôn ngữ R; chỉ dùng hàm và gói có trong outline |
+
+Chất liệu chỉ nằm ở lề và vùng trống; không đặt sau chữ nhỏ. Trên khổ in lớn, tăng độ đậm lưới chấm lên 45% vì mực in làm chấm nhạt đi.
+
+## 9. Biểu tượng
+
+- Nét 2 px trong ô 24×24, đầu nét tròn, màu trắng, đặt giữa vòng tròn 64 px viền cyan (thông tin) hoặc vòng tròn đặc navy 46 px (dải chân).
+- Bộ đang dùng: lịch, màn hình có người (học trực tuyến), ghim địa điểm, điện thoại, quả địa cầu, dấu code `</>`, tiền (nộp học phí).
+- Không dùng icon trang trí kiểu tia sét, ngôi sao, robot.
+
+## 10. Giọng văn và nội dung
+
+- Mọi ngày, học phí, điều kiện ưu đãi, liên hệ lấy từ `content.md`.
+- Nhãn mục viết như comment R: `# 3 khóa học: từ nền tảng đến chuyên sâu`, `# Ưu đãi học phí`.
+- Câu ngắn, có số, không dùng gạch dài (em dash), không dùng từ quảng cáo rỗng ("đột phá", "hàng đầu", "cơ hội vàng").
+- Không in: giờ học hằng ngày (chưa có nguồn), số thông báo, số tài khoản trên ấn phẩm công khai, số học viên, cảm nhận học viên, ảnh stock.
+
+## 11. Nên và không nên
 
 | Nên | Không nên |
 |---|---|
-| "Từ 08/01 đến 17/01/2027, học trực tiếp tại TP. Hồ Chí Minh hoặc qua Zoom" | "Cơ hội vàng không thể bỏ lỡ" |
-| "Hoàn tất học phí trước 08/12/2026: giảm 10%" | "Ưu đãi cực sốc, số lượng có hạn" (không có nguồn về giới hạn chỗ) |
-| "Do GS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy" | "Chuyên gia hàng đầu thế giới" (thông báo không dùng cụm này) |
-| "Không cần biết lập trình trước" (đã duyệt trong kế hoạch quảng cáo) | "Thành thạo R chỉ sau 3 ngày" (hứa kết quả) |
-
-Thuật ngữ cố định: Chuỗi khóa học; Gói đăng ký; Học phí/học viên; học trực tiếp (offline); trực tuyến (online) qua Zoom; GS.TS. Nguyễn Văn Tuấn; TS. Trần Sơn Thạch; Viện Phương Nam.
-
-Định dạng: ngày `dd/mm/yyyy`; tiền `8.800.000 đồng` (chỗ chật có thể viết `8.800.000đ`); điện thoại `(028) 2242 6789`, `0949 761 636`.
-
-Không dùng gạch dài (em dash) trong chữ trên sản phẩm. Dùng dấu phẩy, hai chấm hoặc gạch ngang ngắn như thông báo.
-
-## 6. Hình ảnh
-
-- Hình chủ đạo: biểu đồ vẽ từ dữ liệu mô phỏng theo bộ ba hình của landing page (Hình 1 hồi quy, Hình 2 mặt phẳng chi phí - hiệu quả, Hình 3 chuỗi thời gian và dự báo). Mã vẽ trong `dist/app.js`. Mọi biểu đồ ghi rõ "Dữ liệu minh họa, không phải kết quả nghiên cứu." (chú thích đầy đủ: `../design-kit/README.md` mục 5).
-- Ảnh người: chỉ ảnh chính thức do Viện cung cấp (giảng viên, lớp học thật của Viện). Chưa có thì để khung chờ có ghi chữ, không thay bằng ảnh stock hay ảnh AI.
-- Biểu tượng: hạn chế. Nếu cần (điện thoại, địa điểm, lịch) dùng nét đều, góc vuông, màu ink.
-- Không dùng: nền hạt liên kết, khối tam giác bay, kính mờ, khối 3D, minh họa nhân vật.
+| Vẽ thông tin thành biểu đồ ngay trên nền | Đặt hộp trắng chứa chữ lên nền trang trí |
+| Dùng một mã màu K1/K2/K3 cho mọi biểu đồ | Đổi màu khóa giữa các ấn phẩm |
+| Căn theo lưới 70 px lề, cột dữ liệu bắt đầu ở 186 px | Căn mắt từng khối |
+| Đỏ chỉ cho ngày hạn chót trên pill trắng | Đỏ cho tiêu đề, giá, nút |
+| Kiểm tra tương phản trên ảnh render | Tin vào kết quả công cụ dò với nền nhiều lớp |
+| Giữ khối tiêu đề nguyên cấu trúc | Viết lại tên chuỗi khóa học |

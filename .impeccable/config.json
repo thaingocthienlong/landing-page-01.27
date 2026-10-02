@@ -290,6 +290,132 @@
         ],
         "createdAt": "2026-10-02T09:55:56.200Z",
         "reason": "agent triage: uppercase only on the one-line institute name in the header and the short deadline label"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/brand-kit/tokens.css"
+        ],
+        "createdAt": "2026-10-02T10:40:09.226Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/brand-kit/tokens.css"
+        ],
+        "createdAt": "2026-10-02T10:40:09.517Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/brand-kit/tokens.css"
+        ],
+        "createdAt": "2026-10-02T10:40:09.796Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/design-kit/kit.html"
+        ],
+        "createdAt": "2026-10-02T10:40:10.056Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/design-kit/kit.html"
+        ],
+        "createdAt": "2026-10-02T10:40:10.340Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/design-kit/kit.html"
+        ],
+        "createdAt": "2026-10-02T10:40:10.643Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:10.890Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:11.134Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:11.358Z",
+        "reason": "agent triage 2026-10-02: brand kit v2 type system approved with the three Story posters (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets); DESIGN.md stays the landing-page contract"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "files": [
+          "media/brand-kit/tokens.css"
+        ],
+        "createdAt": "2026-10-02T10:40:11.578Z",
+        "reason": "agent triage: body face of the approved brand kit v2"
+      },
+      {
+        "rule": "italic-serif-display",
+        "value": "*",
+        "files": [
+          "media/design-kit/kit.html"
+        ],
+        "createdAt": "2026-10-02T10:40:11.805Z",
+        "reason": "agent triage: italic serif phrase in the heading is the brand lockup style of the landing-page hero and the approved posters"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:12.077Z",
+        "reason": "agent triage: detector reads the light start (#4fbaf8) of the discount-node gradient; label sits on the #1a78e0 centre, 4.37:1 for large bold text, as on the approved posters"
+      },
+      {
+        "rule": "repeating-stripes-gradient",
+        "value": "*",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:12.346Z",
+        "reason": "agent triage: per-day gridlines of the package bar chart sample"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "media/brand-kit/brand-board.html"
+        ],
+        "createdAt": "2026-10-02T10:40:12.657Z",
+        "reason": "agent triage: tight leading only on the board heading and the two-line italic display phrase of the lockup"
       }
     ]
   }

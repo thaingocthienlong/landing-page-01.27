@@ -1,6 +1,6 @@
 # Poster
 
-Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác chưa bắt đầu. Ưu tiên: 1 (cần cho giai đoạn ưu đãi sớm, đến 08/12/2026).
+Trạng thái: **đã chốt ST1, ST2, ST3** (02/10/2026), là mẫu gốc của brand kit v2. P1, P2, P4, P5 chưa dựng. Ưu tiên: 1 (giai đoạn ưu đãi sớm, đến 08/12/2026).
 
 ## Mục đích
 
@@ -12,51 +12,28 @@ Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác ch�
 
 | Mã | Khổ | Nội dung |
 |---|---|---|
-| P1 | A3 dọc, có bản A2 phóng tỷ lệ | Chuỗi đầy đủ: 3 khóa, giảng viên, mốc hạn, gói từ 3.500.000 đồng, liên hệ, QR |
-| P2 | 1080×1350 | Chuỗi đầy đủ, rút gọn chữ |
-| P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
-| P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
+| P1 | A3 dọc, có bản A2 phóng tỷ lệ | Như ST1, chia hai cột (design kit v2, mục 6 "Poster in") |
+| P2 | 1080×1350 (feed 4:5) | Như ST1, rút gọn: bỏ dòng thông tin, giữ lộ trình, cột gói, ưu đãi, trục thời gian |
+| P4 | 1080×1080 | Một biểu đồ, một dòng ngày: bản giai đoạn 1 "Trước 08/12/2026: giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
 | ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo dạng "mọi thông tin là một biểu đồ": lộ trình 3 khóa trên đường hồi quy, 6 gói là biểu đồ cột chồng theo số ngày, ưu đãi là đồ thị nút, mốc thời gian là trục có ngắt. `ads/story-khoa-goi-uu-dai.html` |
 | ST2 | 1080×1920 (Story/Reel) | **Đã dựng.** 3 khóa · lịch học · hình thức: mỗi khóa một hình nhỏ (hồi quy, mặt phẳng chi phí - hiệu quả, dự báo) và 3 nội dung chính từ outline; lịch Gantt 08–17/01/2027 theo ngày và số buổi; sơ đồ Trực tiếp hoặc Trực tuyến; phần mềm và máy tính cá nhân. `ads/story-khoa-hoc-lich-hoc.html` |
 | ST3 | 1080×1920 (Story/Reel) | **Đã dựng.** Gói · học phí · ưu đãi · hạn chót: chú giải K1/K2/K3, biểu đồ cột chồng 6 gói, 3 nút ưu đãi, trục thời gian 08/12 · 28/12 · 08/01, nộp học phí tiền mặt hoặc chuyển khoản. `ads/story-goi-hoc-phi-uu-dai.html` |
-| P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
+| P5 | 1200×630 | Ảnh chia sẻ link: logo, tiêu đề một dòng, lộ trình, ngày tổ chức |
 
-## Bố cục P1 (khối theo `../design-kit/README.md`)
+Nội dung từng khóa (trước là P3a–c) nay nằm trong ST2.
 
-1. Trên: A (logo + Viện Phương Nam), nhãn của B.
-2. Thân trái (4 cột): B, dòng "Do GS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy", thông tin chung (thời gian, hình thức, địa điểm).
-3. Thân phải (2 cột) hoặc nửa dưới: G với Hình 1, là mảng cobalt duy nhất.
-4. C: bảng 3 khóa.
-5. D: hai giảng viên, chữ, chờ ảnh.
-6. E: hai mốc hạn.
-7. Đáy: F + H.
+## P1: poster in A3, A2
 
-Bảng 6 gói không đưa lên poster: quá dày ở A3. Ghi "6 gói đăng ký, học phí từ 3.500.000 đồng/học viên" kèm QR.
-
-## Prompt Claude Design (P1)
+Công thức: design kit v2, mục 6 "Poster in"; sơ đồ trong `../design-kit/kit.html`. Dải đầu → khối tiêu đề → dòng thông tin → lộ trình rộng hết khổ → hai cột: cột gói (60%) và nút ưu đãi (40%) → trục thời gian (65%) cạnh QR (35%, cạnh mã từ 25 mm) → dải chân. Dựng bằng HTML khổ thật (mm) với `ads/story.css`, như ST1.
 
 ```
-Dùng design system "VPN · Phân tích định lượng với R". Thiết kế poster A3 dọc (297×420 mm, tràn lề 3 mm, vùng an toàn 15 mm) cho chuỗi khóa học. Phong cách: một trang bản thảo tạp chí khoa học, nền trắng, đường kẻ đậm 2 px mở đầu khối, đường mảnh giữa các dòng, không đóng khung hộp, không bóng đổ, không gradient ngoài logo.
-
-Chữ (giữ nguyên, không viết lại):
-- Nhãn: CHUỖI KHÓA HỌC · 01/2027
-- Tiêu đề: Phân tích định lượng với R
-- Dòng phụ (serif nghiêng, cobalt): Từ cơ bản đến chuyên sâu
-- Do GS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy, cùng TS. Trần Sơn Thạch
-- Từ ngày 08/01/2027 đến ngày 17/01/2027
-- Học trực tiếp (offline) tại Viện Phương Nam, 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh, hoặc trực tuyến (online) qua Zoom
-- Bảng: 1 | Phân tích dữ liệu với R cơ bản | 03 ngày | Từ 08/01 đến 10/01/2027 ; 2 | Phân tích chi phí - hiệu quả trong y tế | 02 ngày | Ngày 12/01 và 13/01/2027 ; 3 | Phân tích dữ liệu chuỗi thời gian | 03 ngày | Từ 15/01 đến 17/01/2027
-- 6 gói đăng ký, học phí từ 3.500.000 đồng/học viên
-- Trước 08/12/2026: giảm 10% (ngày màu đỏ #c4231a)
-- Hạn chót đăng ký và hoàn tất học phí: 28/12/2026 (ngày màu đỏ #c4231a)
-- Dải chân nền #0d1b2a: (028) 2242 6789 · 0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo) · www.vienphuongnam.com.vn, ô QR trắng bên phải ghi "Quét để đăng ký"
-
-Mảng cobalt #0a3d91 duy nhất chứa biểu đồ trắng: điểm phân tán, đường hồi quy, dải tin cậy 95% (dùng file SVG đính kèm nếu có), chú thích: "Hình 1. Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu."
-
-Chỗ ảnh giảng viên: để khung chờ viền #7f93b0, ghi "Ảnh chính thức do Viện cung cấp". Không ảnh stock, không minh họa nhân vật, không số liệu học viên. Font Source Serif 4 cho tiêu đề và con số, Source Sans 3 cho chữ thân. Thân chữ không nhỏ hơn 14 pt.
+Dùng design system "VPN · Phân tích định lượng với R (v2 Data Lab)". Đính kèm brand-board.png, kit.png và poster ST1 (story-khoa-goi-uu-dai.png): giữ đúng nội dung và hệ của ST1. Thiết kế poster A3 dọc (297×420 mm, tràn lề 3 mm, vùng an toàn 15 mm), xem ở 1 m: tiêu đề khoảng 90 pt, số 34 pt, chữ thân không dưới 14 pt.
+Nền gradient xanh đậm #061a4d → #0a2f7f → #0c3f9e, hai vệt sáng #1673e3, lưới chấm (in 45%), cụm lục giác góc trên phải, code R dọc hai lề. Thông tin vẽ trực tiếp trên nền, không hộp trắng.
+Bố cục: dải đầu (logo trong khung tròn trắng, tên Viện Oswald in hoa) → khối tiêu đề "Phân tích định lượng / với [R lục giác] từ cơ bản / đến chuyên sâu" + dòng giảng viên → hai dòng thông tin có icon (08/01 – 17/01/2027; Offline / Online, TP. Hồ Chí Minh hoặc Zoom) → lộ trình 3 khóa rộng hết khổ → bên trái 60% cột gói 6 hàng (đoạn K1 #5ad8ff, K2 #3f86ff, K3 #c3dbff theo số ngày; 8.800.000đ, 6.700.000đ, 7.500.000đ, 6.700.000đ, 3.500.000đ, 4.500.000đ; "Học phí đã gồm thuế, phí và lệ phí theo quy định.") và bên phải 40% ba nút ưu đãi (10% trước 08/12/2026 cho cả 6 gói; 5% nhóm từ 3 người cùng 1 gói, gói 1 đến 4; 10–15% học viên cũ, không cộng gộp) → trục thời gian 08/12/2026, 28/12/2026 (pill trắng chữ đỏ #c4231a), 08/01/2027 cạnh mã QR (file đính kèm, cạnh mã 30 mm) → dải chân trắng có icon.
+Nhãn mục dạng comment R JetBrains Mono cyan: "# 3 khóa học: từ nền tảng đến chuyên sâu", "# 6 gói đăng ký · học phí/học viên", "# Ưu đãi học phí". Không ảnh, không giờ học, không số tài khoản.
 ```
 
-Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng ở P4, P5; P3 thay bảng bằng một khóa và hình tương ứng.
+P2, P4, P5: công thức "Poster số vuông" và "Ảnh chia sẻ link" trong design kit v2; dùng lại khối của ST1.
 
 ## ST1: Story quảng cáo
 
@@ -120,4 +97,4 @@ cd media/poster/ads/assets && python export.py
 
 ## Xuất
 
-`poster/export/`: `P1-A3.pdf` (CMYK do nhà in chuyển, có tràn lề), `P1-A2.pdf`, `P2.png`, `P3a.png`...`P5.png` (sRGB). Sau khi có P5: thay `og:image`, `twitter:image` trong `dist/index.html`.
+`poster/export/`: `story-*.png` (đã chốt), `P1-A3.pdf` (CMYK do nhà in chuyển, có tràn lề), `P1-A2.pdf`, `P2.png`, `P4-*.png`, `P5.png` (sRGB). Sau khi có P5: thay `og:image`, `twitter:image` trong `dist/index.html`.
