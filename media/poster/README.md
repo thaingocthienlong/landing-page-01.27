@@ -1,6 +1,6 @@
 # Poster
 
-Trạng thái: chưa bắt đầu. Ưu tiên: 1 (cần cho giai đoạn ưu đãi sớm, đến 08/12/2026).
+Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác chưa bắt đầu. Ưu tiên: 1 (cần cho giai đoạn ưu đãi sớm, đến 08/12/2026).
 
 ## Mục đích
 
@@ -16,8 +16,7 @@ Trạng thái: chưa bắt đầu. Ưu tiên: 1 (cần cho giai đoạn ưu đã
 | P2 | 1080×1350 | Chuỗi đầy đủ, rút gọn chữ |
 | P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
 | P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
-| QC-A | 1080×1350 | **Đã dựng.** Quảng cáo học phí và thời gian: lịch 10 ngày, bảng 6 gói, mốc 08/12 và 28/12. `ads/A-hoc-phi-thoi-gian.html` |
-| QC-B | 1080×1350 | **Đã dựng.** Quảng cáo nội dung 3 khóa: tên, ngày, 3 kỹ năng mỗi khóa, Hình 1 đến 3. `ads/B-noi-dung-3-khoa.html` |
+| ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo: 3 khóa và ngày, 6 gói và học phí, ưu đãi (10% trước 08/12, nhóm 3 người, học viên cũ), hạn chót 28/12. `ads/story-khoa-goi-uu-dai.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
 
 ## Bố cục P1 (khối theo `../design-kit/README.md`)
@@ -57,17 +56,21 @@ Chỗ ảnh giảng viên: để khung chờ viền #7f93b0, ghi "Ảnh chính t
 
 Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng ở P4, P5; P3 thay bảng bằng một khóa và hình tương ứng.
 
-## Dựng và xuất QC-A, QC-B
+## ST1: Story quảng cáo
 
-Hai poster quảng cáo dựng thẳng bằng HTML theo `../brand-kit/tokens.css`, không qua Claude Design. Sửa chữ trong file HTML, rồi xuất lại:
+**Phong cách:** theo bộ mẫu "Gradient science templates set" (magnific.com/serie/18774762) mà Viện chọn ngày 02/10/2026. Nền xanh da trời chuyển màu, thanh bo tròn chạy chéo ở mép, cụm nút tròn nối nhau ở góc, dải trắng chứa tiêu đề in hoa chữ hẹp. Đây là ngoại lệ có chủ đích so với phong cách "The Manuscript" của brand kit: gradient xanh lấy từ gradient trong logo; font Oswald (tiêu đề) và Montserrat (chữ thân) để khớp mẫu, cả hai có bộ dấu tiếng Việt. Hình khối tự vẽ bằng SVG trong file, không dùng file của mẫu. Không có ảnh vì chưa có ảnh chính thức.
+
+**Vùng an toàn:** chữ chính nằm trong khoảng 172–1594 px. Khoảng 170 px trên cùng (thanh tiến trình, tên tài khoản) và khoảng 300 px dưới cùng (nút CTA của quảng cáo, ô trả lời) chỉ có hình trang trí.
+
+**Màu:** chữ trên nền xanh dùng `--royal-ink` #1a4aa8 và `--muted-ink` #34456c (đo trên nền thật: từ 5.17:1 trở lên). Chữ trắng trên đầu sáng của thanh "Giảm 10%" chỉ đạt 3.84:1, nên ở đó chỉ đặt chữ cỡ lớn. Ngày 28/12/2026 giữ màu đỏ signal theo brand kit.
+
+**Xuất lại** sau khi sửa chữ trong file HTML:
 
 ```bash
 cd media/poster/ads && python render.py
 ```
 
-`render.py` mở từng file bằng Chrome, chờ font, kiểm tra khung đúng 1080×1350 và nội dung không tràn, rồi ghi PNG 2160×2700 vào `export/`. Biểu đồ vẽ từ dữ liệu mô phỏng có seed cố định trong `ads/figures.js`, nên mỗi lần xuất ra cùng một hình.
-
-Kỹ năng từng khóa trong QC-B rút gọn từ nội dung khóa trên landing page (`dist/app.js`); ngày, gói, học phí, ưu đãi lấy từ `../brand-kit/content.md`.
+`render.py` mở từng file bằng Chrome, chờ font, kiểm tra khung đúng `data-size` (1080×1920) và nội dung không tràn, rồi ghi PNG đúng khổ vào `export/`. Ngày, gói, học phí, ưu đãi lấy từ `../brand-kit/content.md`.
 
 ## Cần từ Viện
 

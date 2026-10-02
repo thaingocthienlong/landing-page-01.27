@@ -20,6 +20,51 @@
         ],
         "createdAt": "2026-10-02T02:33:47.378Z",
         "reason": "agent triage: uppercase only on short .label column/section labels and 2-3 word role bands, per DESIGN.md Label rule; no uppercase paragraphs"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:15:07.390Z",
+        "reason": "agent triage: user asked (2026-10-02) for the magnific 'Gradient science' template style; Oswald condensed caps + Montserrat geometric sans match it and both ship Vietnamese subsets"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:15:07.953Z",
+        "reason": "agent triage: user asked (2026-10-02) for the magnific 'Gradient science' template style; Oswald condensed caps + Montserrat geometric sans match it and both ship Vietnamese subsets"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:15:08.473Z",
+        "reason": "agent triage: user asked (2026-10-02) for the magnific 'Gradient science' template style; Oswald condensed caps + Montserrat geometric sans match it and both ship Vietnamese subsets"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:15:08.754Z",
+        "reason": "agent triage: the 3px rule is the underline of the GÓI ĐĂNG KÝ table header, not a side accent on a card"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-goi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T07:15:08.980Z",
+        "reason": "agent triage: uppercase only on short template-style labels (band subtitle, deadline label, pills), each under 40 characters"
       }
     ]
   }
