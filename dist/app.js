@@ -752,6 +752,28 @@
     });
   };
 
+  /* ---------- "today" pointer on the discount timeline ---------- */
+
+  const setupTimelineNow = () => {
+    const pointer = document.querySelector("[data-timeline-now]");
+    const line = pointer?.closest(".timeline");
+    if (!pointer || !line) return;
+    // scale runs 01/10/2026 to the 28/12/2026 deadline, matching the bar proportions in CSS
+    const start = Date.UTC(2026, 9, 1);
+    const end = Date.UTC(2026, 11, 28);
+    const [y, m, d] = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).split("-").map(Number);
+    const ratio = Math.min(1, Math.max(0, (Date.UTC(y, m - 1, d) - start) / (end - start)));
+    const label = [d, m].map((n) => String(n).padStart(2, "0")).join("/") + "/" + y;
+    line.style.setProperty("--now", (ratio * 100).toFixed(2) + "%");
+    if (ratio < 0.1) pointer.dataset.edge = "start";
+    else if (ratio > 0.9) pointer.dataset.edge = "end";
+    const time = pointer.querySelector("time");
+    time.textContent = label;
+    time.dateTime = [y, m, d].map((n) => String(n).padStart(2, "0")).join("-");
+    line.setAttribute("aria-label", line.getAttribute("aria-label") + ". Hôm nay là " + label);
+    pointer.hidden = false;
+  };
+
   /* ---------- copy account number ---------- */
 
   const setupCopy = () => {
@@ -777,6 +799,7 @@
   setupHero();
   setupTabs();
   setupPackages();
+  setupTimelineNow();
   setupSideNav();
   setupMobileNav();
   setupForm();
