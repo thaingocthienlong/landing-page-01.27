@@ -128,6 +128,168 @@
         ],
         "createdAt": "2026-10-02T09:36:53.817Z",
         "reason": "agent triage: 1.06 is the two-line italic display phrase 'từ cơ bản / đến chuyên sâu' at 48px beside the R hex, set tight like the landing-page hero; body text keeps >=1.3"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:51.561Z",
+        "reason": "agent triage 2026-10-02: detector composites the background lights over the white page (#a7c7ec); sampled on the rendered PNG every text element is >=5.09:1, no-class days #9fb4da >=4.51:1, node labels white on #1a78e0 centre 4.37:1 (large bold)"
+      },
+      {
+        "rule": "radial-spotlight-glow",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:51.804Z",
+        "reason": "agent triage: same two soft background lights as the approved Story poster in this series"
+      },
+      {
+        "rule": "repeating-stripes-gradient",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:52.102Z",
+        "reason": "agent triage: per-day chart gridlines (bars / Gantt), not decoration"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:52.371Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:52.649Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:52.867Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:53.067Z",
+        "reason": "agent triage: body face of the approved Story series"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:53.257Z",
+        "reason": "agent triage: 1.06 is the two-line italic display phrase beside the R hex, same lockup as the approved poster"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-khoa-hoc-lich-hoc.html"
+        ],
+        "createdAt": "2026-10-02T09:55:53.460Z",
+        "reason": "agent triage: uppercase only on the one-line institute name in the header and the short deadline label"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:54.051Z",
+        "reason": "agent triage 2026-10-02: detector composites the background lights over the white page (#a7c7ec); sampled on the rendered PNG every text element is >=5.09:1, no-class days #9fb4da >=4.51:1, node labels white on #1a78e0 centre 4.37:1 (large bold)"
+      },
+      {
+        "rule": "radial-spotlight-glow",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:54.316Z",
+        "reason": "agent triage: same two soft background lights as the approved Story poster in this series"
+      },
+      {
+        "rule": "repeating-stripes-gradient",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:54.595Z",
+        "reason": "agent triage: per-day chart gridlines (bars / Gantt), not decoration"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "jetbrains mono",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:54.796Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "oswald",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:55.051Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:55.385Z",
+        "reason": "agent triage: Story series type system approved by the user (Source Serif 4, Oswald, Montserrat, JetBrains Mono; all with Vietnamese subsets)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "montserrat",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:55.647Z",
+        "reason": "agent triage: body face of the approved Story series"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:55.927Z",
+        "reason": "agent triage: 1.06 is the two-line italic display phrase beside the R hex, same lockup as the approved poster"
+      },
+      {
+        "rule": "all-caps-body",
+        "value": "*",
+        "files": [
+          "media/poster/ads/story-goi-hoc-phi-uu-dai.html"
+        ],
+        "createdAt": "2026-10-02T09:55:56.200Z",
+        "reason": "agent triage: uppercase only on the one-line institute name in the header and the short deadline label"
       }
     ]
   }

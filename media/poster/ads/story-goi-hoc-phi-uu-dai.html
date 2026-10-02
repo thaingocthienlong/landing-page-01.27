@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Story · Gói đăng ký, học phí, ưu đãi, hạn chót · Phân tích định lượng với R</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700&family=Oswald:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="story.css">
+</head>
+<body>
+<article class="ad" id="ad" data-size="1080x1920">
+
+  <svg class="bgfx" viewBox="0 0 1080 1920" aria-hidden="true">
+    <defs>
+      <pattern id="dots" width="36" height="36" patternUnits="userSpaceOnUse"><circle cx="18" cy="18" r="1.7" fill="#cfe0ff"/></pattern>
+      <radialGradient id="fadeA" cx="0.88" cy="0.16" r="0.62"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="fadeB" cx="0.06" cy="0.86" r="0.5"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <mask id="dotmask"><rect width="1080" height="1920" fill="url(#fadeA)"/><rect width="1080" height="1920" fill="url(#fadeB)"/></mask>
+    </defs>
+    <rect width="1080" height="1920" fill="url(#dots)" mask="url(#dotmask)" opacity=".3"/>
+    <g fill="none" stroke="#cfe0ff" stroke-width="2.5" opacity=".13">
+      <polygon points="1000,128 1072,170 1072,254 1000,296 928,254 928,170"/>
+      <polygon points="1072,254 1144,296 1144,380 1072,422 1000,380 1000,296"/>
+      <polygon points="928,254 1000,296 1000,380 928,422 856,380 856,296"/>
+      <polygon points="1000,380 1072,422 1072,506 1000,548 928,506 928,422"/>
+      <polygon points="856,128 928,170 928,254 856,296 784,254 784,170"/>
+    </g>
+    <polygon points="1000,380 1072,422 1072,506 1000,548 928,506 928,422" fill="#5ad8ff" opacity=".07"/>
+    <g font-family="JetBrains Mono, monospace" font-size="19" font-weight="500" fill="#5ad8ff" opacity=".34">
+      <text transform="translate(42 1790) rotate(-90)">library(ggplot2)   t.test(y ~ nhom)   chisq.test(bang)   lm(y ~ x)   glm(y ~ x, family = binomial)</text>
+      <text transform="translate(1040 560) rotate(90)">icer &lt;- (C1 - C0) / (E1 - E0)   library(forecast)   fit &lt;- auto.arima(y)   forecast(fit, h = 12)</text>
+    </g>
+  </svg>
+
+  <header class="top">
+    <span class="badge"><img src="../../brand-kit/logo/logo-color.png" alt="Logo Viện Phương Nam"></span>
+    <p>Viện Phát triển Nguồn lực Xã hội Phương Nam</p>
+  </header>
+
+  <section class="wrap title">
+    <h1>Phân tích định lượng</h1>
+    <div class="row2">
+      <b>với</b>
+      <svg class="hex" viewBox="0 0 112 128" aria-label="R">
+        <polygon points="56,4 108,34 108,94 56,124 4,94 4,34" fill="rgba(90,216,255,0.16)" stroke="#5ad8ff" stroke-width="6" stroke-linejoin="round"/>
+        <text x="56" y="98" text-anchor="middle" fill="#fff" font-family="Oswald, sans-serif" font-weight="700" font-size="86">R</text>
+      </svg>
+      <span>từ cơ bản<br>đến chuyên sâu<em>GS.TS. Nguyễn Văn Tuấn · TS. Trần Sơn Thạch</em></span>
+    </div>
+  </section>
+
+  <section class="wrap" aria-label="Gói đăng ký và học phí">
+    <p class="code sec"># 6 gói đăng ký <span class="dim">· học phí/học viên</span></p>
+    <p class="pick">Chọn 1 trong 6 gói; học phí tính theo gói đăng ký.</p>
+    <div class="legend">
+      <div><i class="s1">K1</i><p><b>Phân tích dữ liệu với R cơ bản</b><span>08–10/01 · 3 ngày</span></p></div>
+      <div><i class="s2">K2</i><p><b>Phân tích chi phí - hiệu quả trong y tế</b><span>12–13/01 · 2 ngày</span></p></div>
+      <div><i class="s3">K3</i><p><b>Phân tích dữ liệu chuỗi thời gian</b><span>15–17/01 · 3 ngày</span></p></div>
+    </div>
+    <div class="bars-wrap lg" style="margin-top: 16px">
+      <div class="bar"><span class="pk">Gói 1</span><span class="track"><i class="seg s1">K1</i><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">08 ngày</span><b class="fee">8.800.000<small>đ</small></b></div>
+      <div class="bar"><span class="pk">Gói 2</span><span class="track"><i class="seg s1">K1</i><i class="seg s2">K2</i></span><span class="d">05 ngày</span><b class="fee">6.700.000<small>đ</small></b></div>
+      <div class="bar"><span class="pk">Gói 3</span><span class="track"><i class="seg s1">K1</i><i class="seg s3">K3</i></span><span class="d">06 ngày</span><b class="fee">7.500.000<small>đ</small></b></div>
+      <div class="bar"><span class="pk">Gói 4</span><span class="track"><i class="seg s2">K2</i><i class="seg s3">K3</i></span><span class="d">05 ngày</span><b class="fee">6.700.000<small>đ</small></b></div>
+      <div class="bar"><span class="pk">Gói 5</span><span class="track"><i class="seg s2">K2</i></span><span class="d">02 ngày</span><b class="fee">3.500.000<small>đ</small></b></div>
+      <div class="bar"><span class="pk">Gói 6</span><span class="track"><i class="seg s3">K3</i></span><span class="d">03 ngày</span><b class="fee">4.500.000<small>đ</small></b></div>
+    </div>
+    <p class="note">Học phí đã gồm thuế, phí và lệ phí theo quy định.</p>
+  </section>
+
+  <section class="wrap" aria-label="Ưu đãi học phí">
+    <p class="code sec"># Ưu đãi học phí</p>
+    <ul class="deals">
+      <li><span class="node n10">10%</span><p>Hoàn tất học phí trước <em>08/12/2026</em><small>Áp dụng cho cả 6 gói</small></p></li>
+      <li><span class="node n5">5%</span><p>Hoàn tất học phí <em>theo nhóm từ 3 người</em>, cùng 1 gói<small>Áp dụng cho gói 1 đến 4</small></p></li>
+      <li><span class="node n15">10–15%</span><p><em>Học viên cũ</em> các khóa của GS. Nguyễn Văn Tuấn tại Viện<small>Giảm 10%, thêm 5% nếu hoàn tất trước 08/12/2026. Gói 1 đến 4, không cộng gộp với ưu đãi khác.</small></p></li>
+    </ul>
+  </section>
+
+  <section class="wrap" aria-label="Mốc thời gian">
+    <p class="code sec" style="margin-top: 20px"># Mốc thời gian</p>
+    <div class="time wide" style="margin-top: 10px">
+      <div class="line"></div>
+      <span class="brk" style="left: 664px"></span>
+      <div class="mk" style="left: 110px"><span class="ev">Hạn ưu đãi 10%</span><span class="dt">08/12/2026</span></div>
+      <div class="mk hot" style="left: 440px"><span class="ev">Hạn chót đăng ký và hoàn tất học phí</span><span class="dt">28/12/2026</span></div>
+      <div class="mk k3" style="left: 830px"><span class="ev">Khai giảng</span><span class="dt">08/01/2027</span></div>
+    </div>
+  </section>
+
+  <section class="wrap end" aria-label="Nộp học phí và đăng ký">
+    <div>
+      <div class="pay">
+        <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg></span>
+        <p>Nộp học phí<span>Tiền mặt hoặc chuyển khoản</span></p>
+      </div>
+      <p class="contact">0949 761 636 <span>(Ms. Vy)</span><br>0912 114 511 <span>(Ms. Thảo)</span></p>
+    </div>
+    <figure class="qr">
+      <div class="box"><img src="../../../assets/M%C3%A3%20QR%20chu%E1%BB%97i%20PTDL%20R%2001.27.png" alt="Mã QR đăng ký chuỗi khóa học"></div>
+      <figcaption>Quét mã để đăng ký</figcaption>
+    </figure>
+  </section>
+
+  <footer class="foot">
+    <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3.5l1.8 4.5-2.3 1.4a11 11 0 0 0 5.1 5.1l1.4-2.3 4.5 1.8V18a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>(028) 2242 6789</div>
+    <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 15 12 21 12 21z"/><circle cx="12" cy="9.6" r="2.4"/></svg></span>45 Đinh Tiên Hoàng, P. Sài Gòn, TP.HCM</div>
+    <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5S9.6 5.9 12 3.5z"/></svg></span>vienphuongnam.com.vn</div>
+  </footer>
+</article>
+</body>
+</html>
