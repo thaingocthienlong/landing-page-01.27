@@ -52,7 +52,7 @@ Font (góp ý 02/10/2026: cần nhiều font hơn, uyển chuyển như landing 
 
 Nền (góp ý: nền còn đơn giản): lưới chấm kiểu giấy vẽ đồ thị mờ dần từ góc trên phải và góc dưới trái; cụm lục giác như sticker gói R ở góc trên phải; hai dòng code R chạy dọc hai lề, chỉ dùng hàm và gói có trong outline (ggplot2, t.test, chisq.test, lm, glm, công thức ICER, forecast, auto.arima); hai vệt sáng nhẹ.
 
-Chi tiết đã sửa: logo thu nhỏ để cả khối nằm gọn trong khung tròn; chữ R đặt theo chiều cao thật của chữ hoa Oswald (68 px ở cỡ 86 px) nên tâm chữ trùng tâm lục giác; icon trong vòng tròn được căn giữa (trước đó bị quy tắc `.fact span` ghi đè `display: grid`). Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
+Chi tiết đã sửa: logo rộng 74% đường kính khung tròn, cả khối nằm gọn trong vòng tròn mà không bị nhỏ; chữ R đặt theo chiều cao thật của chữ hoa Oswald (68 px ở cỡ 86 px) nên tâm chữ trùng tâm lục giác; icon trong vòng tròn được căn giữa (trước đó bị quy tắc `.fact span` ghi đè `display: grid`). Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
 
 **Bố cục dọc:** dải đầu 0–124 px, nội dung 124–1824 px, dải chân 1824–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và phần dưới của mã QR. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy khối cuối lên trên.
 

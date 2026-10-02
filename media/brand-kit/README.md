@@ -22,7 +22,7 @@ Mỗi vòng góp ý để lại một quy tắc. Các quy tắc dưới đây l�
 | "Phần trên và dưới còn trống" (so với poster đã duyệt của Viện) | Dải đầu có logo và tên Viện; dải chân trắng có icon điện thoại, địa chỉ, website; nội dung kín khung. |
 | "Dùng font uyển chuyển như landing page" | Tiêu đề Source Serif 4, cụm "từ cơ bản đến chuyên sâu" in nghiêng; con số và nhãn dùng Oswald. |
 | "Bỏ thông tin thừa" | Không chú thích cách đọc biểu đồ trên ấn phẩm quảng cáo; mỗi biểu đồ tự giải thích bằng nhãn. |
-| "Logo bị cắt, chữ R hơi cao, icon lệch" | Logo nằm gọn trong khung tròn (64/100); chữ R đặt theo chiều cao chữ hoa thật; icon căn giữa vòng tròn. Kiểm tra bằng ảnh render, không bằng mắt trên code. |
+| "Logo bị cắt, chữ R hơi cao, icon lệch", sau đó "logo hơi nhỏ so với nền tròn" | Logo rộng 74/100 đường kính: lớn nhất mà góc chữ PHUONG NAM vẫn cách viền (82/100 chạm viền, 64/100 nhỏ); chữ R đặt theo chiều cao chữ hoa thật; icon căn giữa vòng tròn. Kiểm tra bằng ảnh render, không bằng mắt trên code. |
 
 ## 2. Hai chế độ
 
@@ -38,7 +38,7 @@ Cùng một bộ font, cùng khối tiêu đề, cùng từ vựng biểu đồ.
 
 ## 3. Logo
 
-- Nền tối: logo màu đặt trong khung tròn trắng; logo rộng 64% đường kính để cả khối chữ PHUONG NAM INSTITUTE nằm gọn trong vòng tròn. Viền ngoài khung: 5 px cyan 28% (ở khổ 1080 px).
+- Nền tối: logo màu đặt trong khung tròn trắng; logo rộng 74% đường kính, căn giữa theo khung ảnh logo; góc chữ PHUONG NAM, điểm gần viền nhất, cách viền khoảng 5% đường kính. Không quá 76% (góc chữ sát viền, trông như bị cắt). Viền ngoài khung: 5 px cyan 28% (ở khổ 1080 px).
 - Nền sáng: logo màu đặt trực tiếp, không khung.
 - Vùng an toàn: tối thiểu bằng chiều cao chữ "PHUONG NAM" mỗi cạnh.
 - Cỡ tối thiểu: khung tròn 100 px ở khổ 1080 px; in 25 mm chiều rộng logo.
