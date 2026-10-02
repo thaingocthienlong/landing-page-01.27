@@ -17,7 +17,7 @@ Trạng thái: **đã chốt ST1, ST2, ST3** (02/10/2026), là mẫu gốc của
 | P4 | 1080×1080 | Một biểu đồ, một dòng ngày: bản giai đoạn 1 "Trước 08/12/2026: giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
 | ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo dạng "mọi thông tin là một biểu đồ": lộ trình 3 khóa trên đường hồi quy, 6 gói là biểu đồ cột chồng theo số ngày, ưu đãi là đồ thị nút, mốc thời gian là trục có ngắt. `ads/story-khoa-goi-uu-dai.html` |
 | ST2 | 1080×1920 (Story/Reel) | **Đã dựng.** 3 khóa · lịch học · hình thức: mỗi khóa một hình nhỏ (hồi quy, mặt phẳng chi phí - hiệu quả, dự báo) và 3 nội dung chính từ outline; lịch Gantt 08–17/01/2027 theo ngày và số buổi; sơ đồ Trực tiếp hoặc Trực tuyến; phần mềm và máy tính cá nhân. `ads/story-khoa-hoc-lich-hoc.html` |
-| ST3 | 1080×1920 (Story/Reel) | **Đã dựng.** Gói · học phí · ưu đãi · hạn chót: chú giải K1/K2/K3, biểu đồ cột chồng 6 gói, 3 nút ưu đãi, trục thời gian 08/12 · 28/12 · 08/01, nộp học phí tiền mặt hoặc chuyển khoản. `ads/story-goi-hoc-phi-uu-dai.html` |
+| ST3 | 1080×1920 (Story/Reel) | **Đã dựng.** Gói · học phí · ưu đãi · hạn chót: chú giải K1/K2/K3, biểu đồ cột chồng 6 gói, 3 nút ưu đãi, trục thời gian 08/12 · 28/12 · 08/01, "Hoặc đăng ký trực tiếp tại:" địa chỉ đầy đủ và 3 số điện thoại cạnh QR. `ads/story-goi-hoc-phi-uu-dai.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: logo, tiêu đề một dòng, lộ trình, ngày tổ chức |
 
 Nội dung từng khóa (trước là P3a–c) nay nằm trong ST2.
@@ -65,7 +65,7 @@ Chi tiết đã sửa: logo rộng 74% đường kính khung tròn, cả khối 
 Ba poster dùng chung `ads/story.css` (màu, chữ, các khối) và `ads/story.js` (biểu đồ lộ trình và 3 hình nhỏ theo khóa, dữ liệu mô phỏng có seed cố định). Sửa một khối ở `story.css` là sửa cho cả ba; sau khi tách file chung, ST1 render lại trùng từng pixel với bản đã duyệt.
 
 - **ST2** lấy nội dung từ outline đã duyệt (`assets/Outline khoá 1-3_v2`): mục tiêu từng khóa, số buổi (6, 4, 6), "Không cần kinh nghiệm lập trình" (Khóa 1), mang theo máy tính cá nhân và hướng dẫn cài đặt gửi trước khai giảng. Không in giờ học hằng ngày vì thông báo v4 và outline không ghi. Ngày 11 và 14/01 không có buổi học, in màu #9fb4da.
-- **ST3** không in số tài khoản (chỉ "tiền mặt hoặc chuyển khoản"), theo quy tắc trong `../brand-kit/content.md`.
+- **ST3** không in thông tin nộp học phí (hình thức, số tài khoản), theo quy tắc trong `../brand-kit/content.md`; bỏ nhãn "# 6 gói đăng ký" và dòng "Chọn 1 trong 6 gói" theo góp ý, chú giải K1/K2/K3 mở đầu biểu đồ.
 - Khung QR của ST2 nhỏ hơn (252 px) để vừa chiều cao; ST1 và ST3 giữ 272 px.
 
 **Xuất lại** sau khi sửa chữ trong file HTML:

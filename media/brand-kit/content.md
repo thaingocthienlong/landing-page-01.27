@@ -109,7 +109,7 @@ Không nhắc quà tặng sách: thông báo v3 trở đi đã bỏ.
 
 - Đăng ký trực tuyến: https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r (hoặc quét mã QR)
 - Mã QR: `assets/Mã QR chuỗi PTDL R 01.27.png` (Viện cung cấp, có logo ở giữa). Chưa giải mã được trên máy để kiểm tra đích đến; quét thử trước mỗi lần xuất bản.
-- Đăng ký trực tiếp: Viện Phương Nam, Số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh
+- Đăng ký trực tiếp (trên ấn phẩm, câu dẫn sau QR: "Hoặc đăng ký trực tiếp tại:"): Viện Phương Nam, Số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh
 - Điện thoại: (028) 2242 6789 · 0949 761 636 (Ms. Vy) · 0912 114 511 (Ms. Thảo)
 
 ## Nộp học phí (chỉ in trên tài liệu gửi học viên, không in lên poster, standee, backdrop)

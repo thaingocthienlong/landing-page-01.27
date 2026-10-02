@@ -134,7 +134,7 @@ Chất liệu chỉ nằm ở lề và vùng trống; không đặt sau chữ nh
 ## 9. Biểu tượng
 
 - Nét 2 px trong ô 24×24, đầu nét tròn, màu trắng, đặt giữa vòng tròn 64 px viền cyan (thông tin) hoặc vòng tròn đặc navy 46 px (dải chân).
-- Bộ đang dùng: lịch, màn hình có người (học trực tuyến), ghim địa điểm, điện thoại, quả địa cầu, dấu code `</>`, tiền (nộp học phí).
+- Bộ đang dùng: lịch, màn hình có người (học trực tuyến), ghim địa điểm, điện thoại, quả địa cầu, dấu code `</>`.
 - Không dùng icon trang trí kiểu tia sét, ngôi sao, robot.
 
 ## 10. Giọng văn và nội dung
