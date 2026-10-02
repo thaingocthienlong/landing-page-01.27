@@ -475,98 +475,161 @@
             <p class="section-command">Học phí sẽ được xác định theo gói đăng ký của học viên. Quý anh/chị lựa chọn và đăng ký tham gia 1 trong 6 gói dưới đây.</p>
           </div>
 
-          <article class="price-hero">
-            <div class="price-hero-copy">
-              <h3>Gói 1</h3>
-              <p class="price-hero-lead">Cả 03 khóa · 08 ngày</p>
-              <ul class="price-courses">
-                <li>Phân tích dữ liệu với R cơ bản</li>
-                <li>Phân tích chi phí - hiệu quả trong y tế</li>
-                <li>Phân tích dữ liệu chuỗi thời gian</li>
-              </ul>
-            </div>
-            <p class="price-hero-fee"><strong>8.800.000</strong><span>đồng/học viên</span></p>
-          </article>
-
-          <ul class="price-grid">
-            <li class="price-item">
-              <h3>Gói 2</h3>
-              <p class="price-combo">Khóa 1 + Khóa 2</p>
-              <p class="price-names">Phân tích dữ liệu với R cơ bản + Phân tích chi phí - hiệu quả trong y tế</p>
-              <p class="price-foot"><span>05 ngày</span><strong>6.700.000<small> đồng</small></strong></p>
+          <ul class="pkgs" data-packages>
+            <li class="pkg is-open">
+              <button type="button" class="pkg-head" aria-expanded="true" aria-controls="pkg-1">
+                <span class="pkg-no" aria-hidden="true">1</span>
+                <span class="pkg-name">Gói 1</span>
+                <span class="pkg-combo">Cả 03 khóa</span>
+                <span class="pkg-fee">8.800.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-1">
+                <p class="pkg-days">08 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích dữ liệu với R cơ bản</li>
+                  <li>Phân tích chi phí - hiệu quả trong y tế</li>
+                  <li>Phân tích dữ liệu chuỗi thời gian</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                    <li><strong>5%</strong><span>Hoàn tất học phí theo nhóm từ 3 người</span></li>
+                    <li><strong>10% + 5%</strong><span>Học viên cũ; thêm 5% nếu hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 1">Đăng ký Gói 1</a>
+              </div>
             </li>
-            <li class="price-item">
-              <h3>Gói 3</h3>
-              <p class="price-combo">Khóa 1 + Khóa 3</p>
-              <p class="price-names">Phân tích dữ liệu với R cơ bản + Phân tích dữ liệu chuỗi thời gian</p>
-              <p class="price-foot"><span>06 ngày</span><strong>7.500.000<small> đồng</small></strong></p>
+            <li class="pkg">
+              <button type="button" class="pkg-head" aria-expanded="false" aria-controls="pkg-2">
+                <span class="pkg-no" aria-hidden="true">2</span>
+                <span class="pkg-name">Gói 2</span>
+                <span class="pkg-combo">Khóa&nbsp;1 + Khóa&nbsp;2</span>
+                <span class="pkg-fee">6.700.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-2">
+                <p class="pkg-days">05 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích dữ liệu với R cơ bản</li>
+                  <li>Phân tích chi phí - hiệu quả trong y tế</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                    <li><strong>5%</strong><span>Hoàn tất học phí theo nhóm từ 3 người</span></li>
+                    <li><strong>10% + 5%</strong><span>Học viên cũ; thêm 5% nếu hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 2">Đăng ký Gói 2</a>
+              </div>
             </li>
-            <li class="price-item">
-              <h3>Gói 4</h3>
-              <p class="price-combo">Khóa 2 + Khóa 3</p>
-              <p class="price-names">Phân tích chi phí - hiệu quả trong y tế + Phân tích dữ liệu chuỗi thời gian</p>
-              <p class="price-foot"><span>05 ngày</span><strong>6.700.000<small> đồng</small></strong></p>
+            <li class="pkg">
+              <button type="button" class="pkg-head" aria-expanded="false" aria-controls="pkg-3">
+                <span class="pkg-no" aria-hidden="true">3</span>
+                <span class="pkg-name">Gói 3</span>
+                <span class="pkg-combo">Khóa&nbsp;1 + Khóa&nbsp;3</span>
+                <span class="pkg-fee">7.500.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-3">
+                <p class="pkg-days">06 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích dữ liệu với R cơ bản</li>
+                  <li>Phân tích dữ liệu chuỗi thời gian</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                    <li><strong>5%</strong><span>Hoàn tất học phí theo nhóm từ 3 người</span></li>
+                    <li><strong>10% + 5%</strong><span>Học viên cũ; thêm 5% nếu hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 3">Đăng ký Gói 3</a>
+              </div>
             </li>
-            <li class="price-item price-item-half">
-              <h3>Gói 5</h3>
-              <p class="price-combo">Khóa 2</p>
-              <p class="price-names">Phân tích chi phí - hiệu quả trong y tế</p>
-              <p class="price-foot"><span>02 ngày</span><strong>3.500.000<small> đồng</small></strong></p>
+            <li class="pkg">
+              <button type="button" class="pkg-head" aria-expanded="false" aria-controls="pkg-4">
+                <span class="pkg-no" aria-hidden="true">4</span>
+                <span class="pkg-name">Gói 4</span>
+                <span class="pkg-combo">Khóa&nbsp;2 + Khóa&nbsp;3</span>
+                <span class="pkg-fee">6.700.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-4">
+                <p class="pkg-days">05 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích chi phí - hiệu quả trong y tế</li>
+                  <li>Phân tích dữ liệu chuỗi thời gian</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                    <li><strong>5%</strong><span>Hoàn tất học phí theo nhóm từ 3 người</span></li>
+                    <li><strong>10% + 5%</strong><span>Học viên cũ; thêm 5% nếu hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 4">Đăng ký Gói 4</a>
+              </div>
             </li>
-            <li class="price-item price-item-half">
-              <h3>Gói 6</h3>
-              <p class="price-combo">Khóa 3</p>
-              <p class="price-names">Phân tích dữ liệu chuỗi thời gian</p>
-              <p class="price-foot"><span>03 ngày</span><strong>4.500.000<small> đồng</small></strong></p>
+            <li class="pkg">
+              <button type="button" class="pkg-head" aria-expanded="false" aria-controls="pkg-5">
+                <span class="pkg-no" aria-hidden="true">5</span>
+                <span class="pkg-name">Gói 5</span>
+                <span class="pkg-combo">Khóa&nbsp;2</span>
+                <span class="pkg-fee">3.500.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-5">
+                <p class="pkg-days">02 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích chi phí - hiệu quả trong y tế</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 5">Đăng ký Gói 5</a>
+              </div>
+            </li>
+            <li class="pkg">
+              <button type="button" class="pkg-head" aria-expanded="false" aria-controls="pkg-6">
+                <span class="pkg-no" aria-hidden="true">6</span>
+                <span class="pkg-name">Gói 6</span>
+                <span class="pkg-combo">Khóa&nbsp;3</span>
+                <span class="pkg-fee">4.500.000<small> đồng</small></span>
+              </button>
+              <div class="pkg-body" id="pkg-6">
+                <p class="pkg-days">03 ngày · học phí/học viên</p>
+                <ul class="pkg-courses">
+                  <li>Phân tích dữ liệu chuỗi thời gian</li>
+                </ul>
+                <div class="pkg-deals">
+                  <h4>Ưu đãi học phí</h4>
+                  <ul>
+                    <li><strong>10%</strong><span>Hoàn tất học phí trước 08/12/2026</span></li>
+                  </ul>
+                </div>
+                <a class="button button-primary pkg-cta" href="#consultation" data-pick-package="Gói 6">Đăng ký Gói 6</a>
+              </div>
             </li>
           </ul>
           <p class="price-note">Học phí/học viên. Mức học phí nêu trên đã bao gồm các khoản thuế, phí và lệ phí theo quy định.</p>
 
           <div class="deals">
-            <h3 class="deals-title">Ưu đãi học phí</h3>
+            <h3 class="deals-title">Mốc thời gian ưu đãi</h3>
             <div class="timeline" role="img" aria-label="Mốc ưu đãi 08/12/2026, hạn chót đăng ký và hoàn tất học phí 28/12/2026">
               <div class="tl-before"><span>Trước 08/12/2026</span></div>
               <div class="tl-after"><span>Đến 28/12/2026</span></div>
               <p class="tl-mark tl-mark-1">08/12/2026<small>Mốc ưu đãi</small></p>
               <p class="tl-mark tl-mark-2">28/12/2026<small>Hạn chót đăng ký và hoàn tất học phí</small></p>
             </div>
-
-            <div class="deal-groups">
-              <section class="deal-group deal-group-main" aria-labelledby="deal-g14">
-                <h4 id="deal-g14">Các gói từ 1 đến 4</h4>
-                <ul class="deal-list">
-                  <li class="deal">
-                    <p class="deal-fig"><span>10</span>%</p>
-                    <h5>Hoàn tất học phí trước 08/12/2026</h5>
-                    <p>Giảm 10% học phí.</p>
-                  </li>
-                  <li class="deal">
-                    <p class="deal-fig"><span>5</span>%</p>
-                    <h5>Hoàn tất học phí theo nhóm từ 3 người</h5>
-                    <p>Giảm 5% học phí.</p>
-                  </li>
-                  <li class="deal">
-                    <p class="deal-fig"><span>10</span>% <small>+ 5%</small></p>
-                    <h5>Học viên cũ</h5>
-                    <p>Giảm 10% và giảm thêm 5% nếu hoàn tất học phí trước 08/12/2026. Không áp dụng đồng thời các ưu đãi khác.</p>
-                  </li>
-                </ul>
-              </section>
-              <section class="deal-group" aria-labelledby="deal-g56">
-                <h4 id="deal-g56">Gói 5 và gói 6</h4>
-                <ul class="deal-list">
-                  <li class="deal">
-                    <p class="deal-fig"><span>10</span>%</p>
-                    <h5>Hoàn tất học phí trước 08/12/2026</h5>
-                    <p>Giảm 10% học phí.</p>
-                  </li>
-                </ul>
-              </section>
-            </div>
-
             <ul class="deal-notes">
               <li>Học viên cũ là những anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây.</li>
               <li>Ưu đãi theo nhóm chỉ áp dụng khi hoàn tất học phí theo nhóm và tham gia cùng 1 gói đăng ký.</li>
+              <li>Học viên cũ không áp dụng đồng thời các ưu đãi khác.</li>
             </ul>
           </div>
         </div>

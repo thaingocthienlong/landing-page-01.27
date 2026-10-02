@@ -727,6 +727,31 @@
     show(0);
   };
 
+  /* ---------- tuition packages accordion ---------- */
+
+  const setupPackages = () => {
+    const items = [...document.querySelectorAll("[data-packages] .pkg")];
+    if (!items.length) return;
+    const wide = window.matchMedia("(min-width: 1061px)");
+    const open = (item) => items.forEach((other) => {
+      const on = other === item;
+      other.classList.toggle("is-open", on);
+      other.querySelector(".pkg-head").setAttribute("aria-expanded", String(on));
+    });
+    items.forEach((item) => {
+      item.querySelector(".pkg-head").addEventListener("click", () => open(item));
+      item.addEventListener("pointerenter", (event) => { if (event.pointerType === "mouse" && wide.matches) open(item); });
+    });
+    document.querySelectorAll("[data-pick-package]").forEach((link) => {
+      link.addEventListener("click", () => {
+        const radio = [...document.querySelectorAll('input[name="goi_dang_ky"]')].find((input) => input.value === link.dataset.pickPackage);
+        if (!radio) return;
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    });
+  };
+
   /* ---------- copy account number ---------- */
 
   const setupCopy = () => {
@@ -751,6 +776,7 @@
   setupFigures();
   setupHero();
   setupTabs();
+  setupPackages();
   setupSideNav();
   setupMobileNav();
   setupForm();
