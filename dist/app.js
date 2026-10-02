@@ -473,18 +473,12 @@
     },
   };
 
-  const figureLabels = {
-    r: "Biểu đồ phân tán với đường hồi quy tuyến tính và khoảng tin cậy 95%, dữ liệu mô phỏng",
-    cea: "Mặt phẳng chi phí - hiệu quả với ICER và ngưỡng sẵn lòng chi trả, dữ liệu mô phỏng",
-    time: "Chuỗi thời gian với phần dự báo ngoài mẫu và dải dự báo 80%, dữ liệu mô phỏng",
-  };
-
   const renderFigure = (svg, kind, label) => {
     const safe = Object.prototype.hasOwnProperty.call(figures, kind) ? kind : "r";
     svg.classList.remove("is-plotted");
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-    svg.setAttribute("aria-label", label || figureLabels[safe]);
+    svg.setAttribute("aria-label", label);
     figures[safe](svg);
   };
 
@@ -495,9 +489,6 @@
 
   const setupFigures = () => {
     const svgs = [...document.querySelectorAll("[data-plot]")];
-    svgs.forEach((svg) => {
-      if (svg.dataset.figure) renderFigure(svg, svg.dataset.figure);
-    });
     if (!("IntersectionObserver" in window)) {
       svgs.forEach(plot);
       return;
@@ -536,7 +527,6 @@
 
   const scenarios = {
     r: {
-      kind: "r",
       figures: [
         { kind: "r_ci", figure: "Hình 1.1 · Bài 4.", caption: " Khoảng tin cậy 95% từ 20 mẫu lặp: phần lớn chứa giá trị thật μ = 50, khoảng in đậm thì không. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
         { kind: "r_hist", figure: "Hình 1.2 · Bài 5.", caption: " Phân bố lệch phải của 300 quan sát: trung bình lớn hơn trung vị. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
@@ -549,11 +539,8 @@
       title: "Phân tích dữ liệu với R cơ bản",
       description: "Đối tượng: nhà nghiên cứu, nghiên cứu sinh và học viên sau đại học, giảng viên cao đẳng và đại học, người mới bắt đầu sử dụng R. Không cần kinh nghiệm lập trình.",
       skills: ["Sử dụng R và RStudio cho những phân tích dữ liệu thông dụng", "Nhập, quản lí, mô tả và hiển thị dữ liệu", "Thực hiện các phân tích so sánh và phân tích mối liên quan"],
-      figure: "Hình 1.",
-      caption: " Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm dữ liệu mô phỏng. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
     cea: {
-      kind: "cea",
       figures: [
         { kind: "cea_tree", figure: "Hình 2.1 · Bài 3.", caption: " Cây quyết định cho hai chiến lược điều trị: xác suất, chi phí, QALY kỳ vọng và ICER. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
         { kind: "cea_markov", figure: "Hình 2.2 · Bài 4.", caption: " Mô hình Markov ba trạng thái: phân bố đoàn hệ qua 30 chu kỳ. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
@@ -566,11 +553,8 @@
       title: "Phân tích chi phí - hiệu quả trong y tế",
       description: "Đối tượng: người làm việc trong lĩnh vực y tế và dược phẩm, gồm nhà quản lí và hoạch định chính sách y tế, bác sĩ, dược sĩ, chuyên viên y tế, nghiên cứu viên.",
       skills: ["Xác định và đo lường chi phí và hiệu quả; hiểu utility và QALY", "Tính và diễn giải ICER; xây dựng decision tree và Markov model", "Thực hiện sensitivity analysis và diễn giải kết quả trong bối cảnh ra quyết định y tế"],
-      figure: "Hình 2.",
-      caption: " Mặt phẳng chi phí - hiệu quả: 260 lần mô phỏng, ICER và ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
     time: {
-      kind: "time",
       figures: [
         { kind: "ts_acf", figure: "Hình 3.1 · Bài 2.", caption: " ACF của chuỗi gốc giảm chậm (chuỗi chưa dừng) và nhô lại ở độ trễ 12 (mùa vụ); đường đứt là ngưỡng ±1,96/√n. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
         { kind: "ts_decomp", figure: "Hình 3.2 · Bài 3.", caption: " Phân rã chuỗi 72 tháng thành xu hướng, mùa vụ và phần dư. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
@@ -582,38 +566,58 @@
       title: "Phân tích dữ liệu chuỗi thời gian",
       description: "Đối tượng: nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, kinh tế, tài chính, môi trường và các lĩnh vực liên quan.",
       skills: ["Nhận diện đặc điểm chính của dữ liệu chuỗi thời gian; hiểu tính dừng, tự tương quan và các thành phần của chuỗi", "Xây dựng mô hình dự báo từ exponential smoothing đến ARIMA", "Đánh giá và so sánh các mô hình bằng những thước đo sai số"],
-      figure: "Hình 3.",
-      caption: " Dự báo chuỗi thời gian: 60 tháng huấn luyện, 12 tháng ngoài mẫu, dải dự báo 80%. Dữ liệu minh họa, không phải kết quả nghiên cứu.",
     },
   };
 
   const scenarioKeys = Object.keys(scenarios);
 
+  // hero plays every course figure in turn, 4s each, starting on the linear regression
   const setupHero = () => {
     const svg = document.querySelector("#hero-figure");
     const caption = document.querySelector("#hero-figure-caption");
-    const plateEl = document.querySelector(".hero-plate");
-    if (!svg || !caption || !plateEl) return;
+    const sheetEl = document.querySelector(".hero-plate");
+    if (!svg || !caption || !sheetEl) return;
+    const list = scenarioKeys.flatMap((key) => scenarios[key].figures);
     let index = 0;
 
     const show = (next, { animate = true } = {}) => {
-      index = (next + scenarioKeys.length) % scenarioKeys.length;
-      const scenario = scenarios[scenarioKeys[index]];
-      renderFigure(svg, scenario.kind);
+      index = (next + list.length) % list.length;
+      const fig = list[index];
+      renderFigure(svg, fig.kind, fig.figure + fig.caption);
       const strong = document.createElement("strong");
-      strong.textContent = scenario.figure;
-      caption.replaceChildren(strong, document.createTextNode(scenario.caption));
-      if (animate) {
-        plateEl.classList.remove("is-swapping");
-        if (!reducedMotion.matches) {
-          void plateEl.offsetWidth;
-          plateEl.classList.add("is-swapping");
-        }
-        plot(svg);
+      strong.textContent = fig.figure;
+      caption.replaceChildren(strong, document.createTextNode(fig.caption));
+      if (!animate) return;
+      sheetEl.classList.remove("is-swapping");
+      if (!reducedMotion.matches) {
+        void sheetEl.offsetWidth;
+        sheetEl.classList.add("is-swapping");
       }
+      plot(svg);
     };
 
-    makeCycle(plateEl, () => show(index + 1));
+    // reserve the tallest caption so the hero does not shift as figures change
+    const lockCaption = () => {
+      const current = caption.innerHTML;
+      caption.style.minHeight = "";
+      let tallest = 0;
+      list.forEach((fig) => {
+        caption.textContent = fig.figure + fig.caption;
+        tallest = Math.max(tallest, caption.offsetHeight);
+      });
+      caption.innerHTML = current;
+      caption.style.minHeight = `${tallest}px`;
+    };
+
+    show(Math.max(0, list.findIndex((fig) => fig.kind === "r")), { animate: false });
+    lockCaption();
+    document.fonts?.ready.then(lockCaption);
+    let lockTimer = 0;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(lockTimer);
+      lockTimer = window.setTimeout(lockCaption, 200);
+    }, { passive: true });
+    makeCycle(sheetEl, () => show(index + 1), 4000);
   };
 
   const setupTabs = () => {
