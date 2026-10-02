@@ -106,8 +106,8 @@ address { font-style: normal; }
 .brand-logo { position: relative; flex: none; display: inline-flex; isolation: isolate; }
 /* two pale concentric rings behind the logo, breathing out of step */
 .brand-logo::before, .brand-logo::after { content: ""; position: absolute; left: 50%; top: 50%; z-index: -1; border-radius: 50%; transform: translate(-50%, -50%); animation: brand-aura 3s ease-in-out infinite; }
-.brand-logo::before { width: 92px; height: 92px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.09), rgba(0, 72, 255, 0.11)); }
-.brand-logo::after { width: 76px; height: 76px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.14), rgba(0, 72, 255, 0.17)); animation-delay: 0.45s; }
+.brand-logo::before { width: 92px; height: 92px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.045), rgba(0, 72, 255, 0.055)); }
+.brand-logo::after { width: 76px; height: 76px; background: linear-gradient(180deg, rgba(0, 144, 255, 0.07), rgba(0, 72, 255, 0.085)); animation-delay: 0.45s; }
 @keyframes brand-aura { 0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.55; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 1; } }
 .brand-mark { width: auto; height: 64px; }
 .brand-copy { display: flex; flex-direction: column; line-height: 1.2; }
