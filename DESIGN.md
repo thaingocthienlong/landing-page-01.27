@@ -209,7 +209,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 
 ### Don't:
 - **Don't** present simulated data as research results, or the form as having submitted anything.
-- **Don't** add navy particle heroes, glass chrome, gradient text or fills, or an AI-chat/workbench mockup.
+- **Don't** add navy particle heroes, glass chrome, gradient text or fills, or an AI-chat/workbench mockup. The working learner-care chat (below) is the one chat surface; it is a real assistant, not a mockup.
 - **Don't** wrap content in bordered, shadowed cards when a rule or table will do.
 - **Don't** set body text below 17px or rendered chart text below 11px.
 - **Don't** introduce an invented notice number or unreconciled figures.
@@ -251,3 +251,13 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - Schedule: heading above, calendar and Bảng 1 full width; day cells 84px with 1.625rem numerals, course labels centred under their days, Bảng 1 left aligned throughout; note reads "Ngày 11/01/2027 và ngày 14/01/2027 nghỉ."
 - Tuition: returning-learner offer shown as one 15% figure in a highlighted row (falls back to a struck 15% over 10% after 08/12/2026); larger package text; panel row 730px; one notes block under the packages (tax line, then group offer, returning-learner definition, no stacking) replaces the price note and the timeline notes.
 - Close section: new two-sentence CTA copy; contact names carry "(SĐT/Zalo)". Footer logo sits in a white circle with a pale ring. Faculty cards link to each lecturer's ScholarGPS profile.
+
+## Learner-care chat
+
+- A working AI assistant for learner questions (packages, fees and discounts, schedule, registration, course content). Questions go to the same Apps Script web app as the form (`data-endpoint` on `#chat-panel`), which asks Claude with the notice and outline text in `apps-script/Knowledge.gs` and logs each exchange to the `Hỏi đáp` sheet. Setup and limits: `apps-script/README.md`.
+- From 901px: a cobalt primary button "Hỏi đáp về khóa học" fixed 24px from the bottom-right corner opens a 420 x 680px panel in the same corner (the button hides while it is open). The page stays usable; Escape or the close button returns focus to the opener.
+- At 900px and below: the mobile bar gains a third button, Đăng ký (widest, primary) | Hỏi đáp | Gọi, sized to their labels on one line; icons drop below 360px. The panel becomes a full-screen sheet that follows the on-screen keyboard (visualViewport), the rest of the page is inert and does not scroll behind it, and focus goes to the panel title so the keyboard does not cover the suggestions.
+- Panel: white, 1px ink border, 4px cobalt top rule, flat (no shadow). Head is the serif title over an uppercase label "Trợ lý AI của Viện Phương Nam" and a 2px ink rule. The greeting says it is an AI that can be wrong and asks learners to confirm fees with the Institute before paying. Four suggested questions sit in a ruled list (2px ink rule, hairline rows, cobalt arrow) and disappear after the first question. Learner turns are right-aligned on cobalt wash; assistant turns are plain text, 17px. Under the field: a three-way ruled row, Gọi Viện | Zalo Ms. Vy | Zalo Ms. Thảo, then a note that conversations are saved, linking the privacy policy.
+- Replies are set as text, never HTML: paragraphs, "- " and numbered lists and **bold** only. The three contact numbers become `tel:` links, the phrase "Đăng ký khóa học" links to `#registration` (and closes the sheet on phones), and only URLs on vienphuongnam.com.vn, cran.r-project.org, posit.co and zalo.me are linked.
+- Failure is honest: with no endpoint or no API key the panel says the assistant is not running and shows the numbers; other failures show the numbers and a "Thử lại" link that resends the same question. While a reply is pending the send button is marked busy (`aria-disabled`) rather than disabled, so focus is not lost.
+- The conversation lives in `sessionStorage` for the tab (last 24 turns); the server sees the last 12. Signal red is not used anywhere in the chat; the typing dots are static under reduced motion.

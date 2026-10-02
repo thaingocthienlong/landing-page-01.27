@@ -6,6 +6,7 @@
  * setup() once and authorize, then Deploy > New deployment > Web app
  * (Execute as: Me, Who has access: Anyone). Put the /exec URL in the
  * data-endpoint attribute of #consultation-form in dist/index.html.
+ * Requests with action 'chat' go to the learner-care chat in Chat.gs.
  */
 
 var SHEET_NAME = 'Đăng ký';
@@ -34,11 +35,18 @@ function doGet() {
 }
 
 function doPost(e) {
+  var data;
+  try {
+    data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+  } catch (err) {
+    return json_({ ok: false, error: 'server' });
+  }
+  // Chat waits seconds on the model, so it must not hold the registration lock (Chat.gs).
+  if (data.action === 'chat') return handleChat_(data);
+
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
-    var data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-
     if (data.website) return json_({ ok: true });
     if (Number(data.elapsed) < MIN_SECONDS_TO_FILL) return json_({ ok: false, error: 'too-fast' });
 

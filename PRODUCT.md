@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Existing: plain static HTML/CSS/JS in `dist/`, deployed to GitHub Pages by `.github/workflows/deploy-pages.yml`. No build step, no backend.
+Existing: plain static HTML/CSS/JS in `dist/`, deployed to GitHub Pages by `.github/workflows/deploy-pages.yml`. No build step. The only server side is one Google Apps Script web app (`apps-script/`) that stores registrations and runs the learner-care chat through the Claude API.
 
 ## Users
 
@@ -34,6 +34,7 @@ Source of truth is the v4 notice (`assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01
 - Six tuition packages (8.800.000 / 6.700.000 / 7.500.000 / 6.700.000 / 3.500.000 / 4.500.000 đồng) with discount rules keyed to 08/12/2026 (v3: 10% before 08/12 and 5% for groups of 3+ on packages 1–4, existing learners 10% plus 5% if paid before 08/12, 10% before 08/12 on packages 5–6). The v3 notice dropped the reference book gift, so the page must not mention one. All figures must stay reconciled to the notice.
 - Static site; registrations go to a Google Apps Script web app (`apps-script/Code.gs`, URL set in the form's `data-endpoint`) that appends to a Google Sheet and emails the owner. While `data-endpoint` is empty or a send fails, the form must never claim a successful submission and falls back to phone. Field set follows the supplied PHP form minus the degree-field and certificate fields, which were dropped on request (package, email, split name, gender, birth date, phone, province, position/unit, discovery source, consent to the privacy policy at https://vienphuongnam.com.vn/chinh-sach-bao-mat.php); CAPTCHA/session fields are intentionally excluded.
 - Course codes (PTCBR01.27, PTHQR01.27, PTTGR01.27) are internal form values, not public copy. Do not invent a notice number.
+- Learner-care chat: an AI assistant (Claude via `apps-script/Chat.gs`) answers questions from the notice and outline text in `apps-script/Knowledge.gs` only, logs questions and answers to the `Hỏi đáp` sheet, and hands off to phone and Zalo. It cannot register, hold seats, confirm payments or grant discounts, labels discounted amounts as estimates, and with no API key it says it is not running instead of answering. When the notice changes, `Knowledge.gs` changes with the page.
 - Contacts: (028) 2242 6789; 0949 761 636 (Ms. Vy); 0912 114 511 (Ms. Thảo).
 
 ## Evidence on Hand
