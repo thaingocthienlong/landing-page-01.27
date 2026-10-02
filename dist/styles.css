@@ -145,10 +145,10 @@ section { padding-block: var(--section); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 
 /* figure plates */
-.plate { background: var(--cobalt); color: #fff; padding: clamp(14px, 2.2vw, 28px); --f-ink: #fff; --f-mute: rgba(255, 255, 255, 0.7); --f-grid: rgba(255, 255, 255, 0.17); --f-pt: rgba(255, 255, 255, 0.82); --f-fit: #fff; --f-band: rgba(255, 255, 255, 0.17); --f-hi: #ffc9c4; --f-halo: var(--cobalt); }
+.plate { background: var(--cobalt); color: #fff; padding: clamp(14px, 2.2vw, 28px); --f-ink: #fff; --f-mute: rgba(255, 255, 255, 0.7); --f-grid: rgba(255, 255, 255, 0.17); --f-pt: rgba(255, 255, 255, 0.82); --f-fit: #fff; --f-band: rgba(255, 255, 255, 0.17); --f-hi: #ffc9c4; --f-halo: var(--cobalt); --f-s1: rgba(255, 255, 255, 0.85); --f-s2: rgba(255, 255, 255, 0.45); --f-s3: rgba(255, 255, 255, 0.18); }
 .plate figcaption { margin-top: 14px; color: var(--cobalt-tint); font-size: 0.9375rem; line-height: 1.5; }
 .plate figcaption strong { color: #fff; }
-.sheet { border: 1px solid var(--hair); background: #fff; padding: clamp(12px, 1.6vw, 20px); --f-ink: var(--ink); --f-mute: var(--ink-3); --f-grid: #dde4ee; --f-pt: rgba(10, 61, 145, 0.62); --f-fit: var(--ink); --f-band: rgba(10, 61, 145, 0.13); --f-hi: var(--signal); --f-halo: #fff; }
+.sheet { border: 1px solid var(--hair); background: #fff; padding: clamp(12px, 1.6vw, 20px); --f-ink: var(--ink); --f-mute: var(--ink-3); --f-grid: #dde4ee; --f-pt: rgba(10, 61, 145, 0.62); --f-fit: var(--ink); --f-band: rgba(10, 61, 145, 0.13); --f-hi: var(--signal); --f-halo: #fff; --f-s1: rgba(10, 61, 145, 0.85); --f-s2: rgba(10, 61, 145, 0.42); --f-s3: rgba(10, 61, 145, 0.14); }
 .sheet figcaption { margin-top: 12px; font-size: 0.9375rem; color: var(--ink-2); line-height: 1.5; }
 .sheet figcaption strong { color: var(--ink); }
 .figure-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -172,13 +172,41 @@ section { padding-block: var(--section); }
 .f-draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .f-band, .f-note, .f-note-sub, .f-leader, .f-mark, .f-zone, .f-late { opacity: 0; }
 .is-plotted .f-pt { animation: f-pt 0.5s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 11ms); }
-.is-plotted .f-draw { animation: f-draw 1.1s 0.55s var(--ease) forwards; }
+.is-plotted .f-draw { animation: f-draw var(--dur, 1.1s) var(--d, 0.55s) var(--ease) forwards; }
 .is-plotted .f-band, .is-plotted .f-zone { animation: f-fade 0.7s 0.95s ease-out forwards; }
 .is-plotted .f-note, .is-plotted .f-note-sub, .is-plotted .f-leader, .is-plotted .f-mark, .is-plotted .f-late { animation: f-fade 0.6s 1.5s ease-out forwards; }
 @keyframes f-pt { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 @keyframes f-draw { to { stroke-dashoffset: 0; } }
 @keyframes f-fade { to { opacity: 1; } }
 .f-pt { transform-box: fill-box; transform-origin: center; }
+.f-ci { fill: none; stroke: var(--f-pt); stroke-width: 2.4; stroke-linecap: round; }
+.f-ci.is-miss { stroke: var(--f-ink); stroke-width: 3.4; }
+.f-pt.is-miss { fill: var(--f-ink); }
+.f-bar { fill: var(--f-pt); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); }
+.f-bar.is-key { fill: var(--f-ink); }
+.f-barx { transform-box: fill-box; transform: scaleX(0); }
+.f-s1 { fill: var(--f-s1); }
+.f-s2 { fill: var(--f-s2); }
+.f-s3 { fill: var(--f-s3); }
+.f-area { stroke: var(--f-halo); stroke-width: 1; }
+.f-box { fill: var(--f-band); stroke: var(--f-ink); stroke-width: 1.6; }
+.f-med { stroke: var(--f-ink); stroke-width: 3; }
+.f-whisk { stroke: var(--f-ink); stroke-width: 1.4; }
+.f-edge { fill: none; stroke: var(--f-ink); stroke-width: 1.6; }
+.f-node { fill: var(--f-ink); }
+.f-node-c { fill: var(--f-halo); stroke: var(--f-ink); stroke-width: 2; }
+.f-cat { fill: var(--f-ink); font: 600 14px var(--sans); }
+.f-cat.f-small { fill: var(--f-mute); font-size: 13px; font-weight: 500; }
+.f-on-dark { fill: #fff; }
+.f-in { opacity: 0; }
+.f-wipe { clip-path: inset(0 100% 0 0); }
+.is-plotted .f-bar { animation: f-grow 0.55s var(--ease) forwards; animation-delay: calc(0.15s + var(--i, 0) * 45ms); }
+.is-plotted .f-barx { animation: f-grow 0.6s var(--ease) forwards; animation-delay: calc(0.2s + var(--i, 0) * 110ms); }
+.is-plotted .f-in { animation: f-fade 0.5s var(--d, 0.6s) ease-out forwards; }
+.is-plotted .f-wipe { animation: f-wipe 1.3s var(--d, 0.2s) var(--ease) forwards; }
+@keyframes f-grow { to { transform: none; } }
+@keyframes f-wipe { to { clip-path: inset(0 0 0 0); } }
+.sheet.is-swapping .figure-svg, .sheet.is-swapping figcaption { animation: swap 0.38s var(--ease); }
 
 .hero-plate .f-tick { font-size: 16px; }
 .hero-plate .f-label { font-size: 17px; }
@@ -541,6 +569,8 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .f-label, .hero-plate .f-label { font-size: 19px; }
   .f-note, .hero-plate .f-note { font-size: 20px; stroke-width: 6px; }
   .f-note-sub, .hero-plate .f-note-sub { font-size: 17px; stroke-width: 6px; }
+  .f-cat { font-size: 17px; }
+  .f-cat.f-small { font-size: 15px; }
   .tabs { grid-template-columns: minmax(0, 1fr); border-bottom: 0; }
   .tab, .tab + .tab { padding: 14px 0; border-bottom: 1px solid var(--hair); box-shadow: inset 4px 0 0 transparent; padding-left: 14px; }
   .tab.is-active { box-shadow: inset 4px 0 0 var(--cobalt); background: var(--cobalt-wash); }
@@ -571,7 +601,9 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .f-pt { opacity: 1; }
   .f-draw { stroke-dashoffset: 0; }
-  .f-band, .f-note, .f-note-sub, .f-leader, .f-mark, .f-zone, .f-late { opacity: 1; }
+  .f-band, .f-note, .f-note-sub, .f-leader, .f-mark, .f-zone, .f-late, .f-in { opacity: 1; }
+  .f-bar, .f-barx { transform: none; }
+  .f-wipe { clip-path: none; }
 }
 
 .hero-plate figcaption { min-height: calc(3 * 1.5 * 0.9375rem); }

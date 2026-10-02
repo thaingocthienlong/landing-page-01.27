@@ -76,6 +76,63 @@
     if (sub) node(svg, "text", { class: "f-note-sub", x: tx, y: ty + 20, "text-anchor": anchor }, sub);
   };
 
+  const seq = (n, f) => Array.from({ length: n }, (_, i) => f(i));
+  const sdev = (values) => {
+    const m = mean(values);
+    return Math.sqrt(values.reduce((sum, v) => sum + (v - m) ** 2, 0) / (values.length - 1));
+  };
+  const quantile = (values, p) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const i = (sorted.length - 1) * p;
+    const lo = Math.floor(i);
+    return sorted[lo] + (sorted[Math.ceil(i)] - sorted[lo]) * (i - lo);
+  };
+  const pathOf = (pts) => pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
+  // shared synthetic inputs, so figures of the same course agree with each other
+  const treeModel = { cNew: 30, cStd: 12, cFail: 15, pNew: 0.8, pStd: 0.6, uCure: 0.95, uFail: 0.55 };
+  const evalTree = (p) => {
+    const cN = p.cNew + (1 - p.pNew) * p.cFail;
+    const cS = p.cStd + (1 - p.pStd) * p.cFail;
+    const qN = p.pNew * p.uCure + (1 - p.pNew) * p.uFail;
+    const qS = p.pStd * p.uCure + (1 - p.pStd) * p.uFail;
+    return { cN, cS, qN, qS, icer: (cN - cS) / (qN - qS) };
+  };
+  const psaSample = () => {
+    const r = rng(21);
+    return seq(260, () => {
+      const g1 = gauss(r);
+      const g2 = gauss(r);
+      return { e: Math.min(0.68, Math.max(-0.08, 0.3 + 0.11 * g1)), c: Math.min(48, Math.max(-8, 20 + 9 * (0.4 * g1 + 0.917 * g2))) };
+    });
+  };
+  const tsSeries = () => {
+    const r = rng(5);
+    return seq(72, (t) => 48 + 0.42 * t + 9 * Math.sin((2 * Math.PI * t) / 12 + 0.9) + gauss(r) * 2.4);
+  };
+  const fitTrendSeason = (y, train) => {
+    const tm = (train - 1) / 2;
+    const sxx = Array.from({ length: train }, (_, t) => (t - tm) ** 2).reduce((s, v) => s + v, 0);
+    const yb = mean(y.slice(0, train));
+    const b = y.slice(0, train).reduce((s, v, t) => s + (t - tm) * (v - yb), 0) / sxx;
+    const a = yb - b * tm;
+    const seas = Array.from({ length: 12 }, (_, m) => mean(y.slice(0, train).map((v, t) => (t % 12 === m ? v - a - b * t : null)).filter((v) => v !== null)));
+    return (t) => a + b * t + seas[t % 12];
+  };
+  const holtWinters = (y, a = 0.3, b = 0.05, g = 0.3) => {
+    let level = mean(y.slice(0, 12));
+    let trend = (mean(y.slice(12, 24)) - level) / 12;
+    const season = y.slice(0, 12).map((v) => v - level);
+    for (let t = 12; t < y.length; t += 1) {
+      const s = season[t % 12];
+      const prev = level;
+      level = a * (y[t] - s) + (1 - a) * (level + trend);
+      trend = b * (level - prev) + (1 - b) * trend;
+      season[t % 12] = g * (y[t] - level) + (1 - g) * s;
+    }
+    return (h) => level + h * trend + season[(y.length - 1 + h) % 12];
+  };
+
   const figures = {
     r(svg) {
       const r = rng(7);
@@ -103,14 +160,9 @@
     },
 
     cea(svg) {
-      const r = rng(21);
-      const n = 260;
+      const pts = psaSample();
+      const n = pts.length;
       const lambda = 80;
-      const pts = Array.from({ length: n }, () => {
-        const g1 = gauss(r);
-        const g2 = gauss(r);
-        return { e: Math.min(0.68, Math.max(-0.08, 0.3 + 0.11 * g1)), c: Math.min(48, Math.max(-8, 20 + 9 * (0.4 * g1 + 0.917 * g2))) };
-      });
       const me = mean(pts.map((p) => p.e));
       const mc = mean(pts.map((p) => p.c));
       const icer = mc / me;
@@ -126,17 +178,10 @@
     },
 
     time(svg) {
-      const r = rng(5);
-      const total = 72;
+      const y = tsSeries();
+      const total = y.length;
       const train = 60;
-      const y = Array.from({ length: total }, (_, t) => 48 + 0.42 * t + 9 * Math.sin((2 * Math.PI * t) / 12 + 0.9) + gauss(r) * 2.4);
-      const tm = (train - 1) / 2;
-      const sxx = Array.from({ length: train }, (_, t) => (t - tm) ** 2).reduce((s, v) => s + v, 0);
-      const yb = mean(y.slice(0, train));
-      const b = y.slice(0, train).reduce((s, v, t) => s + (t - tm) * (v - yb), 0) / sxx;
-      const a = yb - b * tm;
-      const seas = Array.from({ length: 12 }, (_, m) => mean(y.slice(0, train).map((v, t) => (t % 12 === m ? v - a - b * t : null)).filter((v) => v !== null)));
-      const fit = (t) => a + b * t + seas[t % 12];
+      const fit = fitTrendSeason(y, train);
       const sd = Math.sqrt(mean(y.slice(0, train).map((v, t) => (v - fit(t)) ** 2)));
       const rmse = Math.sqrt(mean(y.slice(train).map((v, i) => (v - fit(train + i)) ** 2)));
       const lo = Math.floor((Math.min(...y) - 6) / 10) * 10;
@@ -154,6 +199,278 @@
       node(svg, "text", { class: "f-note-sub f-late", x: (sx(train - 0.5) + sx(71.5)) / 2, y: H - M.b - 10, "text-anchor": "middle" }, "ngoài mẫu");
       callout(svg, { text: `Sai số ngoài mẫu: RMSE = ${fmt(rmse, 1)}`, sub: "xu hướng + mùa vụ, huấn luyện trên 60 tháng đầu", tx: sx(58), ty: M.t + 22, anchor: "end", from: [sx(58) - 8, M.t + 34], to: [sx(65), sy(fit(65))] });
     },
+    r_ci(svg) {
+      const r = rng(41);
+      const mu = 50;
+      const cis = seq(20, () => {
+        const s = seq(25, () => mu + 10 * gauss(r));
+        const m = mean(s);
+        const h = (2.064 * sdev(s)) / 5;
+        return { m, lo: m - h, hi: m + h, hit: Math.abs(m - mu) <= h };
+      });
+      const hits = cis.filter((c) => c.hit).length;
+      const { sx, sy } = frame(svg, { x: [40, 60], y: [0, 21], xt: [40, 45, 50, 55, 60], yt: [1, 5, 10, 15, 20], xl: "Trung bình mẫu và khoảng tin cậy 95%", yl: "Mẫu lặp thứ" });
+      node(svg, "line", { class: "f-thr", x1: sx(mu), x2: sx(mu), y1: M.t, y2: H - M.b });
+      cis.forEach((c, i) => {
+        const y = sy(i + 1);
+        const miss = c.hit ? "" : " is-miss";
+        node(svg, "path", { class: `f-ci f-draw${miss}`, pathLength: 1, d: `M${sx(c.lo)},${y} L${sx(c.hi)},${y}`, style: `--d:${(0.15 + i * 0.07).toFixed(2)}s;--dur:0.45s` });
+        node(svg, "circle", { class: `f-pt${miss}`, cx: sx(c.m), cy: y, r: 3.6, style: `--i:${Math.round(40 + i * 6.4)}` });
+      });
+      const miss = cis.findIndex((c) => !c.hit);
+      const target = miss >= 0 ? [sx(cis[miss].hi), sy(miss + 1)] : [sx(mu), M.t + 4];
+      callout(svg, { text: `${hits}/20 khoảng chứa μ = 50`, sub: "mỗi mẫu 25 quan sát", tx: W - M.r - 6, ty: M.t + 22, anchor: "end", from: [W - M.r - 60, M.t + 46], to: target });
+    },
+
+    r_hist(svg) {
+      const r = rng(3);
+      const v = seq(300, () => Math.min(35.9, Math.exp(2.3 + 0.45 * gauss(r))));
+      const counts = seq(18, (b) => v.filter((x) => x >= b * 2 && x < b * 2 + 2).length);
+      const top = Math.ceil(Math.max(...counts) / 20) * 20;
+      const md = quantile(v, 0.5);
+      const mn = mean(v);
+      const { sx, sy } = frame(svg, { x: [0, 36], y: [0, top], xt: [0, 6, 12, 18, 24, 30, 36], yt: seq(top / 20 + 1, (i) => i * 20), xl: "Giá trị quan sát (đơn vị tùy ý)", yl: "Số quan sát" });
+      counts.forEach((c, b) => {
+        if (!c) return;
+        node(svg, "rect", { class: "f-bar", x: sx(b * 2) + 1, y: sy(c), width: sx(2) - sx(0) - 2, height: sy(0) - sy(c), style: `--i:${b}` });
+      });
+      node(svg, "line", { class: "f-thr f-late", x1: sx(md), x2: sx(md), y1: M.t + 70, y2: H - M.b });
+      node(svg, "line", { class: "f-fit f-late", x1: sx(mn), x2: sx(mn), y1: M.t + 30, y2: H - M.b });
+      node(svg, "text", { class: "f-note-sub f-late", x: sx(md) - 6, y: M.t + 84, "text-anchor": "end" }, `Trung vị = ${fmt(md, 1)}`);
+      callout(svg, { text: `Trung bình = ${fmt(mn, 1)}`, sub: "lệch phải: trung bình > trung vị", tx: sx(mn) + 10, ty: M.t + 22, from: [sx(mn) + 8, M.t + 30], to: [sx(mn), M.t + 30] });
+    },
+
+    r_box(svg) {
+      const r = rng(9);
+      const groups = [seq(40, () => 52 + 9 * gauss(r)), seq(40, () => 58 + 9 * gauss(r))];
+      const { sx, sy } = frame(svg, { x: [0.4, 2.6], y: [25, 85], xt: [], yt: [30, 40, 50, 60, 70, 80], xl: "Nhóm so sánh", yl: "Giá trị đo (đơn vị tùy ý)" });
+      groups.forEach((g, gi) => {
+        const cx = gi + 1;
+        const [q1, q2, q3] = [0.25, 0.5, 0.75].map((p) => quantile(g, p));
+        const iqr = q3 - q1;
+        const lo = Math.min(...g.filter((x) => x >= q1 - 1.5 * iqr));
+        const hi = Math.max(...g.filter((x) => x <= q3 + 1.5 * iqr));
+        const half = sx(0.22) - sx(0);
+        node(svg, "text", { class: "f-tick", x: sx(cx), y: H - M.b + 20, "text-anchor": "middle" }, gi ? "Nhóm B" : "Nhóm A");
+        node(svg, "line", { class: "f-whisk f-in", x1: sx(cx), x2: sx(cx), y1: sy(hi), y2: sy(q3), style: "--d:0.9s" });
+        node(svg, "line", { class: "f-whisk f-in", x1: sx(cx), x2: sx(cx), y1: sy(q1), y2: sy(lo), style: "--d:0.9s" });
+        node(svg, "rect", { class: "f-box f-in", x: sx(cx) - half, y: sy(q3), width: half * 2, height: sy(q1) - sy(q3), style: "--d:0.8s" });
+        node(svg, "line", { class: "f-med f-in", x1: sx(cx) - half, x2: sx(cx) + half, y1: sy(q2), y2: sy(q2), style: "--d:1s" });
+        g.forEach((x, i) => node(svg, "circle", { class: "f-pt", cx: sx(cx + (r() - 0.5) * 0.3), cy: sy(x), r: 3.2, style: `--i:${i + gi * 40}` }));
+      });
+      const [a, b] = groups;
+      const d = mean(b) - mean(a);
+      const se = Math.sqrt(sdev(a) ** 2 / a.length + sdev(b) ** 2 / b.length);
+      callout(svg, { text: `Chênh lệch trung bình = ${fmt(d, 1)}`, sub: `KTC 95%: ${fmt(d - 1.99 * se, 1)} đến ${fmt(d + 1.99 * se, 1)} (t-test)`, tx: sx(1.5), ty: M.t + 22, anchor: "middle", from: [sx(1.5), M.t + 46], to: [sx(2) - (sx(0.22) - sx(0)), sy(mean(b))] });
+    },
+
+    r_logit(svg) {
+      const r = rng(17);
+      const pts = seq(80, () => {
+        const x = r() * 10;
+        return { x, y: r() < 1 / (1 + Math.exp(4 - 0.8 * x)) ? 1 : 0 };
+      });
+      let b0 = 0;
+      let b1 = 0;
+      for (let k = 0; k < 25; k += 1) {
+        let g0 = 0; let g1 = 0; let h00 = 0; let h01 = 0; let h11 = 0;
+        pts.forEach(({ x, y }) => {
+          const p = 1 / (1 + Math.exp(-(b0 + b1 * x)));
+          const w = p * (1 - p);
+          g0 += y - p; g1 += (y - p) * x; h00 += w; h01 += w * x; h11 += w * x * x;
+        });
+        const det = h00 * h11 - h01 * h01;
+        b0 += (h11 * g0 - h01 * g1) / det;
+        b1 += (h00 * g1 - h01 * g0) / det;
+      }
+      const prob = (x) => 1 / (1 + Math.exp(-(b0 + b1 * x)));
+      const { sx, sy } = frame(svg, { x: [0, 10], y: [-0.08, 1.08], xt: [0, 2, 4, 6, 8, 10], yt: [0, 0.5, 1], xl: "Biến giải thích (đơn vị tùy ý)", yl: "Xác suất kết cục", yf: (v) => (v === 0.5 ? "0,5" : String(v)) });
+      pts.forEach((p, i) => node(svg, "circle", { class: "f-pt", cx: sx(p.x), cy: sy(p.y + (r() - 0.5) * 0.07), r: 3.6, style: `--i:${i}` }));
+      node(svg, "path", { class: "f-fit f-draw", pathLength: 1, d: pathOf(seq(41, (i) => [sx(i / 4), sy(prob(i / 4))])) });
+      const x50 = -b0 / b1;
+      callout(svg, { text: `OR = ${fmt(Math.exp(b1))} cho mỗi đơn vị tăng`, sub: `hồi quy logistic, ${pts.length} quan sát`, tx: M.l + 16, ty: M.t + 30, from: [M.l + 120, M.t + 56], to: [sx(x50), sy(0.5)] });
+    },
+
+    cea_tree(svg) {
+      const p = treeModel;
+      const v = evalTree(p);
+      const tri = (x, y) => `M${x},${y} l14,-8 l0,16 z`;
+      const edge = (x1, y1, x2, y2, d) => node(svg, "path", { class: "f-edge f-draw", pathLength: 1, d: `M${x1},${y1} L${x1 + 24},${y2} L${x2},${y2}`, style: `--d:${d}s;--dur:0.5s` });
+      const label = (x, y, text, d, cls = "f-note-sub") => node(svg, "text", { class: `${cls} f-in`, x, y, style: `--d:${d}s` }, text);
+      node(svg, "rect", { class: "f-node f-pt", x: 18, y: 160, width: 20, height: 20, style: "--i:0" });
+      const arms = [
+        { name: "Điều trị mới", y: 82, cost: p.cNew, pc: p.pNew, c: v.cN, q: v.qN },
+        { name: "Điều trị chuẩn", y: 258, cost: p.cStd, pc: p.pStd, c: v.cS, q: v.qS },
+      ];
+      arms.forEach((a, ai) => {
+        edge(38, 170, 182, a.y, 0.2);
+        label(68, a.y - 9, a.name, 0.5, "f-cat");
+        node(svg, "circle", { class: "f-node-c f-pt", cx: 191, cy: a.y, r: 9, style: `--i:${70 + ai * 4}` });
+        [[a.pc, "Khỏi bệnh", a.cost, p.uCure, -40], [1 - a.pc, "Không khỏi", a.cost + p.cFail, p.uFail, 40]].forEach(([pr, out, cost, u, dy], oi) => {
+          const ty = a.y + dy;
+          edge(200, a.y, 322, ty, 0.85);
+          label(232, ty - 8, `p = ${fmt(pr)}`, 1.15);
+          node(svg, "path", { class: "f-node f-pt", d: tri(324, ty), style: `--i:${130 + ai * 6 + oi * 3}` });
+          label(346, ty - 3, out, 1.45, "f-cat");
+          label(346, ty + 16, `${fmt(cost, 0)} triệu · ${fmt(u)} QALY`, 1.55);
+        });
+      });
+      label(18, 336, `Mới: chi phí kỳ vọng ${fmt(v.cN, 0)} triệu, ${fmt(v.qN)} QALY`, 1.9);
+      label(18, 358, `Chuẩn: chi phí kỳ vọng ${fmt(v.cS, 0)} triệu, ${fmt(v.qS)} QALY`, 2);
+      label(18, 390, `ICER = ${fmt(v.icer, 1)} triệu đồng/QALY`, 2.2, "f-note");
+    },
+
+    cea_markov(svg) {
+      const P = [[0.85, 0.1, 0.05], [0, 0.8, 0.2], [0, 0, 1]];
+      let s = [1, 0, 0];
+      const trace = [s];
+      for (let t = 0; t < 30; t += 1) {
+        s = [0, 1, 2].map((j) => s.reduce((sum, v, i) => sum + v * P[i][j], 0));
+        trace.push(s);
+      }
+      const { sx, sy } = frame(svg, { x: [0, 30], y: [0, 100], xt: [0, 5, 10, 15, 20, 25, 30], yt: [0, 25, 50, 75, 100], xl: "Chu kỳ (năm)", yl: "Tỷ lệ đoàn hệ (%)" });
+      const cum = trace.map(([h, k]) => [0, h, h + k, 1]);
+      ["f-s1", "f-s2", "f-s3"].forEach((cls, band) => {
+        const upper = cum.map((c, t) => [sx(t), sy(c[band + 1] * 100)]);
+        const lower = cum.map((c, t) => [sx(t), sy(c[band] * 100)]).reverse();
+        node(svg, "polygon", { class: `f-area ${cls} f-wipe`, points: [...upper, ...lower].map((q) => q.join(",")).join(" "), style: `--d:${0.15 + band * 0.25}s` });
+      });
+      node(svg, "text", { class: "f-cat f-on-dark f-in", x: sx(1.2), y: sy(12), style: "--d:1.4s" }, "Khỏe");
+      node(svg, "text", { class: "f-cat f-in", x: sx(7), y: sy((cum[7][1] + cum[7][2]) * 50) + 5, style: "--d:1.5s" }, "Bệnh");
+      node(svg, "text", { class: "f-cat f-in", x: sx(21), y: sy(78), style: "--d:1.6s" }, "Tử vong");
+      const h10 = trace[10][0] * 100;
+      callout(svg, { text: `Sau 10 chu kỳ: ${fmt(h10, 0)}% còn khỏe`, sub: "3 trạng thái, xác suất chuyển tiếp minh họa", tx: W - M.r - 6, ty: M.t + 26, anchor: "end", from: [sx(16), M.t + 50], to: [sx(10), sy(h10)] });
+    },
+
+    cea_tornado(svg) {
+      const base = evalTree(treeModel).icer;
+      const names = { pNew: "Xác suất khỏi (mới)", pStd: "Xác suất khỏi (chuẩn)", uCure: "Utility khi khỏi", cNew: "Chi phí điều trị mới", uFail: "Utility khi không khỏi", cStd: "Chi phí điều trị chuẩn", cFail: "Chi phí khi không khỏi" };
+      const vary = (k, f) => evalTree({ ...treeModel, [k]: Math.min(k[0] === "c" ? Infinity : 1, treeModel[k] * f) }).icer;
+      const rows = Object.keys(names).map((k) => ({ k, lo: vary(k, 0.9), hi: vary(k, 1.1) })).sort((a, b) => Math.abs(b.hi - b.lo) - Math.abs(a.hi - a.lo));
+      const L = 200;
+      const x0 = 100;
+      const x1 = 350;
+      const sx = (v) => L + ((v - x0) / (x1 - x0)) * (W - M.r - L);
+      const top = 58;
+      const row = (H - M.b - top) / rows.length;
+      [100, 150, 200, 250, 300, 350].forEach((t) => {
+        node(svg, "line", { class: "f-grid", x1: sx(t), x2: sx(t), y1: top - 8, y2: H - M.b });
+        node(svg, "text", { class: "f-tick", x: sx(t), y: H - M.b + 20, "text-anchor": "middle" }, String(t));
+      });
+      node(svg, "text", { class: "f-label", x: L + (W - M.r - L) / 2, y: H - 8, "text-anchor": "middle" }, "ICER (triệu đồng/QALY)");
+      rows.forEach((d, i) => {
+        const y = top + i * row + row / 2;
+        node(svg, "text", { class: "f-cat", x: L - 10, y: y + 5, "text-anchor": "end" }, names[d.k]);
+        [[d.lo, "f-s2"], [d.hi, "f-s1"]].forEach(([v, cls]) => {
+          const left = v < base;
+          node(svg, "rect", { class: `f-barx ${cls}`, x: left ? sx(v) : sx(base), y: y - 11, width: Math.abs(sx(v) - sx(base)), height: 22, style: `--i:${i};transform-origin:${left ? "right" : "left"} center` });
+        });
+      });
+      node(svg, "line", { class: "f-thr", x1: sx(base), x2: sx(base), y1: top - 12, y2: H - M.b });
+      node(svg, "text", { class: "f-note f-late", x: sx(base), y: top - 22, "text-anchor": "middle" }, `ICER cơ sở = ${fmt(base, 1)}`);
+      [["f-s2", "−10%"], ["f-s1", "+10%"]].forEach(([cls, t], i) => {
+        node(svg, "rect", { class: `${cls} f-in`, x: 12 + i * 72, y: 10, width: 12, height: 12, style: "--d:1.2s" });
+        node(svg, "text", { class: "f-tick f-in", x: 29 + i * 72, y: 21, style: "--d:1.2s" }, t);
+      });
+    },
+
+    cea_ceac(svg) {
+      const pts = psaSample();
+      const share = (l) => (pts.filter((p) => l * p.e - p.c > 0).length / pts.length) * 100;
+      const lambda = 80;
+      const at = share(lambda);
+      const { sx, sy } = frame(svg, { x: [0, 200], y: [0, 100], xt: [0, 50, 100, 150, 200], yt: [0, 25, 50, 75, 100], xl: "Ngưỡng sẵn lòng chi trả (triệu đồng/QALY)", yl: "Khả năng chi phí - hiệu quả (%)" });
+      node(svg, "path", { class: "f-fit f-draw", pathLength: 1, d: pathOf(seq(101, (i) => [sx(i * 2), sy(share(i * 2))])), style: "--dur:1.5s;--d:0.3s" });
+      node(svg, "line", { class: "f-thr f-late", x1: sx(lambda), x2: sx(lambda), y1: M.t, y2: H - M.b });
+      callout(svg, { text: `${fmt(at, 0)}% tại ${lambda} triệu đồng/QALY`, sub: "tỷ lệ mô phỏng có lợi ích ròng dương", tx: sx(lambda) + 14, ty: sy(at) + 46, from: [sx(lambda) + 12, sy(at) + 32], to: [sx(lambda), sy(at)] });
+    },
+
+    ts_acf(svg) {
+      const y = tsSeries();
+      const d = y;
+      const m = mean(d);
+      const den = d.reduce((s, v) => s + (v - m) ** 2, 0);
+      const acf = seq(24, (k) => d.slice(0, d.length - k - 1).reduce((s, v, t) => s + (v - m) * (d[t + k + 1] - m), 0) / den);
+      const bound = 1.96 / Math.sqrt(d.length);
+      const { sx, sy } = frame(svg, { x: [0, 25], y: [-0.5, 1], xt: [1, 6, 12, 18, 24], yt: [-0.5, 0, 0.5, 1], xl: "Độ trễ (tháng)", yl: "Tự tương quan (ACF)", yf: (v) => (v === 0 ? "0" : fmt(v, 1)) });
+      node(svg, "line", { class: "f-axis", x1: M.l, x2: W - M.r, y1: sy(0), y2: sy(0) });
+      [bound, -bound].forEach((b) => node(svg, "line", { class: "f-thr f-late", x1: M.l, x2: W - M.r, y1: sy(b), y2: sy(b) }));
+      acf.forEach((a, i) => {
+        const k = i + 1;
+        node(svg, "rect", { class: `f-bar${k % 12 ? "" : " is-key"}`, x: sx(k) - 5, y: Math.min(sy(a), sy(0)), width: 10, height: Math.abs(sy(a) - sy(0)), style: `--i:${i};transform-origin:50% ${a < 0 ? "0%" : "100%"}` });
+      });
+      callout(svg, { text: "ACF giảm chậm: chuỗi chưa dừng", sub: `nhô lại ở độ trễ 12 (${fmt(acf[11])}): mùa vụ`, tx: sx(13.5), ty: M.t + 24, from: [sx(13.2), M.t + 30], to: [sx(12), sy(acf[11])] });
+    },
+
+    ts_decomp(svg) {
+      const y = tsSeries();
+      const n = y.length;
+      const trend = y.map((_, t) => (t < 6 || t > n - 7 ? null : (0.5 * y[t - 6] + y.slice(t - 5, t + 6).reduce((s, v) => s + v, 0) + 0.5 * y[t + 6]) / 12));
+      const raw = seq(12, (mo) => mean(y.map((v, t) => (trend[t] === null || t % 12 !== mo ? null : v - trend[t])).filter((v) => v !== null)));
+      const seas = raw.map((v) => v - mean(raw));
+      const rest = y.map((v, t) => (trend[t] === null ? null : v - trend[t] - seas[t % 12]));
+      const L = 104;
+      const sx = (t) => L + (t / (n - 1)) * (W - M.r - L);
+      const amp = Math.max(...seas.map(Math.abs)) * 1.15;
+      const lo = Math.min(...y);
+      const hi = Math.max(...y);
+      const panels = [
+        { name: "Quan sát", vals: y, range: [lo, hi], cls: "f-line" },
+        { name: "Xu hướng", vals: trend, range: [lo, hi], cls: "f-fit" },
+        { name: "Mùa vụ", vals: y.map((_, t) => seas[t % 12]), range: [-amp, amp], cls: "f-fit" },
+        { name: "Phần dư", vals: rest, range: [-amp, amp], cls: "f-line" },
+      ];
+      const ph = 66;
+      const gap = 14;
+      panels.forEach((p, i) => {
+        const y0 = M.t + i * (ph + gap);
+        const sy = (v) => y0 + ph - ((v - p.range[0]) / (p.range[1] - p.range[0])) * ph;
+        node(svg, "line", { class: "f-grid", x1: L, x2: W - M.r, y1: i > 1 ? sy(0) : y0 + ph, y2: i > 1 ? sy(0) : y0 + ph });
+        node(svg, "text", { class: "f-cat", x: L - 12, y: y0 + ph / 2 + 5, "text-anchor": "end" }, p.name);
+        const pts = p.vals.map((v, t) => (v === null ? null : [sx(t), sy(v)])).filter(Boolean);
+        node(svg, "path", { class: `${p.cls} f-draw`, pathLength: 1, d: pathOf(pts), style: `--d:${0.15 + i * 0.4}s;--dur:1s` });
+      });
+      const base = M.t + 4 * (ph + gap) - gap;
+      [0, 12, 24, 36, 48, 60, 71].forEach((t) => node(svg, "text", { class: "f-tick", x: sx(t), y: base + 20, "text-anchor": "middle" }, String(t)));
+      node(svg, "text", { class: "f-label", x: L + (W - M.r - L) / 2, y: base + 44, "text-anchor": "middle" }, "Thời gian (tháng)");
+      node(svg, "text", { class: "f-note-sub f-late", x: W - M.r, y: H - 6, "text-anchor": "end" }, "quan sát = xu hướng + mùa vụ + phần dư");
+    },
+
+    ts_err(svg) {
+      const y = tsSeries();
+      const train = 60;
+      const test = y.slice(train);
+      const reg = fitTrendSeason(y, train);
+      const hw = holtWinters(y.slice(0, train));
+      const models = [
+        { name: "Naive", f: (h) => y[train + h - 12] },
+        { name: "Holt-Winters", f: (h) => hw(h + 1) },
+        { name: "Hồi quy", f: (h) => reg(train + h) },
+      ].map((m) => {
+        const e = test.map((v, h) => v - m.f(h));
+        return { ...m, mae: mean(e.map(Math.abs)), rmse: Math.sqrt(mean(e.map((v) => v * v))), mape: mean(e.map((v, h) => Math.abs(v / test[h]))) * 100 };
+      });
+      const metrics = [["mae", "MAE"], ["rmse", "RMSE"], ["mape", "MAPE (%)"]];
+      const pw = (W - M.l - M.r) / 3;
+      const top = 64;
+      const bottom = H - M.b - 14;
+      metrics.forEach(([key, title], mi) => {
+        const x0 = M.l + mi * pw;
+        const max = Math.max(...models.map((m) => m[key])) * 1.18;
+        const best = Math.min(...models.map((m) => m[key]));
+        node(svg, "text", { class: "f-label", x: x0 + pw / 2, y: top - 26, "text-anchor": "middle" }, title);
+        node(svg, "line", { class: "f-axis", x1: x0 + 10, x2: x0 + pw - 10, y1: bottom, y2: bottom });
+        models.forEach((m, i) => {
+          const bw = (pw - 40) / 3;
+          const x = x0 + 20 + i * bw;
+          const h = (m[key] / max) * (bottom - top);
+          node(svg, "rect", { class: `f-bar${m[key] === best ? " is-key" : ""}`, x: x + 3, y: bottom - h, width: bw - 6, height: h, style: `--i:${mi * 4 + i}` });
+          node(svg, "text", { class: "f-tick f-late", x: x + bw / 2, y: bottom - h - 8, "text-anchor": "middle" }, fmt(m[key], 1));
+          node(svg, "text", { class: "f-cat f-small", x: x + bw / 2, y: bottom + 18, "text-anchor": "middle" }, m.name === "Holt-Winters" ? "H-W" : m.name);
+        });
+      });
+      node(svg, "text", { class: "f-note-sub f-late", x: W / 2, y: H - 8, "text-anchor": "middle" }, "12 tháng kiểm tra · cột đậm: sai số thấp nhất");
+    },
   };
 
   const figureLabels = {
@@ -162,12 +479,12 @@
     time: "Chuỗi thời gian với phần dự báo ngoài mẫu và dải dự báo 80%, dữ liệu mô phỏng",
   };
 
-  const renderFigure = (svg, kind) => {
+  const renderFigure = (svg, kind, label) => {
     const safe = Object.prototype.hasOwnProperty.call(figures, kind) ? kind : "r";
     svg.classList.remove("is-plotted");
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-    svg.setAttribute("aria-label", figureLabels[safe]);
+    svg.setAttribute("aria-label", label || figureLabels[safe]);
     figures[safe](svg);
   };
 
@@ -220,6 +537,13 @@
   const scenarios = {
     r: {
       kind: "r",
+      figures: [
+        { kind: "r_ci", figure: "Hình 1.1 · Bài 4.", caption: " Khoảng tin cậy 95% từ 20 mẫu lặp: phần lớn chứa giá trị thật μ = 50, khoảng in đậm thì không. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "r_hist", figure: "Hình 1.2 · Bài 5.", caption: " Phân bố lệch phải của 300 quan sát: trung bình lớn hơn trung vị. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "r_box", figure: "Hình 1.3 · Bài 6.", caption: " So sánh hai nhóm bằng boxplot, điểm dữ liệu và chênh lệch trung bình với khoảng tin cậy 95%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "r", figure: "Hình 1.4 · Bài 7.", caption: " Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "r_logit", figure: "Hình 1.5 · Bài 7.", caption: " Hồi quy logistic cho kết cục nhị phân: xác suất ước tính và odds ratio. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+      ],
       date: "Từ 08/01 đến 10/01/2027",
       duration: "03 ngày",
       title: "Phân tích dữ liệu với R cơ bản",
@@ -230,6 +554,13 @@
     },
     cea: {
       kind: "cea",
+      figures: [
+        { kind: "cea_tree", figure: "Hình 2.1 · Bài 3.", caption: " Cây quyết định cho hai chiến lược điều trị: xác suất, chi phí, QALY kỳ vọng và ICER. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "cea_markov", figure: "Hình 2.2 · Bài 4.", caption: " Mô hình Markov ba trạng thái: phân bố đoàn hệ qua 30 chu kỳ. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "cea_tornado", figure: "Hình 2.3 · Bài 5.", caption: " Phân tích nhạy một chiều (tornado): ICER của cây quyết định khi từng tham số thay đổi 10%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "cea", figure: "Hình 2.4 · Bài 6.", caption: " Mặt phẳng chi phí - hiệu quả: 260 lần mô phỏng, ICER và ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "cea_ceac", figure: "Hình 2.5 · Bài 6.", caption: " Đường CEAC: khả năng chiến lược mới chi phí - hiệu quả theo ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+      ],
       date: "Ngày 12/01 và 13/01/2027",
       duration: "02 ngày",
       title: "Phân tích chi phí - hiệu quả trong y tế",
@@ -240,6 +571,12 @@
     },
     time: {
       kind: "time",
+      figures: [
+        { kind: "ts_acf", figure: "Hình 3.1 · Bài 2.", caption: " ACF của chuỗi gốc giảm chậm (chuỗi chưa dừng) và nhô lại ở độ trễ 12 (mùa vụ); đường đứt là ngưỡng ±1,96/√n. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "ts_decomp", figure: "Hình 3.2 · Bài 3.", caption: " Phân rã chuỗi 72 tháng thành xu hướng, mùa vụ và phần dư. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "time", figure: "Hình 3.3 · Bài 4.", caption: " Dự báo ngoài mẫu: 60 tháng huấn luyện, 12 tháng kiểm tra, dải dự báo 80%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "ts_err", figure: "Hình 3.4 · Bài 6.", caption: " So sánh naive mùa vụ, Holt-Winters và hồi quy xu hướng + mùa vụ bằng MAE, RMSE, MAPE. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+      ],
       date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
       title: "Phân tích dữ liệu chuỗi thời gian",
@@ -290,9 +627,34 @@
       if (target) target.textContent = value;
     };
 
-    const setScenario = (key, { animate = true } = {}) => {
+    const sheet = svg.closest(".sheet");
+    let activeKey = "r";
+    let figIndex = 0;
+
+    const showFigure = (index, { animate = true } = {}) => {
+      const list = scenarios[activeKey].figures;
+      figIndex = (index + list.length) % list.length;
+      const fig = list[figIndex];
+      const caption = document.querySelector("[data-scenario-caption]");
+      if (caption) {
+        const strong = document.createElement("strong");
+        strong.textContent = fig.figure;
+        caption.replaceChildren(strong, document.createTextNode(fig.caption));
+      }
+      renderFigure(svg, fig.kind, fig.figure + fig.caption);
+      if (!animate) return;
+      sheet?.classList.remove("is-swapping");
+      if (!reducedMotion.matches) {
+        void sheet?.offsetWidth;
+        sheet?.classList.add("is-swapping");
+      }
+      plot(svg);
+    };
+
+    const setScenario = (key, { animate = true, fig = 0 } = {}) => {
       const safeKey = Object.prototype.hasOwnProperty.call(scenarios, key) ? key : "r";
       const scenario = scenarios[safeKey];
+      activeKey = safeKey;
 
       tabs.forEach((tab) => {
         const active = tab.dataset.scenarioTab === safeKey;
@@ -316,21 +678,20 @@
       const list = document.querySelector("[data-scenario-skills]");
       list?.replaceChildren(...scenario.skills.map((skill) => Object.assign(document.createElement("li"), { textContent: skill })));
 
-      const caption = document.querySelector("[data-scenario-caption]");
-      if (caption) {
-        const strong = document.createElement("strong");
-        strong.textContent = scenario.figure;
-        caption.replaceChildren(strong, document.createTextNode(scenario.caption));
-      }
-
-      renderFigure(svg, scenario.kind);
+      figIndex = fig;
+      showFigure(fig, { animate: false });
       if (animate) plot(svg);
     };
 
+    // each figure plays for 4s; after a course's last figure the next course tab opens
     const cycle = makeCycle(document.querySelector("#programs .shell"), () => {
+      if (figIndex + 1 < scenarios[activeKey].figures.length) {
+        showFigure(figIndex + 1);
+        return;
+      }
       const current = tabs.findIndex((tab) => tab.classList.contains("is-active"));
       setScenario(tabs[(current + 1) % tabs.length].dataset.scenarioTab);
-    });
+    }, 4000);
 
     tabs.forEach((tab, index) => {
       tab.addEventListener("click", () => { setScenario(tab.dataset.scenarioTab); cycle.restart(); });
@@ -356,11 +717,14 @@
       const active = tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.scenarioTab || "r";
       panel.style.minHeight = "";
       let tallest = 0;
+      const activeFig = figIndex;
       scenarioKeys.forEach((key) => {
-        setScenario(key, { animate: false });
-        tallest = Math.max(tallest, panel.offsetHeight);
+        scenarios[key].figures.forEach((_, i) => {
+          setScenario(key, { animate: false, fig: i });
+          tallest = Math.max(tallest, panel.offsetHeight);
+        });
       });
-      setScenario(active, { animate: false });
+      setScenario(active, { animate: false, fig: activeFig });
       panel.style.minHeight = `${tallest}px`;
     };
 
