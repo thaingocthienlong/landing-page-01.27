@@ -528,11 +528,11 @@
   const scenarios = {
     r: {
       figures: [
-        { kind: "r_ci", figure: "Hình 1.1 · Bài 4.", caption: " Khoảng tin cậy 95% từ 20 mẫu lặp: phần lớn chứa giá trị thật μ = 50, khoảng in đậm thì không. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "r_hist", figure: "Hình 1.2 · Bài 5.", caption: " Phân bố lệch phải của 300 quan sát: trung bình lớn hơn trung vị. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "r_box", figure: "Hình 1.3 · Bài 6.", caption: " So sánh hai nhóm bằng boxplot, điểm dữ liệu và chênh lệch trung bình với khoảng tin cậy 95%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "r", figure: "Hình 1.4 · Bài 7.", caption: " Hồi quy tuyến tính: đường phù hợp và khoảng tin cậy 95% trên 48 điểm. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "r_logit", figure: "Hình 1.5 · Bài 7.", caption: " Hồi quy logistic cho kết cục nhị phân: xác suất ước tính và odds ratio. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "r_ci", figure: "Hình 1.1 · Bài 4.", caption: " Khoảng tin cậy 95%. Dữ liệu minh họa." },
+        { kind: "r_hist", figure: "Hình 1.2 · Bài 5.", caption: " Histogram. Dữ liệu minh họa." },
+        { kind: "r_box", figure: "Hình 1.3 · Bài 6.", caption: " Boxplot và t-test. Dữ liệu minh họa." },
+        { kind: "r", figure: "Hình 1.4 · Bài 7.", caption: " Hồi quy tuyến tính. Dữ liệu minh họa." },
+        { kind: "r_logit", figure: "Hình 1.5 · Bài 7.", caption: " Hồi quy logistic. Dữ liệu minh họa." },
       ],
       date: "Từ 08/01 đến 10/01/2027",
       duration: "03 ngày",
@@ -542,11 +542,11 @@
     },
     cea: {
       figures: [
-        { kind: "cea_tree", figure: "Hình 2.1 · Bài 3.", caption: " Cây quyết định cho hai chiến lược điều trị: xác suất, chi phí, QALY kỳ vọng và ICER. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "cea_markov", figure: "Hình 2.2 · Bài 4.", caption: " Mô hình Markov ba trạng thái: phân bố đoàn hệ qua 30 chu kỳ. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "cea_tornado", figure: "Hình 2.3 · Bài 5.", caption: " Phân tích nhạy một chiều (tornado): ICER của cây quyết định khi từng tham số thay đổi 10%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "cea", figure: "Hình 2.4 · Bài 6.", caption: " Mặt phẳng chi phí - hiệu quả: 260 lần mô phỏng, ICER và ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "cea_ceac", figure: "Hình 2.5 · Bài 6.", caption: " Đường CEAC: khả năng chiến lược mới chi phí - hiệu quả theo ngưỡng sẵn lòng chi trả. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "cea_tree", figure: "Hình 2.1 · Bài 3.", caption: " Cây quyết định (decision tree). Dữ liệu minh họa." },
+        { kind: "cea_markov", figure: "Hình 2.2 · Bài 4.", caption: " Mô hình Markov. Dữ liệu minh họa." },
+        { kind: "cea_tornado", figure: "Hình 2.3 · Bài 5.", caption: " Biểu đồ tornado. Dữ liệu minh họa." },
+        { kind: "cea", figure: "Hình 2.4 · Bài 6.", caption: " Mặt phẳng chi phí - hiệu quả. Dữ liệu minh họa." },
+        { kind: "cea_ceac", figure: "Hình 2.5 · Bài 6.", caption: " Đường CEAC. Dữ liệu minh họa." },
       ],
       date: "Ngày 12/01 và 13/01/2027",
       duration: "02 ngày",
@@ -556,10 +556,10 @@
     },
     time: {
       figures: [
-        { kind: "ts_acf", figure: "Hình 3.1 · Bài 2.", caption: " ACF của chuỗi gốc giảm chậm (chuỗi chưa dừng) và nhô lại ở độ trễ 12 (mùa vụ); đường đứt là ngưỡng ±1,96/√n. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "ts_decomp", figure: "Hình 3.2 · Bài 3.", caption: " Phân rã chuỗi 72 tháng thành xu hướng, mùa vụ và phần dư. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "time", figure: "Hình 3.3 · Bài 4.", caption: " Dự báo ngoài mẫu: 60 tháng huấn luyện, 12 tháng kiểm tra, dải dự báo 80%. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
-        { kind: "ts_err", figure: "Hình 3.4 · Bài 6.", caption: " So sánh naive mùa vụ, Holt-Winters và hồi quy xu hướng + mùa vụ bằng MAE, RMSE, MAPE. Dữ liệu minh họa, không phải kết quả nghiên cứu." },
+        { kind: "ts_acf", figure: "Hình 3.1 · Bài 2.", caption: " Hàm tự tương quan (ACF). Dữ liệu minh họa." },
+        { kind: "ts_decomp", figure: "Hình 3.2 · Bài 3.", caption: " Phân rã chuỗi thời gian. Dữ liệu minh họa." },
+        { kind: "time", figure: "Hình 3.3 · Bài 4.", caption: " Dự báo ngoài mẫu. Dữ liệu minh họa." },
+        { kind: "ts_err", figure: "Hình 3.4 · Bài 6.", caption: " So sánh MAE, RMSE, MAPE. Dữ liệu minh họa." },
       ],
       date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
