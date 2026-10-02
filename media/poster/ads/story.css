@@ -1,0 +1,202 @@
+/*
+Shared styles for the Story series (1080 x 1920) of "Phân tích định lượng với R".
+Concept: every block of information is drawn as a chart the courses teach, on one "data lab" canvas.
+Colour code K1/K2/K3 is shared by every chart. Blues come from the logo gradient and the institute's
+approved posters. Grid: 70 px side margins; bars and discount text both start at x = 186.
+*/
+:root {
+  --bg-0: #061a4d; --bg-1: #0a2f7f; --bg-2: #0c3f9e;
+  --k1: #5ad8ff; --k2: #3f86ff; --k2-text: #8fb8ff; --k3: #c3dbff;
+  --ink-dark: #06205a; --tint: #cfe0ff; --soft: #a8c4f0; --signal: #c4231a; --grid: rgba(255, 255, 255, 0.09);
+  --display: "Oswald", "Arial Narrow", sans-serif;
+  --text: "Montserrat", "Segoe UI", sans-serif;
+  --code: "JetBrains Mono", Consolas, monospace;
+  --serif: "Source Serif 4", Georgia, Cambria, serif;
+  --day: 56px;
+  --lead: 116px; /* label column + gap: bars and discount text start here */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #dfe7f0; }
+
+.ad {
+  width: 1080px; height: 1920px; margin: 0 auto; position: relative; overflow: hidden; color: #fff;
+  background:
+    radial-gradient(620px 520px at 82% 30%, rgba(22, 115, 227, 0.42), transparent 70%),
+    radial-gradient(520px 420px at 10% 72%, rgba(22, 115, 227, 0.28), transparent 70%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 42%, var(--bg-2) 100%);
+  font-family: var(--text); font-variant-numeric: lining-nums tabular-nums;
+  display: flex; flex-direction: column;
+}
+.bgfx { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+.ad > * { position: relative; }
+.ad > .bgfx { position: absolute; }
+.wrap { width: 940px; margin: 0 auto; }
+
+/* Header, as on the approved posters, on the same canvas */
+.top { flex: none; height: 124px; display: flex; align-items: center; gap: 24px; padding: 0 70px;
+       border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, var(--k1), rgba(90, 216, 255, 0)) 1; }
+.badge { flex: none; width: 100px; height: 100px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.28); }
+.badge img { width: 64px; }
+.top p { font: 600 38px/1.3 var(--display); text-transform: uppercase; letter-spacing: 0.01em; }
+
+.code { font: 500 25px/1.3 var(--code); color: var(--k1); }
+.code .dim { color: var(--soft); }
+
+/* Title lockup */
+.title { margin-top: 24px; }
+.title h1 { white-space: nowrap; font: 600 112px/1.04 var(--serif); letter-spacing: -0.02em; }
+.title .row2 { display: flex; align-items: center; gap: 22px; margin-top: 2px; }
+.title .row2 b { font: 600 112px/1 var(--serif); letter-spacing: -0.02em; }
+.hex { flex: none; width: 112px; height: 128px; filter: drop-shadow(0 0 14px rgba(90, 216, 255, 0.55)); }
+.title .row2 span { font: italic 600 48px/1.06 var(--serif); color: var(--k1); }
+.title .row2 span em { display: block; margin-top: 10px; font: 600 22px/1.3 var(--text); font-style: normal; color: var(--tint); }
+
+/* Facts */
+.facts { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.fact { display: flex; align-items: center; gap: 16px; }
+.ring { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--k1); background: rgba(90, 216, 255, 0.12); display: grid; place-items: center; }
+.ring svg { width: 32px; height: 32px; }
+.fact b { display: block; font: 600 38px/1.05 var(--display); letter-spacing: 0.01em; }
+.fact div span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); margin-top: 3px; }
+
+.sec { margin-top: 24px; }
+
+/* Chart 1: route of the 3 courses */
+.route svg { display: block; width: 940px; height: 124px; margin-top: 6px; overflow: visible; }
+.route .cols { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 8px; }
+.route .cols div { text-align: center; padding: 0 10px; }
+.route .cols b { display: block; font: 600 28px/1.15 var(--display); letter-spacing: 0.02em; }
+.route .cols span { display: block; margin-top: 4px; font: 600 25px/1.22 var(--serif); text-wrap: balance; }
+.c1 { color: var(--k1); } .c2 { color: var(--k2-text); } .c3 { color: var(--k3); }
+
+/* Chart 2: packages as stacked bars, segment = course, length = days */
+.bars-wrap { position: relative; margin-top: 10px; }
+.bars-wrap::before { content: ""; position: absolute; left: var(--lead); top: 0; width: calc(var(--day) * 8 + 6px); height: 100%;
+  background: repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px var(--day)); pointer-events: none; }
+.bar { display: grid; grid-template-columns: calc(var(--lead) - 12px) auto 1fr auto; align-items: center; column-gap: 12px; height: 45px; }
+.bar .pk { font: 600 30px/1 var(--display); text-transform: uppercase; }
+.track { display: flex; gap: 3px; height: 32px; }
+.seg { display: grid; place-items: center; height: 32px; font: 600 20px/1 var(--display); letter-spacing: 0.04em; font-style: normal; }
+.seg:first-child { border-radius: 16px 0 0 16px; } .seg:last-child { border-radius: 0 16px 16px 0; } .seg:only-child { border-radius: 16px; }
+.s1 { width: calc(var(--day) * 3); background: var(--k1); color: var(--ink-dark); }
+.s2 { width: calc(var(--day) * 2); background: var(--k2); color: #041a4a; }
+.s3 { width: calc(var(--day) * 3); background: var(--k3); color: var(--ink-dark); }
+.bar .d { font: 500 22px/1 var(--text); color: var(--soft); }
+.bar .fee { font: 700 40px/1 var(--display); letter-spacing: 0.01em; text-align: right; }
+.bar .fee small { font: 600 24px var(--text); color: var(--tint); margin-left: 2px; }
+.note { margin-top: 6px; padding-left: var(--lead); font: 500 22px/1.3 var(--text); color: var(--tint); }
+
+/* Chart 3: discounts as a node graph, node area follows the percentage */
+.deals { list-style: none; margin-top: 12px; position: relative; }
+.deals::before { content: ""; position: absolute; left: 46.5px; top: 40px; bottom: 50px; width: 3px; background: linear-gradient(var(--k1), var(--k3)); opacity: 0.7; }
+.deals li { display: grid; grid-template-columns: 96px 1fr; align-items: center; column-gap: 20px; }
+.deals li + li { margin-top: 6px; }
+.node { justify-self: center; position: relative; display: grid; place-items: center; border-radius: 50%; font: 700 28px/1 var(--display); letter-spacing: 0.01em;
+        background: radial-gradient(circle at 35% 28%, #4fbaf8 0%, #1a78e0 45%, #0d55c9 78%); color: #fff; text-shadow: 0 1px 4px rgba(6, 32, 90, 0.5); }
+.n10 { width: 78px; height: 78px; }
+.n5 { width: 55px; height: 55px; font-size: 22px; }
+.n15 { width: 78px; height: 78px; font-size: 21px; margin: 9px; }
+.n15::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 3px dashed var(--k1); }
+.deals p { font: 600 25px/1.3 var(--text); }
+.deals p em { font-style: normal; color: var(--k1); }
+.deals p small { display: block; margin-top: 3px; font: 500 22px/1.3 var(--text); color: var(--tint); text-wrap: pretty; }
+
+/* Closing block: time axis with a break on the left, registration QR on the right */
+.end { margin-top: 24px; display: grid; grid-template-columns: 1fr 272px; column-gap: 28px; align-items: center; }
+.time { position: relative; height: 136px; }
+.time .line { position: absolute; left: 0; right: 0; top: 74px; height: 3px; background: linear-gradient(90deg, var(--k1), var(--k3)); }
+.time .brk { position: absolute; top: 60px; width: 30px; height: 30px; left: 452px; background: #0b3a95; }
+.time .brk::before, .time .brk::after { content: ""; position: absolute; top: 0; width: 3px; height: 30px; background: var(--k3); transform: skewX(-20deg); }
+.time .brk::before { left: 6px; } .time .brk::after { left: 20px; }
+.mk { position: absolute; top: 0; transform: translateX(-50%); text-align: center; }
+.mk .ev { height: 58px; display: flex; align-items: flex-end; justify-content: center; font: 600 22px/1.25 var(--text); color: var(--tint); white-space: nowrap; }
+.mk .dt { display: inline-block; margin-top: 30px; font: 700 31px/1 var(--display); letter-spacing: 0.02em; }
+.mk::before { content: ""; position: absolute; left: 50%; top: 66px; width: 19px; height: 19px; margin-left: -9.5px; border-radius: 50%; background: var(--k1); box-shadow: 0 0 0 5px rgba(90, 216, 255, 0.25); }
+.mk.hot::before { background: #fff; box-shadow: 0 0 0 6px rgba(196, 35, 26, 0.55); }
+.mk.hot .ev { width: 260px; white-space: normal; color: #fff; font-weight: 700; }
+.mk.hot .dt { margin-top: 23px; background: #fff; color: var(--signal); border-radius: 28px; padding: 7px 20px 5px; font-size: 40px; }
+.mk.k3::before { background: var(--k3); }
+.contact { margin-top: 26px; font: 600 24px/1.4 var(--text); }
+.contact span { color: var(--tint); font-weight: 500; }
+.qr { margin: 0; text-align: center; }
+.qr .box { width: 272px; height: 272px; padding: 22px; border-radius: 22px; background: #fff; box-shadow: 0 0 0 4px rgba(90, 216, 255, 0.35); }
+.qr img { display: block; width: 228px; height: 228px; }
+.qr figcaption { margin-top: 12px; font: 700 24px/1.2 var(--text); }
+
+/* Footer strip, as on the approved posters */
+.foot { flex: none; height: 96px; margin-top: auto; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; }
+.foot div { display: flex; align-items: center; gap: 10px; font: 500 25px/1 var(--display); color: #1f2a5a; white-space: nowrap; }
+.foot .ico { width: 46px; height: 46px; border-radius: 50%; background: #0a3d91; display: grid; place-items: center; }
+.foot .ico svg { width: 24px; height: 24px; }
+
+/* ---- Course poster: one row per course, small figure + content ---- */
+.k1 { --kc: var(--k1); } .k2 { --kc: var(--k2-text); } .k3 { --kc: var(--k3); }
+.crs { display: grid; grid-template-columns: 180px 1fr; column-gap: 28px; align-items: start; position: relative; }
+.crs + .crs { margin-top: 14px; }
+.crs .mini { display: block; width: 180px; height: 120px; margin-top: 8px; }
+.crs:not(:last-child)::after { content: ""; position: absolute; left: 90px; top: 140px; bottom: -16px; border-left: 2px dashed rgba(207, 224, 255, 0.35); }
+.crs-hd { font: 600 26px/1.2 var(--display); letter-spacing: 0.02em; color: var(--soft); }
+.crs-hd b { font-weight: 600; color: var(--kc); }
+.crs h2 { margin-top: 4px; font: 600 33px/1.15 var(--serif); letter-spacing: -0.01em; }
+.crs ul { list-style: none; margin-top: 8px; }
+.crs li { position: relative; padding-left: 24px; font: 500 22px/1.32 var(--text); color: var(--tint); }
+.crs li::before { content: ""; position: absolute; left: 2px; top: 0.55em; width: 10px; height: 10px; border-radius: 2px; background: var(--kc); }
+.crs .tag { display: inline-block; margin-top: 8px; padding: 5px 16px 6px; border: 2px solid var(--kc); border-radius: 22px; font: 600 22px/1.2 var(--text); color: var(--kc); }
+
+/* ---- Course poster: Gantt calendar for 08-17/01/2027 ---- */
+.gantt { position: relative; margin-top: 14px; }
+.gantt::before { content: ""; position: absolute; inset: 0 0 -6px 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 94px); }
+.gantt .days, .gantt .lane { display: grid; grid-template-columns: repeat(10, 1fr); }
+.gantt .days span { text-align: center; }
+.gantt .days small { display: block; font: 500 22px/1 var(--text); color: var(--soft); }
+.gantt .days b { display: block; margin-top: 6px; font: 600 36px/1 var(--display); }
+.gantt .days .off small, .gantt .days .off b { color: #9fb4da; }
+.gantt .days .off b { font-weight: 500; }
+.gantt .lane { margin-top: 10px; height: 50px; column-gap: 6px; }
+.gantt .g { display: grid; place-items: center; border-radius: 25px; font: 600 23px/1 var(--display); letter-spacing: 0.03em; font-style: normal; color: var(--ink-dark); }
+.gantt .g.k1 { background: var(--k1); } .gantt .g.k2 { background: var(--k2); color: #041a4a; } .gantt .g.k3 { background: var(--k3); }
+
+/* ---- Course poster: delivery modes ---- */
+.mode { margin-top: 12px; display: grid; grid-template-columns: 1.3fr 76px 0.9fr; align-items: center; }
+.opt { display: grid; grid-template-columns: 64px 1fr; column-gap: 16px; align-items: center; }
+.opt b { display: block; font: 600 32px/1.1 var(--display); letter-spacing: 0.01em; }
+.opt .t { display: block; margin-top: 4px; font: 500 22px/1.3 var(--text); color: var(--tint); }
+.or { position: relative; justify-self: center; height: 92px; display: grid; place-items: center; }
+.or::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 2px dashed rgba(207, 224, 255, 0.35); }
+.or i { position: relative; padding: 4px 10px; background: #0b3a95; font: italic 600 26px/1 var(--serif); color: var(--k1); }
+.kit { margin-top: 14px; display: grid; grid-template-columns: 64px 1fr; column-gap: 16px; align-items: center; }
+.kit p { font: 500 22px/1.35 var(--text); color: var(--tint); }
+.kit p b { font-weight: 600; color: #fff; }
+
+/* ---- Closing block variants ---- */
+.dl p { font: 700 23px/1.3 var(--text); color: var(--tint); text-transform: uppercase; letter-spacing: 0.02em; }
+.dl .pill { display: inline-block; margin-top: 12px; background: #fff; color: var(--signal); border-radius: 30px; padding: 8px 24px 6px; font: 700 48px/1 var(--display); letter-spacing: 0.02em; }
+.pay { display: grid; grid-template-columns: 64px 1fr; column-gap: 16px; align-items: center; }
+.pay p { font: 600 24px/1.35 var(--text); }
+.pay p span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); }
+
+/* ---- Fee poster: course legend for the bar chart ---- */
+.legend { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 18px; margin-top: 12px; }
+.legend div { display: grid; grid-template-columns: 56px 1fr; column-gap: 10px; align-items: start; }
+.legend i { display: grid; place-items: center; height: 32px; border-radius: 16px; font: 600 20px/1 var(--display); letter-spacing: 0.04em; font-style: normal; color: var(--ink-dark); }
+.legend i.s2 { color: #041a4a; }
+.legend b { display: block; font: 600 23px/1.22 var(--serif); text-wrap: balance; }
+.legend span { display: block; margin-top: 2px; font: 500 22px/1.2 var(--display); color: var(--soft); letter-spacing: 0.02em; }
+.legend .s1, .legend .s2, .legend .s3 { width: auto; }
+.pick { margin-top: 10px; font: 500 22px/1.3 var(--text); color: var(--tint); }
+
+/* Smaller QR block where the poster needs the height */
+.end.sm { grid-template-columns: 1fr 252px; }
+.qr.sm .box { width: 252px; height: 252px; padding: 20px; }
+.qr.sm img { width: 212px; height: 212px; }
+.qr.sm figcaption { font-size: 22px; white-space: nowrap; }
+
+/* ---- Fee poster: larger bars and a full-width time axis ---- */
+.bars-wrap.lg .bar { height: 50px; }
+.bars-wrap.lg .track, .bars-wrap.lg .seg { height: 36px; }
+.bars-wrap.lg .seg:first-child { border-radius: 18px 0 0 18px; } .bars-wrap.lg .seg:last-child { border-radius: 0 18px 18px 0; } .bars-wrap.lg .seg:only-child { border-radius: 18px; }
+.bars-wrap.lg .fee { font-size: 44px; }
+.time.wide .mk.hot .ev { width: auto; white-space: nowrap; }
+.time.wide .mk .dt { font-size: 34px; }
+.time.wide .mk.hot .dt { font-size: 44px; }

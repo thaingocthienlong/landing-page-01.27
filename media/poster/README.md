@@ -17,6 +17,8 @@ Trạng thái: đã dựng ST1 (Story quảng cáo); các biến thể khác ch�
 | P3a, P3b, P3c | 1080×1350 | Mỗi khóa một tấm, dùng Hình 1, 2, 3 tương ứng |
 | P4 | 1080×1080 | Nhắc mốc: bản giai đoạn 1 "Trước 08/12/2026 giảm 10%", bản giai đoạn 2 "Hạn chót 28/12/2026" |
 | ST1 | 1080×1920 (Story Instagram/Facebook) | **Đã dựng.** Quảng cáo dạng "mọi thông tin là một biểu đồ": lộ trình 3 khóa trên đường hồi quy, 6 gói là biểu đồ cột chồng theo số ngày, ưu đãi là đồ thị nút, mốc thời gian là trục có ngắt. `ads/story-khoa-goi-uu-dai.html` |
+| ST2 | 1080×1920 (Story/Reel) | **Đã dựng.** 3 khóa · lịch học · hình thức: mỗi khóa một hình nhỏ (hồi quy, mặt phẳng chi phí - hiệu quả, dự báo) và 3 nội dung chính từ outline; lịch Gantt 08–17/01/2027 theo ngày và số buổi; sơ đồ Trực tiếp hoặc Trực tuyến; phần mềm và máy tính cá nhân. `ads/story-khoa-hoc-lich-hoc.html` |
+| ST3 | 1080×1920 (Story/Reel) | **Đã dựng.** Gói · học phí · ưu đãi · hạn chót: chú giải K1/K2/K3, biểu đồ cột chồng 6 gói, 3 nút ưu đãi, trục thời gian 08/12 · 28/12 · 08/01, nộp học phí tiền mặt hoặc chuyển khoản. `ads/story-goi-hoc-phi-uu-dai.html` |
 | P5 | 1200×630 | Ảnh chia sẻ link: khối A, B, ngày tổ chức. Không chữ nhỏ |
 
 ## Bố cục P1 (khối theo `../design-kit/README.md`)
@@ -80,6 +82,14 @@ Chi tiết đã sửa: logo thu nhỏ để cả khối nằm gọn trong khung 
 **Mã QR:** chưa giải mã được trên máy để kiểm tra đích đến (không có thư viện đọc QR). Quét thử bằng hai điện thoại trước khi đăng, xác nhận ra đúng trang đăng ký.
 
 **Tương phản** (đo trên ảnh render, vì bộ dò tự động tính sai nền nhiều lớp): chữ trắng, xanh nhạt, cyan trên nền xanh đậm từ 5.12:1 trở lên; chữ trên các đoạn cột dùng xanh đen #06205a / #041a4a (từ 4.85:1); chữ trắng trên tâm nút ưu đãi 4.37:1 (chữ lớn đậm); ngày 28/12/2026 đỏ signal trên pill trắng 5.83:1.
+
+## ST2, ST3: cùng hệ với ST1
+
+Ba poster dùng chung `ads/story.css` (màu, chữ, các khối) và `ads/story.js` (biểu đồ lộ trình và 3 hình nhỏ theo khóa, dữ liệu mô phỏng có seed cố định). Sửa một khối ở `story.css` là sửa cho cả ba; sau khi tách file chung, ST1 render lại trùng từng pixel với bản đã duyệt.
+
+- **ST2** lấy nội dung từ outline đã duyệt (`assets/Outline khoá 1-3_v2`): mục tiêu từng khóa, số buổi (6, 4, 6), "Không cần kinh nghiệm lập trình" (Khóa 1), mang theo máy tính cá nhân và hướng dẫn cài đặt gửi trước khai giảng. Không in giờ học hằng ngày vì thông báo v4 và outline không ghi. Ngày 11 và 14/01 không có buổi học, in màu #9fb4da.
+- **ST3** không in số tài khoản (chỉ "tiền mặt hoặc chuyển khoản"), theo quy tắc trong `../brand-kit/content.md`.
+- Khung QR của ST2 nhỏ hơn (252 px) để vừa chiều cao; ST1 và ST3 giữ 272 px.
 
 **Xuất lại** sau khi sửa chữ trong file HTML:
 
