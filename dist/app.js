@@ -752,6 +752,29 @@
     });
   };
 
+  /* ---------- date helpers and expiring offers ---------- */
+
+  // today's calendar date in Vietnam, independent of the visitor's time zone
+  const vnToday = () => {
+    const [y, m, d] = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).split("-").map(Number);
+    return { y, m, d };
+  };
+
+  // offers tagged data-expires="YYYY-MM-DD" are struck through and greyed once that day has passed
+  const setupExpiry = () => {
+    const { y, m, d } = vnToday();
+    const today = Date.UTC(y, m - 1, d);
+    document.querySelectorAll("[data-expires]").forEach((el) => {
+      const [ey, em, ed] = el.dataset.expires.split("-").map(Number);
+      if (today <= Date.UTC(ey, em - 1, ed)) return;
+      el.classList.add("is-past");
+      if (el.textContent.trim()) el.append(Object.assign(document.createElement("span"), { className: "sr-only", textContent: " (đã hết hạn)" }));
+    });
+    const line = document.querySelector(".timeline");
+    if (line?.querySelector(".tl-before.is-past")) line.setAttribute("aria-label", line.getAttribute("aria-label") + ". Mốc ưu đãi 08/12/2026 đã qua");
+    if (line?.querySelector(".tl-after.is-past")) line.setAttribute("aria-label", line.getAttribute("aria-label") + ". Hạn chót 28/12/2026 đã qua");
+  };
+
   /* ---------- "today" pointer on the discount timeline ---------- */
 
   const setupTimelineNow = () => {
@@ -761,7 +784,7 @@
     // scale runs 01/10/2026 to the 28/12/2026 deadline, matching the bar proportions in CSS
     const start = Date.UTC(2026, 9, 1);
     const end = Date.UTC(2026, 11, 28);
-    const [y, m, d] = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).split("-").map(Number);
+    const { y, m, d } = vnToday();
     const ratio = Math.min(1, Math.max(0, (Date.UTC(y, m - 1, d) - start) / (end - start)));
     const label = [d, m].map((n) => String(n).padStart(2, "0")).join("/") + "/" + y;
     line.style.setProperty("--now", (ratio * 100).toFixed(2) + "%");
@@ -800,6 +823,7 @@
   setupTabs();
   setupPackages();
   setupTimelineNow();
+  setupExpiry();
   setupSideNav();
   setupMobileNav();
   setupForm();
