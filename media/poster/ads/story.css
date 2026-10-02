@@ -163,19 +163,21 @@ html, body { background: #dfe7f0; }
 /* ---- Closing block variants ---- */
 .dl p { font: 700 23px/1.3 var(--text); color: var(--tint); text-transform: uppercase; letter-spacing: 0.02em; }
 .dl .pill { display: inline-block; margin-top: 12px; background: #fff; color: var(--signal); border-radius: 30px; padding: 8px 24px 6px; font: 700 48px/1 var(--display); letter-spacing: 0.02em; }
-.pay { display: grid; grid-template-columns: 64px 1fr; column-gap: 16px; align-items: center; }
-.pay p { font: 600 24px/1.35 var(--text); }
-.pay p span { display: block; font: 500 22px/1.3 var(--text); color: var(--tint); }
+/* Walk-in registration beside the QR; the italic serif "Hoặc" matches the "hoặc" of the course poster */
+.reg .lead { font: italic 600 32px/1.2 var(--serif); color: var(--k1); }
+.reg div { display: grid; grid-template-columns: 64px 1fr; column-gap: 18px; align-items: center; margin-top: 18px; }
+.reg p { font: 500 23px/1.4 var(--text); color: var(--tint); }
+.reg b { display: block; font: 600 25px/1.4 var(--text); color: #fff; }
+.reg b span { font-weight: 500; color: var(--tint); }
 
 /* ---- Fee poster: course legend for the bar chart ---- */
-.legend { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 18px; margin-top: 12px; }
+.legend { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 18px; margin-top: 40px; }
 .legend div { display: grid; grid-template-columns: 56px 1fr; column-gap: 10px; align-items: start; }
 .legend i { display: grid; place-items: center; height: 32px; border-radius: 16px; font: 600 20px/1 var(--display); letter-spacing: 0.04em; font-style: normal; color: var(--ink-dark); }
 .legend i.s2 { color: #041a4a; }
 .legend b { display: block; font: 600 23px/1.22 var(--serif); text-wrap: balance; }
 .legend span { display: block; margin-top: 2px; font: 500 22px/1.2 var(--display); color: var(--soft); letter-spacing: 0.02em; }
 .legend .s1, .legend .s2, .legend .s3 { width: auto; }
-.pick { margin-top: 10px; font: 500 22px/1.3 var(--text); color: var(--tint); }
 
 /* Smaller QR block where the poster needs the height */
 .end.sm { grid-template-columns: 1fr 252px; }
@@ -184,7 +186,7 @@ html, body { background: #dfe7f0; }
 .qr.sm figcaption { font-size: 22px; white-space: nowrap; }
 
 /* ---- Fee poster: larger bars and a full-width time axis ---- */
-.bars-wrap.lg .bar { height: 50px; }
+.bars-wrap.lg .bar { height: 56px; }
 .bars-wrap.lg .track, .bars-wrap.lg .seg { height: 36px; }
 .bars-wrap.lg .seg:first-child { border-radius: 18px 0 0 18px; } .bars-wrap.lg .seg:last-child { border-radius: 0 18px 18px 0; } .bars-wrap.lg .seg:only-child { border-radius: 18px; }
 .bars-wrap.lg .fee { font-size: 44px; }

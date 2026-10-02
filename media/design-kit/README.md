@@ -70,7 +70,7 @@ Tên lớp CSS trong `story.css`. Kích thước ở khổ gốc.
 | Nút ưu đãi | `.deals`, `.node` | 10%, 5%, 10–15% kèm điều kiện | Diện tích nút theo mức giảm |
 | Trục thời gian | `.time`, `.mk`, `.brk` | 08/12, 28/12 (pill trắng chữ đỏ), 08/01 | `.wide` cho bản rộng hết khổ |
 | Hạn chót gọn | `.dl`, `.pill` | Nhãn in hoa và pill ngày | Khi không có trục thời gian |
-| Nộp học phí | `.pay` | "Tiền mặt hoặc chuyển khoản" | Không số tài khoản |
+| Đăng ký trực tiếp | `.reg` | "Hoặc đăng ký trực tiếp tại:" (serif nghiêng cyan), ghim: Viện Phương Nam và địa chỉ đầy đủ, điện thoại: 3 số | Đặt cạnh QR. Không in thông tin nộp học phí |
 | QR | `.qr`, `.qr.sm` | Khung trắng 272 px (hoặc 252), vùng yên tĩnh 22 px, chú thích | In: cạnh mã tối thiểu 25 mm |
 | Liên hệ | `.contact` | Ms. Vy, Ms. Thảo | |
 | Dải chân | `.foot` | Điện thoại, địa chỉ, website với icon | Cao 96 px, nền trắng |
