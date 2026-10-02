@@ -60,17 +60,20 @@ Biến thể số: đổi dòng đầu thành khổ tương ứng, bỏ bảng �
 
 **Ý tưởng:** mọi khối thông tin được vẽ thành một loại đồ thị mà chuỗi khóa dạy, trên cùng một nền xanh đậm kiểu phòng thí nghiệm dữ liệu, không dùng ô trắng dán lên nền (góp ý ngày 02/10/2026: bản trước trông như nền và ô thông tin chồng lên nhau, thiếu tính khoa học, công nghệ, ngôn ngữ R, mô hình đồ thị).
 
-- **Lộ trình 3 khóa:** đường hồi quy đi lên với dải tin cậy và điểm dữ liệu mô phỏng (ghi "dữ liệu minh họa"); 3 khóa là 3 điểm mốc trên đường, có đường gióng xuống trục và nhãn tên khóa, ngày học.
+- **Lộ trình 3 khóa:** đường hồi quy đi lên với dải tin cậy và điểm dữ liệu mô phỏng; 3 khóa là 3 điểm mốc trên đường, có đường gióng xuống trục và nhãn tên khóa, ngày học. Theo yêu cầu ngày 02/10/2026, poster bỏ các chú thích phụ ("dữ liệu minh họa", "độ dài = số ngày học", "kích thước nút = mức giảm", nhãn trục, `lm(y ~ x)`); các điểm chỉ là hình nền của đồ thị, không trình bày như kết quả nghiên cứu.
 - **6 gói:** biểu đồ cột chồng nằm ngang; mỗi đoạn là một khóa (K1, K2, K3), độ dài đúng số ngày (8, 5, 6, 5, 2, 3); học phí canh phải.
 - **Ưu đãi:** đồ thị nút nối bằng một trục dọc; diện tích nút theo mức giảm (5%, 10%, vòng nét đứt tới 15% cho học viên cũ).
-- **Mốc thời gian:** trục có ngắt trục: 08/12/2026 (hạn ưu đãi 10%), 28/12/2026 (hạn chót, pill trắng chữ đỏ), 08/01/2027 (khai giảng).
-- **Chất R:** nhãn mục viết như comment R (`# 6 gói đăng ký`), chữ R trong hình lục giác như sticker gói R, chú thích `lm(y ~ x)` trên đường hồi quy.
+- **Khối cuối:** trục thời gian có ngắt trục (08/12/2026 hạn ưu đãi 10%, 28/12/2026 hạn chót trên pill trắng chữ đỏ, 08/01/2027 khai giảng) và số Ms. Vy, Ms. Thảo bên trái; mã QR đăng ký bên phải (`assets/Mã QR chuỗi PTDL R 01.27.png`, hiển thị 228 px trên nền trắng có vùng yên tĩnh 22 px), chữ "Quét mã để đăng ký".
+- **Chất R:** nhãn mục viết như comment R (`# 6 gói đăng ký`), chữ R trong hình lục giác như sticker gói R.
 - **Mã màu K1/K2/K3** (cyan #5ad8ff, xanh #3f86ff, xanh băng #c3dbff) dùng chung cho điểm mốc, nhãn khóa và các đoạn cột.
-- **Khung theo poster đã duyệt:** dải đầu có logo trong khung tròn trắng và tên Viện; dải chân trắng có icon điện thoại, địa chỉ, website.
+- **Khung theo poster đã duyệt:** dải đầu có logo trong khung tròn trắng và tên Viện (một dòng, bỏ dòng Liên hiệp hội theo yêu cầu); dải chân trắng có icon điện thoại, địa chỉ, website.
+- **Lưới:** lề hai bên 70 px; cột gói và chữ ưu đãi cùng bắt đầu ở x = 186; vòng nút lớn nhất chạm lề trái.
 
 Font: Oswald (tiêu đề, số), Montserrat (chữ thân), JetBrains Mono (chữ kiểu code R); cả ba có bộ dấu tiếng Việt. Hình khối, biểu đồ và icon tự vẽ bằng SVG/CSS trong file; điểm dữ liệu sinh từ seed cố định nên mỗi lần xuất ra cùng một hình. Không có ảnh vì chưa có ảnh chính thức.
 
-**Bố cục dọc:** dải đầu 0–150 px, nội dung 150–1816 px, dải chân 1816–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và một phần trục thời gian. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy trục thời gian lên trên.
+**Bố cục dọc:** dải đầu 0–124 px, nội dung 124–1824 px, dải chân 1824–1920 px. Khi chạy dạng quảng cáo Story trả phí, nút CTA của Meta phủ khoảng 250 px dưới cùng, tức phủ dải chân và phần dưới của mã QR. Nếu chạy quảng cáo trả phí, nên làm thêm bản đẩy khối cuối lên trên.
+
+**Mã QR:** chưa giải mã được trên máy để kiểm tra đích đến (không có thư viện đọc QR). Quét thử bằng hai điện thoại trước khi đăng, xác nhận ra đúng trang đăng ký.
 
 **Tương phản** (đo trên ảnh render, vì bộ dò tự động tính sai nền nhiều lớp): chữ trắng, xanh nhạt, cyan trên nền xanh đậm từ 5.12:1 trở lên; chữ trên các đoạn cột dùng xanh đen #06205a / #041a4a (từ 4.85:1); chữ trắng trên tâm nút ưu đãi 4.37:1 (chữ lớn đậm); ngày 28/12/2026 đỏ signal trên pill trắng 5.83:1.
 
@@ -84,7 +87,7 @@ cd media/poster/ads && python render.py
 
 ## Cần từ Viện
 
-- Đích của QR: trang đăng ký trong thông báo (`https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r`) hay landing page. Gắn UTM `utm_source=poster&utm_medium=print&utm_campaign=r-01-2027` (bản in), `utm_medium=social` (bản số).
+- Mã QR: Viện đã cung cấp `assets/Mã QR chuỗi PTDL R 01.27.png` (dùng trên ST1). Cần xác nhận đích đến và có gắn UTM hay không; nếu cần UTM theo kênh (`utm_source=poster&utm_medium=print&utm_campaign=r-01-2027`), phải tạo mã riêng cho từng kênh.
 - Ảnh giảng viên chính thức và quyền dùng.
 - Số lượng in, nhà in.
 
