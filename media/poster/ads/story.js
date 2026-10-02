@@ -11,7 +11,9 @@ window.VPN = (function () {
   function gaussFrom(rand) { return function () { return Math.sqrt(-2 * Math.log(rand() || 1e-9)) * Math.cos(2 * Math.PI * rand()); }; }
 
   // Route of the 3 courses: simulated scatter around a rising fit line, band, three course milestones.
-  function route(id) {
+  // opts.crisp redraws the line and milestones without the glow filter on top, so vector exports keep them as vectors.
+  function route(id, opts) {
+    opts = opts || {};
     var rand = prng(20270108), gauss = gaussFrom(rand);
     var L = 30, R = 930, T = 8, B = 108;
     function fit(x) { return 99 - (x - L) / (R - L) * 78; }
@@ -25,14 +27,16 @@ window.VPN = (function () {
       var px = L + 10 + rand() * (R - L - 20), py = Math.min(B - 6, Math.max(T + 6, fit(px) + gauss() * 10));
       s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="4.6" fill="#cfe0ff" fill-opacity=".7"/>';
     }
-    s += '<line x1="' + L + '" y1="' + fit(L) + '" x2="' + R + '" y2="' + fit(R) + '" stroke="#5ad8ff" stroke-width="4" style="filter: drop-shadow(0 0 6px rgba(90,216,255,.8))"/>';
+    s += '<line x1="' + L + '" y1="' + fit(L) + '" x2="' + R + '" y2="' + fit(R) + '" stroke="#5ad8ff" stroke-width="' + (opts.crisp ? 2.5 : 4) + '" style="filter: drop-shadow(0 0 6px rgba(90,216,255,.8))"/>';
+    if (opts.crisp) s += '<line x1="' + L + '" y1="' + fit(L) + '" x2="' + R + '" y2="' + fit(R) + '" stroke="#5ad8ff" stroke-width="4"/>';
     s += '<path d="M' + L + ' ' + T + 'V' + B + 'H' + (R + 6) + '" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/>';
     s += '<path d="M' + (R + 6) + ' ' + (B - 6) + 'l12 6-12 6z" fill="rgba(255,255,255,.55)"/><path d="M' + (L - 6) + ' ' + T + 'l6-12 6 12z" fill="rgba(255,255,255,.55)"/>';
     var ms = [[157, '#5ad8ff'], [470, '#3f86ff'], [783, '#c3dbff']];
     ms.forEach(function (m) {
       var y = fit(m[0]);
       s += '<line x1="' + m[0] + '" x2="' + m[0] + '" y1="' + (y + 16) + '" y2="' + (B + 16) + '" stroke="' + m[1] + '" stroke-width="2.5" stroke-dasharray="6 6"/>';
-      s += '<circle cx="' + m[0] + '" cy="' + y + '" r="15" fill="' + m[1] + '" stroke="#fff" stroke-width="4" style="filter: drop-shadow(0 0 10px ' + m[1] + ')"/>';
+      s += '<circle cx="' + m[0] + '" cy="' + y + '" r="' + (opts.crisp ? 14 : 15) + '" fill="' + m[1] + '"' + (opts.crisp ? '' : ' stroke="#fff" stroke-width="4"') + ' style="filter: drop-shadow(0 0 10px ' + m[1] + ')"/>';
+      if (opts.crisp) s += '<circle cx="' + m[0] + '" cy="' + y + '" r="15" fill="' + m[1] + '" stroke="#fff" stroke-width="4"/>';
     });
     document.getElementById(id).innerHTML = s;
   }

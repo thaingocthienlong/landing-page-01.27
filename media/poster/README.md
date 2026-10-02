@@ -99,6 +99,19 @@ cd media/poster/ads && python render.py
 
 `render.py` mở từng file bằng Chrome, chờ font, kiểm tra khung đúng `data-size` (1080×1920) và nội dung không tràn, rồi ghi PNG đúng khổ vào `export/`. Ngày, gói, học phí, ưu đãi lấy từ `../brand-kit/content.md`.
 
+## Asset tách riêng
+
+Khối biểu đồ lộ trình 3 khóa (đường hồi quy, 3 điểm mốc, nhãn khóa), không có nền, để ghép vào thiết kế khác:
+
+- `export/assets/lo-trinh-3-khoa@6x.png`: PNG nền trong suốt, 5656×1485 px (gấp 6 lần kích thước trên poster), đã cắt sát hình với viền trong suốt 36 px.
+- `export/assets/lo-trinh-3-khoa.pdf`: PDF vector cho in ấn và Illustrator/Canva. Chữ, đường, điểm là vector; riêng vầng sáng (glow) là ảnh nằm dưới.
+
+Chữ màu trắng và xanh nhạt, chỉ dùng trên nền tối. Nguồn: `ads/assets/lo-trinh-3-khoa.html` (dùng chung `story.css`, `story.js`). Xuất lại:
+
+```bash
+cd media/poster/ads/assets && python export.py
+```
+
 ## Cần từ Viện
 
 - Mã QR: Viện đã cung cấp `assets/Mã QR chuỗi PTDL R 01.27.png` (dùng trên ST1). Cần xác nhận đích đến và có gắn UTM hay không; nếu cần UTM theo kênh (`utm_source=poster&utm_medium=print&utm_campaign=r-01-2027`), phải tạo mã riêng cho từng kênh.
