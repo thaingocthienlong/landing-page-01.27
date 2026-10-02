@@ -3,3 +3,7 @@
 .impeccable-detect.json
 site-package*.tar.gz
 site-package-stage-*/
+
+# claude local
+.claude/settings.local.json
+.claude/no-auto-ship
