@@ -194,7 +194,8 @@ function askModel_(config, messages, references) {
     var entry = queue[i];
     var name = entry.group.name;
     var repeat = i > 0 && entry === queue[i - 1];
-    if (repeat && !last.transient) break;
+    // last is null when the first try of a lone model was skipped (host flagged as down).
+    if (repeat && (!last || !last.transient)) break;
     if (stopped[name]) continue;
     if (entry.group.provider === 'openai' && cache.get('chat_down_' + name)) {
       tried.push('skipped-down ' + entry.model);
@@ -223,8 +224,9 @@ function askModel_(config, messages, references) {
     if (last.final) stopped[name] = true;
     if (entry.group.provider === 'openai' && (last.unreachable || last.timedOut)) {
       // A host that is off sits out 3 minutes. One that timed out, often a model still loading
-      // (the load carries on without us), sits out 1 minute, so a hung host cannot slow every visitor.
-      cache.put('chat_down_' + name, '1', last.unreachable ? CHAT_DOWN_SECONDS : CHAT_SLOW_SECONDS);
+      // (the load carries on without us), sits out 1 minute, so a hung host cannot slow every
+      // visitor; not when earlier attempts had left it too little time to judge.
+      if (last.unreachable || timeout >= 15) cache.put('chat_down_' + name, '1', last.unreachable ? CHAT_DOWN_SECONDS : CHAT_SLOW_SECONDS);
       stopped[name] = true;
     }
   }

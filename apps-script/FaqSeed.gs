@@ -524,7 +524,11 @@ var FAQ_SEED = [
       'goi 5 gia bao nhieu',
       'khoa 3 rieng bao nhieu tien',
       'tien hoc moi goi',
-      'co may goi hoc'
+      'co may goi hoc',
+      'học phí gói 2',
+      'gói 3 giá bao nhiêu',
+      'tiền gói 4',
+      'gói 6 học phí'
     ],
     answer: 'Dạ, học phí tính theo gói, mỗi học viên chọn 1 trong 6 gói:\n- Gói 1 (cả 03 khóa, 08 ngày): 8.800.000 đồng\n- Gói 2 (Khóa 1 + Khóa 2, 05 ngày): 6.700.000 đồng\n- Gói 3 (Khóa 1 + Khóa 3, 06 ngày): 7.500.000 đồng\n- Gói 4 (Khóa 2 + Khóa 3, 05 ngày): 6.700.000 đồng\n- Gói 5 (Khóa 2, 02 ngày): 3.500.000 đồng\n- Gói 6 (Khóa 3, 03 ngày): 4.500.000 đồng\nKhông có gói chỉ gồm riêng Khóa 1. Mức học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định. Ngoài ra có các ưu đãi theo điều kiện, anh/chị có thể hỏi em về ưu đãi.',
     from: '',
@@ -586,7 +590,7 @@ var FAQ_SEED = [
       'hoc phi tinh luon thue roi phai khong',
       'hp co cong them thue khong'
     ],
-    answer: 'Dạ, mức học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định. Thông báo chưa có thông tin về xuất hóa đơn; nếu cần, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, mức học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định. Thông báo không nêu các khoản ngoài học phí như ăn uống, đi lại, chỗ ở. Thông báo chưa có thông tin về xuất hóa đơn; nếu cần, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   },

@@ -165,7 +165,10 @@ function chatDateNote_() {
     ? 'Mốc ưu đãi 08/12/2026 chưa tới: ai hoàn tất học phí trước ngày 08/12/2026 vẫn được các ưu đãi hoàn tất sớm.'
     : day === '20261208'
       ? 'Hôm nay đúng ngày 08/12/2026: không khẳng định hôm nay còn được ưu đãi hoàn tất sớm hay không, mời liên hệ Viện xác nhận.'
-      : 'Mốc ưu đãi 08/12/2026 đã qua: người hoàn tất học phí từ hôm nay không còn được ưu đãi hoàn tất sớm (học viên cũ Gói 1 đến Gói 4 vẫn được giảm 10%, nhóm từ 3 người vẫn được giảm 5%).';
+      : day < '20261228'
+        ? 'Mốc ưu đãi 08/12/2026 đã qua: người hoàn tất học phí từ hôm nay không còn được ưu đãi hoàn tất sớm (học viên cũ Gói 1 đến Gói 4 vẫn được giảm 10%, nhóm từ 3 người vẫn được giảm 5%).'
+        // From the deadline on, the notice no longer says what applies, so no discount is listed.
+        : 'Mốc ưu đãi 08/12/2026 đã qua.';
   var deadline = day < '20261228'
     ? 'Hạn chót đăng ký và hoàn tất học phí (trước ngày 28/12/2026) chưa qua.'
     : day === '20261228'

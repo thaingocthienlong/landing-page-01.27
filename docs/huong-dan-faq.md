@@ -30,7 +30,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Viết tắt thường gặp: hp (học phí), đk/dk (đăng ký), sdt, stk, ck (chuyển khoản), gv (giảng viên), ko/k (không), j (gì), bn (bao nhiêu), onl (online). Trợ lý đã tự hiểu các viết tắt này, nhưng ghi thêm vẫn tốt.
 - Từ đồng nghĩa: giá / phí / tiền / chi phí; khai giảng / bắt đầu / học khi nào; ghi danh / đăng ký.
 - Câu ngắn kiểu tin nhắn: `lịch học?`, `học phí`.
-- Không cần chép lại lời chào ("chào ad", "cho em hỏi"): trợ lý tự bỏ qua.
+- Không chép lời chào hay lời cảm ơn vào "Cách hỏi khác" ("chào ad", "cho em hỏi", "cảm ơn"): trợ lý tự bỏ qua phần lớn các từ này, còn chép vào thì dòng đó dễ bị chọn nhầm cho những câu chỉ có lời chào.
 
 ### Câu trả lời
 
@@ -64,7 +64,7 @@ Mục tiêu: biết học viên thật hỏi gì và hỏi bằng lời nào, r�
    - Hộp thư Meta Business Suite không xuất tin nhắn hàng loạt được (nút Xuất ở đó chỉ xuất số liệu thống kê). Đừng dùng tiện ích "xuất tin nhắn" của bên thứ ba: dữ liệu học viên sẽ đi qua một công ty khác.
 2. **Làm sạch bằng công cụ có sẵn** (`tools/facebook-to-text.py` trong kho mã của trang; nhờ người phụ trách trang chép tệp này vào máy). Công cụ sửa lỗi chữ tiếng Việt của tệp Facebook (chữ "Há»c" thành "Học"), sắp tin nhắn theo thứ tự thời gian, ghi "Viện:" / "Học viên:" ở đầu mỗi lượt, thay tên học viên, email, số điện thoại, số CCCD/CMND bằng `[tên]`, `[email]`, `[số điện thoại]`, `[số giấy tờ]`, và chia thành các tệp `hoi-thoai-001.txt`, `hoi-thoai-002.txt`… mỗi tệp 15 cuộc hội thoại.
    - Cài Python từ python.org (một lần; khi cài, đánh dấu "Add python.exe to PATH").
-   - Mở cmd ở thư mục chứa công cụ và chạy: `py facebook-to-text.py "C:\Users\<tên>\Downloads\facebook-xxxx.zip" "C:\FAQ\hoi-thoai"` (đường dẫn tệp tải về và thư mục kết quả). Công cụ tự đoán tên Trang; nếu đoán sai, thêm `--page "Tên Trang"`.
+   - Mở cmd ở thư mục chứa công cụ và chạy: `py facebook-to-text.py "C:\Users\<tên>\Downloads\facebook-xxxx.zip" "C:\FAQ\hoi-thoai"` (đường dẫn tệp tải về và thư mục kết quả). Công cụ tự đoán tên Trang. Nếu công cụ dừng và in ra một danh sách tên (ví dụ khi tệp chỉ có một cuộc hội thoại), chạy lại và thêm `--page "Tên Trang"`, chép đúng tên Trang trong danh sách đó.
    - Tên học viên viết **bên trong** tin nhắn ("chào chị Lan") không tự xóa được: đọc lại trước khi dùng. Soạn xong thì xóa tệp tải về và thư mục kết quả.
 3. **Gom câu hỏi.** Đọc các tệp, chép các câu hỏi về khóa học vào "Cách hỏi khác" của dòng đúng, giữ nguyên cách viết của học viên (viết tắt, không dấu). Câu chưa có dòng nào thì tạo dòng mới. Ngoài tin nhắn, bình luận dưới các bài đăng khóa trước và các câu trả lời mẫu đã lưu trong Business Suite cũng là nguồn tốt.
 4. **Có thể nhờ AI chạy ngay trên máy văn phòng** (không gửi dữ liệu ra ngoài): cài LM Studio (miễn phí cho công việc, không cần tài khoản) trên máy Truyen-Thong, tìm "Gemma 4" và tải bản **12B Q4_K_M** (khoảng 8 GB, viết tiếng Việt tốt hơn); nếu card đồ họa đang bận dựng video/ảnh thì dùng bản **E4B** (khoảng 5 GB). Máy chỉ bật trong giờ hành chính nên làm vào lúc vắng việc (giờ trưa, cuối ngày); nếu trợ lý trên máy này đã được cài, bấm `AI-giai-phong-GPU` trước. Khi nạp mô hình trong LM Studio, mở phần cài đặt nạp (load settings) và đặt **Context Length** là **16384** (mặc định chỉ 4096, không đủ cho một tệp; nếu LM Studio báo "context length of only 4096 tokens" là chưa đổi). Mở một tệp `hoi-thoai-xxx.txt`, dán vào LM Studio kèm câu lệnh:
@@ -84,7 +84,16 @@ Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 =FAQ_KHOP("hp goi 1 bao nhieu")
 ```
 
-Kết quả gồm 4 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng gần nhất, điểm, và tỷ lệ từ khớp. Nếu một câu học viên hay hỏi mà ra `AI hoặc gợi ý` hoặc ra sai dòng, thêm câu đó vào "Cách hỏi khác" của dòng đúng.
+Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng gần nhất đang dùng, điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do khi không trả lời:
+
+| Lý do | Nghĩa | Việc cần làm |
+|---|---|---|
+| `dòng thiếu từ: ...` | Câu hỏi có một từ mà dòng gần nhất không có (ví dụ "python") | Nếu dòng đó đúng là câu trả lời, thêm câu hỏi vào "Cách hỏi khác" của dòng. Nếu không, đó là câu hỏi mới: để AI trả lời, hoặc tạo dòng mới |
+| `khớp ít từ`, `điểm thấp` | Câu hỏi khác xa mọi dòng | Thêm vào dòng đúng, hoặc tạo dòng mới |
+| `gần bằng dòng ...` | Hai dòng khớp gần như nhau | Thêm câu hỏi vào dòng đúng để nó vượt lên |
+| `dòng hết hạn khớp hơn: ...` | Một dòng đã hết hạn (hoặc chưa tới ngày) khớp hơn | Sửa dòng thay thế cho dòng hết hạn đó (ví dụ chép cách hỏi sang dòng "đã hết"), **không** thêm vào dòng hiện ở ô thứ hai |
+
+Nếu một câu học viên hay hỏi mà ra sai dòng, thêm câu đó vào "Cách hỏi khác" của dòng đúng.
 
 ## Rà soát hằng tuần (15–30 phút)
 

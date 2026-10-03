@@ -114,7 +114,7 @@ def guess_page(counts):
 
 def stop_for_page(counts, problem):
     names = '\n'.join('  ' + name for name, _ in counts.most_common(5))
-    sys.exit('%s Run again with --page "<name>", copying the Page\'s name from this list:\n%s' % (problem, names))
+    sys.exit('%s Chạy lại với --page "<tên Trang>", chép đúng tên Trang trong danh sách này:\n%s' % (problem, names))
 
 
 def render(thread, page, number):
@@ -141,21 +141,21 @@ def main():
 
     threads = load(args.source)
     if not any(t['messages'] for t in threads):
-        sys.exit('No conversations found. Check that the export includes Messages in JSON format.')
+        sys.exit('Không tìm thấy hội thoại nào. Kiểm tra tệp tải về có mục Tin nhắn, định dạng JSON.')
     counts = name_counts(threads)
     if args.page:
         page = unicodedata.normalize('NFC', args.page.strip())
         if page not in counts:
-            stop_for_page(counts, 'No one named "%s" in this export.' % page)
+            stop_for_page(counts, 'Tệp không có ai tên "%s".' % page)
     else:
         page = guess_page(counts)
         if not page:
-            stop_for_page(counts, 'Cannot tell which name is the Page.')
+            stop_for_page(counts, 'Không đoán được tên nào là Trang.')
     # Keep conversations where a learner actually wrote something.
     threads = [t for t in threads if any(sender != page for _, sender, _ in t['messages'])]
     threads.sort(key=lambda t: min(m[0] for m in t['messages']))
     if not threads:
-        sys.exit('No conversations with learner messages found.')
+        sys.exit('Không có hội thoại nào có tin nhắn của học viên.')
 
     os.makedirs(args.output, exist_ok=True)
     blocks = [render(t, page, i + 1) for i, t in enumerate(threads)]
@@ -165,9 +165,9 @@ def main():
         path = os.path.join(args.output, 'hoi-thoai-%03d.txt' % files)
         with open(path, 'w', encoding='utf-8') as handle:
             handle.write('\n\n'.join(blocks[start:start + PER_FILE]) + '\n')
-    print('Page: %s' % page)
-    print('%d conversations written to %d files in %s' % (len(blocks), files, args.output))
-    print('Read them before use: names written inside messages are not removed.')
+    print('Trang: %s' % page)
+    print('Đã ghi %d hội thoại vào %d tệp trong %s' % (len(blocks), files, args.output))
+    print('Đọc lại trước khi dùng: tên viết bên trong tin nhắn không tự xóa được.')
 
 
 if __name__ == '__main__':

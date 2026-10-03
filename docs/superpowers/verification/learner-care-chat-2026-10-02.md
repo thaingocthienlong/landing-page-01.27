@@ -108,15 +108,34 @@ Not verified here: a live call to any provider (no keys in this environment), th
 Four reviewers (Apps Script runtime, the Facebook tool, the office-PC docs against the verified research, FAQ content and copy), each followed by a verifier told to refute every finding: 19 findings upheld, 9 refuted. Fixed:
 
 - FAQ matching answered questions next to a row's topic with that row: "khóa học có dùng Python/Stata/Excel không" got "Dạ, có" from the AI-use row, "gói 2 học mấy ngày" got the Khóa 2 row, "học phí có bao gồm ăn trưa không" got the tax row, and on 08/12 or after it, early-payment questions got the stacking row. Now: coverage weighs words by rarity (unknown words in full), the row must contain the question's rarest word of three letters or more, "gói N"/"khóa N" are one term, a row outside its dates that matches better than every active row sends the question to the AI, plus a package-composition row, reworded AI-use and tax rows, expired-offer rows with the early-payment phrasings and an end date of 27/12/2026.
-- Measured on the held-out halves of the learner set and of 274 reviewer probes labelled by two agents and an adjudicator (192 questions): 38 right table answers and 10 wrong, against 43 right and 34 wrong for the first matcher. Fewer questions are answered from the table; more go to the AI with references. The rarest-word rule was revised once after a look at held-out results.
+- Measured on the held-out halves of the learner set and of 274 reviewer probes labelled by two agents and an adjudicator (192 questions): 35 right table answers and 8 wrong, against 43 right and 34 wrong for the first matcher. Fewer questions are answered from the table; more go to the AI with references. The rules were revised twice after looking at held-out results (see the verification round below).
 - A timed-out host now sits out 1 minute and is not retried within the same question (the first fix never skipped a hung host, so every visitor waited 25 s on it).
 - The institute's numbers written after a country code ("+84 (0) 949 761 636,") were masked as ID numbers; fixed in `Chat.gs` and the Python tool.
 - Facebook tool: refused to guess the Page on a tie (it swapped roles and left the learner's name in clear text in half the runs on a one-conversation export), checks `--page` against the export, normalises Unicode, 15 conversations per file.
-- Docs: Cloudflare's daily quota is `error-429-daily`, not `error-429`; the PC does not make the chain in-house (Cloudflare tunnel, Google, Gemini fallback); curl tests in cmd only; stop the console llama-swap before the boot task; `healthCheckTimeout` 300; no warm-up advice that a 15-minute TTL undoes; LM Studio context length 16384.
+- Docs: Cloudflare's daily quota is `error-429-daily`, not `error-429`; the PC is no longer described as keeping questions in-house (Cloudflare tunnel, Google, Gemini fallback); curl tests in cmd only; stop the console llama-swap before the boot task; `healthCheckTimeout` 300; no warm-up advice that a 15-minute TTL undoes; LM Studio context length 16384.
 
 ```text
 Apps Script harness, 37 cases                PASS (timeout skip, multi-model group, TTL values)
 Masking format cases, 48                     PASS (Python cleaner matches Chat.gs on 55 inputs)
 FAQ seed self-check, 608 phrasings           595 own row, 13 deferred, 0 other row
 Facebook cleaner: tie, wrong --page, NFD     PASS
+```
+
+## Verification of the review fixes, 2026-10-03
+
+Three verifiers checked each upheld finding against the fixes and looked for new defects. All 19 findings were fixed or mostly fixed. New defects found and fixed:
+
+- A single OpenAI-compatible model flagged as down made the next visitor's request throw (no reply, no log row). The path existed before for an unreachable host; the 1-minute timeout flag made it common. Guarded, with a test.
+- The 1-minute flag was also written when earlier attempts had squeezed a call to a few seconds, sidelining a healthy host. Now only for calls given 15 s or more.
+- A package number ("gói 3") became the rarest word and blocked the fee, discount and choice rows; package and course numbers no longer count, and "cho"/"toi" neither.
+- A row could answer after sharing a single word with the question ("cười" and "cuối" fold alike); a table answer now also needs a third of the question's words.
+- "cảm ơn", "chút", "xíu", "page", "shop", "alo" and similar became the rarest word; they are ignored now.
+- `=FAQ_KHOP` gives the reason a question goes to the AI, and the staff guide says to fix the replacement row when an expired row is the reason, not the row shown.
+- The tax row says the notice does not mention meals, travel or lodging; the Facebook tool's messages are in Vietnamese and the guide explains the stop when it cannot tell the Page.
+
+- From 28/12/2026 the AI's date note no longer lists the old-learner and group discounts next to "the deadline has passed"; the FAQ table does not answer discount questions then either.
+
+```text
+Apps Script harness, 39 cases     PASS
+Held-out halves (192 questions)   35 right, 0 wrong row, 8 answered that should go to the AI
 ```

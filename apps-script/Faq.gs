@@ -19,8 +19,11 @@ var FAQ_MIN_SCORE = 6;
 var FAQ_MIN_COVERAGE = 0.4;
 var FAQ_MIN_MARGIN = 1.3;
 // The row must also contain the question's rarest word ("Python" in "có dạy Python không"),
-// in any of its phrasings. Words of one or two letters ("để", "ở") never count as rarest.
+// in any of its phrasings. Words of one or two letters ("để", "ở") and package or course numbers
+// never count as rarest.
 var FAQ_NEED_RAREST = true;
+// Unaccented words kept for meaning ("cho" can be chỗ) that are mostly greetings ("cho em hỏi").
+var FAQ_NOT_RAREST = { cho: 1, toi: 1 };
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
 var FAQ_MIN_CANDIDATE = 3;
 var FAQ_MIN_CANDIDATE_SHARE = 0.34;
@@ -44,7 +47,9 @@ var FAQ_STOP = {
   'ạ': 1, 'à': 1, 'á': 1, 'a': 1, 'c': 1, 'e': 1, 'em': 1, 'anh': 1, 'chị': 1, 'mình': 1, 'tôi': 1,
   'ad': 1, 'admin': 1, 'ơi': 1, 'oi': 1, 'nhé': 1, 'nhe': 1, 'nha': 1, 'nhá': 1, 'vậy': 1, 'vay': 1,
   'z': 1, 'thế': 1, 'dạ': 1, 'vâng': 1, 'chào': 1, 'chao': 1, 'xin': 1, 'hỏi': 1, 'hoi': 1,
-  'là': 1, 'thì': 1, 'của': 1, 'cua': 1, 'và': 1, 'với': 1, 'ạh': 1, 'ah': 1, 'ơ': 1, 'luôn': 1
+  'là': 1, 'thì': 1, 'của': 1, 'cua': 1, 'và': 1, 'với': 1, 'ạh': 1, 'ah': 1, 'ơ': 1, 'luôn': 1,
+  'chút': 1, 'chut': 1, 'xíu': 1, 'xiu': 1, 'tí': 1, 'nhỉ': 1, 'bạn': 1, 'muốn': 1, 'nhờ': 1,
+  'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1
 };
 
 function setupFaq() {
@@ -79,14 +84,15 @@ function setupFaq() {
  * Shows how the chat would handle a question: the decision, the best row and its score.
  *
  * @param {string} question A learner question.
- * @return The decision (trả lời / AI hoặc gợi ý), best row id, score and coverage.
+ * @return The decision (trả lời / AI hoặc gợi ý), best row id, score, coverage and, when the
+ *     table does not answer, why.
  * @customfunction
  */
 function FAQ_KHOP(question) {
   var result = faqLookup_(String(question || ''));
   var best = result.ranked[0];
-  if (!best) return [['không khớp', '', 0, 0]];
-  return [[result.answer ? 'trả lời' : 'AI hoặc gợi ý', best.row.id, Math.round(best.score * 10) / 10, Math.round(best.coverage * 100) / 100]];
+  if (!best) return [['không khớp', '', 0, 0, '']];
+  return [[result.answer ? 'trả lời' : 'AI hoặc gợi ý', best.row.id, Math.round(best.score * 10) / 10, Math.round(best.coverage * 100) / 100, result.reason]];
 }
 
 // Clears the cached rows as soon as staff edit the FAQ tab.
@@ -152,7 +158,7 @@ function faqLookup_(question) {
   // its common words. Share, the plain fraction of words matched, picks the reference rows.
   var words = faqUnique_(query.words);
   var weight = words.reduce(function (sum, word) { return sum + idf(word); }, 0);
-  var long = words.filter(function (word) { return word.length > 2; });
+  var long = words.filter(function (word) { return word.length > 2 && !FAQ_NOT_RAREST[word] && !/^(goi|khoa)\d+$/.test(word); });
   var rarest = Math.max.apply(null, long.map(idf));
   var key = long.filter(function (word) { return idf(word) >= rarest - 1e-9; });
 
@@ -184,11 +190,17 @@ function faqLookup_(question) {
   var expired = scored.filter(function (entry) { return !entry.row.active; })[0];
   var top = ranked[0];
   var second = ranked[1];
-  var confident = top && top.score >= FAQ_MIN_SCORE && top.coverage >= FAQ_MIN_COVERAGE &&
-    (!second || top.score >= second.score * FAQ_MIN_MARGIN) && (top.rarest || !FAQ_NEED_RAREST) &&
-    !(expired && expired.score > top.score);
+  // The first rule that stops the best row from answering, for FAQ_KHOP; '' when it answers.
+  var reason = !top ? 'không có dòng nào khớp'
+    : expired && expired.score > top.score ? 'dòng hết hạn khớp hơn: ' + expired.row.id
+    : top.score < FAQ_MIN_SCORE ? 'điểm thấp'
+    : top.coverage < FAQ_MIN_COVERAGE || top.share < FAQ_MIN_CANDIDATE_SHARE ? 'khớp ít từ'
+    : FAQ_NEED_RAREST && !top.rarest ? 'dòng thiếu từ: ' + key.join(', ')
+    : second && top.score < second.score * FAQ_MIN_MARGIN ? 'gần bằng dòng ' + second.row.id
+    : '';
   return {
-    answer: confident ? top.row : null,
+    answer: reason ? null : top.row,
+    reason: reason,
     candidates: ranked.filter(function (entry) {
       return entry.score >= FAQ_MIN_CANDIDATE && entry.share >= FAQ_MIN_CANDIDATE_SHARE;
     }).slice(0, 3).map(function (entry) { return entry.row; }),
@@ -200,7 +212,10 @@ function faqLookup_(question) {
 // unaccented (so "hoc phi" finds "học phí") and, when written with accents, also accented (so
 // "cô" and "có" stay apart for learners who type accents). Neighbouring pairs add phrase weight.
 function faqTerms_(text) {
-  var raw = String(text || '').toLowerCase().normalize('NFC').match(/[\p{L}\p{N}]+/gu) || [];
+  var raw = String(text || '').toLowerCase().normalize('NFC')
+    // "cảm ơn" / "cam on" is thanks, not a question word ("cam" alone can be a camera).
+    .replace(/(^|[^\p{L}])c[aảá]m[\s,.]+[oơ]n(?![\p{L}])/gu, '$1 ')
+    .match(/[\p{L}\p{N}]+/gu) || [];
   var words = [];
   var accented = [];
   raw.forEach(function (word) {
