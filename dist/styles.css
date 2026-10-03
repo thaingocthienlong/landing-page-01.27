@@ -241,7 +241,7 @@ section { padding-block: var(--section); }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 20px; }
 .field-wide { grid-column: 1 / -1; }
 .field { min-width: 0; margin: 0; padding: 0; border: 0; }
-.field > label:not(.choice), .choice-group > legend { display: block; margin-bottom: 7px; padding: 0; font-size: 0.9375rem; font-weight: 600; color: var(--ink); }
+.field > label:not(.choice), .choice-group > legend, .birth-group > legend { display: block; margin-bottom: 7px; padding: 0; font-size: 0.9375rem; font-weight: 600; color: var(--ink); }
 .req { color: var(--signal); }
 .field-hint { margin-top: 6px; font-size: 0.875rem; line-height: 1.45; color: var(--ink-3); }
 .form-grid > .field-hint { margin-top: -10px; }
@@ -256,6 +256,7 @@ input:focus-visible, select:focus-visible { outline: 2px solid var(--cobalt); ou
 .is-invalid, .is-invalid:hover { border-color: var(--signal) !important; box-shadow: 0 0 0 1px var(--signal); }
 input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin: 0; accent-color: var(--cobalt); flex: none; }
 .choice-group { margin: 0; padding: 0; border: 0; min-width: 0; }
+.birth-selects { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .choice { display: flex; align-items: flex-start; gap: 14px; position: relative; padding: 15px 16px; border: 1px solid var(--hair); margin-top: -1px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
 .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .choice-grid .choice { margin-top: 0; }
