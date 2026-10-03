@@ -183,7 +183,7 @@ The thresholds favour sending a question to the AI over a wrong canned answer. T
 
 ## What the chat does and does not do
 
-- Answers from the FAQ tab and `Knowledge.gs` only. When something is not there (daily class hours, Zoom link timing, recordings, invoices, refunds, seats left, certificate conditions) it says so and gives (028) 2242 6789, Ms. Vy 0949 761 636 and Ms. Thảo 0912 114 511.
+- Answers from the FAQ tab and `Knowledge.gs` only. Besides the notice, `Knowledge.gs` holds practices the Institute confirmed on 03/10/2026 (class hours, online learners joining live with the hall, materials and the signed book, the completion certificate, time-limited replay for registered learners, the Zalo contact and receipt steps). When something is in neither (Zoom link timing, the replay period, invoices, refunds, seats left, attendance needed for the certificate) it says so and gives (028) 2242 6789, Ms. Vy 0949 761 636 and Ms. Thảo 0912 114 511.
 - Never registers, holds a seat, confirms a payment or grants a discount. It points to the form on the page, the phone numbers, or in-person registration at 45 Đinh Tiên Hoàng.
 - Discounted amounts are labelled as estimates (tạm tính); the Institute confirms the final amount. It says the notice does not settle whether the early-payment and group discounts stack.
 - Declines medical questions and anything outside the course series.

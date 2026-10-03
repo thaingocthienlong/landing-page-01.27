@@ -68,8 +68,9 @@ function handleChat_(data) {
   var log = function (reply, status) { logChat_([session, question, reply, status, clean_(data.page)]); };
   var faq = faqLookup_(question);
   if (faq.answer) {
-    log(faq.answer.answer, 'faq:' + faq.answer.id);
-    return json_({ ok: true, reply: faq.answer.answer });
+    var reply = messages.length === 1 ? chatGreet_(faq.answer.answer) : faq.answer.answer;
+    log(reply, 'faq:' + faq.answer.id);
+    return json_({ ok: true, reply: reply });
   }
 
   // CHAT_MAX_PER_HOUR = 0 pauses the AI; the FAQ keeps answering.
@@ -232,6 +233,12 @@ function askModel_(config, messages, references) {
     }
   }
   return { status: tried.join('; '), permanent: permanent && tried.length > 0 };
+}
+
+// The first answer of a conversation opens the way the Institute's staff do: "Dạ, em chào anh/chị."
+function chatGreet_(answer) {
+  var rest = answer.replace(/^Dạ,\s*/, '');
+  return 'Dạ, em chào anh/chị. ' + rest.charAt(0).toUpperCase() + rest.slice(1);
 }
 
 // The closest FAQ rows, sent after the cached prompt so the model can reuse staff wording.
