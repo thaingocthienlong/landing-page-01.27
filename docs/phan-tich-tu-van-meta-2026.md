@@ -90,20 +90,26 @@ Mỗi đợt, một nửa số câu học viên tự gõ được để riêng v
 
 Tin nhắn thật rất ngắn, nhiều từ lóng và hay dựa vào tin trước, nên phần lớn câu mới vẫn cần AI. Cách tốt nhất để trợ lý trả lời ngay là đưa chính các câu thật vào cột "Cách hỏi khác": các nút quảng cáo và cách hỏi hay gặp lặp lại rất nhiều giữa các cuộc hội thoại. Các câu để riêng nay cũng đã có trong bảng. Mỗi khi nhận được tệp tin nhắn mới, nên làm lại bước này.
 
-## Cần Viện xác nhận
+## Viện xác nhận thêm (đợt 2, 03/10/2026)
 
-Nhân viên khóa trước đã nói những điều dưới đây, nhưng thông báo chuỗi R và các điều Viện xác nhận ngày 03/10/2026 chưa có. Trợ lý đang trả lời "em chưa có thông tin" cho các câu này; Viện xác nhận điều nào thì thêm vào mục "Viện xác nhận thêm" trong `Knowledge.gs` và sửa dòng FAQ tương ứng.
+Nhân viên khóa trước đã nói những điều dưới đây; Viện xác nhận vẫn đúng cho chuỗi R. Các điều này nay có trong mục "Viện xác nhận thêm" của `Knowledge.gs` và trong các dòng FAQ:
 
-1. Viện có xuất hóa đơn VAT ghi tên đơn vị không; sau khi hoàn tất học phí chuyên viên có gửi link điền thông tin xuất hóa đơn không (3 cuộc hội thoại).
-2. Link xem lại bản ghi có mở ngoài giờ học ngay từ ngày đầu và hết hạn khoảng 2 ngày sau khóa không (khóa trước: từ 15/08 đến hết 20/08/2026).
-3. Học viên online có thấy màn hình máy thầy khi chạy R, nghe rõ hội trường, và có người hỗ trợ khi gặp lỗi code buổi chiều không.
-4. Hai thầy giảng bằng tiếng Việt; slide, thuật ngữ có bằng tiếng Anh không.
-5. Nhóm Zalo lớp lập khi nào; link Zoom và hướng dẫn cài R gửi ở đâu, trước mấy ngày.
-6. Sau khi nhận phiếu, chuyên viên liên hệ trong bao lâu; không tìm thấy Zalo thì gửi email không.
-7. Học viên chờ chuyên viên xác nhận gói và số tiền rồi mới chuyển khoản; nội dung chuyển khoản có mã khóa riêng không (khóa trước dùng mã MHHQ0826).
-8. Điền phiếu chưa giữ chỗ, chỉ khi hoàn tất học phí mới có tên trong danh sách chính thức.
-9. Giấy chứng nhận: tên ghi theo thứ tự nào, ghi theo hộ chiếu được không; học gói nhiều khóa thì mỗi khóa một giấy hay một giấy chung; có tính giờ CME không; có bài kiểm tra cuối khóa không; có gửi mẫu cho người đang tìm hiểu không.
-10. Sĩ số dự kiến mỗi khóa (trực tiếp và online).
-11. Có buổi học thử hoặc video lớp trước để xem không; sau khóa có được hỏi thầy, Viện (ví dụ trong nhóm Zalo lớp) không; người không học được đợt này có thể để lại số để được báo đợt sau không.
-12. Mốc ưu đãi 08/12/2026 có được gia hạn không (khóa trước có lúc gia hạn cho từng người); sau 28/12/2026 Viện còn nhận đăng ký không.
-13. Giờ làm việc để gọi điện hoặc đến 45 Đinh Tiên Hoàng đăng ký trực tiếp; có nhận hẹn tư vấn trước không.
+- Học viên online thấy màn hình máy thầy khi chạy R và nghe rõ hội trường; buổi thực hành chiều, gặp lỗi code thì có người hỗ trợ qua Zoom hoặc khung chat.
+- Link xem lại bản ghi mở ngoài giờ học ngay từ ngày học đầu tiên, hết hạn khoảng 2 ngày sau khi khóa học kết thúc.
+- Hai thầy giảng bằng tiếng Việt; slide và thuật ngữ có tiếng Anh (dòng mới).
+- Viện xuất hóa đơn VAT ghi tên đơn vị; sau khi hoàn tất học phí, chuyên viên gửi link để điền thông tin.
+- Học viên chờ chuyên viên xác nhận gói và số tiền qua Zalo rồi mới chuyển khoản.
+- Điền phiếu chưa giữ chỗ; chỉ khi hoàn tất học phí mới có tên trong danh sách chính thức.
+- Sau khi nhận phiếu, Ms. Thảo hoặc Ms. Vy liên hệ qua Zalo trong khoảng 1 ngày làm việc; không tìm thấy Zalo thì gửi email.
+- Giấy chứng nhận hoàn thành dự kiến ghi tên các khóa học đã đăng ký; không tính giờ CME, không có bài kiểm tra cuối khóa; ai cần ghi tên theo hộ chiếu thì báo chuyên viên; người đang tìm hiểu xin được mẫu qua Zalo Ms. Thảo hoặc Ms. Vy.
+- Nhóm Zalo lớp lập 3–4 ngày trước khai giảng; link Zoom và hướng dẫn cài R gửi trong nhóm. Sau khóa học vẫn hỏi được thầy hoặc Viện trong nhóm (dòng mới).
+- Bảo lưu hay rút học phí: liên hệ chuyên viên tư vấn. Mốc ưu đãi ấn định theo thông báo chính thức; cần hỗ trợ cụ thể thì liên hệ tư vấn viên. Trợ lý không hứa gia hạn.
+
+Còn chưa có câu trả lời, trợ lý vẫn nói "em chưa có thông tin" và mời liên hệ Viện:
+
+1. Sĩ số dự kiến mỗi khóa (trực tiếp và online).
+2. Số buổi phải tham dự để được cấp giấy chứng nhận.
+3. Có buổi học thử hoặc video lớp trước để xem không; người không học được đợt này có được báo khi có đợt sau không.
+4. Sau 28/12/2026 Viện còn nhận đăng ký không.
+5. Giờ làm việc để gọi điện hoặc đến 45 Đinh Tiên Hoàng đăng ký trực tiếp; có nhận hẹn tư vấn trước không.
+6. Nội dung chuyển khoản có mã khóa riêng không (khóa trước dùng mã MHHQ0826); trợ lý đang dùng mẫu trong thông báo.

@@ -59,7 +59,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Số tiền sau ưu đãi ghi là "tạm tính" và nói Viện xác nhận số tiền chính thức.
 - Muốn chỉ học viên tới phiếu đăng ký, viết đúng cụm **Đăng ký khóa học**: trang tự biến nó thành đường dẫn.
 - Số điện thoại viết đúng dạng (028) 2242 6789, 0949 761 636, 0912 114 511: trang tự biến thành nút gọi.
-- Điều thông báo chưa có và Viện chưa xác nhận (thời điểm gửi link Zoom, thời hạn xem lại bản ghi, hóa đơn, hoàn/hủy, còn chỗ, số buổi phải tham dự để được cấp giấy chứng nhận): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, tài liệu và sách, giấy chứng nhận, ghi hình có thời hạn, liên hệ và gửi phiếu thu qua Zalo) đã có trong bảng và trong `Knowledge.gs`.
+- Điều thông báo chưa có và Viện chưa xác nhận (còn chỗ, sĩ số lớp, số buổi phải tham dự để được cấp giấy chứng nhận, học thử, giờ làm việc): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Bảo lưu hay rút học phí: mời liên hệ chuyên viên tư vấn. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, ngôn ngữ giảng dạy, tài liệu và sách, giấy chứng nhận, link xem lại bản ghi, hóa đơn VAT, liên hệ trong khoảng 1 ngày, xác nhận số tiền trước khi chuyển khoản, phiếu thu, nhóm Zalo lớp, hỗ trợ sau khóa) đã có trong bảng và trong `Knowledge.gs`.
 
 ### Câu trả lời đổi theo ngày
 
