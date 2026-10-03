@@ -225,8 +225,9 @@ function askModel_(config, messages, references) {
     if (entry.group.provider === 'openai' && (last.unreachable || last.timedOut)) {
       // A host that is off sits out 3 minutes. One that timed out, often a model still loading
       // (the load carries on without us), sits out 1 minute, so a hung host cannot slow every
-      // visitor; not when earlier attempts had left it too little time to judge.
-      if (last.unreachable || timeout >= 15) cache.put('chat_down_' + name, '1', last.unreachable ? CHAT_DOWN_SECONDS : CHAT_SLOW_SECONDS);
+      // visitor; not when earlier attempts had left it less time than its place in the queue allows.
+      var fair = Math.min(15, Math.max(5, Math.min(CHAT_CALL_MAX, CHAT_TIME_BUDGET - 1 - 5 * (queue.length - i - 1))));
+      if (last.unreachable || timeout >= fair) cache.put('chat_down_' + name, '1', last.unreachable ? CHAT_DOWN_SECONDS : CHAT_SLOW_SECONDS);
       stopped[name] = true;
     }
   }

@@ -30,6 +30,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Viết tắt thường gặp: hp (học phí), đk/dk (đăng ký), sdt, stk, ck (chuyển khoản), gv (giảng viên), ko/k (không), j (gì), bn (bao nhiêu), onl (online). Trợ lý đã tự hiểu các viết tắt này, nhưng ghi thêm vẫn tốt.
 - Từ đồng nghĩa: giá / phí / tiền / chi phí; khai giảng / bắt đầu / học khi nào; ghi danh / đăng ký.
 - Câu ngắn kiểu tin nhắn: `lịch học?`, `học phí`.
+- Gói và khóa: nếu dòng chỉ nói về một gói hay một khóa (ví dụ lịch Khóa 1), ghi số đó trong cách hỏi ("khóa 1 học ngày nào"). Nếu dòng đúng cho mọi gói (ví dụ ưu đãi nhóm), đừng ghi số gói nào, hoặc ghi đủ các gói: dòng có ghi "gói 2" thì sẽ không trả lời câu hỏi về "gói 3".
 - Không chép lời chào hay lời cảm ơn vào "Cách hỏi khác" ("chào ad", "cho em hỏi", "cảm ơn"): trợ lý tự bỏ qua phần lớn các từ này, còn chép vào thì dòng đó dễ bị chọn nhầm cho những câu chỉ có lời chào.
 
 ### Câu trả lời
@@ -47,6 +48,8 @@ Ví dụ ưu đãi hoàn tất trước 08/12/2026: tạo hai dòng.
 
 - `uu-dai-som`: Đến ngày `07/12/2026`, trả lời về mức giảm 10%.
 - `uu-dai-som-het`: Từ ngày `09/12/2026` đến ngày `27/12/2026`, trả lời rằng ưu đãi đã hết (sau hạn chót 28/12 thì không nói "hiện vẫn có ưu đãi" nữa).
+
+Các dòng về ưu đãi nhóm, cộng dồn ưu đãi và đăng ký nhóm cũng kết thúc ngày `27/12/2026`: sau hạn chót, câu hỏi về ưu đãi được chuyển cho AI, và AI mời học viên liên hệ Viện.
 
 Trợ lý vẫn so câu hỏi với các dòng đã hết hạn. Nếu một dòng hết hạn khớp hơn mọi dòng đang dùng (ví dụ ngày 15/12 có người hỏi "đóng trước 8/12 được giảm bao nhiêu"), trợ lý không trả lời bằng bảng mà chuyển cho AI. Vì vậy khi tạo dòng "đã hết", chép sang đó các cách hỏi của dòng cũ.
 
@@ -91,6 +94,8 @@ Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả
 | `dòng thiếu từ: ...` | Câu hỏi có một từ mà dòng gần nhất không có (ví dụ "python") | Nếu dòng đó đúng là câu trả lời, thêm câu hỏi vào "Cách hỏi khác" của dòng. Nếu không, đó là câu hỏi mới: để AI trả lời, hoặc tạo dòng mới |
 | `khớp ít từ`, `điểm thấp` | Câu hỏi khác xa mọi dòng | Thêm vào dòng đúng, hoặc tạo dòng mới |
 | `gần bằng dòng ...` | Hai dòng khớp gần như nhau | Thêm câu hỏi vào dòng đúng để nó vượt lên |
+| `dòng nói về gói hoặc khóa khác` | Câu hỏi về "khóa 2" mà dòng gần nhất chỉ ghi "khóa 1" | Thêm vào dòng đúng của khóa/gói đó; nếu dòng đúng cho mọi gói, xem mục "Gói và khóa" ở trên |
+| `lời cảm ơn` | Tin nhắn chỉ là lời cảm ơn, không có câu hỏi | Không cần làm gì |
 | `dòng hết hạn khớp hơn: ...` | Một dòng đã hết hạn (hoặc chưa tới ngày) khớp hơn | Sửa dòng thay thế cho dòng hết hạn đó (ví dụ chép cách hỏi sang dòng "đã hết"), **không** thêm vào dòng hiện ở ô thứ hai |
 
 Nếu một câu học viên hay hỏi mà ra sai dòng, thêm câu đó vào "Cách hỏi khác" của dòng đúng.

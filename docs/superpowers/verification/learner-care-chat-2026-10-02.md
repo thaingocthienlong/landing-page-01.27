@@ -108,7 +108,7 @@ Not verified here: a live call to any provider (no keys in this environment), th
 Four reviewers (Apps Script runtime, the Facebook tool, the office-PC docs against the verified research, FAQ content and copy), each followed by a verifier told to refute every finding: 19 findings upheld, 9 refuted. Fixed:
 
 - FAQ matching answered questions next to a row's topic with that row: "khóa học có dùng Python/Stata/Excel không" got "Dạ, có" from the AI-use row, "gói 2 học mấy ngày" got the Khóa 2 row, "học phí có bao gồm ăn trưa không" got the tax row, and on 08/12 or after it, early-payment questions got the stacking row. Now: coverage weighs words by rarity (unknown words in full), the row must contain the question's rarest word of three letters or more, "gói N"/"khóa N" are one term, a row outside its dates that matches better than every active row sends the question to the AI, plus a package-composition row, reworded AI-use and tax rows, expired-offer rows with the early-payment phrasings and an end date of 27/12/2026.
-- Measured on the held-out halves of the learner set and of 274 reviewer probes labelled by two agents and an adjudicator (192 questions): 35 right table answers and 8 wrong, against 43 right and 34 wrong for the first matcher. Fewer questions are answered from the table; more go to the AI with references. The rules were revised twice after looking at held-out results (see the verification round below).
+- Measured on the held-out halves of the learner set and of 274 reviewer probes labelled by two agents and an adjudicator (192 questions): 34 right table answers and 8 wrong, against 43 right and 34 wrong for the first matcher. Fewer questions are answered from the table; more go to the AI with references. The rules were revised several times after looking at held-out results (see the verification rounds below).
 - A timed-out host now sits out 1 minute and is not retried within the same question (the first fix never skipped a hung host, so every visitor waited 25 s on it).
 - The institute's numbers written after a country code ("+84 (0) 949 761 636,") were masked as ID numbers; fixed in `Chat.gs` and the Python tool.
 - Facebook tool: refused to guess the Page on a tie (it swapped roles and left the learner's name in clear text in half the runs on a one-conversation export), checks `--page` against the export, normalises Unicode, 15 conversations per file.
@@ -133,9 +133,16 @@ Three verifiers checked each upheld finding against the fixes and looked for new
 - `=FAQ_KHOP` gives the reason a question goes to the AI, and the staff guide says to fix the replacement row when an expired row is the reason, not the row shown.
 - The tax row says the notice does not mention meals, travel or lodging; the Facebook tool's messages are in Vietnamese and the guide explains the stop when it cannot tell the Page.
 
-- From 28/12/2026 the AI's date note no longer lists the old-learner and group discounts next to "the deadline has passed"; the FAQ table does not answer discount questions then either.
+- From 28/12/2026 the AI's date note no longer lists the old-learner and group discounts next to "the deadline has passed".
 
 ```text
 Apps Script harness, 39 cases     PASS
 Held-out halves (192 questions)   35 right, 0 wrong row, 8 answered that should go to the AI
+```
+
+A last check of that commit found six smaller regressions, all fixed: with seven or more models queued the 15 s rule never flagged a hung first host (now compared with what that place in the queue gets); the group-discount, stacking and group-registration rows still answered after the deadline (they end on 27/12/2026); "muốn" as a stop word sent "em muốn được tư vấn" to the medical refusal (removed, with "nhờ"); without numbers in the rarest-word rule the Khóa 1 schedule answered "ngày đầu tiên của khóa 2" (a row naming another package or course now cannot answer); "toi" no longer skipped (it can be tới or tối); a thank-you without a question word is not matched.
+
+```text
+Apps Script harness, 40 cases     PASS
+Held-out halves (192 questions)   34 right, 0 wrong row, 8 answered that should go to the AI
 ```

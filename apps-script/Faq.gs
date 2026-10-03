@@ -20,10 +20,12 @@ var FAQ_MIN_COVERAGE = 0.4;
 var FAQ_MIN_MARGIN = 1.3;
 // The row must also contain the question's rarest word ("Python" in "có dạy Python không"),
 // in any of its phrasings. Words of one or two letters ("để", "ở") and package or course numbers
-// never count as rarest.
+// never count as rarest; instead a row that names a different package or course cannot answer.
 var FAQ_NEED_RAREST = true;
-// Unaccented words kept for meaning ("cho" can be chỗ) that are mostly greetings ("cho em hỏi").
-var FAQ_NOT_RAREST = { cho: 1, toi: 1 };
+// An unaccented word kept for meaning ("cho" can be chỗ) that is mostly a greeting ("cho em hỏi").
+var FAQ_NOT_RAREST = { cho: 1 };
+// Words that make a message a question; a thank-you without any of them is not matched.
+var FAQ_ASKING = { khong: 1, nao: 1, gi: 1, sao: 1, dau: 1, chua: 1, may: 1, nhieu: 1, ai: 1, khi: 1 };
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
 var FAQ_MIN_CANDIDATE = 3;
 var FAQ_MIN_CANDIDATE_SHARE = 0.34;
@@ -48,7 +50,7 @@ var FAQ_STOP = {
   'ad': 1, 'admin': 1, 'ơi': 1, 'oi': 1, 'nhé': 1, 'nhe': 1, 'nha': 1, 'nhá': 1, 'vậy': 1, 'vay': 1,
   'z': 1, 'thế': 1, 'dạ': 1, 'vâng': 1, 'chào': 1, 'chao': 1, 'xin': 1, 'hỏi': 1, 'hoi': 1,
   'là': 1, 'thì': 1, 'của': 1, 'cua': 1, 'và': 1, 'với': 1, 'ạh': 1, 'ah': 1, 'ơ': 1, 'luôn': 1,
-  'chút': 1, 'chut': 1, 'xíu': 1, 'xiu': 1, 'tí': 1, 'nhỉ': 1, 'bạn': 1, 'muốn': 1, 'nhờ': 1,
+  'chút': 1, 'chut': 1, 'xíu': 1, 'xiu': 1, 'tí': 1, 'nhỉ': 1, 'bạn': 1,
   'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1
 };
 
@@ -127,6 +129,9 @@ function faqLookup_(question) {
   }
   var query = faqTerms_(question);
   if (!rows.length || !query.words.length) return empty;
+  if (query.thanks && question.indexOf('?') === -1 && !query.words.some(function (word) { return FAQ_ASKING[word]; })) {
+    return { answer: null, candidates: [], ranked: [], reason: 'lời cảm ơn' };
+  }
   var today = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd');
 
   // Rows outside their dates are scored too, so a question about an offer that has ended is not
@@ -161,6 +166,7 @@ function faqLookup_(question) {
   var long = words.filter(function (word) { return word.length > 2 && !FAQ_NOT_RAREST[word] && !/^(goi|khoa)\d+$/.test(word); });
   var rarest = Math.max.apply(null, long.map(idf));
   var key = long.filter(function (word) { return idf(word) >= rarest - 1e-9; });
+  var numbers = words.filter(function (word) { return /^(goi|khoa)\d+$/.test(word); });
 
   var best = {};
   docs.forEach(function (doc) {
@@ -178,7 +184,8 @@ function faqLookup_(question) {
     if (!current || score > current.score) {
       best[doc.row.id] = {
         row: doc.row, score: score, coverage: covered / weight, share: matched.length / words.length,
-        rarest: key.every(function (word) { return vocabulary[doc.row.id][word]; })
+        rarest: key.every(function (word) { return vocabulary[doc.row.id][word]; }),
+        number: faqSameNumber_(numbers, vocabulary[doc.row.id])
       };
     }
   });
@@ -196,6 +203,7 @@ function faqLookup_(question) {
     : top.score < FAQ_MIN_SCORE ? 'điểm thấp'
     : top.coverage < FAQ_MIN_COVERAGE || top.share < FAQ_MIN_CANDIDATE_SHARE ? 'khớp ít từ'
     : FAQ_NEED_RAREST && !top.rarest ? 'dòng thiếu từ: ' + key.join(', ')
+    : !top.number ? 'dòng nói về gói hoặc khóa khác'
     : second && top.score < second.score * FAQ_MIN_MARGIN ? 'gần bằng dòng ' + second.row.id
     : '';
   return {
@@ -212,10 +220,10 @@ function faqLookup_(question) {
 // unaccented (so "hoc phi" finds "học phí") and, when written with accents, also accented (so
 // "cô" and "có" stay apart for learners who type accents). Neighbouring pairs add phrase weight.
 function faqTerms_(text) {
-  var raw = String(text || '').toLowerCase().normalize('NFC')
-    // "cảm ơn" / "cam on" is thanks, not a question word ("cam" alone can be a camera).
-    .replace(/(^|[^\p{L}])c[aảá]m[\s,.]+[oơ]n(?![\p{L}])/gu, '$1 ')
-    .match(/[\p{L}\p{N}]+/gu) || [];
+  var lower = String(text || '').toLowerCase().normalize('NFC');
+  // "cảm ơn" / "cam on" is thanks, not a question word ("cam" alone can be a camera).
+  var stripped = lower.replace(/(^|[^\p{L}])c[aảá]m[\s,.]+[oơ]n(?![\p{L}])/gu, '$1 ');
+  var raw = stripped.match(/[\p{L}\p{N}]+/gu) || [];
   var words = [];
   var accented = [];
   raw.forEach(function (word) {
@@ -232,7 +240,17 @@ function faqTerms_(text) {
   });
   var pairs = [];
   for (var i = 1; i < words.length; i++) pairs.push(words[i - 1] + '_' + words[i]);
-  return { words: words, all: words.concat(accented, pairs) };
+  return { words: words, all: words.concat(accented, pairs), thanks: stripped !== lower };
+}
+
+// False when the question names a package or course ("khóa 2") and the row's phrasings name a
+// different one of the same kind but not that one, as the Khóa 1 schedule row does.
+function faqSameNumber_(numbers, vocabulary) {
+  return numbers.every(function (number) {
+    if (vocabulary[number]) return true;
+    var kind = number.replace(/\d+$/, '');
+    return !Object.keys(vocabulary).some(function (word) { return word !== number && new RegExp('^' + kind + '\\d+$').test(word); });
+  });
 }
 
 function faqFold_(word) {

@@ -663,7 +663,7 @@ var FAQ_SEED = [
     ],
     answer: 'Dạ, Gói 1 đến Gói 4 được giảm 5% khi hoàn tất học phí theo nhóm từ 3 người; ưu đãi chỉ áp dụng khi hoàn tất học phí theo nhóm và tham gia cùng 1 gói đăng ký. Tạm tính mỗi người: Gói 1 còn **8.360.000 đồng**, Gói 2 và Gói 4 còn **6.365.000 đồng**, Gói 3 còn **7.125.000 đồng**; số tiền chính thức do Viện xác nhận. Gói 5 và Gói 6 không có ưu đãi nhóm. Thông báo không nói ưu đãi nhóm có cộng dồn với ưu đãi hoàn tất học phí sớm hay không; ưu đãi học viên cũ thì không áp dụng đồng thời.',
     from: '',
-    to: ''
+    to: '27/12/2026'
   },
   {
     id: 'uu-dai-hoc-vien-cu',
@@ -725,7 +725,7 @@ var FAQ_SEED = [
     ],
     answer: 'Dạ, thông báo không nói ưu đãi hoàn tất học phí trước 08/12/2026 và ưu đãi nhóm từ 3 người có cộng dồn được hay không, nên em không tính được số tiền cho trường hợp vừa theo nhóm vừa hoàn tất sớm. Ưu đãi học viên cũ thì không áp dụng đồng thời các ưu đãi khác. Ưu đãi nhóm và ưu đãi học viên cũ chỉ áp dụng cho Gói 1 đến Gói 4. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận số tiền trước khi chuyển khoản.',
     from: '',
-    to: ''
+    to: '27/12/2026'
   },
   {
     id: 'han-chot',
@@ -810,7 +810,7 @@ var FAQ_SEED = [
     ],
     answer: 'Dạ, để nhận ưu đãi nhóm (Gói 1 đến Gói 4, từ 3 người, giảm 5%), cả nhóm tham gia cùng 1 gói đăng ký và hoàn tất học phí theo nhóm. Khi thanh toán theo nhóm, nội dung chuyển khoản ghi: **Nhóm [Số lượng] người – [Số ĐT người đại diện] – [Gói đăng ký]**. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện hướng dẫn đăng ký nhóm và xác nhận số tiền trước khi chuyển khoản.',
     from: '',
-    to: ''
+    to: '27/12/2026'
   },
   {
     id: 'thanh-toan',
