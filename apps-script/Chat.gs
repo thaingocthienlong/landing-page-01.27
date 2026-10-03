@@ -1,19 +1,23 @@
 /**
- * Learner-care chat for the landing page. Answers questions about the course
- * series with a low-cost model (Google Gemini by default, or any
- * OpenAI-compatible API), grounded in CHAT_SYSTEM_PROMPT (Knowledge.gs), and
- * logs each exchange to the 'Hỏi đáp' sheet. doPost in Code.gs routes requests
- * with action 'chat' here.
+ * Learner-care chat for the landing page. Each question is first looked up in the staff-kept FAQ
+ * tab (Faq.gs); a clear match is answered with the approved wording. Other questions go to a
+ * chain of low-cost models (Google Gemini by default, then optional OpenAI-compatible hosts such
+ * as Cloudflare Workers AI or the office PC), grounded in CHAT_SYSTEM_PROMPT (Knowledge.gs) and
+ * the closest FAQ rows. Every exchange is logged to the 'Hỏi đáp' sheet. doPost in Code.gs
+ * routes requests with action 'chat' here.
  *
- * Setup (full steps in README.md): add Chat.gs and Knowledge.gs to the Apps
- * Script project that holds Code.gs, set the CHAT_API_KEY script property to a
- * Google AI Studio key, run chatSelfTest once, then deploy a new version of
- * the existing web app so the /exec URL in dist/index.html keeps working.
+ * Setup (full steps in README.md): add the .gs files to the Apps Script project that holds
+ * Code.gs, run setupFaq once, set the CHAT_API_KEY script property to a Google AI Studio key,
+ * run chatSelfTest, then deploy a new version of the existing web app so the /exec URL in
+ * dist/index.html keeps working.
  */
 
 var CHAT_SHEET_NAME = 'Hỏi đáp';
 var CHAT_HEADERS = ['Thời gian', 'Phiên', 'Câu hỏi', 'Trả lời', 'Trạng thái', 'Trang'];
-// Tried in order; each Gemini model has its own free daily quota.
+// Model providers, tried in this order. Each reads <prefix>PROVIDER, API_KEY, MODELS, BASE_URL,
+// EXTRA_BODY and HEADERS from the script properties; a provider without a key is skipped.
+var CHAT_GROUPS = ['CHAT_', 'CHAT2_', 'CHAT3_'];
+// Default models of the first provider; each Gemini model has its own free daily quota.
 var CHAT_GEMINI_MODELS = 'gemini-3.5-flash-lite,gemini-3.1-flash-lite';
 var CHAT_DEFAULT_MAX_PER_HOUR = 100;
 var CHAT_MAX_PER_SESSION = 30;
@@ -23,68 +27,108 @@ var CHAT_MAX_ANSWER = 6000;
 var CHAT_MAX_OUTPUT = 1024;
 // Seconds for all model attempts together; the page gives up waiting at 60.
 var CHAT_TIME_BUDGET = 45;
+var CHAT_CALL_MAX = 25;
+// A host that cannot be reached (the office PC switched off) is skipped for this long.
+var CHAT_DOWN_SECONDS = 180;
 var CHAT_OWN_NUMBERS = ['02822426789', '0949761636', '0912114511'];
 // Gemini finish reasons that mean a content filter stopped the answer; other stops are provider failures.
 var CHAT_FILTER_STOPS = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION', 'IMAGE_SAFETY'];
-var CHAT_REFUSAL_REPLY = 'Em chưa trả lời được câu này. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để được tư vấn trực tiếp.';
+var CHAT_CONTACTS = 'gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511';
+var CHAT_REFUSAL_REPLY = 'Em chưa trả lời được câu này. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
+var CHAT_SUGGEST_REPLY = 'Em chưa chắc anh/chị đang hỏi điều nào. Anh/chị chọn câu gần nhất bên dưới, hoặc ' + CHAT_CONTACTS + '.';
+var CHAT_NO_ANSWER_REPLY = 'Em chưa có câu trả lời cho câu hỏi này. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
 
-// Run once from the editor after setup: it grants the external-request permission and
-// shows in the execution log which model answered and what it said.
+// Run from the editor after setup and after changing providers: it grants the external-request
+// permission and logs, for each configured provider, which model answered and what it said.
 function chatSelfTest() {
+  var sample = 'Học phí Gói 1 là bao nhiêu?';
+  var faq = faqLookup_(sample);
+  Logger.log('FAQ: ' + (faq.answer ? 'faq:' + faq.answer.id : 'no confident match') + ' (' + faqRowsCount_() + ' rows)');
   var config = chatConfig_();
-  if (!config) throw new Error('Chat is not configured: check CHAT_API_KEY and CHAT_MODELS (required when CHAT_PROVIDER is openai), and CHAT_PROVIDER, CHAT_BASE_URL and CHAT_EXTRA_BODY if set (see README.md).');
-  var result = askModel_(config, [{ role: 'user', content: 'Học phí Gói 1 là bao nhiêu?' }]);
-  Logger.log(result.status + '\n' + (result.reply || ''));
+  if (!config.groups.length) {
+    Logger.log('No AI provider configured: the chat answers from the FAQ only. Check CHAT_API_KEY, and CHAT_MODELS (required when CHAT_PROVIDER is openai), CHAT_BASE_URL, CHAT_EXTRA_BODY and CHAT_HEADERS if set (see README.md).');
+    return;
+  }
+  config.groups.forEach(function (group) {
+    CacheService.getScriptCache().remove('chat_down_' + group.name);
+    var result = askModel_({ groups: [group] }, [{ role: 'user', content: sample }], []);
+    Logger.log(group.name + ': ' + result.status + '\n' + (result.reply || ''));
+  });
 }
 
 function handleChat_(data) {
-  var config = chatConfig_();
-  // CHAT_MAX_PER_HOUR = 0 pauses the chat; visitors see the same "not running" message.
-  if (!config || config.perHour === 0) return json_({ ok: false, error: 'not-configured' });
-
   var session = String(data.session || '');
   var messages = chatMessages_(data.messages);
   if (!/^[A-Za-z0-9_-]{8,64}$/.test(session) || !messages) return json_({ ok: false, error: 'bad-request' });
+  if (!chatSessionAllow_(session)) return json_({ ok: false, error: 'rate-limited' });
 
-  var limit = chatAllow_(session, config.perHour);
-  if (limit) return json_({ ok: false, error: limit === 'session' ? 'rate-limited' : 'overloaded' });
+  var question = messages[messages.length - 1].content;
+  var log = function (reply, status) { logChat_([session, question, reply, status, clean_(data.page)]); };
+  var faq = faqLookup_(question);
+  if (faq.answer) {
+    log(faq.answer.answer, 'faq:' + faq.answer.id);
+    return json_({ ok: true, reply: faq.answer.answer });
+  }
 
-  var result = askModel_(config, messages);
-  logChat_([session, messages[messages.length - 1].content, result.reply || '', result.status, clean_(data.page)]);
-  if (!result.reply) return json_({ ok: false, error: result.permanent ? 'unavailable' : 'busy' });
-  return json_({ ok: true, reply: result.reply });
+  // CHAT_MAX_PER_HOUR = 0 pauses the AI; the FAQ keeps answering.
+  var config = chatConfig_();
+  var result = { status: 'no-ai' };
+  if (config.groups.length && config.perHour > 0) {
+    result = chatHourAllow_(config.perHour) ? askModel_(config, messages, faq.candidates) : { status: 'over-hour-cap', busy: 'overloaded' };
+  }
+  if (result.reply) {
+    log(result.reply, result.status);
+    return json_({ ok: true, reply: result.reply });
+  }
+  // No model answered: offer the closest FAQ questions, or say plainly there is no answer.
+  var suggestions = faq.candidates.map(function (row) { return row.question; });
+  if (suggestions.length) {
+    log(CHAT_SUGGEST_REPLY, result.status + '; faq-suggest');
+    return json_({ ok: true, reply: CHAT_SUGGEST_REPLY, suggestions: suggestions });
+  }
+  log('', result.status);
+  if (result.status === 'no-ai') return json_({ ok: true, reply: CHAT_NO_ANSWER_REPLY });
+  return json_({ ok: false, error: result.busy || (result.permanent ? 'unavailable' : 'busy') });
 }
 
-// Script properties: CHAT_API_KEY (required), CHAT_PROVIDER ('gemini' or 'openai'),
-// CHAT_MODELS (comma-separated, tried in order), CHAT_BASE_URL (openai only),
-// CHAT_EXTRA_BODY (JSON merged into each request), CHAT_MAX_PER_HOUR.
+// { groups: [providers to try, in order], perHour }. See CHAT_GROUPS; CHAT_MAX_PER_HOUR caps
+// AI calls per clock hour across all visitors.
 function chatConfig_() {
   var props = PropertiesService.getScriptProperties();
   var get = function (name) { return String(props.getProperty(name) || '').trim(); };
-  var provider = (get('CHAT_PROVIDER') || 'gemini').toLowerCase();
-  var models = (get('CHAT_MODELS') || (provider === 'gemini' ? CHAT_GEMINI_MODELS : ''))
-    .split(',')
-    .map(function (model) { return model.trim(); })
-    .filter(Boolean);
+  var groups = [];
+  CHAT_GROUPS.forEach(function (prefix, i) {
+    var provider = (get(prefix + 'PROVIDER') || (i === 0 ? 'gemini' : 'openai')).toLowerCase();
+    var models = (get(prefix + 'MODELS') || (i === 0 && provider === 'gemini' ? CHAT_GEMINI_MODELS : ''))
+      .split(',')
+      .map(function (model) { return model.trim(); })
+      .filter(Boolean);
+    var group = {
+      name: prefix.slice(0, -1),
+      provider: provider,
+      apiKey: get(prefix + 'API_KEY'),
+      models: models,
+      baseUrl: get(prefix + 'BASE_URL').replace(/\/+$/, ''),
+      extra: chatJson_(get(prefix + 'EXTRA_BODY')),
+      headers: chatJson_(get(prefix + 'HEADERS'))
+    };
+    if (!group.apiKey || !models.length || group.extra === undefined || group.headers === undefined) return;
+    if (provider === 'openai' ? !group.baseUrl : provider !== 'gemini') return;
+    groups.push(group);
+  });
   var cap = get('CHAT_MAX_PER_HOUR') === '' ? NaN : Number(get('CHAT_MAX_PER_HOUR'));
-  var config = {
-    provider: provider,
-    apiKey: get('CHAT_API_KEY'),
-    models: models,
-    baseUrl: get('CHAT_BASE_URL').replace(/\/+$/, ''),
-    extra: null,
-    perHour: isFinite(cap) && cap >= 0 ? Math.floor(cap) : CHAT_DEFAULT_MAX_PER_HOUR
-  };
-  if (get('CHAT_EXTRA_BODY')) {
-    try {
-      config.extra = JSON.parse(get('CHAT_EXTRA_BODY'));
-    } catch (err) {
-      return null;
-    }
+  return { groups: groups, perHour: isFinite(cap) && cap >= 0 ? Math.floor(cap) : CHAT_DEFAULT_MAX_PER_HOUR };
+}
+
+// Parsed JSON object, null when empty, undefined when it is not a JSON object (that provider is skipped).
+function chatJson_(text) {
+  if (!text) return null;
+  try {
+    var value = JSON.parse(text);
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : undefined;
+  } catch (err) {
+    return undefined;
   }
-  if (!config.apiKey || !models.length) return null;
-  if (provider === 'openai' ? !config.baseUrl : provider !== 'gemini') return null;
-  return config;
 }
 
 // Keeps the latest turns, which must alternate user/assistant and end on the user's question.
@@ -104,71 +148,107 @@ function chatMessages_(raw) {
   return out.length && out[out.length - 1].role === 'user' ? out : null;
 }
 
-// Returns '' when allowed, else which limit was hit. Both counters reset each clock hour.
-// Cache counters are approximate under concurrency; they bound quota use, not exact limits.
-function chatAllow_(session, perHour) {
-  var cache = CacheService.getScriptCache();
-  var stamp = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMddHH');
-  var hourKey = 'chat_h_' + stamp;
-  var sessionKey = 'chat_s_' + session + '_' + stamp;
-  var hour = Number(cache.get(hourKey)) || 0;
-  var mine = Number(cache.get(sessionKey)) || 0;
-  if (mine >= CHAT_MAX_PER_SESSION) return 'session';
-  if (hour >= perHour) return 'hour';
-  cache.put(hourKey, String(hour + 1), 3700);
-  cache.put(sessionKey, String(mine + 1), 3700);
-  return '';
+// Counters reset each clock hour. They are approximate under concurrency; they bound quota
+// use, not exact limits. A visitor's questions all count; the shared cap counts AI calls only.
+function chatSessionAllow_(session) {
+  return chatCount_('chat_s_' + session + '_', CHAT_MAX_PER_SESSION);
 }
 
-// Tries each configured model until one answers, within CHAT_TIME_BUDGET. A single model
-// gets one retry on a transient failure. Key and billing failures stop at once because every
-// model shares them. 'permanent' means no attempt is worth repeating soon (bad key, quota
-// used up for the day, model gone), so the page can skip its "try again" button.
-function askModel_(config, messages) {
+function chatHourAllow_(perHour) {
+  return chatCount_('chat_h_', perHour);
+}
+
+function chatCount_(prefix, limit) {
+  var cache = CacheService.getScriptCache();
+  var key = prefix + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMddHH');
+  var count = Number(cache.get(key)) || 0;
+  if (count >= limit) return false;
+  cache.put(key, String(count + 1), 3700);
+  return true;
+}
+
+// Tries each provider's models in order until one answers, within CHAT_TIME_BUDGET. A lone
+// model gets one retry on a transient failure. A key or billing failure skips the rest of that
+// provider, and an unreachable OpenAI-compatible host is skipped for CHAT_DOWN_SECONDS.
+// 'permanent' means no attempt is worth repeating soon (bad key, quota used up for the day,
+// model gone), so the page can drop its "try again" button.
+function askModel_(config, messages, references) {
   var sent = messages.map(function (turn) {
     return { role: turn.role, content: turn.role === 'user' ? maskPersonal_(turn.content) : turn.content };
   });
-  var queue = config.models.length === 1 ? [config.models[0], config.models[0]] : config.models;
+  var queue = [];
+  config.groups.forEach(function (group) {
+    group.models.forEach(function (model) { queue.push({ group: group, model: model }); });
+  });
+  if (queue.length === 1) queue.push(queue[0]);
+  var system = chatReferences_(references || []);
+  var cache = CacheService.getScriptCache();
   var deadline = Date.now() + CHAT_TIME_BUDGET * 1000;
   var tried = [];
   var last = null;
+  var stopped = {};
   var permanent = true;
   for (var i = 0; i < queue.length; i++) {
-    var repeat = i > 0 && queue[i] === queue[i - 1];
+    var entry = queue[i];
+    var name = entry.group.name;
+    var repeat = i > 0 && entry === queue[i - 1];
     if (repeat && !last.transient) break;
+    if (stopped[name]) continue;
+    if (entry.group.provider === 'openai' && cache.get('chat_down_' + name)) {
+      tried.push('skipped-down ' + entry.model);
+      stopped[name] = true;
+      permanent = false;
+      continue;
+    }
     var left = Math.floor((deadline - Date.now()) / 1000);
     if (left < (repeat ? 10 : 8)) {
-      tried.push('skipped-time ' + queue[i]);
+      tried.push('skipped-time ' + entry.model);
       permanent = false;
       break;
     }
-    if (repeat) Utilities.sleep(1500);
-    var timeout = Math.max(5, Math.floor((left - (repeat ? 2 : 0)) / (queue.length - i)));
-    last = config.provider === 'gemini'
-      ? askGemini_(config, queue[i], sent, timeout)
-      : askOpenAI_(config, queue[i], sent, timeout);
-    tried.push(last.status + ' ' + queue[i]);
+    if (repeat) {
+      Utilities.sleep(1500);
+      left -= 2;
+    }
+    // Later attempts keep about 5 s each, so a hung first model cannot use up the whole budget.
+    var timeout = Math.max(5, Math.min(CHAT_CALL_MAX, left - 5 * (queue.length - i - 1)));
+    last = entry.group.provider === 'gemini'
+      ? askGemini_(entry.group, entry.model, sent, timeout, system)
+      : askOpenAI_(entry.group, entry.model, sent, timeout, system);
+    tried.push(last.status + ' ' + entry.model);
     if (last.reply) return { status: tried.join('; '), reply: last.reply };
     if (last.transient) permanent = false;
-    if (last.final) break;
+    if (last.final) stopped[name] = true;
+    if (last.unreachable && entry.group.provider === 'openai') {
+      cache.put('chat_down_' + name, '1', CHAT_DOWN_SECONDS);
+      stopped[name] = true;
+    }
   }
   return { status: tried.join('; '), permanent: permanent && tried.length > 0 };
 }
 
-function askGemini_(config, model, messages, timeout) {
+// The closest FAQ rows, sent after the cached prompt so the model can reuse staff wording.
+function chatReferences_(rows) {
+  if (!rows.length) return '';
+  return '\n\n# Câu hỏi thường gặp gần nhất (Viện soạn; dùng nếu đúng ý người hỏi, không thì bỏ qua)\n' + rows.map(function (row) {
+    return 'Hỏi: ' + row.question + '\nĐáp: ' + row.answer;
+  }).join('\n');
+}
+
+function askGemini_(group, model, messages, timeout, references) {
   var generationConfig = { maxOutputTokens: CHAT_MAX_OUTPUT };
   var thinking = geminiThinking_(model);
   if (thinking) generationConfig.thinkingConfig = thinking;
   var body = mergeExtra_({
-    // The date note is the last part, so the long prompt stays an identical, cacheable prefix.
-    systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }, { text: chatDateNote_() }] },
+    // The date note and FAQ rows come last, so the long prompt stays an identical, cacheable prefix.
+    systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }, { text: chatDateNote_() + references }] },
     contents: messages.map(function (turn) {
       return { role: turn.role === 'assistant' ? 'model' : 'user', parts: [{ text: turn.content }] };
     }),
     generationConfig: generationConfig
-  }, config.extra);
+  }, group.extra);
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
-  var res = postJson_(url, { 'x-goog-api-key': config.apiKey }, body, timeout);
+  var res = postJson_(url, { 'x-goog-api-key': group.apiKey }, body, timeout);
   if (res.code !== 200) return failure_(res.code, res.json);
   if (!res.json) return { status: 'error-parse', transient: true };
 
@@ -200,15 +280,18 @@ function geminiThinking_(model) {
   return { thinkingLevel: /flash-lite/.test(model) ? 'MINIMAL' : 'LOW' };
 }
 
-// Any host with an OpenAI-style /chat/completions endpoint (DeepSeek, Cloudflare Workers AI,
-// Groq, OpenRouter). Host-specific switches, such as turning reasoning off, go in CHAT_EXTRA_BODY.
-function askOpenAI_(config, model, messages, timeout) {
+// Any host with an OpenAI-style /chat/completions endpoint (Cloudflare Workers AI, the office PC
+// running llama-server, DeepSeek, Groq, OpenRouter). Host-specific switches, such as turning
+// reasoning off, go in <prefix>EXTRA_BODY; extra headers (a tunnel's access token) in <prefix>HEADERS.
+function askOpenAI_(group, model, messages, timeout, references) {
   var body = mergeExtra_({
     model: model,
     max_tokens: CHAT_MAX_OUTPUT,
-    messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT + chatDateNote_() }].concat(messages)
-  }, config.extra);
-  var res = postJson_(config.baseUrl + '/chat/completions', { Authorization: 'Bearer ' + config.apiKey }, body, timeout);
+    messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT + chatDateNote_() + references }].concat(messages)
+  }, group.extra);
+  var headers = mergeExtra_({}, group.headers);
+  headers.Authorization = 'Bearer ' + group.apiKey;
+  var res = postJson_(group.baseUrl + '/chat/completions', headers, body, timeout);
   if (res.code !== 200) return failure_(res.code, res.json);
   var choice = res.json && res.json.choices && res.json.choices[0];
   if (!choice) return { status: 'error-parse', transient: true };
@@ -263,7 +346,9 @@ function failure_(code, json) {
   return {
     status: code ? 'error-' + code + (daily ? '-daily' : '') : 'error-network',
     final: code === 401 || code === 402 || code === 403 || keyProblem,
-    transient: !code || (code === 429 && !daily) || code >= 500
+    transient: !code || (code === 429 && !daily) || code >= 500,
+    // No connection, or a tunnel whose machine is off (Cloudflare answers 530, a proxy 502).
+    unreachable: !code || code === 502 || code === 530
   };
 }
 

@@ -1402,6 +1402,7 @@
       toBottom();
       let reply = "";
       let error = "";
+      let options = [];
       const controller = new AbortController();
       const timer = window.setTimeout(() => controller.abort(), 60000);
       try {
@@ -1415,6 +1416,7 @@
         const result = await response.json();
         if (!result.ok || typeof result.reply !== "string" || !result.reply.trim()) throw new Error(result.error || "rejected");
         reply = result.reply.trim();
+        if (Array.isArray(result.suggestions)) options = result.suggestions.filter((text) => typeof text === "string" && text.trim()).slice(0, 3);
       } catch (err) {
         error = err.message;
       } finally {
@@ -1426,7 +1428,23 @@
       if (reply) {
         state.messages.push({ role: "assistant", content: reply });
         save();
-        toStart(addMessage("bot", reply));
+        const item = addMessage("bot", reply);
+        // the closest FAQ questions, when the assistant could not tell which one was meant
+        if (options.length) {
+          const list = document.createElement("ul");
+          list.className = "chat-options";
+          options.forEach((text) => {
+            const li = document.createElement("li");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = text.trim();
+            button.addEventListener("click", () => submitQuestion(button.textContent));
+            li.append(button);
+            list.append(li);
+          });
+          item.append(list);
+        }
+        toStart(item);
         return;
       }
       // the server refused the history as sent; keep only the open question so a retry can pass
@@ -1445,8 +1463,10 @@
       const text = raw.trim().slice(0, 1000);
       if (!text || pending) return;
       // a suggestion button is about to be hidden; keep focus in the panel
-      if (!suggest.hidden && suggest.contains(document.activeElement)) (compact.matches ? log : input).focus({ preventScroll: true });
+      const chosen = document.activeElement?.closest?.(".chat-suggest, .chat-options");
+      if (chosen && panel.contains(chosen)) (compact.matches ? log : input).focus({ preventScroll: true });
       log.querySelector(".chat-msg-error")?.remove();
+      log.querySelectorAll(".chat-options").forEach((list) => list.remove());
       // an unanswered question is replaced by the new one so turns keep alternating
       if (state.messages.length % 2) state.messages.pop();
       state.messages.push({ role: "user", content: text });
