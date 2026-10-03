@@ -7,3 +7,6 @@ site-package-stage-*/
 # claude local
 .claude/settings.local.json
 .claude/no-auto-ship
+
+# python
+__pycache__/
