@@ -211,3 +211,21 @@ First export, held-out                              22 of 23 right (was 21), 0 w
 Learner and probe held-out halves (58 rows)         40 right, 2 wrong rows, 10 wrongly answered (55 rows: 38, 1, 10)
 ```
 
+## Practices confirmed by the Institute, 2026-10-03 (second batch)
+
+The Institute answered a confirmation questionnaire built from the practices staff stated in the second export (online support, the replay link, teaching language, VAT invoice, payment after confirmation, seats, contact time, the certificate, the class Zalo group, support after the course, deferring or withdrawing fees). The answers are in `Knowledge.gs` ("Viện xác nhận thêm") and in 22 FAQ answers, with two new rows (`ngon-ngu`, `ho-tro-sau-khoa`); the open questions are listed in `docs/phan-tich-tu-van-meta-2026.md`.
+
+- A fact-check agent compared every changed sentence with the answers quoted verbatim, a style agent read the same text. Fixes applied: invoice type and employer paperwork stay "no information"; payment is confirmed via Zalo, the phone is only a fallback; deferring, withdrawing or refunding has no stated rule and goes to the advisers; the bot never says whether offer dates can be extended; no "one certificate per course"; the old "call before transferring" step removed from the prompt example and from `uu-dai-som`; "gửi đến khoảng 2 ngày sau" (readable as "sent 2 days after") reworded.
+- Phrasings that pulled unrelated questions into the new answers were reworded: sample-size questions matched the sample certificate ("mẫu"), "has a Zalo group" matched after-course support, and "bằng" in the language phrasings let "học bằng điện thoại" match registration.
+- Two agents and an adjudicator relabelled the 13 probe questions whose topic changed: 9 now belong to the new or updated rows, 4 still go to the AI (accommodation, language of the printed materials, tests in general, a name-order follow-up).
+
+```text
+Apps Script harness, 41 cases                       PASS
+Mask cases, 48                                      PASS
+FAQ seed self-check, 919 phrasings                  919 own row
+Learner and probe held-out halves (60 rows)         42 right, 3 wrong rows, 11 wrongly answered
+First export, held-out                              22 of 23 right, 0 wrong; closings 11 of 11
+Second export, closings                             45 of 46 left to the AI
+Boundary probes (45)                                5 right, 1 wrong row (hiring question gets khoa-khac), 7 of 8 kept for the AI
+```
+

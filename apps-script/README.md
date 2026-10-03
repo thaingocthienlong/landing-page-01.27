@@ -171,13 +171,13 @@ The thresholds were tuned on half of two sets and measured on the other half:
 - 110 learner-style questions written separately from the starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
 - 274 questions a code reviewer wrote to break the matcher, most asking something next to a row's topic ("khóa học có dạy Python không", "gói 2 học mấy ngày"), each labelled with the rows that answer it correctly, or none, by two separate agents and an adjudicator.
 
-Held-out halves (192 questions). The labels were redone for the 55-row table, so the first version's figures (measured with the earlier labels) are only a rough comparison. The 58-row table adds three rows the labels do not know about; one of its two wrong rows is a hiring question that now gets the new "other programmes" row instead of the out-of-scope row (both decline and give the numbers):
+Held-out halves (192 questions). The labels were redone for the 55-row table, so the first version's figures (measured with the earlier labels) are only a rough comparison. For the 60-row table, two agents and an adjudicator relabelled the 13 questions whose topic got confirmed facts on 03/10/2026 (teaching language, support after the course, final tests); the rest keep the 55-row labels. Of its three wrong rows, one is a hiring question that gets the new "other programmes" row instead of the out-of-scope row (both decline and give the numbers):
 
-| | This version (58 rows) | 55 rows | First version (49 rows) |
+| | This version (60 rows) | 55 rows | First version (49 rows) |
 |---|---|---|---|
-| Questions some row answers correctly | 40 of 109 answered from the table, 2 with a wrong row, 67 passed to the AI (50 of them with the right row among its references) | 38 of 108 answered, 1 with a wrong row | 43 of 102 answered right, 9 with a wrong row |
-| Questions no row answers | 73 of 83 passed to the AI, 10 answered from the table | 74 of 84 passed, 10 answered | 65 of 90 passed, 25 answered from the table |
-| Share of table answers that are right | 40 of 52 (77%) | 38 of 49 (78%) | 43 of 77 (56%) |
+| Questions some row answers correctly | 42 of 113 answered from the table, 3 with a wrong row, 68 passed to the AI (52 of them with the right row among its references) | 38 of 108 answered, 1 with a wrong row | 43 of 102 answered right, 9 with a wrong row |
+| Questions no row answers | 68 of 79 passed to the AI, 11 answered from the table | 74 of 84 passed, 10 answered | 65 of 90 passed, 25 answered from the table |
+| Share of table answers that are right | 42 of 56 (75%) | 38 of 49 (78%) | 43 of 77 (56%) |
 
 Real Messenger questions from the Institute's July–August 2026 inbox (`docs/phan-tich-tu-van-meta-2026.md`), each time half held out and measured before its phrasings were added, labelled by two agents and an adjudicator:
 
