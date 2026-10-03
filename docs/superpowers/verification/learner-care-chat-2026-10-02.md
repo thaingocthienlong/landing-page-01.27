@@ -172,3 +172,20 @@ Input: the Institute's Page inbox export for 01/07–15/08/2026 (90 conversation
 Apps Script harness, 40 cases                PASS (adds first-turn greeting, staff-row greeting variants)
 FAQ seed self-check, 725 phrasings           711 own row, 14 deferred, 0 other row
 ```
+
+## Answers formatted for phone reading, 2026-10-03
+
+After the first live use, the owner reported that answers showed as one long, unformatted paragraph. Three fixes:
+
+- `Knowledge.gs`: the formatting rule now says the first sentence answers, alone; the rest goes in short paragraphs of at most 2 sentences separated by a blank line; 2+ points become a "- " list; key figures are bold. The examples follow the same layout.
+- `dist/app.js`: a line over 170 characters with 2+ sentences is split into the first sentence, then 2-sentence paragraphs. "GS.", "TS.", "PGS.", "ThS.", "Ms.", "Mr.", "TP." are not sentence ends.
+- `FaqSeed.gs`: the 55 answers rewritten with lists and short paragraphs (fees per package, discounts, hours, payment steps, objectives, curriculum). Figures and facts unchanged. Staff must recreate the FAQ tab (`setupFaq`) for the new seed to take effect.
+
+```text
+Apps Script harness, 40 cases                PASS
+Mask cases, 48                               PASS
+FAQ seed self-check, 725 phrasings           711 own row, 14 deferred, 0 other row
+Real held-out, 23 answerable                 21 right, 0 wrong, 2 to AI (refs right)
+Closing messages, 11                         11 left alone
+UI checks, 20 (Playwright, 390/360/320px)    PASS (adds the long-paragraph split, abbreviations kept)
+```

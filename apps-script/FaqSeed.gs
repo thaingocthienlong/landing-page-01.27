@@ -24,7 +24,7 @@ var FAQ_SEED = [
       'tu van giup em khoa hoc',
       'gui em thong tin khoa hoc voi'
     ],
-    answer: 'Dạ, chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” gồm 3 khóa, học từ ngày 08/01/2027 đến ngày 17/01/2027 ạ:\n- Khóa 1: Phân tích dữ liệu với R cơ bản (03 ngày)\n- Khóa 2: Phân tích chi phí - hiệu quả trong y tế (02 ngày)\n- Khóa 3: Phân tích dữ liệu chuỗi thời gian (03 ngày)\nGS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy, cùng TS. Trần Sơn Thạch. Anh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được, đăng ký theo gói (Gói 1 đến Gói 6). Anh/chị muốn biết học phí các gói, cứ nhắn em nhé.',
+    answer: 'Dạ, chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” gồm 3 khóa, học từ ngày 08/01/2027 đến ngày 17/01/2027 ạ:\n- Khóa 1: Phân tích dữ liệu với R cơ bản (03 ngày)\n- Khóa 2: Phân tích chi phí - hiệu quả trong y tế (02 ngày)\n- Khóa 3: Phân tích dữ liệu chuỗi thời gian (03 ngày)\nGS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy, cùng TS. Trần Sơn Thạch.\n\nAnh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được, đăng ký theo gói (Gói 1 đến Gói 6). Anh/chị muốn biết học phí các gói, cứ nhắn em nhé.',
     from: '',
     to: ''
   },
@@ -41,7 +41,7 @@ var FAQ_SEED = [
       'thuc hanh R nhieu khong',
       'buoi chieu hoc gi'
     ],
-    answer: 'Dạ, khóa học có cả lý thuyết và thực hành ạ. Buổi sáng thầy giảng nguyên lý, logic của từng phương pháp và cách chọn phương pháp phù hợp với câu hỏi nghiên cứu, dữ liệu; buổi chiều học viên thực hành phân tích bằng R trên dữ liệu thực tế, có R code để tự làm lại sau khóa học. Anh/chị muốn xem nội dung từng khóa, cứ nhắn em nhé.',
+    answer: 'Dạ, khóa học có cả lý thuyết và thực hành ạ.\n- Buổi sáng: thầy giảng nguyên lý, logic của từng phương pháp và cách chọn phương pháp phù hợp với câu hỏi nghiên cứu, dữ liệu.\n- Buổi chiều: học viên thực hành phân tích bằng R trên dữ liệu thực tế, có R code để tự làm lại sau khóa học.\n\nAnh/chị muốn xem nội dung từng khóa, cứ nhắn em nhé.',
     from: '',
     to: ''
   },
@@ -211,7 +211,7 @@ var FAQ_SEED = [
       'co lop buoi toi khong',
       'hoc gio hanh chinh a'
     ],
-    answer: 'Dạ, mỗi ngày học 2 buổi ạ: buổi sáng từ 8:30 đến 11:30, buổi chiều từ 13:30 đến 17:00. Buổi sáng học lý thuyết, buổi chiều thực hành bằng R trên dữ liệu thực tế. Lịch học cố định theo lịch GS. Nguyễn Văn Tuấn về Việt Nam giảng dạy, nên không có lớp buổi tối ạ.',
+    answer: 'Dạ, mỗi ngày học 2 buổi ạ:\n- Sáng **8:30–11:30**: lý thuyết\n- Chiều **13:30–17:00**: thực hành bằng R trên dữ liệu thực tế\n\nLịch học cố định theo lịch GS. Nguyễn Văn Tuấn về Việt Nam giảng dạy, nên không có lớp buổi tối ạ.',
     from: '',
     to: ''
   },
@@ -242,7 +242,7 @@ var FAQ_SEED = [
       'Có học online không ạ',
       'có lớp học online ko ạ?'
     ],
-    answer: 'Dạ, anh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được ạ. Lớp online diễn ra cùng lúc với lớp tại hội trường, anh/chị hỏi thầy qua mic hoặc khung chat; buổi nào bận không đến lớp được thì có thể vào online. Anh/chị báo hình thức muốn học khi chuyên viên liên hệ xác nhận sau khi nhận phiếu đăng ký.',
+    answer: 'Dạ, anh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được ạ.\n- Lớp online diễn ra cùng lúc với lớp tại hội trường; anh/chị hỏi thầy qua mic hoặc khung chat.\n- Buổi nào bận không đến lớp được thì có thể vào online.\n\nAnh/chị báo hình thức muốn học khi chuyên viên liên hệ xác nhận sau khi nhận phiếu đăng ký.',
     from: '',
     to: ''
   },
@@ -267,7 +267,7 @@ var FAQ_SEED = [
       'hoc online co tuong tac duoc khong',
       'online co thay ro lop khong'
     ],
-    answer: 'Dạ, học online và học trực tiếp cùng lịch học, cùng giảng viên và cùng mức học phí ạ. Lớp online qua Zoom diễn ra cùng lúc với lớp tại hội trường, như cầu truyền hình trực tiếp; anh/chị hỏi thầy trực tiếp qua mic hoặc viết câu hỏi trên khung chat. Học viên online được gửi tài liệu in, sách tặng và giấy chứng nhận qua bưu điện sau khóa học, Viện chịu phí gửi.',
+    answer: 'Dạ, học online và học trực tiếp cùng lịch học, cùng giảng viên và cùng mức học phí ạ.\n- Lớp online qua Zoom diễn ra cùng lúc với lớp tại hội trường, như cầu truyền hình trực tiếp.\n- Anh/chị hỏi thầy trực tiếp qua mic hoặc viết câu hỏi trên khung chat.\n- Học viên online được gửi tài liệu in, sách tặng và giấy chứng nhận qua bưu điện sau khóa học, Viện chịu phí gửi.',
     from: '',
     to: ''
   },
@@ -288,7 +288,7 @@ var FAQ_SEED = [
       'dc vien',
       'noi hoc truc tiep'
     ],
-    answer: 'Dạ, lớp học trực tiếp tổ chức tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh ạ. Anh/chị ở xa có thể học online qua Zoom, cùng lúc với lớp tại Viện.',
+    answer: 'Dạ, lớp học trực tiếp tổ chức tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh ạ.\n\nAnh/chị ở xa có thể học online qua Zoom, cùng lúc với lớp tại Viện.',
     from: '',
     to: ''
   },
@@ -309,7 +309,7 @@ var FAQ_SEED = [
       'su dung cong cu gi de phan tich',
       'co dung cong cu AI nao khong'
     ],
-    answer: 'Dạ, chuỗi khóa học dùng R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu ạ. R và RStudio là phần mềm miễn phí; trước ngày khai giảng Viện gửi anh/chị hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết. Tên công cụ AI cụ thể thì em chưa có thông tin.',
+    answer: 'Dạ, chuỗi khóa học dùng R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu ạ.\n\nR và RStudio là phần mềm miễn phí; trước ngày khai giảng Viện gửi anh/chị hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết. Tên công cụ AI cụ thể thì em chưa có thông tin.',
     from: '',
     to: ''
   },
@@ -352,7 +352,7 @@ var FAQ_SEED = [
       'may em chua co R',
       'K biết cài phần mềm R và RStudio ạ'
     ],
-    answer: 'Dạ, trước ngày khai giảng Viện sẽ gửi anh/chị hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết ạ. R và RStudio đều là phần mềm miễn phí; nếu muốn cài trước, anh/chị tải R từ trang chính thức CRAN (cran.r-project.org) và RStudio Desktop từ trang của Posit (posit.co).',
+    answer: 'Dạ, trước ngày khai giảng Viện sẽ gửi anh/chị hướng dẫn cài đặt R, RStudio và các gói câu lệnh cần thiết ạ.\n\nR và RStudio đều là phần mềm miễn phí; nếu muốn cài trước, anh/chị tải R từ trang chính thức CRAN (cran.r-project.org) và RStudio Desktop từ trang của Posit (posit.co).',
     from: '',
     to: ''
   },
@@ -425,7 +425,7 @@ var FAQ_SEED = [
       'Trong các buổi này thì thầy Tuấn dạy các bài giảng nào vậy?',
       'Alo em. Ai là người trực tiếp hướng dẫn khóa học này nhỉ'
     ],
-    answer: 'Dạ, cả ba khóa do **GS.TS. Nguyễn Văn Tuấn** (Đại học Công nghệ Sydney và Đại học New South Wales) trực tiếp giảng dạy, cùng **TS. Trần Sơn Thạch** (Viện Nghiên cứu Y khoa Garvan và Đại học New South Wales) ạ. Phần lý thuyết chủ yếu do GS. Tuấn giảng, phần thực hành TS. Thạch hướng dẫn nhiều hơn; khi một thầy giảng, thầy kia vẫn có mặt trong lớp.',
+    answer: 'Dạ, cả ba khóa do **GS.TS.\n\nNguyễn Văn Tuấn** (Đại học Công nghệ Sydney và Đại học New South Wales) trực tiếp giảng dạy, cùng **TS. Trần Sơn Thạch** (Viện Nghiên cứu Y khoa Garvan và Đại học New South Wales) ạ.\n\nPhần lý thuyết chủ yếu do GS. Tuấn giảng, phần thực hành TS. Thạch hướng dẫn nhiều hơn; khi một thầy giảng, thầy kia vẫn có mặt trong lớp.',
     from: '',
     to: ''
   },
@@ -508,7 +508,7 @@ var FAQ_SEED = [
       'Khoá này có cho người mới không bạn? Mình biết chút spss thoii',
       'Người học có cần có kiến thức cơ bản về R ko'
     ],
-    answer: 'Dạ, người chưa biết lập trình học được ạ: Khóa 1 “Phân tích dữ liệu với R cơ bản” không yêu cầu kinh nghiệm lập trình, nên em gợi ý chọn gói có Khóa 1 (Gói 1, 2 hoặc 3). Khóa 2 và Khóa 3 nên có kiến thức căn bản về nghiên cứu và phân tích dữ liệu (đã hoàn thành Khóa 1 là nền tảng phù hợp); anh/chị vẫn đăng ký được hai khóa này qua Gói 4, 5 hoặc 6.',
+    answer: 'Dạ, người chưa biết lập trình học được ạ.\n- Khóa 1 “Phân tích dữ liệu với R cơ bản” không yêu cầu kinh nghiệm lập trình, nên em gợi ý chọn gói có Khóa 1 (Gói 1, 2 hoặc 3).\n- Khóa 2 và Khóa 3 nên có kiến thức căn bản về nghiên cứu và phân tích dữ liệu (đã học Khóa 1 là nền tảng phù hợp); hai khóa này đăng ký được qua Gói 4, 5 hoặc 6.',
     from: '',
     to: ''
   },
@@ -680,7 +680,7 @@ var FAQ_SEED = [
       'hoc phi khoa 1',
       'chi dang ky khoa R co ban'
     ],
-    answer: 'Dạ, học phí tính theo gói và không có gói chỉ gồm riêng Khóa 1 ạ. Nếu muốn học Khóa 1, anh/chị chọn Gói 1 (cả 03 khóa, 8.800.000 đồng), Gói 2 (Khóa 1 + Khóa 2, 6.700.000 đồng) hoặc Gói 3 (Khóa 1 + Khóa 3, 7.500.000 đồng). Khóa 2 và Khóa 3 thì đăng ký riêng được qua Gói 5 (3.500.000 đồng) và Gói 6 (4.500.000 đồng).',
+    answer: 'Dạ, học phí tính theo gói và không có gói chỉ gồm riêng Khóa 1 ạ. Muốn học Khóa 1, anh/chị chọn:\n- Gói 1 (cả 03 khóa): 8.800.000 đồng\n- Gói 2 (Khóa 1 + Khóa 2): 6.700.000 đồng\n- Gói 3 (Khóa 1 + Khóa 3): 7.500.000 đồng\n\nKhóa 2 và Khóa 3 thì đăng ký riêng được qua Gói 5 (3.500.000 đồng) và Gói 6 (4.500.000 đồng).',
     from: '',
     to: ''
   },
@@ -699,7 +699,7 @@ var FAQ_SEED = [
       'hoc phi tinh luon thue roi phai khong',
       'hp co cong them thue khong'
     ],
-    answer: 'Dạ, học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định ạ. Học phí không gồm ăn uống, đi lại hay chỗ ở; phần xuất hóa đơn em chưa có thông tin. Nếu cần, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định ạ.\n\nHọc phí không gồm ăn uống, đi lại hay chỗ ở; phần xuất hóa đơn em chưa có thông tin. Nếu cần, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   },
@@ -722,7 +722,7 @@ var FAQ_SEED = [
       'dang ky som co giam khong',
       'hp sau giam bn'
     ],
-    answer: 'Dạ, hoàn tất học phí trước 08/12/2026 được giảm 10% cho cả 6 gói ạ, tạm tính:\n- Gói 1: 8.800.000 đồng, còn **7.920.000 đồng**\n- Gói 2 và Gói 4: 6.700.000 đồng, còn **6.030.000 đồng**\n- Gói 3: 7.500.000 đồng, còn **6.750.000 đồng**\n- Gói 5: 3.500.000 đồng, còn **3.150.000 đồng**\n- Gói 6: 4.500.000 đồng, còn **4.050.000 đồng**\nƯu đãi tính theo ngày hoàn tất học phí, không theo ngày đăng ký. Gói 1 đến Gói 4 còn có ưu đãi nhóm từ 3 người (giảm 5%; thông báo chưa nói có cộng dồn với mức 10% không) và ưu đãi học viên cũ (giảm 15% khi hoàn tất trước 08/12/2026, không áp dụng đồng thời ưu đãi khác). Số tiền chính thức do Viện xác nhận; anh/chị vui lòng liên hệ Viện qua (028) 2242 6789 trước khi chuyển khoản.',
+    answer: 'Dạ, hoàn tất học phí trước 08/12/2026 được giảm **10%** cho cả 6 gói ạ, tạm tính:\n- Gói 1: 8.800.000 đồng, còn **7.920.000 đồng**\n- Gói 2 và Gói 4: 6.700.000 đồng, còn **6.030.000 đồng**\n- Gói 3: 7.500.000 đồng, còn **6.750.000 đồng**\n- Gói 5: 3.500.000 đồng, còn **3.150.000 đồng**\n- Gói 6: 4.500.000 đồng, còn **4.050.000 đồng**\n\nƯu đãi tính theo ngày hoàn tất học phí, không theo ngày đăng ký. Gói 1 đến Gói 4 còn có:\n- Ưu đãi nhóm từ 3 người: giảm 5% (thông báo chưa nói có cộng dồn với mức 10% không)\n- Ưu đãi học viên cũ: giảm 15% khi hoàn tất trước 08/12/2026, không áp dụng đồng thời ưu đãi khác\n\nSố tiền chính thức do Viện xác nhận; anh/chị vui lòng liên hệ Viện qua (028) 2242 6789 trước khi chuyển khoản.',
     from: '',
     to: '07/12/2026'
   },
@@ -749,7 +749,7 @@ var FAQ_SEED = [
       'chuyen khoan truoc 8/12 thi con bao nhieu tien',
       'hp sau giam bn'
     ],
-    answer: 'Dạ, ưu đãi giảm 10% khi hoàn tất học phí trước 08/12/2026 đã hết hạn ạ. Hiện Gói 1 đến Gói 4 vẫn có ưu đãi nhóm từ 3 người cùng gói, hoàn tất học phí theo nhóm (giảm 5%), và ưu đãi học viên cũ (giảm 10%, không áp dụng đồng thời ưu đãi khác); Gói 5 và Gói 6 không còn ưu đãi nào theo thông báo. Nếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
+    answer: 'Dạ, ưu đãi giảm 10% khi hoàn tất học phí trước 08/12/2026 đã hết hạn ạ.\n\nHiện Gói 1 đến Gói 4 vẫn có:\n- Ưu đãi nhóm từ 3 người cùng gói, hoàn tất học phí theo nhóm: giảm **5%**\n- Ưu đãi học viên cũ: giảm **10%**, không áp dụng đồng thời ưu đãi khác\n\nGói 5 và Gói 6 không còn ưu đãi nào.\n\nNếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
     from: '09/12/2026',
     to: '27/12/2026'
   },
@@ -770,7 +770,7 @@ var FAQ_SEED = [
       'uu dai 5% la gi',
       'ca khoa phong dang ky co uu dai khong'
     ],
-    answer: 'Dạ, nhóm từ 3 người cùng đăng ký 1 gói (Gói 1 đến Gói 4) và hoàn tất học phí theo nhóm được giảm 5% ạ. Tạm tính mỗi người: Gói 1 còn **8.360.000 đồng**, Gói 2 và Gói 4 còn **6.365.000 đồng**, Gói 3 còn **7.125.000 đồng**; số tiền chính thức do Viện xác nhận. Gói 5 và Gói 6 không có ưu đãi nhóm. Thông báo không nói ưu đãi nhóm có cộng dồn với ưu đãi hoàn tất học phí sớm hay không; ưu đãi học viên cũ thì không áp dụng đồng thời.',
+    answer: 'Dạ, nhóm từ 3 người cùng đăng ký 1 gói (Gói 1 đến Gói 4) và hoàn tất học phí theo nhóm được giảm **5%** ạ. Tạm tính mỗi người:\n- Gói 1: còn **8.360.000 đồng**\n- Gói 2 và Gói 4: còn **6.365.000 đồng**\n- Gói 3: còn **7.125.000 đồng**\n\nGói 5 và Gói 6 không có ưu đãi nhóm.\n\nThông báo không nói ưu đãi nhóm có cộng dồn với ưu đãi hoàn tất học phí sớm hay không; ưu đãi học viên cũ thì không áp dụng đồng thời. Số tiền chính thức do Viện xác nhận.',
     from: '',
     to: '27/12/2026'
   },
@@ -791,7 +791,7 @@ var FAQ_SEED = [
       'the nao la hoc vien cu',
       'hvc dong som con bao nhieu tien'
     ],
-    answer: 'Dạ, học viên cũ được ưu đãi cho Gói 1 đến Gói 4 ạ, không áp dụng đồng thời các ưu đãi khác:\n- Hoàn tất học phí trước 08/12/2026: giảm 15% (10% cộng thêm 5%), tạm tính Gói 1 còn **7.480.000 đồng**, Gói 2 và Gói 4 còn **5.695.000 đồng**, Gói 3 còn **6.375.000 đồng**.\n- Hoàn tất từ ngày 08/12/2026: giảm 10%, tạm tính Gói 1 còn 7.920.000 đồng, Gói 2 và Gói 4 còn 6.030.000 đồng, Gói 3 còn 6.750.000 đồng.\nHọc viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây. Gói 5 và Gói 6 không có ưu đãi học viên cũ; số tiền chính thức do Viện xác nhận.',
+    answer: 'Dạ, học viên cũ được ưu đãi cho Gói 1 đến Gói 4 ạ, không áp dụng đồng thời các ưu đãi khác:\n- Hoàn tất học phí trước 08/12/2026: giảm 15% (10% cộng thêm 5%), tạm tính Gói 1 còn **7.480.000 đồng**, Gói 2 và Gói 4 còn **5.695.000 đồng**, Gói 3 còn **6.375.000 đồng**.\n- Hoàn tất từ ngày 08/12/2026: giảm 10%, tạm tính Gói 1 còn 7.920.000 đồng, Gói 2 và Gói 4 còn 6.030.000 đồng, Gói 3 còn 6.750.000 đồng.\nHọc viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây.\n\nGói 5 và Gói 6 không có ưu đãi học viên cũ; số tiền chính thức do Viện xác nhận.',
     from: '',
     to: '07/12/2026'
   },
@@ -813,7 +813,7 @@ var FAQ_SEED = [
       'the nao la hoc vien cu',
       'hvc dong som con bao nhieu tien'
     ],
-    answer: 'Dạ, học viên cũ vẫn được giảm 10% cho Gói 1 đến Gói 4 ạ, tạm tính Gói 1 còn **7.920.000 đồng**, Gói 2 và Gói 4 còn **6.030.000 đồng**, Gói 3 còn **6.750.000 đồng**; số tiền chính thức do Viện xác nhận. Mức giảm thêm 5% khi hoàn tất trước 08/12/2026 đã hết hạn; ưu đãi này không áp dụng đồng thời ưu đãi khác và không áp dụng cho Gói 5, Gói 6. Học viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây. Nếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
+    answer: 'Dạ, học viên cũ vẫn được giảm **10%** cho Gói 1 đến Gói 4 ạ, tạm tính:\n- Gói 1: còn **7.920.000 đồng**\n- Gói 2 và Gói 4: còn **6.030.000 đồng**\n- Gói 3: còn **6.750.000 đồng**\n\nMức giảm thêm 5% khi hoàn tất trước 08/12/2026 đã hết hạn. Ưu đãi này không áp dụng đồng thời ưu đãi khác và không áp dụng cho Gói 5, Gói 6; số tiền chính thức do Viện xác nhận.\n\nHọc viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây. Nếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
     from: '09/12/2026',
     to: '27/12/2026'
   },
@@ -832,7 +832,7 @@ var FAQ_SEED = [
       'ap dung nhieu uu dai duoc ko',
       'uu dai nhom cong uu dai som'
     ],
-    answer: 'Dạ, thông báo không nói ưu đãi hoàn tất học phí trước 08/12/2026 và ưu đãi nhóm từ 3 người có cộng dồn được hay không ạ, nên em không tính được số tiền cho trường hợp vừa theo nhóm vừa hoàn tất sớm. Ưu đãi học viên cũ thì không áp dụng đồng thời các ưu đãi khác. Ưu đãi nhóm và ưu đãi học viên cũ chỉ áp dụng cho Gói 1 đến Gói 4. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận số tiền trước khi chuyển khoản.',
+    answer: 'Dạ, thông báo không nói ưu đãi hoàn tất học phí trước 08/12/2026 và ưu đãi nhóm từ 3 người có cộng dồn được hay không ạ, nên em không tính được số tiền cho trường hợp vừa theo nhóm vừa hoàn tất sớm.\n- Ưu đãi học viên cũ không áp dụng đồng thời các ưu đãi khác.\n- Ưu đãi nhóm và ưu đãi học viên cũ chỉ áp dụng cho Gói 1 đến Gói 4.\n\nAnh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận số tiền trước khi chuyển khoản.',
     from: '',
     to: '27/12/2026'
   },
@@ -855,7 +855,7 @@ var FAQ_SEED = [
       'Hạn chót đăng ký là ngày nào?',
       'Hiện còn đăng ký ko ạ?'
     ],
-    answer: 'Dạ, hạn chót đăng ký và hoàn tất học phí là **trước ngày 28/12/2026** ạ. Anh/chị có thể điền phiếu ở mục Đăng ký khóa học trên trang này, gọi (028) 2242 6789, hoặc đăng ký trực tiếp tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh.',
+    answer: 'Dạ, hạn chót đăng ký và hoàn tất học phí là **trước ngày 28/12/2026** ạ.\n\nAnh/chị có thể:\n- Điền phiếu ở mục Đăng ký khóa học trên trang này\n- Gọi (028) 2242 6789\n- Đăng ký trực tiếp tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh',
     from: '',
     to: '27/12/2026'
   },
@@ -876,7 +876,7 @@ var FAQ_SEED = [
       'gio dang ky con kip khong',
       '28/12 la han gi'
     ],
-    answer: 'Dạ, hạn chót đăng ký và hoàn tất học phí ghi trong thông báo là trước ngày 28/12/2026, nay đã qua ạ. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để hỏi Viện còn nhận đăng ký hay không.',
+    answer: 'Dạ, hạn chót đăng ký và hoàn tất học phí ghi trong thông báo là trước ngày 28/12/2026, nay đã qua ạ.\n\nAnh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để hỏi Viện còn nhận đăng ký hay không.',
     from: '29/12/2026',
     to: ''
   },
@@ -922,7 +922,7 @@ var FAQ_SEED = [
       'gui phieu roi chua ai nhan tin',
       'A có đăng ký rồi nhưng chưa thấy ai kết nối bên zalo'
     ],
-    answer: 'Dạ, em xin lỗi đã để anh/chị chờ ạ. Sau khi nhận phiếu, chuyên viên phụ trách sẽ liên hệ anh/chị qua Zalo; thời gian liên hệ cụ thể em chưa có thông tin. Nếu chờ lâu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra giúp anh/chị.',
+    answer: 'Dạ, em xin lỗi đã để anh/chị chờ ạ.\n\nSau khi nhận phiếu, chuyên viên phụ trách sẽ liên hệ anh/chị qua Zalo; thời gian liên hệ cụ thể em chưa có thông tin. Nếu chờ lâu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra giúp anh/chị.',
     from: '',
     to: ''
   },
@@ -942,7 +942,7 @@ var FAQ_SEED = [
       'nhom dang ky khac goi duoc khong',
       'lam sao de duoc uu dai nhom'
     ],
-    answer: 'Dạ, để nhận ưu đãi nhóm (Gói 1 đến Gói 4, từ 3 người, giảm 5%), cả nhóm tham gia cùng 1 gói đăng ký và hoàn tất học phí theo nhóm ạ. Khi thanh toán theo nhóm, nội dung chuyển khoản ghi: **Nhóm [Số lượng] người – [Số ĐT người đại diện] – [Gói đăng ký]**. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện hướng dẫn đăng ký nhóm và xác nhận số tiền trước khi chuyển khoản.',
+    answer: 'Dạ, để nhận ưu đãi nhóm (giảm **5%**), cả nhóm cần ạ:\n- Từ 3 người trở lên, cùng đăng ký 1 gói (Gói 1 đến Gói 4)\n- Hoàn tất học phí theo nhóm, nội dung chuyển khoản: **Nhóm [Số lượng] người – [Số ĐT người đại diện] – [Gói đăng ký]**\n\nAnh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện hướng dẫn đăng ký nhóm và xác nhận số tiền trước khi chuyển khoản.',
     from: '',
     to: '27/12/2026'
   },
@@ -984,7 +984,7 @@ var FAQ_SEED = [
       'noi dung chuyen tien hoc phi',
       'nd ck'
     ],
-    answer: 'Dạ, nội dung chuyển khoản anh/chị ghi như sau ạ: **Họ tên học viên – Số điện thoại – [Gói đăng ký]**. Nếu thanh toán theo nhóm, ghi: **Nhóm [Số lượng] người – [Số ĐT người đại diện] – [Gói đăng ký]**. Anh/chị vui lòng liên hệ Viện qua (028) 2242 6789 để xác nhận gói và số tiền trước khi chuyển.',
+    answer: 'Dạ, nội dung chuyển khoản anh/chị ghi như sau ạ:\n- Một người: **Họ tên học viên – Số điện thoại – [Gói đăng ký]**\n- Theo nhóm: **Nhóm [Số lượng] người – [Số ĐT người đại diện] – [Gói đăng ký]**\n\nAnh/chị vui lòng liên hệ Viện qua (028) 2242 6789 để xác nhận gói và số tiền trước khi chuyển.',
     from: '',
     to: ''
   },
@@ -1005,7 +1005,7 @@ var FAQ_SEED = [
       'dong tien roi co bien nhan khong',
       'check giup em giao dich'
     ],
-    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo để xác nhận ạ. Em không kiểm tra được giao dịch; nếu chuyển khoản đã lâu mà chưa nhận được phiếu thu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra. Anh/chị không cần gửi số tài khoản hay thông tin cá nhân vào khung hỏi đáp này.',
+    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo để xác nhận ạ.\n\nEm không kiểm tra được giao dịch.\n\nNếu chuyển khoản đã lâu mà chưa nhận được phiếu thu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra.\n\nAnh/chị không cần gửi số tài khoản hay thông tin cá nhân vào khung hỏi đáp này.',
     from: '',
     to: ''
   },
@@ -1025,7 +1025,7 @@ var FAQ_SEED = [
       'thanh toan qua co quan can chung tu',
       'ghi hoa don ten cong ty'
     ],
-    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo ạ. Phần xuất hóa đơn (hóa đơn điện tử, hóa đơn ghi tên đơn vị) em chưa có thông tin. Học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định. Để được hướng dẫn về hóa đơn, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo ạ.\n\nPhần xuất hóa đơn (hóa đơn điện tử, hóa đơn ghi tên đơn vị) em chưa có thông tin. Học phí đã bao gồm các khoản thuế, phí và lệ phí theo quy định.\n\nĐể được hướng dẫn về hóa đơn, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   },
@@ -1047,7 +1047,7 @@ var FAQ_SEED = [
       'hoan tien',
       'doi tu offline sang online duoc khong'
     ],
-    answer: 'Dạ, phần hoàn, hủy, bảo lưu hay chuyển học phí (đổi gói, chuyển cho người khác học thay, đổi hẳn hình thức học) em chưa có thông tin ạ. Riêng học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào học online qua Zoom. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện trả lời cụ thể cho trường hợp của anh/chị.',
+    answer: 'Dạ, phần hoàn, hủy, bảo lưu hay chuyển học phí (đổi gói, chuyển cho người khác học thay, đổi hẳn hình thức học) em chưa có thông tin ạ.\n\nRiêng học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào học online qua Zoom. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện trả lời cụ thể cho trường hợp của anh/chị.',
     from: '',
     to: ''
   },
@@ -1069,7 +1069,7 @@ var FAQ_SEED = [
       'chung nhan ghi ten gi',
       'Kết thúc có được cấp chứng nhận hay chứng chỉ gì không'
     ],
-    answer: 'Dạ, sau khi hoàn tất khóa học, anh/chị được cấp giấy chứng nhận hoàn thành khóa học ạ; học viên online nhận giấy chứng nhận qua bưu điện sau khóa học. Họ tên và ngày sinh trên giấy chứng nhận lấy từ phiếu đăng ký, nên anh/chị vui lòng điền chính xác. Số buổi cần tham dự và việc tính giờ đào tạo thì em chưa có thông tin; anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để hỏi thêm.',
+    answer: 'Dạ, sau khi hoàn tất khóa học, anh/chị được cấp giấy chứng nhận hoàn thành khóa học ạ.\n- Học viên online nhận giấy chứng nhận qua bưu điện sau khóa học.\n- Họ tên và ngày sinh trên giấy chứng nhận lấy từ phiếu đăng ký, nên anh/chị vui lòng điền chính xác.\n\nSố buổi cần tham dự và việc tính giờ đào tạo thì em chưa có thông tin; anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để hỏi thêm.',
     from: '',
     to: ''
   },
@@ -1095,7 +1095,7 @@ var FAQ_SEED = [
       'co ban video khoa hoc khong',
       'Có phần record gửi lại ngay sau khoá học ko ạ?'
     ],
-    answer: 'Dạ, học viên đã đăng ký được xem lại bản ghi buổi học trong một thời gian sau khóa học; thời hạn cụ thể Viện sẽ báo cho học viên ạ. Vì cam kết bản quyền với GS. Nguyễn Văn Tuấn, Viện không bán hay cung cấp bản ghi cho người không đăng ký khóa học. Ngoài ra, học viên được cung cấp R code để tự làm lại các phân tích.',
+    answer: 'Dạ, học viên đã đăng ký được xem lại bản ghi buổi học trong một thời gian sau khóa học; thời hạn cụ thể Viện sẽ báo cho học viên ạ.\n\nVì cam kết bản quyền với GS. Nguyễn Văn Tuấn, Viện không bán hay cung cấp bản ghi cho người không đăng ký khóa học.\n\nNgoài ra, học viên được cung cấp R code để tự làm lại các phân tích.',
     from: '',
     to: ''
   },
@@ -1115,7 +1115,7 @@ var FAQ_SEED = [
       'gui link zoom qua email hay zalo',
       'phong zoom'
     ],
-    answer: 'Dạ, thời điểm và cách gửi link Zoom em chưa có thông tin ạ. Sau khi anh/chị đăng ký, chuyên viên phụ trách liên hệ qua Zalo, và trước khóa học Viện lập nhóm Zalo lớp để thông tin cho học viên. Nếu sát ngày học anh/chị chưa nhận được link, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để được hướng dẫn vào lớp online.',
+    answer: 'Dạ, thời điểm và cách gửi link Zoom em chưa có thông tin ạ.\n\nSau khi anh/chị đăng ký, chuyên viên phụ trách liên hệ qua Zalo, và trước khóa học Viện lập nhóm Zalo lớp để thông tin cho học viên.\n\nNếu sát ngày học anh/chị chưa nhận được link, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để được hướng dẫn vào lớp online.',
     from: '',
     to: ''
   },
@@ -1136,7 +1136,7 @@ var FAQ_SEED = [
       'offline con cho khong',
       'lop gioi han so luong khong'
     ],
-    answer: 'Dạ, số chỗ còn lại em chưa có thông tin và em cũng không giữ chỗ được ạ. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511, hoặc điền phiếu ở mục Đăng ký khóa học để Viện liên hệ xác nhận chỗ.',
+    answer: 'Dạ, số chỗ còn lại em chưa có thông tin và em cũng không giữ chỗ được ạ.\n\nAnh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511, hoặc điền phiếu ở mục Đăng ký khóa học để Viện liên hệ xác nhận chỗ.',
     from: '',
     to: ''
   },
@@ -1177,7 +1177,7 @@ var FAQ_SEED = [
       'Đợt này anh bận ko học đc. Có kế hoạch học nội dung này đợt sau không?',
       'Vậy khi nào dự kiến có lớp của thầy dạy lại nd này ko ạ'
     ],
-    answer: 'Dạ, hiện Viện chưa có kế hoạch cho đợt sau của chuỗi khóa học này ạ. Lịch học đợt này cố định theo lịch GS. Nguyễn Văn Tuấn từ Úc về Việt Nam giảng dạy. Anh/chị muốn hỏi thêm, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, hiện Viện chưa có kế hoạch cho đợt sau của chuỗi khóa học này ạ.\n\nLịch học đợt này cố định theo lịch GS. Nguyễn Văn Tuấn từ Úc về Việt Nam giảng dạy. Anh/chị muốn hỏi thêm, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   },
@@ -1199,7 +1199,7 @@ var FAQ_SEED = [
       'xu tri ca benh nay the nao',
       'bac si oi tu van benh giup'
     ],
-    answer: 'Dạ, em không tư vấn y khoa được (chẩn đoán, điều trị, dùng thuốc hay xử trí ca bệnh) ạ. Em chỉ hỗ trợ các câu hỏi về chuỗi khóa học Phân tích định lượng với R, như chọn gói, học phí, lịch học và cách đăng ký.',
+    answer: 'Dạ, em không tư vấn y khoa được (chẩn đoán, điều trị, dùng thuốc hay xử trí ca bệnh) ạ.\n\nEm chỉ hỗ trợ các câu hỏi về chuỗi khóa học Phân tích định lượng với R, như chọn gói, học phí, lịch học và cách đăng ký.',
     from: '',
     to: ''
   },
@@ -1220,7 +1220,7 @@ var FAQ_SEED = [
       'ban la ai',
       'giai de thi giup'
     ],
-    answer: 'Dạ, em xin lỗi ạ, em là trợ lý AI của Viện Phương Nam và chỉ hỗ trợ các câu hỏi về chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu”: chọn gói, học phí và ưu đãi, lịch học, cách đăng ký, nội dung từng khóa. Em không làm bài tập, viết luận văn hay viết code hộ. Nếu anh/chị muốn hỏi về các khóa học khác của Viện, vui lòng liên hệ (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, em xin lỗi ạ, em chỉ hỗ trợ các câu hỏi về chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu”: chọn gói, học phí và ưu đãi, lịch học, cách đăng ký, nội dung từng khóa.\n\nEm không làm bài tập, viết luận văn hay viết code hộ.\n\nNếu anh/chị muốn hỏi về các khóa học khác của Viện, vui lòng liên hệ (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   }

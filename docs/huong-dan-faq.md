@@ -35,7 +35,23 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 
 ### Câu trả lời
 
-- Giọng như tư vấn viên của Viện: xưng "em", gọi "anh/chị", mở bằng "Dạ, ...", câu đầu trả lời thẳng điều được hỏi, thêm "ạ" khi tự nhiên. Có thể kết bằng một gợi ý ngắn ("anh/chị cần em gửi thêm lịch học không ạ?"), nhưng đừng dòng nào cũng hỏi lại. 1 đến 4 câu ngắn, hoặc gạch đầu dòng bằng "- ", in đậm bằng `**...**`. Không viết tắt, không dùng bảng, tiêu đề, biểu tượng cảm xúc.
+- Giọng như tư vấn viên của Viện: xưng "em", gọi "anh/chị", mở bằng "Dạ, ...", câu đầu trả lời thẳng điều được hỏi, thêm "ạ" khi tự nhiên. Có thể kết bằng một gợi ý ngắn ("anh/chị cần em gửi thêm lịch học không ạ?"), nhưng đừng dòng nào cũng hỏi lại. Không viết tắt, không dùng bảng, tiêu đề, biểu tượng cảm xúc.
+- Học viên đọc trên điện thoại, nên đừng viết thành một đoạn dài:
+  - Câu đầu là câu trả lời, đứng riêng một đoạn.
+  - Phần còn lại chia đoạn ngắn, mỗi đoạn tối đa 2 câu. Giữa hai đoạn để một dòng trống (trong ô: Ctrl+Enter hai lần).
+  - Từ 2 ý trở lên (các gói, điều kiện, mốc ngày, các bước) thì mỗi ý một dòng, bắt đầu bằng "- ". Trang tự hiện thành danh sách.
+  - In đậm con số chính bằng `**...**`, ví dụ `**8.360.000 đồng**`, `**08/12/2026**`.
+  - Ví dụ một ô:
+
+    ```text
+    Dạ, mỗi ngày học 2 buổi ạ:
+    - Sáng **8:30–11:30**: lý thuyết
+    - Chiều **13:30–17:00**: thực hành bằng R trên dữ liệu thực tế
+
+    Lịch học cố định theo lịch GS. Nguyễn Văn Tuấn về Việt Nam giảng dạy, nên không có lớp buổi tối ạ.
+    ```
+
+  Nếu một đoạn vẫn quá dài (trên khoảng 170 ký tự), trang tự tách thành câu đầu và các đoạn 2 câu, nhưng tự chia đoạn vẫn dễ đọc hơn.
 - Không cần viết "em chào anh/chị" trong câu trả lời: nếu đó là câu hỏi đầu tiên của học viên, trợ lý tự thêm "Dạ, em chào anh/chị." vào đầu.
 - Mọi con số (học phí, ngày, phần trăm, số tài khoản) phải đúng như thông báo chính thức.
 - Số tiền sau ưu đãi ghi là "tạm tính" và nói Viện xác nhận số tiền chính thức.
