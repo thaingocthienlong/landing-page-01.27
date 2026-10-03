@@ -935,7 +935,7 @@ var FAQ_SEED = [
       'hvc dong som con bao nhieu tien',
       'Chị học viên cũ'
     ],
-    answer: 'Dạ, học viên cũ vẫn được giảm **10%** cho Gói 1 đến Gói 4 ạ, tạm tính:\n- Gói 1: còn **7.920.000 đồng**\n- Gói 2 và Gói 4: còn **6.030.000 đồng**\n- Gói 3: còn **6.750.000 đồng**\n\nMức giảm thêm 5% khi hoàn tất trước 08/12/2026 đã hết hạn. Ưu đãi này không áp dụng đồng thời ưu đãi khác và không áp dụng cho Gói 5, Gói 6; số tiền chính thức do Viện xác nhận.\n\nHọc viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây.\n\nMốc ưu đãi được ấn định theo thông báo chính thức. Nếu cần hỗ trợ cụ thể, hoặc đã hoàn tất học phí trước 08/12/2026, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để tư vấn viên hỗ trợ.',
+    answer: 'Dạ, học viên cũ vẫn được giảm **10%** cho Gói 1 đến Gói 4 ạ, tạm tính:\n- Gói 1: 8.800.000 đồng, còn **7.920.000 đồng**\n- Gói 2 và Gói 4: 6.700.000 đồng, còn **6.030.000 đồng**\n- Gói 3: 7.500.000 đồng, còn **6.750.000 đồng**\n\nMức giảm thêm 5% khi hoàn tất trước 08/12/2026 đã hết hạn. Ưu đãi này không áp dụng đồng thời ưu đãi khác và không áp dụng cho Gói 5, Gói 6; số tiền chính thức do Viện xác nhận.\n\nHọc viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây.\n\nMốc ưu đãi được ấn định theo thông báo chính thức. Nếu cần hỗ trợ cụ thể, hoặc đã hoàn tất học phí trước 08/12/2026, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để tư vấn viên hỗ trợ.',
     from: '09/12/2026',
     to: '27/12/2026'
   },
@@ -1138,7 +1138,7 @@ var FAQ_SEED = [
       'dong tien roi co bien nhan khong',
       'check giup em giao dich'
     ],
-    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo để xác nhận ạ.\n\nHoàn tất học phí thì anh/chị có tên trong danh sách chính thức của lớp; cần hóa đơn VAT ghi tên đơn vị thì chuyên viên gửi link để anh/chị điền thông tin. Em không kiểm tra được giao dịch.\n\nNếu chuyển khoản đã lâu mà chưa nhận được phiếu thu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra.\n\nAnh/chị không cần gửi số tài khoản hay thông tin cá nhân vào khung hỏi đáp này.',
+    answer: 'Dạ, sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên phụ trách chụp gửi anh/chị qua Zalo để xác nhận ạ.\n\nAnh/chị chỉ có tên trong danh sách chính thức của lớp khi đã hoàn tất học phí; cần hóa đơn VAT ghi tên đơn vị thì sau khi hoàn tất học phí, chuyên viên gửi link để anh/chị điền thông tin. Em không kiểm tra được giao dịch.\n\nNếu chuyển khoản đã lâu mà chưa nhận được phiếu thu, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra.\n\nAnh/chị không cần gửi số tài khoản hay thông tin cá nhân vào khung hỏi đáp này.',
     from: '',
     to: ''
   },
@@ -1183,7 +1183,7 @@ var FAQ_SEED = [
       'không học được nữa, xin lại tiền được không',
       'xin lại học phí được không'
     ],
-    answer: 'Dạ, việc hủy đăng ký, bảo lưu, hoàn hay rút học phí em chưa có quy định chung, anh/chị vui lòng liên hệ tư vấn viên để được trả lời theo từng trường hợp ạ.\n\nĐổi gói, chuyển cho người khác học thay hay đổi hẳn hình thức học, anh/chị cũng hỏi tư vấn viên. Riêng học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào học online qua Zoom.\n\nAnh/chị gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
+    answer: 'Dạ, việc hủy đăng ký, bảo lưu, hoàn hay rút học phí em chưa có thông tin về quy định; anh/chị vui lòng liên hệ tư vấn viên để được hỗ trợ cụ thể ạ.\n\nĐổi gói, chuyển cho người khác học thay hay đổi hẳn hình thức học, anh/chị cũng hỏi tư vấn viên. Riêng học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào học online qua Zoom.\n\nAnh/chị gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.',
     from: '',
     to: ''
   },
