@@ -168,16 +168,18 @@ Estimates from published benchmarks of similar cards, not measured on this PC: 3
 
 The thresholds were tuned on half of two sets and measured on the other half:
 
-- 110 learner-style questions written separately from the 50 starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
+- 110 learner-style questions written separately from the starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
 - 274 questions a code reviewer wrote to break the matcher, most asking something next to a row's topic ("khóa học có dạy Python không", "gói 2 học mấy ngày"), each labelled with the rows that answer it correctly, or none, by two separate agents and an adjudicator.
 
-Held-out halves (192 questions), compared with the first version of the matcher:
+Held-out halves (192 questions). The labels were redone for the 55-row table, so the first version's figures (measured with the earlier labels) are only a rough comparison:
 
-| | This version | First version |
+| | This version (55 rows) | First version (49 rows) |
 |---|---|---|
-| Questions some row answers correctly (102) | 34 answered from the table, 0 with a wrong row, 68 passed to the AI (51 of them with the right row among its references) | 43 answered right, 9 with a wrong row |
-| Questions no row answers (90) | 82 passed to the AI, 8 answered from the table | 65 passed, 25 answered from the table |
-| Share of table answers that are right | 34 of 42 (81%) | 43 of 77 (56%) |
+| Questions some row answers correctly | 38 of 108 answered from the table, 1 with a wrong row, 69 passed to the AI (53 of them with the right row among its references) | 43 of 102 answered right, 9 with a wrong row |
+| Questions no row answers | 74 of 84 passed to the AI, 10 answered from the table | 65 of 90 passed, 25 answered from the table |
+| Share of table answers that are right | 38 of 49 (78%) | 43 of 77 (56%) |
+
+Real Messenger questions from the Institute's August 2026 inbox (`docs/phan-tich-tu-van-meta-2026.md`): of 24 typed questions held out before their phrasings were added, 2 were answered from the table and none wrongly; 17 of the other 21 went to the AI with the right row among its references. All 11 thank-you and closing messages were left to the AI. Real messages are short and full of chat words ("bn", "ntn", "Chtr"), which is why most of them need the AI until their phrasings are in the table; they are now.
 
 The thresholds favour sending a question to the AI over a wrong canned answer. The remaining wrong table answers are questions next to a row's topic ("đóng tiền mặt ở đâu" getting the payment row). Most questions passed on are long messages with personal context ("em là dược sĩ, mù code…") or a word the table does not use yet. Adding real phrasings from the Facebook conversations to "Cách hỏi khác", and rows for side questions learners actually ask, improves both numbers. Some held-out questions were read during development, and the matching rules were revised several times after looking at held-out results (each time to fix a class of errors a reviewer found, not to fit single questions), so take the figures as approximate. The test sets stayed outside the repository; once staff edit the rows, check new phrasings with `=FAQ_KHOP` in the sheet.
 

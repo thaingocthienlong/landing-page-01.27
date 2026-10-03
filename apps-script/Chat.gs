@@ -36,9 +36,9 @@ var CHAT_OWN_NUMBERS = ['02822426789', '0949761636', '0912114511'];
 // Gemini finish reasons that mean a content filter stopped the answer; other stops are provider failures.
 var CHAT_FILTER_STOPS = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION', 'IMAGE_SAFETY'];
 var CHAT_CONTACTS = 'gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511';
-var CHAT_REFUSAL_REPLY = 'Em chưa trả lời được câu này. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
-var CHAT_SUGGEST_REPLY = 'Em chưa chắc anh/chị đang hỏi điều nào. Anh/chị chọn câu gần nhất bên dưới, hoặc ' + CHAT_CONTACTS + '.';
-var CHAT_NO_ANSWER_REPLY = 'Em chưa có câu trả lời cho câu hỏi này. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
+var CHAT_REFUSAL_REPLY = 'Dạ, câu này em chưa trả lời được ạ. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
+var CHAT_SUGGEST_REPLY = 'Dạ, em chưa chắc anh/chị đang hỏi điều nào ạ. Anh/chị chọn câu gần nhất bên dưới, hoặc ' + CHAT_CONTACTS + '.';
+var CHAT_NO_ANSWER_REPLY = 'Dạ, câu này em chưa có câu trả lời ạ. Anh/chị vui lòng ' + CHAT_CONTACTS + ' để được tư vấn trực tiếp.';
 
 // Run from the editor after setup and after changing providers: it grants the external-request
 // permission and logs, for each configured provider, which model answered and what it said.
@@ -236,8 +236,13 @@ function askModel_(config, messages, references) {
 }
 
 // The first answer of a conversation opens the way the Institute's staff do: "Dạ, em chào anh/chị."
+// Staff-written rows may start "Dạ học phí..." or already greet ("Dạ em chào chị"), so both are
+// folded into the one greeting.
 function chatGreet_(answer) {
-  var rest = answer.replace(/^Dạ,\s*/, '');
+  var rest = String(answer)
+    .replace(/^\s*dạ[\s,.!]+/i, '')
+    .replace(/^(em\s+|e\s+)?chào\s+(anh\/chị|anh chị|anh|chị)[\s,.!]*(ạ[\s,.!]*)?/i, '');
+  if (!rest) return 'Dạ, em chào anh/chị.';
   return 'Dạ, em chào anh/chị. ' + rest.charAt(0).toUpperCase() + rest.slice(1);
 }
 

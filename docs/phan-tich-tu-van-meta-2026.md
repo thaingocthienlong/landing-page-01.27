@@ -61,3 +61,13 @@ Câu tự gõ (khoảng 50) ngắn, hay viết tắt ("ntn", "bn", "đk", "ib", 
 - **Cách hỏi thật**: các nút hỏi sẵn của quảng cáo và câu học viên tự gõ được thêm vào cột "Cách hỏi khác".
 
 Các số liệu của khóa hồi quy (học phí 5.500.000 đồng, ngày học, hạn đăng ký) không được dùng; mọi số liệu vẫn theo thông báo chuỗi khóa R.
+
+## Đo lại
+
+Một nửa số câu học viên tự gõ (24 câu) được để riêng, đo trước khi thêm vào bảng. Kết quả:
+
+- 2 câu được trả lời ngay bằng bảng, không câu nào sai.
+- 21 câu chuyển cho AI, 17 câu trong đó kèm đúng dòng tham khảo.
+- 11/11 lời cảm ơn, lời kết không bị trả lời bằng bảng.
+
+Tin nhắn thật rất ngắn và nhiều từ lóng, nên cách tốt nhất để trợ lý trả lời ngay là đưa chính các câu thật vào cột "Cách hỏi khác". Các câu này nay đã có trong bảng. Mỗi khi nhận được tệp tin nhắn mới, nên làm lại bước này.
