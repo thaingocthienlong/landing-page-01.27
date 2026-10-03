@@ -52,16 +52,27 @@ Hai ngày 08/12 và 28/12 cố ý để trống, vì thông báo ghi "trước" 
 
 ## Lấy câu hỏi từ các cuộc tư vấn trên Facebook
 
-Mục tiêu: biết học viên thật hỏi gì và hỏi bằng lời nào, rồi đưa vào cột "Cách hỏi khác" và thêm dòng mới khi cần.
+Mục tiêu: biết học viên thật hỏi gì và hỏi bằng lời nào, rồi đưa vào cột "Cách hỏi khác" và thêm dòng mới khi cần. Tin nhắn có họ tên, số điện thoại của học viên, nên toàn bộ việc xử lý làm trên máy của Viện, không dán vào ChatGPT, Gemini hay dịch vụ AI trực tuyến nào (Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 áp dụng từ 01/01/2026).
 
-1. **Xuất tin nhắn của Trang.** Tin nhắn của Trang không xuất hàng loạt được từ hộp thư Meta Business Suite; cách làm là tải thông tin của Trang: Trung tâm tài khoản (Accounts Center) > Thông tin và quyền của bạn > Tải thông tin của bạn > chọn Trang của Viện > chọn mục Tin nhắn, định dạng JSON hoặc HTML, khoảng thời gian các khóa trước. Facebook gửi tệp nén khi chuẩn bị xong. Tệp này có họ tên, số điện thoại của học viên: chỉ lưu trên máy của Viện, xóa sau khi soạn xong.
-2. **Lọc câu hỏi, bỏ thông tin cá nhân.** Đọc qua và chép ra các câu hỏi về khóa học, bỏ họ tên, số điện thoại, email, nơi làm việc. Gộp các câu cùng ý vào một dòng FAQ.
-3. **Có thể nhờ AI chạy ngay trên máy văn phòng** (không gửi dữ liệu học viên ra ngoài): cài LM Studio hoặc Ollama trên máy Truyen-Thong, tải Gemma 4 E4B (vừa card RTX 2060 12 GB), dán từng đoạn hội thoại vào và dùng câu lệnh sau:
+1. **Xuất tin nhắn của Trang** (người có toàn quyền quản lý Trang, làm trên máy tính):
+   - Trên Facebook, chuyển sang Trang của Viện. Vào Cài đặt và quyền riêng tư > Cài đặt > Trung tâm tài khoản > Thông tin và quyền của bạn > Tải thông tin của bạn xuống > Tải xuống hoặc chuyển thông tin, rồi chọn Trang.
+   - Chọn "Một số thông tin của bạn" > đánh dấu Tin nhắn > Tải xuống thiết bị. Khoảng thời gian: các đợt khóa trước (ví dụ 3 năm gần nhất). Định dạng: **JSON**. Chất lượng file phương tiện: Thấp.
+   - Facebook báo khi tệp sẵn sàng (vài phút đến khoảng một ngày); đường dẫn tải hết hạn sau vài ngày. Tên các mục có thể khác đôi chút: làm theo chữ trên màn hình.
+   - Nên **thử trước với 1 tháng** để chắc tệp có hộp thư của Trang, rồi mới xuất cả khoảng thời gian.
+   - Hộp thư Meta Business Suite không xuất tin nhắn hàng loạt được (nút Xuất ở đó chỉ xuất số liệu thống kê). Đừng dùng tiện ích "xuất tin nhắn" của bên thứ ba: dữ liệu học viên sẽ đi qua một công ty khác.
+2. **Làm sạch bằng công cụ có sẵn** (`tools/facebook-to-text.py` trong kho mã của trang; nhờ người phụ trách trang chép tệp này vào máy). Công cụ sửa lỗi chữ tiếng Việt của tệp Facebook (chữ "Há»c" thành "Học"), sắp tin nhắn theo thứ tự thời gian, ghi "Viện:" / "Học viên:" ở đầu mỗi lượt, thay tên học viên, email, số điện thoại, số CCCD/CMND bằng `[tên]`, `[email]`, `[số điện thoại]`, `[số giấy tờ]`, và chia thành các tệp `hoi-thoai-001.txt`, `hoi-thoai-002.txt`… mỗi tệp 25 cuộc hội thoại.
+   - Cài Python từ python.org (một lần; khi cài, đánh dấu "Add python.exe to PATH").
+   - Mở cmd ở thư mục chứa công cụ và chạy: `py facebook-to-text.py "C:\Users\<tên>\Downloads\facebook-xxxx.zip" "C:\FAQ\hoi-thoai"` (đường dẫn tệp tải về và thư mục kết quả). Công cụ tự đoán tên Trang; nếu đoán sai, thêm `--page "Tên Trang"`.
+   - Tên học viên viết **bên trong** tin nhắn ("chào chị Lan") không tự xóa được: đọc lại trước khi dùng. Soạn xong thì xóa tệp tải về và thư mục kết quả.
+3. **Gom câu hỏi.** Đọc các tệp, chép các câu hỏi về khóa học vào "Cách hỏi khác" của dòng đúng, giữ nguyên cách viết của học viên (viết tắt, không dấu). Câu chưa có dòng nào thì tạo dòng mới. Ngoài tin nhắn, bình luận dưới các bài đăng khóa trước và các câu trả lời mẫu đã lưu trong Business Suite cũng là nguồn tốt.
+4. **Có thể nhờ AI chạy ngay trên máy văn phòng** (không gửi dữ liệu ra ngoài): cài LM Studio (miễn phí cho công việc, không cần tài khoản) trên máy Truyen-Thong, tìm "Gemma 4" và tải bản **12B Q4_K_M** (khoảng 8 GB, viết tiếng Việt tốt hơn); nếu card đồ họa đang bận dựng video/ảnh thì dùng bản **E4B** (khoảng 5 GB). Máy chỉ bật trong giờ hành chính nên làm vào lúc vắng việc (giờ trưa, cuối ngày); nếu trợ lý trên máy này đã được cài, bấm `AI-giai-phong-GPU` trước. Mở một tệp `hoi-thoai-xxx.txt`, dán vào LM Studio kèm câu lệnh:
 
-   > Dưới đây là một đoạn hội thoại tư vấn giữa Viện Phương Nam và học viên. Hãy liệt kê các câu hỏi của học viên về khóa học, mỗi câu một dòng, giữ nguyên cách viết của học viên (kể cả viết tắt, không dấu), nhưng xóa họ tên, số điện thoại, email, nơi làm việc. Với mỗi câu, ghi thêm chủ đề ngắn (học phí, lịch học, đăng ký, thanh toán, nội dung khóa, giảng viên, chuẩn bị, giấy chứng nhận, khác). Không thêm câu hỏi nào không có trong đoạn hội thoại.
+   > Dưới đây là các cuộc hội thoại tư vấn giữa Viện Phương Nam và học viên, đã ẩn thông tin cá nhân. Hãy liệt kê các câu hỏi của học viên về khóa học, mỗi câu một dòng, giữ nguyên cách viết của học viên (kể cả viết tắt, không dấu), bỏ các câu chào hỏi. Gộp các câu cùng ý vào một nhóm và đặt tên chủ đề ngắn (học phí, lịch học, đăng ký, thanh toán, nội dung khóa, giảng viên, chuẩn bị, giấy chứng nhận, khác). Không thêm câu hỏi nào không có trong hội thoại. Nếu có câu trả lời của Viện kèm số tiền, ngày, ưu đãi, địa chỉ hoặc số tài khoản, ghi "CẦN KIỂM TRA" bên cạnh.
 
    Kết quả AI chỉ là bản nháp: người soạn vẫn kiểm tra trước khi đưa vào bảng.
-4. **Câu trả lời lấy từ thông báo chính thức**, không chép nguyên câu trả lời cũ trên Facebook nếu số liệu đã khác (học phí, ngày, ưu đãi của đợt này).
+5. **Câu trả lời lấy từ thông báo chính thức**, không chép nguyên câu trả lời cũ trên Facebook nếu số liệu đã khác (học phí, ngày, ưu đãi của đợt này).
+
+Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 
 ## Thử một câu hỏi ngay trong Sheet
 

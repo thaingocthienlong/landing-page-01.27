@@ -79,3 +79,26 @@ Apps Script harness, 26 cases          PASS
 Masking format cases, 39               PASS
 Browser QA, 18 checks                  PASS (adds unavailable/overloaded/rate-limited copy, note hiding while typing)
 ```
+
+## FAQ first, a provider chain, and the office PC, 2026-10-03
+
+The owner chose a FAQ bot fed by staff (documents plus past Facebook consultations), Cloudflare as a second free tier, and the office PC (RTX 2060 12 GB, on in office hours only, shared with other work) as an option. Changes:
+
+- `Faq.gs`: BM25 over every phrasing of every active `FAQ` row, accent-folded and accented terms, shorthand, bigrams, date windows. A clear match is answered word for word without any AI call; close rows go to the model as reference or to the learner as tap-to-ask suggestions.
+- `FaqSeed.gs`: 49 starter rows drafted from the notice and outlines, then fact-checked against them by a separate agent (13 answers corrected). Weekdays checked against the calendar.
+- `Chat.gs`: provider groups `CHAT_`, `CHAT2_`, `CHAT3_` tried in order inside the 45 s budget. A host that is off (502, 530, fast connection failure) is skipped for 3 minutes; a call that runs out its timeout is logged `error-timeout` and not skipped, so an office PC still loading its model is not taken out of the chain.
+- Masking fix found while building the Facebook tool: a grouped ID number followed by a comma or full stop ("079 123 456 789, …") was not masked. Fixed in `Chat.gs`; four cases added.
+- `tools/facebook-to-text.py`: offline cleaner for a Facebook "Download your information" export (fixes the Latin-1 garbling of Vietnamese, labels turns, masks with the same rules as `Chat.gs`, replaces listed learner names, writes 25 conversations per file).
+- Office PC setup in `apps-script/README.md` from a research agent's findings checked by an independent verifier against llama.cpp b11368 source, llama-swap v261 source and Cloudflare's docs; 13 corrections applied (kill order of the off switch, driver 551.61, NSSM 2.24-101, `-fa` left on auto, `curl.exe` in PowerShell, path rule on the tunnel, Funnel not recommended). Speeds and memory figures are estimates, labelled as such.
+
+FAQ thresholds were tuned on half of 110 learner-style questions written separately from the rows and measured once on the other half: 22 of 44 course questions answered from the table, 0 with a wrong row, the other 22 passed to the AI with the right row among the references; 11 of 11 off-topic, medical and multi-step questions kept away from the table. Six held-out questions had been read during development. All 589 seed phrasings map back to their own row or are deferred (13); none lands on another row.
+
+```text
+node --check (app.js, every .gs), py_compile (tools)    PASS
+Apps Script harness, 37 cases                           PASS (adds FAQ answers, suggestions, no-ai, provider chain, down flag, timeout)
+Masking format cases, 43                                PASS (Python cleaner matches Chat.gs on 48 inputs)
+Facebook cleaner on a synthetic export (zip and folder) PASS
+Browser QA, 19 checks                                   PASS (adds FAQ suggestion chips)
+```
+
+Not verified here: a live call to any provider (no keys in this environment), the office PC steps on real hardware, and whether a Page's "Download your information" export includes the Page inbox (the staff guide says to test one month first).

@@ -63,6 +63,7 @@ Cloudflare: create a free account (no card), copy the Account ID from the dashbo
 - **Data.** On the Gemini free tier Google may use questions and answers to improve its products, and human reviewers may read them; Google's terms ask developers not to send personal information. Cloudflare does not train on or keep prompts. So:
   - FAQ answers never leave Apps Script.
   - Before any AI call, `Chat.gs` replaces a learner's own phone numbers (0909 123 456, 0909.123.456, (028) 3829 5555, +84 909 123 456, (+84) 909…, 84909123456), email addresses and ID numbers (9 or 12 digits, unbroken or in groups of 3 or 4) with `[số điện thoại]`, `[email]` and `[số giấy tờ]`. The institute's own numbers pass through. Names, addresses and workplaces cannot be detected and are not masked. A 9-digit amount typed without dots (105600000) is also hidden, the accepted cost of catching old ID numbers. The `Hỏi đáp` sheet keeps the original text.
+  - Vietnam's Personal Data Protection Law (Law 91/2025/QH15) has applied since 1 January 2026, including to personal data sent to services abroad. Masking reduces but does not remove personal data in learners' questions, so ask whoever handles legal matters at the Institute whether the Gemini and Cloudflare tiers need a transfer impact assessment. FAQ answers, and the office PC when placed first, keep questions in-house.
   - The chat panel says questions go to an outside AI service that may use them to improve its services, and asks learners not to type names, phone numbers or patient information. If you change providers, keep that note true (`dist/index.html`, `.chat-note`).
 - **Terms.** You must be 18 or older to use the Gemini API, and it may not power a site aimed at or likely to be used by under-18s; this audience (researchers, postgraduates, clinicians) is adult. It may not give medical advice; the prompt and the `tu-van-y-khoa` FAQ row decline clinical questions. Re-read https://ai.google.dev/gemini-api/terms before launch.
 
@@ -79,13 +80,102 @@ Cloudflare: create a free account (no card), copy the Account ID from the dashbo
 
 ## The office PC (optional)
 
-The chain supports the office PC as `CHAT3_`: any OpenAI-compatible server (llama.cpp's `llama-server` or Ollama) reached through a tunnel, with `CHAT3_BASE_URL`, `CHAT3_API_KEY`, `CHAT3_MODELS` and, if the tunnel needs it, `CHAT3_HEADERS`. When the PC is off, the first visitor gets a fast failure and the PC is skipped for 3 minutes, so nobody waits on it. Step-by-step Windows setup for the RTX 2060 machine is being verified and will be added here.
+**Wait for data before setting this up.** The PC (Core i5-14400F, 16 GB RAM, RTX 2060 12 GB) is on only in office hours and shared with other work, and the FAQ tab plus two free cloud tiers should cover most questions. Its clearest use is drafting FAQ rows from the Facebook conversations without sending them to a cloud service (`docs/huong-dan-faq.md`). Add it to the chat only if, after 2 to 4 weeks, the `Hỏi đáp` sheet shows office-hours rows with `error-429-daily`, `error-429` (Cloudflare code 3036), `over-hour-cap` or `faq-suggest`.
+
+- **What it adds:** answers when both free tiers are used up during office hours, and, if placed first in the chain, learner questions kept in-house during office hours.
+- **What it costs:** about half a day of setup; 4 to 5 GB of the 12 GB GPU memory held for 15 minutes after each question; about 10 seconds of full GPU load per answer, which can stutter video playback or slow an export.
+- **Model: Gemma 4 E4B, 4-bit.** Not the 12B: about 19 to 24 seconds per answer on this card, plus reload time, against a 25 second limit per call. Not the 26B: it does not fit, and Cloudflare already runs it for free.
+
+Estimates from published benchmarks of similar cards, not measured on this PC: 3.5 to 5 GB of GPU memory while loaded (part of the model stays in system RAM), 8 to 12 seconds per answer with the model loaded, 13 to 22 seconds after an idle unload.
+
+### Setup (Windows, administrator account)
+
+1. **Prepare.**
+   - Update the NVIDIA driver to 551.61 or newer. The prebuilt llama.cpp CUDA 12.4 build compiles its RTX 20-series code on first use, which needs that driver.
+   - Power Options: no sleep during office hours, and Fast Startup off (Choose what the power buttons do), so startup tasks run at every boot.
+   - Create `C:\AI\llama`, `C:\AI\models` and `C:\AI\swap`. About 6 GB of disk is needed.
+2. **llama.cpp.** From https://github.com/ggml-org/llama.cpp/releases download `llama-<build>-bin-win-cuda-12.4-x64.zip` and `cudart-llama-bin-win-cuda-12.4-x64.zip` (build b11368 on 3 October 2026) and unzip both into `C:\AI\llama`. Check: `C:\AI\llama\llama-server.exe --list-devices` lists the RTX 2060 with about 12 GB.
+3. **Model.** Download a 4-bit Gemma 4 E4B GGUF file and save it as `C:\AI\models\gemma-4-e4b.gguf`. First choice: Google's own `google/gemma-4-E4B-it-qat-q4_0-gguf` on Hugging Face, trained for 4-bit use. Alternatives: the `Q4_K_M` file in `ggml-org/gemma-4-E4B-it-GGUF` or `bartowski/google_gemma-4-E4B-it-GGUF` (about 5 GB). The `mmproj` file (images) is not needed. Keep it on the SSD: a hard disk adds tens of seconds to every reload.
+4. **First run**, in cmd. The very first start can take minutes while the driver compiles; later starts are fast.
+   ```
+   C:\AI\llama\llama-server.exe -m C:\AI\models\gemma-4-e4b.gguf --no-mmproj -c 32768 -np 2 --host 127.0.0.1 --port 8081 --no-webui --no-slots --reasoning off --temp 1.0 --top-p 0.95 --top-k 64 --cache-ram 1024 -ctxcp 8
+   ```
+   In a second cmd window:
+   ```
+   curl.exe http://127.0.0.1:8081/v1/chat/completions -H "Content-Type: application/json" -d "{\"messages\":[{\"role\":\"user\",\"content\":\"Xin chao\"}],\"reasoning_effort\":\"none\",\"max_tokens\":200}"
+   ```
+   The reply's `timings` give prompt and generation speed. The startup log shows the GPU memory used (`CUDA0 model buffer size`, `KV buffer size`, `compute buffer size`) and whether FlashAttention is on. Stop with Ctrl+C. Leave `-ngl` and `-fa` unset: when other programs already hold GPU memory, llama.cpp then puts fewer layers on the GPU (slower) instead of failing. In PowerShell type `curl.exe`, not `curl`, which is a different command there.
+5. **API key**, in PowerShell:
+   ```powershell
+   $b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); 'sk-' + (-join ($b | % { $_.ToString('x2') }))
+   ```
+6. **llama-swap** starts the model on the first question and closes it after 15 idle minutes, so all its GPU memory goes back to the team. It also checks the API key. Download `llama-swap_<version>_windows_amd64.zip` (v261 on 3 October 2026) from https://github.com/mostlygeek/llama-swap/releases into `C:\AI\swap` and create `C:\AI\swap\config.yaml`:
+   ```yaml
+   healthCheckTimeout: 120
+   sendLoadingState: false
+   apiKeys:
+     - "sk-PASTE_KEY_HERE"
+   models:
+     gemma-4-e4b:
+       ttl: 900
+       cmd: |
+         C:\AI\llama\llama-server.exe --port ${PORT} --host 127.0.0.1
+         -m C:\AI\models\gemma-4-e4b.gguf --no-mmproj
+         -c 32768 -np 2 --no-webui --no-slots --reasoning off
+         --temp 1.0 --top-p 0.95 --top-k 64 --cache-ram 1024 -ctxcp 8
+   ```
+   Test with `C:\AI\swap\llama-swap.exe --config C:\AI\swap\config.yaml --listen 127.0.0.1:8080`, then the curl above on port 8080 with `-H "Authorization: Bearer sk-..."` added and `\"model\":\"gemma-4-e4b\",` at the start of the body. Always pass `--listen 127.0.0.1:8080`: the default listens on the office network too.
+7. **Start at boot**, in an administrator PowerShell. The task runs before anyone logs in, with no window to close by mistake.
+   ```powershell
+   $a = New-ScheduledTaskAction -Execute 'C:\AI\swap\llama-swap.exe' -Argument '--config C:\AI\swap\config.yaml --listen 127.0.0.1:8080' -WorkingDirectory 'C:\AI\swap'
+   $t = New-ScheduledTaskTrigger -AtStartup
+   $p = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
+   $s = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable -MultipleInstances IgnoreNew
+   Register-ScheduledTask -TaskName 'Gemma AI' -Action $a -Trigger $t -Principal $p -Settings $s
+   Start-ScheduledTask 'Gemma AI'
+   ```
+   Then send one test request: the SYSTEM account compiles the GPU code again on its first start. Do the same after every NVIDIA driver update. (NSSM works as well; use 2.24-101 or newer, since 2.24 can fail to start services on Windows 10 and 11.)
+8. **Shortcuts for the team**, as `.cmd` files on the desktop:
+   - `AI-giai-phong-GPU.cmd`, no administrator rights needed: `curl.exe -X POST -H "Authorization: Bearer sk-..." http://127.0.0.1:8080/api/models/unload`. Frees the GPU memory at once; the next question reloads the model.
+   - `AI-TAT.cmd`, run as administrator: `taskkill /F /T /IM llama-swap.exe & schtasks /End /TN "Gemma AI" & taskkill /F /IM llama-server.exe`. In this order, so no `llama-server.exe` is left holding memory. The chat then skips the PC.
+   - `AI-BAT.cmd`, run as administrator: `schtasks /Run /TN "Gemma AI"`.
+   - Optional: NVIDIA Control Panel > Manage 3D settings > Program settings > add `C:\AI\llama\llama-server.exe` > CUDA - Sysmem Fallback Policy = Prefer No Sysmem Fallback. The model then fails fast when the GPU is full instead of crawling. It does not protect other programs: an editor can still slow down while the model holds memory, which is what the first shortcut is for.
+9. **Cloudflare Tunnel.** When the PC is off, Cloudflare answers 530 at once (502 if only llama-swap is stopped), and the chat skips the PC for 3 minutes without making anyone wait.
+   - It needs a domain whose DNS is on Cloudflare (the free plan is enough). Without one, move the domain's DNS to Cloudflare (copy the MX records first) or register a cheap domain for this.
+   - Install cloudflared (`winget install --id Cloudflare.cloudflared`). In the Cloudflare dashboard: Networking > Tunnels > Create a tunnel > Windows, and run the `cloudflared.exe service install <token>` command it shows in an administrator cmd. The service starts at boot.
+   - Add a published application: hostname `ai.<domain>`, path `^/v1/chat/completions$`, service `http://127.0.0.1:8080`. The path rule matters: llama-swap also serves pages and controls under other paths.
+   - If Bot Fight Mode is on for the domain, check that `chatSelfTest` does not get a 403. On the free plan it can only be turned off, not bypassed for one path.
+   - Quick tunnels (`trycloudflare.com`) do not work here, because their address changes at every start. Tailscale Funnel is not recommended: when the PC is off each call hangs for the whole timeout, and Funnel is reported to stop accepting connections after the machine has been offline for a weekend.
+10. **Apps Script properties**, then `chatSelfTest` (the `CHAT3` line must start with `ok`) and a new version of the deployment:
+
+    | Property | Value |
+    |---|---|
+    | `CHAT3_PROVIDER` | `openai` |
+    | `CHAT3_BASE_URL` | `https://ai.<domain>/v1` |
+    | `CHAT3_API_KEY` | the `sk-...` key from step 5 |
+    | `CHAT3_MODELS` | `gemma-4-e4b` (the name in `config.yaml`) |
+    | `CHAT3_EXTRA_BODY` | `{"reasoning_effort":"none","max_tokens":500}` |
+
+### Running it
+
+- **Slow first answers.** A call that runs out of time is logged as `error-timeout` and the PC stays in the chain, so a model still loading does not take the PC out for 3 minutes. If `error-timeout` keeps appearing for `CHAT3`, raise `ttl` (3600 keeps the model loaded for an hour after each question, at the cost of holding the memory longer) or send one request at the start of each day.
+- **Prompt reuse.** The FAQ references change with every question and sit in the system message, so llama-server processes the whole prompt (about 6,400 tokens, 3 to 4 seconds on this card) each time. Adding `--swa-full` to the command lets it reuse the unchanged part, at the cost of about 1.2 GB more GPU memory.
+- **Order.** As `CHAT3_` the PC answers only when both free tiers fail. To keep learner questions in-house during office hours, put it first instead: its values under `CHAT_` (with `CHAT_PROVIDER` = `openai`), Gemini under `CHAT2_` (with `CHAT2_PROVIDER` = `gemini` and `CHAT2_MODELS` set, since only `CHAT_` has default models) and Cloudflare under `CHAT3_`. Outside office hours the chat then spends one fast 530 every 3 minutes before moving on.
 
 ## FAQ matching
 
 `Faq.gs` scores every phrasing of every active row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings and particles are ignored, and neighbouring word pairs add weight. A row answers only when its score, the share of the question's words it covers, and its lead over the next row all pass the thresholds at the top of `Faq.gs`. Rows outside their "Từ ngày / Đến ngày" window, or with "Bật" = `Không`, are ignored.
 
-The thresholds are being tuned on an independent set of learner-style questions written without seeing the FAQ rows; the results will be recorded here.
+The thresholds were tuned on 110 learner-style questions written separately from the 49 starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions that the table must not answer). Half were used for tuning; the other half was run once afterwards:
+
+| Held-out half (55 questions) | Result |
+|---|---|
+| Course questions answered from the table | 22 of 44 (50%), all with the right row |
+| Course questions answered with a wrong row | 0 |
+| Course questions passed to the AI | 22, each with the right row among the three references |
+| Off-topic, medical and multi-step questions kept away from the table | 11 of 11 |
+
+The thresholds favour sending a question to the AI over a wrong canned answer. Most questions passed on are long messages with personal context ("em là dược sĩ, mù code…") or a detail the row does not name; adding real phrasings from the Facebook conversations to "Cách hỏi khác" is what raises the share answered from the table. Six of the held-out questions had been read during development, so take the figures as approximate. The test set stayed outside the repository; once staff edit the rows, check new phrasings with `=FAQ_KHOP` in the sheet.
 
 ## What the chat does and does not do
 
@@ -119,7 +209,8 @@ For AI answers the status lists each model tried, for example `error-429-daily g
 | `error-401`, `error-403` | the key is not allowed to use this API; that provider is skipped |
 | `error-402` | prepaid credit used up; that provider is skipped |
 | `error-500`, `error-503` | the provider was busy |
-| `error-502`, `error-530`, `error-network` | the host could not be reached in time (for the office PC: switched off); an OpenAI-compatible host is then skipped for 3 minutes |
+| `error-502`, `error-530`, `error-network` | the host could not be reached (for the office PC: switched off, or llama-swap stopped); an OpenAI-compatible host is then skipped for 3 minutes |
+| `error-timeout` | the host answered too slowly (for the office PC: usually the model still loading); tried again next time, not skipped |
 | `skipped-down` | not tried: that host was unreachable within the last 3 minutes |
 | `skipped-time` | not tried: the 45 seconds were used up by earlier attempts |
 | `error-parse`, `error-empty`, `error-thinking-length` | no usable reply (the last: a reasoning model used the whole length on thinking) |

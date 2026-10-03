@@ -249,7 +249,7 @@ function askGemini_(group, model, messages, timeout, references) {
   }, group.extra);
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
   var res = postJson_(url, { 'x-goog-api-key': group.apiKey }, body, timeout);
-  if (res.code !== 200) return failure_(res.code, res.json);
+  if (res.code !== 200) return failure_(res);
   if (!res.json) return { status: 'error-parse', transient: true };
 
   var candidate = (res.json.candidates || [])[0];
@@ -292,7 +292,7 @@ function askOpenAI_(group, model, messages, timeout, references) {
   var headers = mergeExtra_({}, group.headers);
   headers.Authorization = 'Bearer ' + group.apiKey;
   var res = postJson_(group.baseUrl + '/chat/completions', headers, body, timeout);
-  if (res.code !== 200) return failure_(res.code, res.json);
+  if (res.code !== 200) return failure_(res);
   var choice = res.json && res.json.choices && res.json.choices[0];
   if (!choice) return { status: 'error-parse', transient: true };
   if (choice.finish_reason === 'content_filter') return refusal_('blocked-content_filter');
@@ -311,6 +311,7 @@ function stripThinking_(text) {
 }
 
 function postJson_(url, headers, body, timeout) {
+  var started = Date.now();
   var response;
   try {
     response = UrlFetchApp.fetch(url, {
@@ -322,7 +323,8 @@ function postJson_(url, headers, body, timeout) {
       timeoutSeconds: timeout
     });
   } catch (err) {
-    return { code: 0, json: null };
+    // A call that used up its timeout reached a slow host (a model still loading), not a dead one.
+    return { code: 0, json: null, timedOut: Date.now() - started >= (timeout - 1) * 1000 };
   }
   var json = null;
   try {
@@ -337,18 +339,20 @@ function postJson_(url, headers, body, timeout) {
 // FAILED_PRECONDITION 400), so every model fails the same way. Transient: worth another model
 // or one retry (network, 5xx, a per-minute 429). A daily quota (Gemini PerDay, Cloudflare 3036)
 // still moves to the next model, which has its own quota, but is not retried on the same one.
-function failure_(code, json) {
+function failure_(res) {
+  var code = res.code;
+  var json = res.json;
   var error = (json && json.error) || {};
   var detail = JSON.stringify(error.details || []);
   var cloudflare = json && json.errors && json.errors[0] ? json.errors[0].code : null;
   var keyProblem = code === 400 && (/API_KEY_INVALID/.test(detail) || error.status === 'FAILED_PRECONDITION');
   var daily = code === 429 && (/PerDay/.test(detail) || cloudflare === 3036);
   return {
-    status: code ? 'error-' + code + (daily ? '-daily' : '') : 'error-network',
+    status: code ? 'error-' + code + (daily ? '-daily' : '') : res.timedOut ? 'error-timeout' : 'error-network',
     final: code === 401 || code === 402 || code === 403 || keyProblem,
     transient: !code || (code === 429 && !daily) || code >= 500,
     // No connection, or a tunnel whose machine is off (Cloudflare answers 530, a proxy 502).
-    unreachable: !code || code === 502 || code === 530
+    unreachable: (!code && !res.timedOut) || code === 502 || code === 530
   };
 }
 
@@ -382,7 +386,7 @@ function maskPersonal_(text) {
     })
     // ID numbers (CCCD 12 digits, old CMND 9), unbroken or in groups of 3 or 4, never right
     // after a country code (that is one of the institute's numbers the phone rule kept).
-    .replace(/(?<![\d.,])(?<!84\)?[\s.\-])\d{3,4}(?:[ \-]\d{3,4}){2,3}(?![\d.,]|[ \-]\d)/g, function (found) {
+    .replace(/(?<![\d.,])(?<!84\)?[\s.\-])\d{3,4}(?:[ \-]\d{3,4}){2,3}(?!\d|[.,]\d|[ \-]\d)/g, function (found) {
       var length = found.replace(/\D/g, '').length;
       return length === 9 || length === 12 ? '[số giấy tờ]' : found;
     })

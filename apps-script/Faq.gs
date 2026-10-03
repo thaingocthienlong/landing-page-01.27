@@ -16,7 +16,7 @@ var FAQ_CACHE_SECONDS = 600;
 // Answer from the table only when the best row is clearly ahead; tuned on a held-out learner
 // test set (README, "FAQ matching").
 var FAQ_MIN_SCORE = 6;
-var FAQ_MIN_COVERAGE = 0.6;
+var FAQ_MIN_COVERAGE = 0.4;
 var FAQ_MIN_MARGIN = 1.3;
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
 var FAQ_MIN_CANDIDATE = 3;
