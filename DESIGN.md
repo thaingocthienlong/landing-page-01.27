@@ -243,7 +243,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 
 ## Header brand
 
-- Logo at 64px (54px on phones) with two pale bright-blue concentric rings behind it (vertical gradient, 4.5 to 8.5% alpha) that breathe out of step on a 3s loop (static under reduced motion). The institute name is set in uppercase serif, one line from about 1440px, balanced over two lines on narrower screens; the course line under it was removed. Nav links never wrap.
+- Logo at 64px (54px on phones) with two pale bright-blue concentric rings behind it (vertical gradient, 4.5 to 8.5% alpha) that breathe out of step on a 3s loop (static under reduced motion). The institute name is set in uppercase serif, always one line from 1200px up (font scales with the space left beside the nav via a container query, 3.7cqi, capped at 1.3125rem: about 19px at 1440px, 14px at 1280px), balanced over two or three lines below 1200px; the course line under it was removed. Nav links never wrap.
 
 ## Review round 1 (client feedback)
 
