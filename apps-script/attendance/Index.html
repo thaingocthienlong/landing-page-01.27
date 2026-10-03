@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --paper: #ffffff; --plate: #f3f6fb; --ink: #0d1b2a; --ink-2: #3a4a5f; --ink-3: #566780;
+    --hair: #cbd4e1; --field: #7f93b0; --cobalt: #0a3d91; --cobalt-deep: #072c6b; --cobalt-wash: #eaf0fb; --signal: #c4231a;
+    --serif: "Source Serif 4", Georgia, Cambria, "Times New Roman", serif;
+    --sans: "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 1.0625rem/1.5 var(--sans); }
+  main { max-width: 36rem; margin: 0 auto; padding: 1rem 1rem 3rem; }
+  p { margin: 0; }
+  .rule { border-top: 2px solid var(--ink); padding-top: .75rem; }
+  h1 { margin: 0; font: 600 1.25rem/1.3 var(--serif); }
+  h2 { margin: 0; font: 600 1.1875rem/1.3 var(--serif); }
+  .meta, .note { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .meta { margin-top: .25rem; }
+
+  .result { margin-top: 1rem; padding: 1rem; border-radius: 2px; }
+  .result:focus { outline: 2px solid var(--cobalt); outline-offset: 3px; }
+  .result[data-tone="ok"] { background: var(--cobalt); color: var(--paper); }
+  .result[data-tone="ok"] .result-detail { color: var(--cobalt-wash); }
+  .result[data-tone="same"] { background: var(--plate); border-top: 2px solid var(--ink); }
+  .result[data-tone="stop"] { border: 2px solid var(--signal); }
+  .result[data-tone="stop"] .result-status { color: var(--signal); }
+  .result-status { font-weight: 700; }
+  .result-name { margin: .25rem 0; font: 600 clamp(1.6rem, 1.2rem + 2vw, 2.1rem)/1.2 var(--serif); overflow-wrap: anywhere; }
+
+  .lookup { margin-top: 1.75rem; }
+  .lookup .note { margin-top: .25rem; }
+  label { display: block; margin-top: 1rem; font-weight: 600; }
+  input {
+    width: 100%; height: 50px; margin-top: .375rem; padding: 0 .75rem;
+    border: 1px solid var(--field); border-radius: 2px; background: var(--paper); color: var(--ink); font: inherit;
+  }
+  input:hover { border-color: var(--ink); }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 3px; }
+  #search-state { margin-top: .5rem; min-height: 1.5em; }
+  .list { list-style: none; margin: .25rem 0 0; padding: 0; }
+  .list:not(:empty) { border-bottom: 2px solid var(--ink); }
+  .item {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem;
+    padding: .875rem 0; border-top: 1px solid var(--hair);
+  }
+  .item:first-child { border-top: 2px solid var(--ink); }
+  .item-text { flex: 1 1 14rem; min-width: 0; }
+  .item-name { font: 600 1.1875rem/1.3 var(--serif); overflow-wrap: anywhere; }
+  .item-detail { color: var(--ink-2); }
+  .item-birth { font-variant-numeric: tabular-nums; }
+  button {
+    min-height: 48px; padding: 0 1.25rem; border: 0; border-radius: 2px;
+    background: var(--cobalt); color: var(--paper); font: 700 1rem/1 var(--sans); cursor: pointer;
+  }
+  button:hover { background: var(--cobalt-deep); }
+  button:disabled { background: var(--ink-3); cursor: progress; }
+  @media (max-width: 26rem) { .item button { width: 100%; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="rule">
+    <h1 id="session"></h1>
+    <p class="meta" id="meta"></p>
+  </header>
+
+  <section id="result" class="result" tabindex="-1" hidden>
+    <p class="result-status" id="result-status"></p>
+    <p class="result-name" id="result-name"></p>
+    <p class="result-detail" id="result-detail"></p>
+  </section>
+
+  <section class="lookup rule" aria-labelledby="lookup-title">
+    <h2 id="lookup-title">Học viên quên thẻ</h2>
+    <p class="note">Gõ không dấu cũng được. Hỏi ngày sinh và đối chiếu trước khi bấm Điểm danh.</p>
+    <label for="q">Tên hoặc 4 số cuối điện thoại</label>
+    <input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <p id="search-state" class="note" role="status"></p>
+    <ul id="list" class="list"></ul>
+  </section>
+</main>
+
+<script>
+  var STATE = <?!= state ?>;
+
+  (function () {
+    var el = function (id) { return document.getElementById(id); };
+    var input = el('q');
+    var list = el('list');
+    var searchState = el('search-state');
+    var latest = 0;
+    var timer;
+
+    function header(session, count) {
+      el('session').textContent = session ? session.course + ' · ' + session.name : 'Giờ này không có buổi học';
+      el('meta').textContent = session
+        ? session.part + ' ' + session.day + ' · ' + count + ' người đã điểm danh'
+        : 'Lịch các buổi nằm trong trang tính Buổi.';
+    }
+
+    function about(learner) {
+      return [learner.unit, learner.pkg ? 'Gói ' + learner.pkg : ''].filter(Boolean).join(' · ');
+    }
+
+    function result(r) {
+      var who = r.learner;
+      var text = {
+        ok: ['ok', 'Đã ghi lúc ' + r.time, who && about(who)],
+        again: ['same', r.time ? 'Đã điểm danh lúc ' + r.time + ', không ghi thêm' : 'Đã điểm danh buổi này, không ghi thêm', who && about(who)],
+        'wrong-course': ['stop', who && who.pkg ? 'Không ghi: không học ' + (r.session && r.session.course) : 'Không ghi: chưa rõ gói đăng ký',
+          who && who.pkg ? 'Gói ' + who.pkg + ' chỉ gồm ' + who.courses.join(', ') + '.' : 'Điền số gói trong trang tính Học viên.'],
+        unknown: ['stop', 'Không ghi: không có mã ' + r.id, 'Tìm theo tên ở ô bên dưới.'],
+        'no-session': ['stop', 'Không ghi: giờ này không có buổi học', who && about(who)],
+        offline: ['stop', 'Chưa ghi được: không kết nối được máy chủ', 'Kiểm tra mạng rồi bấm Điểm danh lần nữa.']
+      }[r.kind];
+      var box = el('result');
+      box.dataset.tone = text[0];
+      el('result-status').textContent = text[1];
+      el('result-name').textContent = who ? who.name : '';
+      el('result-name').hidden = !who;
+      el('result-detail').textContent = text[2] || '';
+      box.hidden = false;
+      if (r.kind !== 'offline') header(r.session, r.count);
+    }
+
+    function render(items, query) {
+      list.textContent = '';
+      items.forEach(function (it) {
+        var li = document.createElement('li');
+        li.className = 'item';
+        var text = document.createElement('div');
+        text.className = 'item-text';
+        [['item-name', it.name], ['item-detail', about(it) + (it.courses.length ? ' (' + it.courses.join(', ') + ')' : '')], ['item-birth', 'Ngày sinh ' + (it.birth || 'chưa có')]]
+          .forEach(function (pair) {
+            var p = document.createElement('p');
+            p.className = pair[0];
+            p.textContent = pair[1];
+            text.appendChild(p);
+          });
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Điểm danh';
+        button.setAttribute('aria-label', 'Điểm danh ' + it.name);
+        button.addEventListener('click', function () { checkIn(it.id, button); });
+        li.appendChild(text);
+        li.appendChild(button);
+        list.appendChild(li);
+      });
+      searchState.textContent = items.length
+        ? items.length + ' người khớp.'
+        : 'Không thấy ai khớp với “' + query + '”. Thử 4 số cuối điện thoại. Người chưa có trong danh sách: ghi vào danh sách giấy.';
+    }
+
+    function search() {
+      var query = input.value.trim();
+      var id = ++latest;
+      list.textContent = '';
+      if (!query) { searchState.textContent = ''; return; }
+      if (query.length < 2) { searchState.textContent = 'Gõ ít nhất 2 ký tự.'; return; }
+      searchState.textContent = 'Đang tìm…';
+      google.script.run
+        .withSuccessHandler(function (items) { if (id === latest) render(items, query); })
+        .withFailureHandler(function () { if (id === latest) searchState.textContent = 'Không tìm được do mất kết nối. Gõ lại khi có mạng.'; })
+        .search(query);
+    }
+
+    function checkIn(id, button) {
+      button.disabled = true;
+      button.textContent = 'Đang ghi…';
+      google.script.run
+        .withSuccessHandler(function (r) {
+          result(r);
+          input.value = '';
+          latest++;
+          list.textContent = '';
+          searchState.textContent = '';
+          window.scrollTo(0, 0);
+          el('result').focus();
+        })
+        .withFailureHandler(function () {
+          result({ kind: 'offline' });
+          button.disabled = false;
+          button.textContent = 'Điểm danh';
+          el('result').scrollIntoView();
+        })
+        .checkInByName(id);
+    }
+
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(search, 300);
+    });
+    input.addEventListener('keydown', function (e) {
+      // Closing the phone keyboard on Enter keeps it from covering the results.
+      if (e.key === 'Enter') { clearTimeout(timer); search(); input.blur(); }
+    });
+
+    header(STATE.session, STATE.count);
+    if (STATE.kind !== 'status') result(STATE);
+  })();
+</script>
+</body>
+</html>
