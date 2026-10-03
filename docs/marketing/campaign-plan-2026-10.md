@@ -23,6 +23,8 @@ Ngân sách: chưa có con số. Điểm xuất phát đề xuất: 55% cho giai
 | Qua bước 1 của phiếu đăng ký | `form_start` | `form_id` | | |
 | Gửi đăng ký thành công | `generate_lead` | `currency=VND`, `value` = học phí gói, `package` | `Lead` (`value`, `content_name`) | `conversion` tới `AW-ID/label` |
 | Bấm số điện thoại | `phone_click` | `phone_number` | `Contact` | |
+| Mở khung hỏi đáp AI | `chat_open` | | | |
+| Gửi câu hỏi cho trợ lý AI | `chat_question` | `question_number` (câu thứ mấy trong phiên) | | |
 
 `generate_lead` chỉ bắn khi Apps Script trả `ok: true`, nên số lead trong GA4 khớp số dòng trong Google Sheet.
 

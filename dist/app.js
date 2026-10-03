@@ -1266,6 +1266,329 @@
     });
   };
 
+  /* ---------- learner-care chat: questions go to the Apps Script endpoint, which asks the AI model ---------- */
+
+  const setupChat = () => {
+    const panel = document.getElementById("chat-panel");
+    if (!panel) return;
+    const log = panel.querySelector(".chat-log");
+    const suggest = panel.querySelector(".chat-suggest");
+    const form = panel.querySelector(".chat-form");
+    const input = form.querySelector("textarea");
+    const sendButton = form.querySelector('button[type="submit"]');
+    const title = document.getElementById("chat-title");
+    const launcher = document.querySelector(".chat-launcher");
+    const openers = [...document.querySelectorAll("[data-chat-open]")];
+    const endpoint = (panel.dataset.endpoint || "").trim();
+    const compact = window.matchMedia("(max-width: 900px)");
+    const STORE = "vpn-chat";
+    const PHONES = { "(028) 2242 6789": "02822426789", "0949 761 636": "0949761636", "0912 114 511": "0912114511" };
+    const HOSTS = ["vienphuongnam.com.vn", "cran.r-project.org", "posit.co", "zalo.me"];
+    const ERRORS = {
+      "not-configured": "Trợ lý AI chưa hoạt động. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
+      "rate-limited": "Anh/chị đã hỏi nhiều câu trong giờ này. Vui lòng thử lại vào đầu giờ sau, hoặc gọi (028) 2242 6789.",
+      overloaded: "Trợ lý đang nhận quá nhiều câu hỏi. Anh/chị vui lòng thử lại sau, hoặc gọi (028) 2242 6789, gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
+      unavailable: "Trợ lý AI đang tạm ngừng. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
+      other: "Chưa nhận được câu trả lời. Anh/chị bấm Thử lại, hoặc gọi (028) 2242 6789, gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
+    };
+    const newSession = () => window.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+    const validTurn = (turn, i) => turn && turn.role === (i % 2 ? "assistant" : "user") && typeof turn.content === "string" && turn.content.length > 0;
+
+    let state = null;
+    try { state = JSON.parse(window.sessionStorage.getItem(STORE)); } catch { state = null; }
+    if (!state || !/^[A-Za-z0-9_-]{8,64}$/.test(state.session || "") || !Array.isArray(state.messages) || !state.messages.every(validTurn)) {
+      state = { session: newSession(), messages: [] };
+    }
+    // a question cut off by a reload has no answer, so it is not resent as history
+    if (state.messages.length % 2) state.messages.pop();
+    const save = () => {
+      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-24) })); } catch { /* storage blocked: the chat still works for this page view */ }
+    };
+
+    let opener = null;
+    let pending = false;
+    let rendered = false;
+
+    const inline = (parent, text) => {
+      const pattern = /\*\*([^*]+)\*\*|(https?:\/\/[^\s<>"]+[^\s<>".,;:!?)])|(\(028\) 2242 6789|0949 761 636|0912 114 511)|(Đăng ký khóa học)/g;
+      let last = 0;
+      for (const match of text.matchAll(pattern)) {
+        parent.append(text.slice(last, match.index));
+        last = match.index + match[0].length;
+        if (match[1]) {
+          const strong = document.createElement("strong");
+          strong.textContent = match[1];
+          parent.append(strong);
+          continue;
+        }
+        const link = document.createElement("a");
+        link.textContent = match[0];
+        if (match[2]) {
+          let host = "";
+          try { host = new URL(match[2]).hostname.replace(/^www\./, ""); } catch { host = ""; }
+          if (!HOSTS.some((allowed) => host === allowed || host.endsWith(`.${allowed}`))) {
+            parent.append(match[2]);
+            continue;
+          }
+          link.href = match[2];
+          link.target = "_blank";
+          link.rel = "noreferrer";
+        } else if (match[3]) {
+          link.href = `tel:${PHONES[match[3]]}`;
+        } else {
+          link.href = "#registration";
+          link.dataset.chatJump = "";
+        }
+        parent.append(link);
+      }
+      parent.append(text.slice(last));
+    };
+
+    // the model writes short paragraphs and "- " lists; everything is set as text, never as HTML
+    const renderText = (container, text) => {
+      let list = null;
+      let paragraph = null;
+      text.replace(/\r/g, "").split("\n").forEach((raw) => {
+        const line = raw.replace(/^#+\s*/, "").trim();
+        if (!line) {
+          list = null;
+          paragraph = null;
+          return;
+        }
+        const item = line.match(/^(?:[-*•]|(\d+)[.)])\s+(.*)$/);
+        if (item) {
+          const ordered = Boolean(item[1]);
+          if (!list || (list.tagName === "OL") !== ordered) {
+            list = document.createElement(ordered ? "ol" : "ul");
+            if (ordered && item[1] !== "1") list.start = Number(item[1]);
+            container.append(list);
+          }
+          paragraph = null;
+          const li = document.createElement("li");
+          inline(li, item[2]);
+          list.append(li);
+          return;
+        }
+        list = null;
+        if (paragraph) paragraph.append(document.createElement("br"));
+        else {
+          paragraph = document.createElement("p");
+          container.append(paragraph);
+        }
+        inline(paragraph, line);
+      });
+    };
+
+    const addMessage = (role, text) => {
+      const item = document.createElement("div");
+      item.className = `chat-msg chat-msg-${role}`;
+      const who = document.createElement("span");
+      who.className = "sr-only";
+      who.textContent = role === "user" ? "Anh/chị hỏi: " : "Trợ lý trả lời: ";
+      if (role === "user") {
+        const paragraph = document.createElement("p");
+        paragraph.append(who, text);
+        item.append(paragraph);
+      } else {
+        item.append(who);
+        renderText(item, text);
+      }
+      log.append(item);
+      return item;
+    };
+
+    const toBottom = () => { log.scrollTop = log.scrollHeight; };
+    // a long answer opens at its first line rather than its last
+    const toStart = (item) => { log.scrollTop = Math.max(0, item.offsetTop - 12); };
+
+    const showError = (code) => {
+      const item = document.createElement("div");
+      item.className = "chat-msg chat-msg-bot chat-msg-error";
+      renderText(item, ERRORS[code] || ERRORS.other);
+      // a retry cannot help when the assistant is off, paused for the day or over its shared limit
+      if (!["not-configured", "unavailable", "overloaded"].includes(code)) {
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "link-button";
+        retry.textContent = "Thử lại";
+        retry.addEventListener("click", () => {
+          item.remove();
+          ask();
+        });
+        item.append(retry);
+      }
+      log.append(item);
+      toBottom();
+    };
+
+    const ask = async () => {
+      pending = true;
+      sendButton.setAttribute("aria-disabled", "true");
+      const typing = document.createElement("div");
+      typing.className = "chat-msg chat-msg-bot chat-typing";
+      typing.innerHTML = 'Đang soạn câu trả lời<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>';
+      log.append(typing);
+      toBottom();
+      let reply = "";
+      let error = "";
+      let options = [];
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 60000);
+      try {
+        if (!endpoint) throw new Error("not-configured");
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "chat", session: state.session, messages: state.messages.slice(-12), page: window.location.href.split("#")[0] }),
+          signal: controller.signal,
+        });
+        const result = await response.json();
+        if (!result.ok || typeof result.reply !== "string" || !result.reply.trim()) throw new Error(result.error || "rejected");
+        reply = result.reply.trim();
+        if (Array.isArray(result.suggestions)) options = result.suggestions.filter((text) => typeof text === "string" && text.trim()).slice(0, 3);
+      } catch (err) {
+        error = err.message;
+      } finally {
+        window.clearTimeout(timer);
+      }
+      typing.remove();
+      pending = false;
+      sendButton.removeAttribute("aria-disabled");
+      if (reply) {
+        state.messages.push({ role: "assistant", content: reply });
+        save();
+        const item = addMessage("bot", reply);
+        // the closest FAQ questions, when the assistant could not tell which one was meant
+        if (options.length) {
+          const list = document.createElement("ul");
+          list.className = "chat-options";
+          options.forEach((text) => {
+            const li = document.createElement("li");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = text.trim();
+            button.addEventListener("click", () => submitQuestion(button.textContent));
+            li.append(button);
+            list.append(li);
+          });
+          item.append(list);
+        }
+        toStart(item);
+        return;
+      }
+      // the server refused the history as sent; keep only the open question so a retry can pass
+      if (error === "bad-request") state.messages = state.messages.slice(-1);
+      // a backend without Chat.gs reads the question as an incomplete registration
+      if (error.startsWith("missing-")) error = "not-configured";
+      showError(error);
+    };
+
+    const autosize = () => {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight + 2, 132)}px`;
+    };
+
+    const submitQuestion = (raw) => {
+      const text = raw.trim().slice(0, 1000);
+      if (!text || pending) return;
+      // a suggestion button is about to be hidden; keep focus in the panel
+      const chosen = document.activeElement?.closest?.(".chat-suggest, .chat-options");
+      if (chosen && panel.contains(chosen)) (compact.matches ? log : input).focus({ preventScroll: true });
+      log.querySelector(".chat-msg-error")?.remove();
+      log.querySelectorAll(".chat-options").forEach((list) => list.remove());
+      // an unanswered question is replaced by the new one so turns keep alternating
+      if (state.messages.length % 2) state.messages.pop();
+      state.messages.push({ role: "user", content: text });
+      save();
+      suggest.hidden = true;
+      input.value = "";
+      autosize();
+      addMessage("user", text);
+      toBottom();
+      track("chat_question", { question_number: Math.ceil(state.messages.length / 2) });
+      ask();
+    };
+
+    // full screen below 900px: the page behind is inert and follows the on-screen keyboard
+    const fit = () => {
+      const view = window.visualViewport;
+      if (!panel.hidden && compact.matches && view) {
+        panel.style.height = `${view.height}px`;
+        panel.style.top = `${view.offsetTop}px`;
+      } else {
+        panel.style.height = "";
+        panel.style.top = "";
+      }
+    };
+    const syncInert = () => {
+      const on = !panel.hidden && compact.matches;
+      [...document.body.children].forEach((node) => {
+        if (node !== panel && node instanceof HTMLElement && node.tagName !== "SCRIPT") node.inert = on;
+      });
+      fit();
+    };
+
+    const setOpen = (open, trigger) => {
+      if (open === !panel.hidden) return;
+      panel.hidden = !open;
+      openers.forEach((button) => button.setAttribute("aria-expanded", String(open)));
+      if (launcher) launcher.hidden = open;
+      document.documentElement.classList.toggle("chat-open", open);
+      syncInert();
+      if (!open) {
+        if (opener && opener.isConnected && opener.getClientRects().length) opener.focus();
+        opener = null;
+        return;
+      }
+      opener = trigger || null;
+      if (!rendered) {
+        rendered = true;
+        state.messages.forEach((turn) => addMessage(turn.role === "user" ? "user" : "bot", turn.content));
+        if (state.messages.length) suggest.hidden = true;
+      }
+      // a fresh chat opens on the greeting and suggestions, a running one on its latest turn
+      if (state.messages.length) toBottom();
+      else log.scrollTop = 0;
+      // on phones, focusing the field would raise the keyboard over the suggestions
+      (compact.matches ? title : input).focus({ preventScroll: true });
+      track("chat_open");
+    };
+
+    openers.forEach((button) => button.addEventListener("click", () => setOpen(panel.hidden, button)));
+    panel.querySelector("[data-chat-close]").addEventListener("click", () => setOpen(false));
+    document.addEventListener("keydown", (event) => {
+      const active = document.activeElement;
+      if (event.key === "Escape" && !panel.hidden && (panel.contains(active) || active === document.body)) setOpen(false);
+    });
+    panel.querySelectorAll("[data-chat-question]").forEach((button) => button.addEventListener("click", () => submitQuestion(button.textContent)));
+    log.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (!link) return;
+      if (link.getAttribute("href").startsWith("tel:")) track("phone_click", { phone_number: link.getAttribute("href").slice(4) }, { name: "Contact" });
+      if (link.hasAttribute("data-chat-jump") && compact.matches) {
+        opener = null;
+        setOpen(false);
+      }
+    });
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitQuestion(input.value);
+    });
+    input.addEventListener("input", autosize);
+    // on phones the keyboard takes half the sheet; the privacy note, already read on opening, steps aside
+    input.addEventListener("focus", () => panel.classList.toggle("chat-typing-mode", compact.matches));
+    input.addEventListener("blur", () => panel.classList.remove("chat-typing-mode"));
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        submitQuestion(input.value);
+      }
+    });
+    compact.addEventListener("change", syncInert);
+    window.visualViewport?.addEventListener("resize", fit);
+    window.visualViewport?.addEventListener("scroll", fit);
+  };
+
   setupBackdrop();
   setupFigures();
   setupHero();
@@ -1279,5 +1602,6 @@
   setupMobileNav();
   setupForm();
   setupCopy();
+  setupChat();
   setupTracking();
 })();

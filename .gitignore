@@ -8,3 +8,6 @@ media/certificate/mockup/*.pdf
 # claude local
 .claude/settings.local.json
 .claude/no-auto-ship
+
+# python
+__pycache__/
