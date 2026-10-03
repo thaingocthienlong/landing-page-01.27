@@ -58,3 +58,24 @@ Apps Script harness, 20 cases                           PASS
   extras, <think> stripping, content_filter, 402; rate limits; chatSelfTest; registration path
 Browser QA (same 15 checks as above)                    PASS
 ```
+
+## Review of the switch, 2026-10-03
+
+Five reviewers (API correctness against the researched facts, Apps Script runtime and security, prompt quality for a small model, docs accuracy, frontend contract and copy) raised 37 findings; each went to two verifiers told to refute it. 13 were upheld by both, 14 split, 10 refuted. Fixed:
+
+- Time budget: each model call gets `timeoutSeconds` from a shared 45 s budget, so a hung first model no longer keeps the fallback from answering before the page gives up at 60 s, and the sheet always gets a row.
+- Masking now covers (+84), 84…, +84 (0), bracketed area codes, numbers glued to text, grouped and unbroken 9/12-digit IDs, and leaves decimal lists, prices, dates, the account number and the institute's numbers alone (39 format cases).
+- Failures that a retry cannot fix (bad Gemini key 400, 401/402/403, every model on a daily 429 or 404) return `unavailable`; the shared hourly cap returns `overloaded`; both show the numbers without "Thử lại". Daily 429s are not retried on the same model. Non-filter finish reasons (OTHER, MALFORMED_RESPONSE) try the next model.
+- `CHAT_MAX_PER_HOUR=0` pauses the chat; the per-session counter resets each clock hour, as documented.
+- `<think>` handling covers blocks cut off by the length limit and prefilled templates.
+- Prompt: the offer and deadline status is computed in Apps Script and sent under a "Ngày hôm nay" heading (the boundary days are referred to the Institute); eligibility follows the payment date; returning-learner discount is spelled out by date and limited to Gói 1–4; every estimate is labelled by who gets it, with no combined early+group figure; the group example shows both offers and the stacking caveat; a fact line answers the online/offline suggested question from what the notice and outlines say.
+- Privacy note says the provider may use questions to improve its services and asks learners not to type names, phone numbers or patient information; on phones it hides while the field has focus.
+- README: key must sit in a project with no billing; CHAT_MODELS required for openai; reset time by US DST; how to test a fallback model; full status table.
+
+Not changed: on 08/12 and 28/12 the page's offer strike-through (`setupExpiry`, `today <= data-expires`) still treats the day as included, while the notice says "trước"; the bot refers learners to the Institute on those days. Needs the Institute's answer.
+
+```text
+Apps Script harness, 26 cases          PASS
+Masking format cases, 39               PASS
+Browser QA, 18 checks                  PASS (adds unavailable/overloaded/rate-limited copy, note hiding while typing)
+```

@@ -21,31 +21,37 @@ var CHAT_HISTORY = 12;
 var CHAT_MAX_QUESTION = 1000;
 var CHAT_MAX_ANSWER = 6000;
 var CHAT_MAX_OUTPUT = 1024;
+// Seconds for all model attempts together; the page gives up waiting at 60.
+var CHAT_TIME_BUDGET = 45;
 var CHAT_OWN_NUMBERS = ['02822426789', '0949761636', '0912114511'];
+// Gemini finish reasons that mean a content filter stopped the answer; other stops are provider failures.
+var CHAT_FILTER_STOPS = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION', 'IMAGE_SAFETY'];
 var CHAT_REFUSAL_REPLY = 'Em chưa trả lời được câu này. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để được tư vấn trực tiếp.';
 
 // Run once from the editor after setup: it grants the external-request permission and
 // shows in the execution log which model answered and what it said.
 function chatSelfTest() {
   var config = chatConfig_();
-  if (!config) throw new Error('Chat is not configured: check CHAT_API_KEY, and CHAT_PROVIDER, CHAT_BASE_URL and CHAT_EXTRA_BODY if set (see README.md).');
+  if (!config) throw new Error('Chat is not configured: check CHAT_API_KEY and CHAT_MODELS (required when CHAT_PROVIDER is openai), and CHAT_PROVIDER, CHAT_BASE_URL and CHAT_EXTRA_BODY if set (see README.md).');
   var result = askModel_(config, [{ role: 'user', content: 'Học phí Gói 1 là bao nhiêu?' }]);
   Logger.log(result.status + '\n' + (result.reply || ''));
 }
 
 function handleChat_(data) {
   var config = chatConfig_();
-  if (!config) return json_({ ok: false, error: 'not-configured' });
+  // CHAT_MAX_PER_HOUR = 0 pauses the chat; visitors see the same "not running" message.
+  if (!config || config.perHour === 0) return json_({ ok: false, error: 'not-configured' });
 
   var session = String(data.session || '');
   var messages = chatMessages_(data.messages);
   if (!/^[A-Za-z0-9_-]{8,64}$/.test(session) || !messages) return json_({ ok: false, error: 'bad-request' });
 
-  if (!chatAllow_(session, config.perHour)) return json_({ ok: false, error: 'rate-limited' });
+  var limit = chatAllow_(session, config.perHour);
+  if (limit) return json_({ ok: false, error: limit === 'session' ? 'rate-limited' : 'overloaded' });
 
   var result = askModel_(config, messages);
   logChat_([session, messages[messages.length - 1].content, result.reply || '', result.status, clean_(data.page)]);
-  if (!result.reply) return json_({ ok: false, error: 'busy' });
+  if (!result.reply) return json_({ ok: false, error: result.permanent ? 'unavailable' : 'busy' });
   return json_({ ok: true, reply: result.reply });
 }
 
@@ -60,13 +66,14 @@ function chatConfig_() {
     .split(',')
     .map(function (model) { return model.trim(); })
     .filter(Boolean);
+  var cap = get('CHAT_MAX_PER_HOUR') === '' ? NaN : Number(get('CHAT_MAX_PER_HOUR'));
   var config = {
     provider: provider,
     apiKey: get('CHAT_API_KEY'),
     models: models,
     baseUrl: get('CHAT_BASE_URL').replace(/\/+$/, ''),
     extra: null,
-    perHour: Number(get('CHAT_MAX_PER_HOUR')) || CHAT_DEFAULT_MAX_PER_HOUR
+    perHour: isFinite(cap) && cap >= 0 ? Math.floor(cap) : CHAT_DEFAULT_MAX_PER_HOUR
   };
   if (get('CHAT_EXTRA_BODY')) {
     try {
@@ -97,56 +104,72 @@ function chatMessages_(raw) {
   return out.length && out[out.length - 1].role === 'user' ? out : null;
 }
 
+// Returns '' when allowed, else which limit was hit. Both counters reset each clock hour.
 // Cache counters are approximate under concurrency; they bound quota use, not exact limits.
 function chatAllow_(session, perHour) {
   var cache = CacheService.getScriptCache();
-  var hourKey = 'chat_h_' + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMddHH');
-  var sessionKey = 'chat_s_' + session;
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMddHH');
+  var hourKey = 'chat_h_' + stamp;
+  var sessionKey = 'chat_s_' + session + '_' + stamp;
   var hour = Number(cache.get(hourKey)) || 0;
   var mine = Number(cache.get(sessionKey)) || 0;
-  if (hour >= perHour || mine >= CHAT_MAX_PER_SESSION) return false;
+  if (mine >= CHAT_MAX_PER_SESSION) return 'session';
+  if (hour >= perHour) return 'hour';
   cache.put(hourKey, String(hour + 1), 3700);
-  cache.put(sessionKey, String(mine + 1), 3600);
-  return true;
+  cache.put(sessionKey, String(mine + 1), 3700);
+  return '';
 }
 
-// Tries each configured model until one answers. A single model gets one retry on a
-// transient failure; key and billing failures stop at once because every model shares them.
+// Tries each configured model until one answers, within CHAT_TIME_BUDGET. A single model
+// gets one retry on a transient failure. Key and billing failures stop at once because every
+// model shares them. 'permanent' means no attempt is worth repeating soon (bad key, quota
+// used up for the day, model gone), so the page can skip its "try again" button.
 function askModel_(config, messages) {
   var sent = messages.map(function (turn) {
     return { role: turn.role, content: turn.role === 'user' ? maskPersonal_(turn.content) : turn.content };
   });
   var queue = config.models.length === 1 ? [config.models[0], config.models[0]] : config.models;
+  var deadline = Date.now() + CHAT_TIME_BUDGET * 1000;
   var tried = [];
   var last = null;
+  var permanent = true;
   for (var i = 0; i < queue.length; i++) {
-    if (i > 0 && queue[i] === queue[i - 1]) {
-      if (!last.transient) break;
-      Utilities.sleep(1500);
+    var repeat = i > 0 && queue[i] === queue[i - 1];
+    if (repeat && !last.transient) break;
+    var left = Math.floor((deadline - Date.now()) / 1000);
+    if (left < (repeat ? 10 : 8)) {
+      tried.push('skipped-time ' + queue[i]);
+      permanent = false;
+      break;
     }
-    last = config.provider === 'gemini' ? askGemini_(config, queue[i], sent) : askOpenAI_(config, queue[i], sent);
+    if (repeat) Utilities.sleep(1500);
+    var timeout = Math.max(5, Math.floor((left - (repeat ? 2 : 0)) / (queue.length - i)));
+    last = config.provider === 'gemini'
+      ? askGemini_(config, queue[i], sent, timeout)
+      : askOpenAI_(config, queue[i], sent, timeout);
     tried.push(last.status + ' ' + queue[i]);
     if (last.reply) return { status: tried.join('; '), reply: last.reply };
+    if (last.transient) permanent = false;
     if (last.final) break;
   }
-  return { status: tried.join('; ') };
+  return { status: tried.join('; '), permanent: permanent && tried.length > 0 };
 }
 
-function askGemini_(config, model, messages) {
+function askGemini_(config, model, messages, timeout) {
   var generationConfig = { maxOutputTokens: CHAT_MAX_OUTPUT };
   var thinking = geminiThinking_(model);
   if (thinking) generationConfig.thinkingConfig = thinking;
   var body = mergeExtra_({
-    // The date is the last part, so the long prompt stays an identical, cacheable prefix.
-    systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }, { text: chatToday_() }] },
+    // The date note is the last part, so the long prompt stays an identical, cacheable prefix.
+    systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }, { text: chatDateNote_() }] },
     contents: messages.map(function (turn) {
       return { role: turn.role === 'assistant' ? 'model' : 'user', parts: [{ text: turn.content }] };
     }),
     generationConfig: generationConfig
   }, config.extra);
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent';
-  var res = postJson_(url, { 'x-goog-api-key': config.apiKey }, body);
-  if (res.code !== 200) return failure_(res.code);
+  var res = postJson_(url, { 'x-goog-api-key': config.apiKey }, body, timeout);
+  if (res.code !== 200) return failure_(res.code, res.json);
   if (!res.json) return { status: 'error-parse', transient: true };
 
   var candidate = (res.json.candidates || [])[0];
@@ -155,7 +178,8 @@ function askGemini_(config, model, messages) {
     return blocked ? refusal_('blocked-' + blocked) : { status: 'error-empty', transient: true };
   }
   var reason = candidate.finishReason || 'STOP';
-  if (reason !== 'STOP' && reason !== 'MAX_TOKENS') return refusal_('blocked-' + reason);
+  if (CHAT_FILTER_STOPS.indexOf(reason) !== -1) return refusal_('blocked-' + reason);
+  if (reason !== 'STOP' && reason !== 'MAX_TOKENS') return { status: 'error-finish-' + reason, transient: true };
   var reply = ((candidate.content || {}).parts || [])
     .filter(function (part) { return part.text && !part.thought; })
     .map(function (part) { return part.text; })
@@ -176,24 +200,32 @@ function geminiThinking_(model) {
 
 // Any host with an OpenAI-style /chat/completions endpoint (DeepSeek, Cloudflare Workers AI,
 // Groq, OpenRouter). Host-specific switches, such as turning reasoning off, go in CHAT_EXTRA_BODY.
-function askOpenAI_(config, model, messages) {
+function askOpenAI_(config, model, messages, timeout) {
   var body = mergeExtra_({
     model: model,
     max_tokens: CHAT_MAX_OUTPUT,
-    messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT + '\n\n' + chatToday_() }].concat(messages)
+    messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT + chatDateNote_() }].concat(messages)
   }, config.extra);
-  var res = postJson_(config.baseUrl + '/chat/completions', { Authorization: 'Bearer ' + config.apiKey }, body);
-  if (res.code !== 200) return failure_(res.code);
+  var res = postJson_(config.baseUrl + '/chat/completions', { Authorization: 'Bearer ' + config.apiKey }, body, timeout);
+  if (res.code !== 200) return failure_(res.code, res.json);
   var choice = res.json && res.json.choices && res.json.choices[0];
   if (!choice) return { status: 'error-parse', transient: true };
   if (choice.finish_reason === 'content_filter') return refusal_('blocked-content_filter');
-  // Some hosts return a reasoning model's thinking inline; it is not part of the answer.
-  var reply = String((choice.message && choice.message.content) || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  if (!reply) return { status: 'error-empty', transient: true };
+  var reply = stripThinking_(String((choice.message && choice.message.content) || ''));
+  if (!reply) return { status: choice.finish_reason === 'length' ? 'error-thinking-length' : 'error-empty', transient: true };
   return { status: choice.finish_reason === 'length' ? 'ok-truncated' : 'ok', reply: reply };
 }
 
-function postJson_(url, headers, body) {
+// Some hosts return a reasoning model's thinking inline. Drop complete <think> blocks, a block
+// cut off by the length limit, and reasoning before a lone </think> (templates that prefill <think>).
+function stripThinking_(text) {
+  var reply = text.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, '');
+  var close = reply.lastIndexOf('</think>');
+  if (close !== -1) reply = reply.slice(close + '</think>'.length);
+  return reply.trim();
+}
+
+function postJson_(url, headers, body, timeout) {
   var response;
   try {
     response = UrlFetchApp.fetch(url, {
@@ -201,7 +233,8 @@ function postJson_(url, headers, body) {
       contentType: 'application/json',
       headers: headers,
       payload: JSON.stringify(body),
-      muteHttpExceptions: true
+      muteHttpExceptions: true,
+      timeoutSeconds: timeout
     });
   } catch (err) {
     return { code: 0, json: null };
@@ -215,13 +248,20 @@ function postJson_(url, headers, body) {
   return { code: response.getResponseCode(), json: json };
 }
 
-// 401/402/403 (bad key, no credit, no access) fail the same way on every model.
-// 429 and 5xx are worth another model or one retry; 404 means the model is gone.
-function failure_(code) {
+// Final: the key or billing is the problem (401/402/403, Gemini's API_KEY_INVALID or
+// FAILED_PRECONDITION 400), so every model fails the same way. Transient: worth another model
+// or one retry (network, 5xx, a per-minute 429). A daily quota (Gemini PerDay, Cloudflare 3036)
+// still moves to the next model, which has its own quota, but is not retried on the same one.
+function failure_(code, json) {
+  var error = (json && json.error) || {};
+  var detail = JSON.stringify(error.details || []);
+  var cloudflare = json && json.errors && json.errors[0] ? json.errors[0].code : null;
+  var keyProblem = code === 400 && (/API_KEY_INVALID/.test(detail) || error.status === 'FAILED_PRECONDITION');
+  var daily = code === 429 && (/PerDay/.test(detail) || cloudflare === 3036);
   return {
-    status: code ? 'error-' + code : 'error-network',
-    final: code === 401 || code === 402 || code === 403,
-    transient: !code || code === 429 || code >= 500
+    status: code ? 'error-' + code + (daily ? '-daily' : '') : 'error-network',
+    final: code === 401 || code === 402 || code === 403 || keyProblem,
+    transient: !code || (code === 429 && !daily) || code >= 500
   };
 }
 
@@ -238,21 +278,28 @@ function mergeExtra_(body, extra) {
   return body;
 }
 
-function chatToday_() {
-  return 'Hôm nay là ngày ' + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy') + ' (giờ Việt Nam).';
-}
-
 // Free model tiers may keep prompts to improve the provider's products, so a learner's own
 // email, phone and ID numbers are masked before the question leaves Apps Script. The sheet
-// log keeps the original. The institute's own numbers pass through.
+// log keeps the original. The institute's own numbers pass through. Names are not detected.
 function maskPersonal_(text) {
   return text
     .replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, '[email]')
-    .replace(/(?:\+84|\b0)(?:[\s.\-]?\d){8,10}\b/g, function (found) {
-      var digits = found.replace(/\D/g, '').replace(/^84/, '0');
+    // Phones: a leading 0 (area code may be bracketed) or a country code (+84, 84, (+84), with an
+    // optional (0)), then digits with single spaces, dots or hyphens between them. The first two
+    // digits must touch, so decimal lists such as "0.85 0.75" are left alone. Only 10 or 11
+    // digit results are masked, so part of a grouped ID number is not taken for a phone.
+    .replace(/(?<![\d.,])(?:(?:\(\+?84\)|\+84|84)[\s.\-]?(?:\(0\)[\s.\-]?)?|\(?0)\d(?:\)?[\s.\-]?\d){7,9}(?!\d|[.,]\d)/g, function (found) {
+      var digits = found.replace(/\D/g, '').replace(/^840?/, '0');
+      if (digits.length < 10 || digits.length > 11) return found;
       return CHAT_OWN_NUMBERS.indexOf(digits) !== -1 ? found : '[số điện thoại]';
     })
-    .replace(/\b\d{9}(?:\d{3})?\b/g, '[số giấy tờ]');
+    // ID numbers (CCCD 12 digits, old CMND 9), unbroken or in groups of 3 or 4, never right
+    // after a country code (that is one of the institute's numbers the phone rule kept).
+    .replace(/(?<![\d.,])(?<!84\)?[\s.\-])\d{3,4}(?:[ \-]\d{3,4}){2,3}(?![\d.,]|[ \-]\d)/g, function (found) {
+      var length = found.replace(/\D/g, '').length;
+      return length === 9 || length === 12 ? '[số giấy tờ]' : found;
+    })
+    .replace(/(?<![\d.,])(?:\d{12}|\d{9})(?!\d|[.,]\d)/g, '[số giấy tờ]');
 }
 
 function logChat_(values) {

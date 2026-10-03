@@ -1257,7 +1257,9 @@
     const HOSTS = ["vienphuongnam.com.vn", "cran.r-project.org", "posit.co", "zalo.me"];
     const ERRORS = {
       "not-configured": "Trợ lý AI chưa hoạt động. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
-      "rate-limited": "Anh/chị đã hỏi nhiều câu trong thời gian ngắn. Vui lòng thử lại sau ít phút, hoặc gọi (028) 2242 6789.",
+      "rate-limited": "Anh/chị đã hỏi nhiều câu trong giờ này. Vui lòng thử lại vào đầu giờ sau, hoặc gọi (028) 2242 6789.",
+      overloaded: "Trợ lý đang nhận quá nhiều câu hỏi. Anh/chị vui lòng thử lại sau, hoặc gọi (028) 2242 6789, gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
+      unavailable: "Trợ lý AI đang tạm ngừng. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
       other: "Chưa nhận được câu trả lời. Anh/chị bấm Thử lại, hoặc gọi (028) 2242 6789, gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
     };
     const newSession = () => window.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
@@ -1374,7 +1376,8 @@
       const item = document.createElement("div");
       item.className = "chat-msg chat-msg-bot chat-msg-error";
       renderText(item, ERRORS[code] || ERRORS.other);
-      if (code !== "not-configured") {
+      // a retry cannot help when the assistant is off, paused for the day or over its shared limit
+      if (!["not-configured", "unavailable", "overloaded"].includes(code)) {
         const retry = document.createElement("button");
         retry.type = "button";
         retry.className = "link-button";
@@ -1523,6 +1526,9 @@
       submitQuestion(input.value);
     });
     input.addEventListener("input", autosize);
+    // on phones the keyboard takes half the sheet; the privacy note, already read on opening, steps aside
+    input.addEventListener("focus", () => panel.classList.toggle("chat-typing-mode", compact.matches));
+    input.addEventListener("blur", () => panel.classList.remove("chat-typing-mode"));
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
         event.preventDefault();
