@@ -1229,6 +1229,23 @@
     });
   };
 
+  /* ---------- hero title sparkles: stars pop at random spots around the series name ---------- */
+
+  const setupSparkle = () => {
+    if (reducedMotion.matches) return;
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    document.querySelectorAll(".magic-star").forEach((star, index) => {
+      const pop = () => {
+        star.style.setProperty("--star-left", `${rand(-6, 96)}%`);
+        star.style.setProperty("--star-top", `${rand(-30, 70)}%`);
+        star.style.animation = "none";
+        void star.offsetHeight;
+        star.style.animation = "";
+      };
+      window.setTimeout(() => { pop(); window.setInterval(pop, 1000); }, index * 333);
+    });
+  };
+
   /* ---------- copy account number ---------- */
 
   const setupCopy = () => {
@@ -1252,6 +1269,7 @@
   setupBackdrop();
   setupFigures();
   setupHero();
+  setupSparkle();
   setupTabs();
   setupPackages();
   setupOutline();
