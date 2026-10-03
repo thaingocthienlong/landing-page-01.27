@@ -27,7 +27,7 @@ var FAQ_NEED_RAREST = true;
 // còn", "bên Zalo", "trong các buổi").
 var FAQ_NOT_RAREST = {
   cho: 1, nay: 1, hien: 1, ben: 1, trong: 1, cac: 1, nhung: 1, roi: 1, thoi: 1, nao: 1, the: 1,
-  cung: 1, van: 1, con: 1, duoc: 1, voi: 1, sao: 1
+  cung: 1, van: 1, con: 1, duoc: 1, voi: 1, sao: 1, nua: 1
 };
 // Words that make a message a question; a thank-you without any of them is not matched.
 var FAQ_ASKING = { khong: 1, nao: 1, gi: 1, sao: 1, dau: 1, chua: 1, may: 1, nhieu: 1, ai: 1, khi: 1 };
@@ -57,7 +57,8 @@ var FAQ_STOP = {
   'z': 1, 'thế': 1, 'dạ': 1, 'vâng': 1, 'chào': 1, 'chao': 1, 'xin': 1, 'hỏi': 1, 'hoi': 1,
   'là': 1, 'thì': 1, 'của': 1, 'cua': 1, 'và': 1, 'với': 1, 'ạh': 1, 'ah': 1, 'ơ': 1, 'luôn': 1,
   'chút': 1, 'chut': 1, 'xíu': 1, 'xiu': 1, 'tí': 1, 'nhỉ': 1, 'bạn': 1,
-  'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1
+  'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1,
+  'ok': 1, 'oke': 1, 'okie': 1, 'okey': 1, 'okay': 1, 'ừ': 1, 'ừm': 1
 };
 
 function setupFaq() {

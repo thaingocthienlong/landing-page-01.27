@@ -1347,13 +1347,16 @@
     // Free models often send one long paragraph, a wall of text on a phone. A long line is set as
     // its first sentence (the answer), then two sentences per paragraph. "Ms. Vy", "TP. Hồ Chí Minh"
     // and "GS.TS." are not sentence ends.
-    const ABBR = /(?:^|\s)(?:GS\.TS|PGS|GS|TS|ThS|BS|Ms|Mr|TP)\.$/;
+    // a title before a name ("**GS.TS. Nguyễn Văn Tuấn**") is not a sentence end, and a split
+    // inside **bold** would leave the markers unpaired
+    const ABBR = /(?:^|[\s*("“])(?:GS\.TS|PGS|GS|TS|ThS|BS|Ms|Mr|TP)\.$/;
     const sentences = (line) => {
       const out = [];
       let start = 0;
-      for (const match of line.matchAll(/[.!?](?:["”)])?\s+(?=[\p{Lu}\d“"(])/gu)) {
+      for (const match of line.matchAll(/[.!?](?:["”)])?\s+(?=[\p{Lu}\d“"(*])/gu)) {
         const end = match.index + match[0].trimEnd().length;
         if (ABBR.test(line.slice(start, end))) continue;
+        if ((line.slice(0, end).match(/\*\*/g) || []).length % 2) continue;
         out.push(line.slice(start, end).trim());
         start = match.index + match[0].length;
       }

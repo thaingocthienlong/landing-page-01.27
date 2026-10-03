@@ -189,3 +189,25 @@ Real held-out, 23 answerable                 21 right, 0 wrong, 2 to AI (refs ri
 Closing messages, 11                         11 left alone
 UI checks, 20 (Playwright, 390/360/320px)    PASS (adds the long-paragraph split, abbreviations kept)
 ```
+
+## Second Meta export, 2026-10-03
+
+Input: the full inbox export for 01/07–15/08/2026 (455 conversations, 365 of them new), anonymised in the scratchpad with the same cleaner as `tools/facebook-to-text.py`; the raw file is not in the repository. Findings and the list of practices to confirm with the Institute are in `docs/phan-tich-tu-van-meta-2026.md`.
+
+- Extraction: one agent per 40K-character chunk listed every learner message, staff practice and unanswered question; a second agent per chunk audited the list (2 missed items added, 2 staff lines removed). Every extracted message was found verbatim in its conversation.
+- Labels: two agents per batch labelled 218 unique messages against the 55-row table, an adjudicator settled 7 disagreements; after the update, two new agents relabelled the held-out half and the closings against the 58-row table (6 settled).
+- Engine: an exact repeat of one active row's phrasing answers that row ("Hỏi giá", 11 conversations, went to the AI); acknowledgements ("ok", "okie", "ừ") are stop words; "nữa" never counts as the rarest word.
+- Review: a fact-check agent and a style agent read every new or changed answer and the new prompt rules. Their findings were applied, including a renderer bug from the previous round: `dist/app.js` split "**GS.TS. Nguyễn Văn Tuấn**" because the abbreviation check only allowed a space before the title. A probe agent wrote 45 questions around the three new rows: 4 answered right, 0 with a wrong row, 33 passed to the AI, 7 of 8 that should go to the AI did.
+
+```text
+Apps Script harness, 41 cases                       PASS (adds exact phrasing, acknowledgements)
+Mask cases, 48                                      PASS
+UI checks, 21 (Playwright)                          PASS (adds bold titles; the new check fails on the old renderer)
+FAQ seed self-check, 889 phrasings                  889 own row
+Second export, held-out, before (55 rows)           23 of 70 right, 0 wrong, 28 of 47 to AI with the right reference
+Second export, held-out, after dev rows (58 rows)   25 of 72 right, 1 wrong, 31 of 46 to AI with the right reference
+Second export, closings                             45 of 46 left to the AI ("học phí đắt quá" gets the discount row)
+First export, held-out                              22 of 23 right (was 21), 0 wrong; closings 11 of 11
+Learner and probe held-out halves (58 rows)         40 right, 2 wrong rows, 10 wrongly answered (55 rows: 38, 1, 10)
+```
+

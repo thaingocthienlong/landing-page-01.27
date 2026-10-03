@@ -53,6 +53,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
     ```
 
   Nếu một đoạn vẫn quá dài (trên khoảng 170 ký tự), trang tự tách thành câu đầu và các đoạn 2 câu, nhưng tự chia đoạn vẫn dễ đọc hơn.
+- Câu hỏi gộp hai ý thì câu trả lời phải có cả hai. Ví dụ nút quảng cáo "Học phí khóa học là bao nhiêu? Hiện đang có ưu đãi gì không?" được ghi ở các dòng ưu đãi, vì các dòng này nêu cả học phí gốc lẫn ưu đãi; nhân viên từng bỏ sót phần ưu đãi ở khoảng 49 cuộc hội thoại.
 - Không cần viết "em chào anh/chị" trong câu trả lời: nếu đó là câu hỏi đầu tiên của học viên, trợ lý tự thêm "Dạ, em chào anh/chị." vào đầu.
 - Mọi con số (học phí, ngày, phần trăm, số tài khoản) phải đúng như thông báo chính thức.
 - Số tiền sau ưu đãi ghi là "tạm tính" và nói Viện xác nhận số tiền chính thức.
