@@ -696,8 +696,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-people a { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 8px; color: var(--cobalt-deep); font: 600 0.9375rem/1.25 var(--sans); text-align: center; text-decoration: none; }
 .chat-people a + a { border-left: 1px solid var(--hair); }
 .chat-people a:hover { background: var(--plate); text-decoration: underline; }
-.chat-note { flex: none; padding: 8px 20px 12px; border-top: 1px solid var(--hair); color: var(--ink-3); font-size: 0.875rem; line-height: 1.45; }
-.chat-note a { color: var(--ink-2); }
 
 @media (min-width: 901px) {
   .js .chat-launcher { position: fixed; z-index: 55; right: 24px; bottom: 24px; display: inline-flex; }
@@ -708,8 +706,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 @media (max-width: 900px) {
   .chat { top: 0; right: 0; bottom: auto; left: 0; width: auto; height: 100%; border: 0; border-top: 4px solid var(--cobalt); }
   .chat-head { padding-top: calc(12px + env(safe-area-inset-top)); }
-  .chat-note { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .chat-typing-mode .chat-note { display: none; }
+  .chat-people { padding-bottom: env(safe-area-inset-bottom); }
   .chat-open body { overflow: hidden; }
   .js .mobile-bar { grid-template-columns: minmax(0, 1fr) auto auto; }
   .js .mobile-bar .button { gap: 6px; padding-inline: 10px; white-space: nowrap; }
