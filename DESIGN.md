@@ -219,7 +219,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 48% opacity below 720px, 80% above.
 - **Logo:** official artwork from `assets/Logo VPN.png`, trimmed and resized to `dist/logo.png` (header, 56px tall; footer on a white chip) and `dist/favicon.png`. The full institute name sits beside it in the header and footer.
 - **Top strip:** registration line (A - 2619/Bộ Khoa Học và Công Nghệ) left, deadline right; no action link in the strip, the navbar holds the only register button above the fold.
-- **Side navigation:** fixed left menu from 1100px up (hidden below). From 1280px up every section name is always visible, the active one in cobalt with a 3px bar, and the page shell reserves a 132px rail so the menu never covers content. Between 1100px and 1279px it falls back to ticks with the label on hover/focus, because the narrower shell would wrap the header links.
+- **Side navigation:** fixed left menu from 1100px up (hidden below). From 1280px up every section name is always visible, the active one in cobalt with a 3px bar, and the page shell reserves a 142px rail so the menu never covers content. Between 1100px and 1279px it falls back to ticks with the label on hover/focus, because the narrower shell would wrap the header links.
 - **Loops:** the hero figure cycles through all 14 course figures every 4s endlessly (starting on Hình 1.4, the linear regression) with no controls (stops only while off-screen or the tab is hidden, static under reduced motion); the programs tabs advance every 5s too, pausing on hover or focus and via a visible "Tạm dừng" toggle. The programs panel min-height is locked to the tallest scenario to avoid layout shift, and the hero caption reserves three lines for the same reason.
 - **Registration links:** no link to the official registration page anywhere on the page; registration is the on-page form, phone, or in person.
 
@@ -243,7 +243,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 
 ## Header brand
 
-- Logo at 64px (54px on phones) with two pale bright-blue concentric rings behind it (vertical gradient, 4.5 to 8.5% alpha) that breathe out of step on a 3s loop (static under reduced motion). The institute name is set in uppercase serif, one line from about 1440px, balanced over two lines on narrower screens; the course line under it was removed. Nav links never wrap.
+- Logo at 64px (54px on phones) with two pale bright-blue concentric rings behind it (vertical gradient, 4.5 to 8.5% alpha) that breathe out of step on a 3s loop (static under reduced motion). The institute name is set in uppercase serif, always one line from 1200px up (font scales with the space left beside the nav via a container query, 3.7cqi, capped at 1.3125rem: about 19px at 1440px, 14px at 1280px), balanced over two or three lines below 1200px; the course line under it was removed. Nav links never wrap.
 
 ## Review round 1 (client feedback)
 
@@ -251,6 +251,14 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - Schedule: heading above, calendar and Bảng 1 full width; day cells 84px with 1.625rem numerals, course labels centred under their days, Bảng 1 left aligned throughout; note reads "Ngày 11/01/2027 và ngày 14/01/2027 nghỉ."
 - Tuition: returning-learner offer shown as one 15% figure in a highlighted row (falls back to a struck 15% over 10% after 08/12/2026); larger package text; panel row 730px; one notes block under the packages (tax line, then group offer, returning-learner definition, no stacking) replaces the price note and the timeline notes.
 - Close section: new two-sentence CTA copy; contact names carry "(SĐT/Zalo)". Footer logo sits in a white circle with a pale ring. Faculty cards link to each lecturer's ScholarGPS profile.
+
+## Review round 2
+
+- Root font size 106.25% (17px): every rem-based size grows about 6%.
+- Hero title: "Phân tích định lượng với R" uses a sparkling blue gradient (panning cobalt → #1673e3 → #5aa9ff, 3s loop) with three four-point stars popping at random spots every second (after Hyperplexed's magic text); that phrase is italic; ", từ cơ bản đến chuyên sâu" is upright ink on its own line. The title is 700 weight, clamp(2.5rem, 1.15rem + 4vw, 4.5rem), with non-breaking spaces inside "Phân tích", "định lượng", "với R", "từ cơ bản" and "đến chuyên sâu" so lines only break between those phrases. This is a deliberate, client-requested exception to the no-gradient-text rule. Reduced motion: static gradient, no stars. Byline bold.
+- Outline section renamed "Chương trình chi tiết 3 khóa học" (side menu: "Chương trình"). Active course tab is filled cobalt with white text in both tab sets.
+- Offers: pill tags ("Giảm 10%", "Giảm 5%") plus condition; the returning-learner offer is a filled cobalt block ("Ưu đãi học viên cũ" / "Giảm 10%, thêm 5% nếu…"). The tax line is now the first bullet of the notes list. Package row 750px.
+- Close section heading and copy rewritten in a formal register.
 
 ## Learner-care chat
 

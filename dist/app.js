@@ -924,14 +924,14 @@
 
     const hints = {
       emailcontact: "Ví dụ: ten@donvi.vn",
-      ngay_sinh: "Nhập theo dạng ngày/tháng/năm, ví dụ 01/01/1990",
+      ngay_sinh_ngay: "Ngày sinh không hợp lệ: tháng đã chọn không có ngày này.",
       phoneregister: "Số điện thoại chỉ gồm 9 đến 11 chữ số, có thể cách nhau bằng khoảng trắng hoặc dấu gạch nối",
     };
 
     const labelOf = (control) => {
       const group = control.closest("fieldset.choice-group");
       const source = group ? group.querySelector("legend") : form.querySelector(`label[for="${control.id}"]`);
-      return (source?.textContent || control.name).replace(/\*/g, "").replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim();
+      return (source?.textContent || control.getAttribute("aria-label") || control.name).replace(/\*/g, "").replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim();
     };
 
     const clearFeedback = () => {
@@ -952,17 +952,29 @@
       phone.setCustomValidity(valid ? "" : hints.phoneregister);
     };
 
+    // three selects for the birth date; reject days the chosen month does not have (31/04, 29/02/1990)
+    const birth = ["ngay_sinh_ngay", "ngay_sinh_thang", "ngay_sinh_nam"].map((name) => form.elements.namedItem(name));
+    const syncBirthValidity = () => {
+      const [day, month, year] = birth;
+      if (!day || !month || !year) return;
+      const last = new Date(Number(year.value) || 2000, Number(month.value) || 1, 0).getDate();
+      day.setCustomValidity(day.value && Number(day.value) > last ? hints.ngay_sinh_ngay : "");
+    };
+    const birthText = () => (birth.every((select) => select?.value) ? birth.map((select) => select.value).join("/") : "");
+
     const problemWith = (control) => {
       const label = labelOf(control);
       if (control.validity.valueMissing) {
         const verb = control.matches('input[type="radio"], select, input[type="checkbox"]') ? "chọn" : "nhập";
         return control.type === "checkbox" ? "Vui lòng xác nhận đã đọc và đồng ý với Chính sách bảo mật thông tin của Viện Phương Nam." : `Vui lòng ${verb} “${label}”.`;
       }
+      if (control.name === "ngay_sinh_ngay") return hints.ngay_sinh_ngay;
       return `“${label}” chưa đúng định dạng. ${hints[control.name] || ""}`.trim();
     };
 
     const validateStep = (index) => {
       syncPhoneValidity();
+      syncBirthValidity();
       const controls = [...steps[index].querySelectorAll("input, select")].filter((control) => !control.disabled);
       const bad = controls.find((control) => !control.checkValidity());
       if (!bad) return true;
@@ -1037,7 +1049,7 @@
       const packageLabel = choice ? `${choice.querySelector("strong").textContent.trim()} (${choice.querySelector("small").textContent.trim()})` : "";
       return {
         package_id: get("goi_dang_ky"), package: packageLabel, ho_lot: get("ho_lot"), ten: get("ten"), emailcontact: get("emailcontact"),
-        phoneregister: get("phoneregister"), gioi_tinh: get("gioi_tinh"), ngay_sinh: get("ngay_sinh"), tinh_thanh: get("tinh_thanh"),
+        phoneregister: get("phoneregister"), gioi_tinh: get("gioi_tinh"), ngay_sinh: birthText(), tinh_thanh: get("tinh_thanh"),
         vi_tri: get("vi_tri"), don_vi: get("don_vi"),
         biet_qua: get("biet_qua"), biet_qua_other: get("biet_qua_other"), agreement: form.agreement.checked,
         page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"),
@@ -1214,6 +1226,23 @@
         toggle.setAttribute("aria-pressed", String(on));
         toggle.textContent = on ? "Thu gọn tất cả" : "Mở tất cả";
       });
+    });
+  };
+
+  /* ---------- hero title sparkles: stars pop at random spots around the series name ---------- */
+
+  const setupSparkle = () => {
+    if (reducedMotion.matches) return;
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    document.querySelectorAll(".magic-star").forEach((star, index) => {
+      const pop = () => {
+        star.style.setProperty("--star-left", `${rand(-6, 96)}%`);
+        star.style.setProperty("--star-top", `${rand(-30, 70)}%`);
+        star.style.animation = "none";
+        void star.offsetHeight;
+        star.style.animation = "";
+      };
+      window.setTimeout(() => { pop(); window.setInterval(pop, 1000); }, index * 333);
     });
   };
 
@@ -1563,6 +1592,7 @@
   setupBackdrop();
   setupFigures();
   setupHero();
+  setupSparkle();
   setupTabs();
   setupPackages();
   setupOutline();
