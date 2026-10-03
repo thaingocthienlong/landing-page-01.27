@@ -31,6 +31,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Từ đồng nghĩa: giá / phí / tiền / chi phí; khai giảng / bắt đầu / học khi nào; ghi danh / đăng ký.
 - Câu ngắn kiểu tin nhắn: `lịch học?`, `học phí`.
 - Gói và khóa: nếu dòng chỉ nói về một gói hay một khóa (ví dụ lịch Khóa 1), ghi số đó trong cách hỏi ("khóa 1 học ngày nào"). Nếu dòng đúng cho mọi gói (ví dụ ưu đãi nhóm), đừng ghi số gói nào, hoặc ghi đủ các gói: dòng có ghi "gói 2" thì sẽ không trả lời câu hỏi về "gói 3".
+- Câu học viên gõ **giống hệt** một cách hỏi đã có (không tính dấu, chữ hoa và các từ như ạ, ơi, ad, cho em hỏi) luôn được trả lời bằng dòng đó, kể cả câu rất ngắn như `Hỏi giá`. Vì vậy chép nguyên văn tin nhắn thật của học viên là cách chắc nhất. Đừng ghi cùng một cách hỏi cho hai dòng cùng đang bật: khi đó trợ lý không biết chọn dòng nào. Hai dòng thay nhau theo ngày (ưu đãi sớm và ưu đãi đã hết) thì ghi giống nhau được.
 - Không chép lời chào hay lời cảm ơn vào "Cách hỏi khác" ("chào ad", "cho em hỏi", "cảm ơn"): trợ lý tự bỏ qua phần lớn các từ này, còn chép vào thì dòng đó dễ bị chọn nhầm cho những câu chỉ có lời chào.
 
 ### Câu trả lời
@@ -104,7 +105,7 @@ Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 =FAQ_KHOP("hp goi 1 bao nhieu")
 ```
 
-Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng gần nhất đang dùng, điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do khi không trả lời:
+Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng trả lời (hoặc dòng gần nhất), điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do:
 
 | Lý do | Nghĩa | Việc cần làm |
 |---|---|---|
@@ -113,6 +114,7 @@ Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả
 | `gần bằng dòng ...` | Hai dòng khớp gần như nhau | Thêm câu hỏi vào dòng đúng để nó vượt lên |
 | `dòng nói về gói hoặc khóa khác` | Câu hỏi về "khóa 2" mà dòng gần nhất chỉ ghi "khóa 1" | Thêm vào dòng đúng của khóa/gói đó; nếu dòng đúng cho mọi gói, xem mục "Gói và khóa" ở trên |
 | `lời cảm ơn` | Tin nhắn chỉ là lời cảm ơn, không có câu hỏi | Không cần làm gì |
+| `khớp nguyên văn` | Câu hỏi giống hệt một cách hỏi của dòng (ô đầu là `trả lời`) | Không cần làm gì |
 | `dòng hết hạn khớp hơn: ...` | Một dòng đã hết hạn (hoặc chưa tới ngày) khớp hơn | Sửa dòng thay thế cho dòng hết hạn đó (ví dụ chép cách hỏi sang dòng "đã hết"), **không** thêm vào dòng hiện ở ô thứ hai |
 
 Nếu một câu học viên hay hỏi mà ra sai dòng, thêm câu đó vào "Cách hỏi khác" của dòng đúng.
