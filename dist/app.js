@@ -1575,9 +1575,6 @@
       submitQuestion(input.value);
     });
     input.addEventListener("input", autosize);
-    // on phones the keyboard takes half the sheet; the privacy note, already read on opening, steps aside
-    input.addEventListener("focus", () => panel.classList.toggle("chat-typing-mode", compact.matches));
-    input.addEventListener("blur", () => panel.classList.remove("chat-typing-mode"));
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
         event.preventDefault();
