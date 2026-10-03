@@ -45,7 +45,7 @@ Until `CHAT_API_KEY` is set, the chat panel tells visitors the assistant is not 
 - A later model is only called when the earlier ones fail, so a broken fallback shows `error-404` only on rows where the first model also failed, and `chatSelfTest` stops at the first model that answers. To test one model, set `CHAT_MODELS` to that model alone, run `chatSelfTest`, then set it back.
 - Do not use `gemini-2.5-*` models: since 18 September 2026 new projects get 404. Avoid `*-preview` and `*-latest` IDs.
 - Larger Flash models (such as `gemini-3.8-flash`) are reported to get only about 20 free requests a day.
-- `gemma-4-31b-it` is also free on the same key but untested here. Test it alone as above: the log must start with `ok gemma-4-31b-it` and the answer must be good Vietnamese; `error-400` means it rejected the system prompt.
+- Gemma 4 is free on the same key: `gemma-4-26b-a4b-it` (faster) and `gemma-4-31b-it`, with no paid tier. Its Vietnamese on this prompt is untested, so test it alone as above before relying on it. Google does not publish its free limits; users report about 16,000 tokens a minute per model, which is only about 2 questions a minute at this prompt size, so treat it as extra headroom behind the Flash-Lite models, not a replacement. The chat sends it `thinkingLevel: MINIMAL` (Gemma 4 accepts only MINIMAL or HIGH). Every model added shortens each model's share of the 45-second budget, so keep `CHAT_MODELS` to three models, for example `gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemma-4-26b-a4b-it`.
 
 ## Other low-cost providers (optional)
 

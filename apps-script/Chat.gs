@@ -190,8 +190,10 @@ function askGemini_(config, model, messages, timeout) {
 }
 
 // Gemini 3 and later cannot turn thinking off: Flash-Lite takes MINIMAL, larger models at least
-// LOW. 2.5 models use the older budget field. Other models (Gemma) get no thinking setting.
+// LOW. 2.5 models use the older budget field. Gemma 4 accepts only MINIMAL or HIGH and thinks
+// unless told MINIMAL. Other models get no thinking setting.
 function geminiThinking_(model) {
+  if (/^gemma-4/.test(model)) return { thinkingLevel: 'MINIMAL' };
   var match = /^gemini-(\d+(?:\.\d+)?)-/.exec(model);
   if (!match) return null;
   if (Number(match[1]) < 3) return { thinkingBudget: 0 };
