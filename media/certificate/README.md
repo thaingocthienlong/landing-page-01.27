@@ -2,6 +2,14 @@
 
 Trạng thái: chưa dựng, **chờ mẫu hiện hành của Viện**. Phong cách: brand kit v2, **nền sáng "Paper"**. Ưu tiên: 4 (mẫu duyệt trước 05/01/2027; in sau từng khóa: 10/01, 13/01, 17/01/2027).
 
+## Đang thử (03/10/2026): một tờ cho mỗi học viên, in một lần cho buổi bế giảng chung
+
+Đã có mẫu của Viện (`assets/RUỘT GCN lớp TKNC DDKH_Folder/`, lớp 01/2026). Phương án đang thử: mỗi học viên nhận một tờ, ghi đúng các khóa đã hoàn thành (1 đến 3 dòng), phát chung tại buổi bế giảng sau Khóa 3 (17/01/2027) thay vì in sau từng khóa. Chỉ ai hoàn thành đủ 3 khóa mới có dòng "hoàn thành chuỗi khoá học", còn người học 1 hoặc 2 khóa thì ghi "thuộc chuỗi khoá học". Ghi theo khóa đã hoàn thành, không theo gói đã đăng ký.
+
+Mẫu thử trong `mockup/`: chạy `python media/certificate/mockup/build.py` để tạo PDF và PNG cho 3 trường hợp (Gói 5: 1 khóa, Gói 3: 2 khóa, Gói 1: 3 khóa). Script xóa phần chữ thay đổi theo học viên trên PDF của file .ai, rồi đặt chữ mới bằng font gốc. Khung, nền, quốc hiệu, họ tên mẫu và người ký giữ nguyên. PDF không đưa vào git vì chạy lại script là có.
+
+Chờ Viện chốt: tên tiếng Anh chính thức của chuỗi và 3 khóa (bản trong mẫu thử là bản dịch đề xuất), mã cuối số hiệu (đang để `[mã]`), điều kiện "hoàn thành", ngày bế giảng.
+
 ## Mục đích
 
 Cấp cho học viên hoàn thành từng khóa. Đây là văn bản có chữ ký và dấu của Viện, nên phần pháp lý (tiêu đề, số hiệu, điều kiện cấp, người ký) theo quy định của Viện. Thiết kế chỉ lo bố cục và nhận diện, không tự đặt nội dung pháp lý.
