@@ -164,18 +164,22 @@ Estimates from published benchmarks of similar cards, not measured on this PC: 3
 
 ## FAQ matching
 
-`Faq.gs` scores every phrasing of every active row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings and particles are ignored, neighbouring word pairs add weight, and a number after "gói" or "khóa" is read together with it, so "gói 2" never matches "khóa 2". A row answers only when its score, its coverage of the question and its lead over the next row all pass the thresholds at the top of `Faq.gs`. Coverage weighs each word by how rare it is in the table, and a word the table never uses counts in full, so "khóa học có dùng Python không" is not answered by a row that shares only "khóa học có dùng … không". Rows with "Bật" = `Không` are ignored. Rows outside their "Từ ngày / Đến ngày" window never answer, and when one of them matches better than every active row, the question goes to the AI instead (on 15/12, "đóng trước 8/12 giảm bao nhiêu" must not get a neighbouring row's answer). The three closest active rows that share at least a third of the question's words go to the AI as reference.
+`Faq.gs` scores every phrasing of every row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings and particles are ignored, neighbouring word pairs add weight, and a number after "gói" or "khóa" is read together with it, so "gói 2" never matches "khóa 2". A row answers only when its score, its coverage of the question and its lead over the next row all pass the thresholds at the top of `Faq.gs`, and when the row (in any phrasing) contains the question's rarest word of three letters or more. Coverage weighs each word by how rare it is in the table, and a word the table never uses counts in full, so "khóa học có dùng Python không" is not answered by a row that shares only "khóa học có dùng … không". Rows with "Bật" = `Không` are ignored. Rows outside their "Từ ngày / Đến ngày" window never answer, and when one of them matches better than every active row, the question goes to the AI instead (on 15/12, "đóng trước 8/12 giảm bao nhiêu" must not get a neighbouring row's answer). The three closest active rows that share at least a third of the question's words go to the AI as reference.
 
-The thresholds were tuned on 110 learner-style questions written separately from the 49 starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions that the table must not answer). Half were used for tuning; the other half was run once afterwards:
+The thresholds were tuned on half of two sets and measured on the other half:
 
-| Held-out half (55 questions) | Result |
-|---|---|
-| Course questions answered from the table | 22 of 44 (50%), all with the right row |
-| Course questions answered with a wrong row | 0 |
-| Course questions passed to the AI | 22, each with the right row among the three references |
-| Off-topic, medical and multi-step questions kept away from the table | 11 of 11 |
+- 110 learner-style questions written separately from the 50 starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
+- 274 questions a code reviewer wrote to break the matcher, most asking something next to a row's topic ("khóa học có dạy Python không", "gói 2 học mấy ngày"), each labelled with the rows that answer it correctly, or none, by two separate agents and an adjudicator.
 
-The thresholds favour sending a question to the AI over a wrong canned answer. Most questions passed on are long messages with personal context ("em là dược sĩ, mù code…") or a detail the row does not name; adding real phrasings from the Facebook conversations to "Cách hỏi khác" is what raises the share answered from the table. Six of the held-out questions had been read during development, so take the figures as approximate. The test set stayed outside the repository; once staff edit the rows, check new phrasings with `=FAQ_KHOP` in the sheet.
+Held-out halves (192 questions), compared with the first version of the matcher:
+
+| | This version | First version |
+|---|---|---|
+| Questions some row answers correctly (102) | 38 answered from the table, 0 with a wrong row, 64 passed to the AI (47 of them with the right row among its references) | 43 answered right, 9 with a wrong row |
+| Questions no row answers (90) | 80 passed to the AI, 10 answered from the table | 65 passed, 25 answered from the table |
+| Share of table answers that are right | 38 of 48 (79%) | 43 of 77 (56%) |
+
+The thresholds favour sending a question to the AI over a wrong canned answer. The remaining wrong table answers are questions next to a row's topic ("đóng tiền mặt ở đâu" getting the payment row). Most questions passed on are long messages with personal context ("em là dược sĩ, mù code…") or a word the table does not use yet. Adding real phrasings from the Facebook conversations to "Cách hỏi khác", and rows for side questions learners actually ask, improves both numbers. Some held-out questions were read during development and the rarest-word rule was revised once after a look at held-out results, so take the figures as approximate. The test sets stayed outside the repository; once staff edit the rows, check new phrasings with `=FAQ_KHOP` in the sheet.
 
 ## What the chat does and does not do
 

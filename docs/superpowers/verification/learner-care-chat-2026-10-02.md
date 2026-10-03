@@ -86,12 +86,12 @@ The owner chose a FAQ bot fed by staff (documents plus past Facebook consultatio
 
 - `Faq.gs`: BM25 over every phrasing of every active `FAQ` row, accent-folded and accented terms, shorthand, bigrams, date windows. A clear match is answered word for word without any AI call; close rows go to the model as reference or to the learner as tap-to-ask suggestions.
 - `FaqSeed.gs`: 49 starter rows drafted from the notice and outlines, then fact-checked against them by a separate agent (13 answers corrected). Weekdays checked against the calendar.
-- `Chat.gs`: provider groups `CHAT_`, `CHAT2_`, `CHAT3_` tried in order inside the 45 s budget. A host that is off (502, 530, fast connection failure) is skipped for 3 minutes; a call that runs out its timeout is logged `error-timeout` and not skipped, so an office PC still loading its model is not taken out of the chain.
+- `Chat.gs`: provider groups `CHAT_`, `CHAT2_`, `CHAT3_` tried in order inside the 45 s budget. A host that is off (502, 530, fast connection failure) is skipped for 3 minutes; a call that runs out its timeout is logged `error-timeout` and the host is skipped for 1 minute (a loading model keeps loading; a hung host cannot slow every visitor).
 - Masking fix found while building the Facebook tool: a grouped ID number followed by a comma or full stop ("079 123 456 789, …") was not masked. Fixed in `Chat.gs`; four cases added.
 - `tools/facebook-to-text.py`: offline cleaner for a Facebook "Download your information" export (fixes the Latin-1 garbling of Vietnamese, labels turns, masks with the same rules as `Chat.gs`, replaces listed learner names, writes 25 conversations per file).
 - Office PC setup in `apps-script/README.md` from a research agent's findings checked by an independent verifier against llama.cpp b11368 source, llama-swap v261 source and Cloudflare's docs; 13 corrections applied (kill order of the off switch, driver 551.61, NSSM 2.24-101, `-fa` left on auto, `curl.exe` in PowerShell, path rule on the tunnel, Funnel not recommended). Speeds and memory figures are estimates, labelled as such.
 
-FAQ thresholds were tuned on half of 110 learner-style questions written separately from the rows and measured once on the other half: 22 of 44 course questions answered from the table, 0 with a wrong row, the other 22 passed to the AI with the right row among the references; 11 of 11 off-topic, medical and multi-step questions kept away from the table. Six held-out questions had been read during development. All 589 seed phrasings map back to their own row or are deferred (13); none lands on another row.
+FAQ results: see the review section below; the first figures recorded here (22 of 44 answered, 0 wrong) did not include questions next to a row's topic, which the review showed the first matcher answered wrongly.
 
 ```text
 node --check (app.js, every .gs), py_compile (tools)    PASS
@@ -102,3 +102,21 @@ Browser QA, 19 checks                                   PASS (adds FAQ suggestio
 ```
 
 Not verified here: a live call to any provider (no keys in this environment), the office PC steps on real hardware, and whether a Page's "Download your information" export includes the Page inbox (the staff guide says to test one month first).
+
+## Review of the FAQ round, 2026-10-03
+
+Four reviewers (Apps Script runtime, the Facebook tool, the office-PC docs against the verified research, FAQ content and copy), each followed by a verifier told to refute every finding: 19 findings upheld, 9 refuted. Fixed:
+
+- FAQ matching answered questions next to a row's topic with that row: "khóa học có dùng Python/Stata/Excel không" got "Dạ, có" from the AI-use row, "gói 2 học mấy ngày" got the Khóa 2 row, "học phí có bao gồm ăn trưa không" got the tax row, and on 08/12 or after it, early-payment questions got the stacking row. Now: coverage weighs words by rarity (unknown words in full), the row must contain the question's rarest word of three letters or more, "gói N"/"khóa N" are one term, a row outside its dates that matches better than every active row sends the question to the AI, plus a package-composition row, reworded AI-use and tax rows, expired-offer rows with the early-payment phrasings and an end date of 27/12/2026.
+- Measured on the held-out halves of the learner set and of 274 reviewer probes labelled by two agents and an adjudicator (192 questions): 38 right table answers and 10 wrong, against 43 right and 34 wrong for the first matcher. Fewer questions are answered from the table; more go to the AI with references. The rarest-word rule was revised once after a look at held-out results.
+- A timed-out host now sits out 1 minute and is not retried within the same question (the first fix never skipped a hung host, so every visitor waited 25 s on it).
+- The institute's numbers written after a country code ("+84 (0) 949 761 636,") were masked as ID numbers; fixed in `Chat.gs` and the Python tool.
+- Facebook tool: refused to guess the Page on a tie (it swapped roles and left the learner's name in clear text in half the runs on a one-conversation export), checks `--page` against the export, normalises Unicode, 15 conversations per file.
+- Docs: Cloudflare's daily quota is `error-429-daily`, not `error-429`; the PC does not make the chain in-house (Cloudflare tunnel, Google, Gemini fallback); curl tests in cmd only; stop the console llama-swap before the boot task; `healthCheckTimeout` 300; no warm-up advice that a 15-minute TTL undoes; LM Studio context length 16384.
+
+```text
+Apps Script harness, 37 cases                PASS (timeout skip, multi-model group, TTL values)
+Masking format cases, 48                     PASS (Python cleaner matches Chat.gs on 55 inputs)
+FAQ seed self-check, 608 phrasings           595 own row, 13 deferred, 0 other row
+Facebook cleaner: tie, wrong --page, NFD     PASS
+```

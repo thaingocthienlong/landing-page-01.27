@@ -18,6 +18,9 @@ var FAQ_CACHE_SECONDS = 600;
 var FAQ_MIN_SCORE = 6;
 var FAQ_MIN_COVERAGE = 0.4;
 var FAQ_MIN_MARGIN = 1.3;
+// The row must also contain the question's rarest word ("Python" in "có dạy Python không"),
+// in any of its phrasings. Words of one or two letters ("để", "ở") never count as rarest.
+var FAQ_NEED_RAREST = true;
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
 var FAQ_MIN_CANDIDATE = 3;
 var FAQ_MIN_CANDIDATE_SHARE = 0.34;
@@ -34,7 +37,7 @@ var FAQ_SHORTHAND = {
   g1: 'goi 1', g2: 'goi 2', g3: 'goi 3', g4: 'goi 4', g5: 'goi 5', g6: 'goi 6'
 };
 // Shorthand that only makes sense written with its accents.
-var FAQ_SHORTHAND_ACCENTED = { 'giá': 'phi', 'đt': 'dien thoai' };
+var FAQ_SHORTHAND_ACCENTED = { 'giá': 'phi', 'đt': 'dien thoai', 'hông': 'khong' };
 // Greetings, particles and pronouns that carry no meaning for matching. Unaccented words that
 // fold to something meaningful ("cho" is also chỗ, "toi" also tối/tới) are left in.
 var FAQ_STOP = {
@@ -123,11 +126,14 @@ function faqLookup_(question) {
   // Rows outside their dates are scored too, so a question about an offer that has ended is not
   // answered by a neighbouring row that happens to be active.
   var docs = [];
+  var vocabulary = {};
   rows.forEach(function (row) {
     row.active = (!row.from || today >= row.from) && (!row.to || today <= row.to);
+    vocabulary[row.id] = {};
     [row.question].concat(row.variants).forEach(function (text) {
       var terms = faqTerms_(text);
       if (terms.all.length) docs.push({ row: row, terms: terms });
+      terms.words.forEach(function (word) { vocabulary[row.id][word] = true; });
     });
   });
   var frequency = {};
@@ -146,6 +152,9 @@ function faqLookup_(question) {
   // its common words. Share, the plain fraction of words matched, picks the reference rows.
   var words = faqUnique_(query.words);
   var weight = words.reduce(function (sum, word) { return sum + idf(word); }, 0);
+  var long = words.filter(function (word) { return word.length > 2; });
+  var rarest = Math.max.apply(null, long.map(idf));
+  var key = long.filter(function (word) { return idf(word) >= rarest - 1e-9; });
 
   var best = {};
   docs.forEach(function (doc) {
@@ -161,7 +170,10 @@ function faqLookup_(question) {
     var covered = matched.reduce(function (sum, word) { return sum + idf(word); }, 0);
     var current = best[doc.row.id];
     if (!current || score > current.score) {
-      best[doc.row.id] = { row: doc.row, score: score, coverage: covered / weight, share: matched.length / words.length };
+      best[doc.row.id] = {
+        row: doc.row, score: score, coverage: covered / weight, share: matched.length / words.length,
+        rarest: key.every(function (word) { return vocabulary[doc.row.id][word]; })
+      };
     }
   });
 
@@ -173,7 +185,8 @@ function faqLookup_(question) {
   var top = ranked[0];
   var second = ranked[1];
   var confident = top && top.score >= FAQ_MIN_SCORE && top.coverage >= FAQ_MIN_COVERAGE &&
-    (!second || top.score >= second.score * FAQ_MIN_MARGIN) && !(expired && expired.score > top.score);
+    (!second || top.score >= second.score * FAQ_MIN_MARGIN) && (top.rarest || !FAQ_NEED_RAREST) &&
+    !(expired && expired.score > top.score);
   return {
     answer: confident ? top.row : null,
     candidates: ranked.filter(function (entry) {
