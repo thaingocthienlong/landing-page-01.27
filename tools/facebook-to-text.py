@@ -3,7 +3,7 @@ files for drafting FAQ rows. Runs offline with Python 3.8+ and no extra packages
 
     py facebook-to-text.py <export .zip or unzipped folder> <output folder> [--page "Page name"]
 
-Each output file holds up to 25 conversations, oldest message first, with turns labelled
+Each output file holds up to 15 conversations, oldest message first, with turns labelled
 "Viện:" or "Học viên:". Learner names (as Facebook lists them), emails, phone numbers and ID
 numbers are replaced; names written inside a message are not, so read the result before
 sharing it. Keep the export and the output on the institute's own machine.
@@ -16,10 +16,11 @@ import json
 import os
 import re
 import sys
+import unicodedata
 import zipfile
 
 OWN_NUMBERS = {'02822426789', '0949761636', '0912114511'}
-PER_FILE = 25
+PER_FILE = 15
 
 # The same rules as maskPersonal_ in apps-script/Chat.gs.
 EMAIL = re.compile(r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+')
@@ -36,24 +37,37 @@ def mask_phone(match):
     return '[số điện thoại]'
 
 
+def own_tail(found):
+    # The digits of an institute number written after a country code, kept by the phone rule.
+    digits = re.sub(r'\D', '', found)
+    return '0' + digits in OWN_NUMBERS or re.sub(r'^840?', '0', digits) in OWN_NUMBERS
+
+
 def mask_grouped_id(match):
     found = match.group(0)
-    return '[số giấy tờ]' if len(re.sub(r'\D', '', found)) in (9, 12) else found
+    return '[số giấy tờ]' if len(re.sub(r'\D', '', found)) in (9, 12) and not own_tail(found) else found
+
+
+def mask_plain_id(match):
+    found = match.group(0)
+    return found if own_tail(found) else '[số giấy tờ]'
 
 
 def mask(text):
     text = EMAIL.sub('[email]', text)
     text = PHONE.sub(mask_phone, text)
     text = GROUPED_ID.sub(mask_grouped_id, text)
-    return PLAIN_ID.sub('[số giấy tờ]', text)
+    return PLAIN_ID.sub(mask_plain_id, text)
 
 
 def fix_text(value):
     # Facebook writes UTF-8 bytes as if each were a Latin-1 character ("Há»c" for "Học").
     try:
-        return value.encode('latin-1').decode('utf-8')
+        value = value.encode('latin-1').decode('utf-8')
     except (UnicodeEncodeError, UnicodeDecodeError):
-        return value
+        pass
+    # One form for accented letters, so names typed with different keyboards still match.
+    return unicodedata.normalize('NFC', value)
 
 
 def read_threads(source):
@@ -85,10 +99,22 @@ def load(source):
     return list(threads.values())
 
 
-def guess_page(threads):
-    # The Page takes part in every conversation; a learner usually in one.
-    counts = collections.Counter(name for thread in threads for name in thread['people'] if name)
-    return counts.most_common(1)[0][0] if counts else ''
+def name_counts(threads):
+    # How many conversations each name takes part in. The Page is in all of them.
+    return collections.Counter(name for thread in threads for name in thread['people'] | {m[1] for m in thread['messages']} if name)
+
+
+def guess_page(counts):
+    # Only a clear winner: with one conversation, the learner and the Page tie.
+    top = counts.most_common(2)
+    if not top or (len(top) == 2 and top[0][1] == top[1][1]):
+        return None
+    return top[0][0]
+
+
+def stop_for_page(counts, problem):
+    names = '\n'.join('  ' + name for name, _ in counts.most_common(5))
+    sys.exit('%s Run again with --page "<name>", copying the Page\'s name from this list:\n%s' % (problem, names))
 
 
 def render(thread, page, number):
@@ -114,12 +140,22 @@ def main():
         sys.stdout.reconfigure(errors='replace')
 
     threads = load(args.source)
-    page = args.page or guess_page(threads)
+    if not any(t['messages'] for t in threads):
+        sys.exit('No conversations found. Check that the export includes Messages in JSON format.')
+    counts = name_counts(threads)
+    if args.page:
+        page = unicodedata.normalize('NFC', args.page.strip())
+        if page not in counts:
+            stop_for_page(counts, 'No one named "%s" in this export.' % page)
+    else:
+        page = guess_page(counts)
+        if not page:
+            stop_for_page(counts, 'Cannot tell which name is the Page.')
     # Keep conversations where a learner actually wrote something.
     threads = [t for t in threads if any(sender != page for _, sender, _ in t['messages'])]
     threads.sort(key=lambda t: min(m[0] for m in t['messages']))
     if not threads:
-        sys.exit('No conversations found. Check that the export includes Messages in JSON format.')
+        sys.exit('No conversations with learner messages found.')
 
     os.makedirs(args.output, exist_ok=True)
     blocks = [render(t, page, i + 1) for i, t in enumerate(threads)]

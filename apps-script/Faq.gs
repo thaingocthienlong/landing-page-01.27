@@ -20,7 +20,7 @@ var FAQ_MIN_COVERAGE = 0.4;
 var FAQ_MIN_MARGIN = 1.3;
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
 var FAQ_MIN_CANDIDATE = 3;
-var FAQ_MIN_CANDIDATE_COVERAGE = 0.34;
+var FAQ_MIN_CANDIDATE_SHARE = 0.34;
 var FAQ_BM25_K1 = 1.2;
 var FAQ_BM25_B = 0.5;
 
@@ -116,15 +116,15 @@ function faqLookup_(question) {
   } catch (err) {
     return empty;
   }
-  var today = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd');
-  rows = rows.filter(function (row) {
-    return (!row.from || today >= row.from) && (!row.to || today <= row.to);
-  });
   var query = faqTerms_(question);
   if (!rows.length || !query.words.length) return empty;
+  var today = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyyMMdd');
 
+  // Rows outside their dates are scored too, so a question about an offer that has ended is not
+  // answered by a neighbouring row that happens to be active.
   var docs = [];
   rows.forEach(function (row) {
+    row.active = (!row.from || today >= row.from) && (!row.to || today <= row.to);
     [row.question].concat(row.variants).forEach(function (text) {
       var terms = faqTerms_(text);
       if (terms.all.length) docs.push({ row: row, terms: terms });
@@ -137,6 +137,15 @@ function faqLookup_(question) {
     faqUnique_(doc.terms.all).forEach(function (term) { frequency[term] = (frequency[term] || 0) + 1; });
   });
   var averageLength = totalLength / docs.length;
+  var idf = function (term) {
+    var count = frequency[term] || 0;
+    return Math.log(1 + (docs.length - count + 0.5) / (count + 0.5));
+  };
+  // Coverage, which decides answers, weighs each question word by how rare it is in the table. A
+  // word the table never uses counts in full, so "khóa học có dùng Python không" is not covered by
+  // its common words. Share, the plain fraction of words matched, picks the reference rows.
+  var words = faqUnique_(query.words);
+  var weight = words.reduce(function (sum, word) { return sum + idf(word); }, 0);
 
   var best = {};
   docs.forEach(function (doc) {
@@ -146,26 +155,29 @@ function faqLookup_(question) {
     faqUnique_(query.all).forEach(function (term) {
       var tf = counts[term];
       if (!tf) return;
-      var idf = Math.log(1 + (docs.length - frequency[term] + 0.5) / (frequency[term] + 0.5));
-      score += idf * tf * (FAQ_BM25_K1 + 1) / (tf + FAQ_BM25_K1 * (1 - FAQ_BM25_B + FAQ_BM25_B * doc.terms.all.length / averageLength));
+      score += idf(term) * tf * (FAQ_BM25_K1 + 1) / (tf + FAQ_BM25_K1 * (1 - FAQ_BM25_B + FAQ_BM25_B * doc.terms.all.length / averageLength));
     });
-    var hits = query.words.filter(function (word) { return counts[word]; }).length;
-    var coverage = hits / query.words.length;
+    var matched = words.filter(function (word) { return counts[word]; });
+    var covered = matched.reduce(function (sum, word) { return sum + idf(word); }, 0);
     var current = best[doc.row.id];
-    if (!current || score > current.score) best[doc.row.id] = { row: doc.row, score: score, coverage: coverage };
+    if (!current || score > current.score) {
+      best[doc.row.id] = { row: doc.row, score: score, coverage: covered / weight, share: matched.length / words.length };
+    }
   });
 
-  var ranked = Object.keys(best).map(function (id) { return best[id]; })
+  var scored = Object.keys(best).map(function (id) { return best[id]; })
     .filter(function (entry) { return entry.score > 0; })
     .sort(function (a, b) { return b.score - a.score; });
+  var ranked = scored.filter(function (entry) { return entry.row.active; });
+  var expired = scored.filter(function (entry) { return !entry.row.active; })[0];
   var top = ranked[0];
   var second = ranked[1];
   var confident = top && top.score >= FAQ_MIN_SCORE && top.coverage >= FAQ_MIN_COVERAGE &&
-    (!second || top.score >= second.score * FAQ_MIN_MARGIN);
+    (!second || top.score >= second.score * FAQ_MIN_MARGIN) && !(expired && expired.score > top.score);
   return {
     answer: confident ? top.row : null,
     candidates: ranked.filter(function (entry) {
-      return entry.score >= FAQ_MIN_CANDIDATE && entry.coverage >= FAQ_MIN_CANDIDATE_COVERAGE;
+      return entry.score >= FAQ_MIN_CANDIDATE && entry.share >= FAQ_MIN_CANDIDATE_SHARE;
     }).slice(0, 3).map(function (entry) { return entry.row; }),
     ranked: ranked
   };
@@ -181,13 +193,14 @@ function faqTerms_(text) {
   raw.forEach(function (word) {
     if (FAQ_STOP[word]) return;
     var plain = faqFold_(word);
-    var expanded = FAQ_SHORTHAND_ACCENTED[word] || (word === plain ? FAQ_SHORTHAND[plain] : null);
-    if (expanded) {
-      expanded.split(' ').forEach(function (part) { words.push(part); });
-      return;
-    }
-    words.push(plain);
-    if (word !== plain) accented.push('~' + word);
+    // Shorthand counts when typed without accents, or with only đ ("đk", "sđt").
+    var expanded = FAQ_SHORTHAND_ACCENTED[word] || (word.replace(/đ/g, 'd') === plain ? FAQ_SHORTHAND[plain] : null);
+    (expanded ? expanded.split(' ') : [plain]).forEach(function (part) {
+      var previous = words[words.length - 1];
+      // "gói 2" and "khóa 2" become goi2 and khoa2, so a bare number cannot tie a package to a course.
+      words.push(/^\d+$/.test(part) && (previous === 'goi' || previous === 'khoa') ? previous + Number(part) : part);
+    });
+    if (!expanded && word !== plain) accented.push('~' + word);
   });
   var pairs = [];
   for (var i = 1; i < words.length; i++) pairs.push(words[i - 1] + '_' + words[i]);

@@ -3,7 +3,7 @@
 Trợ lý trên trang trả lời theo ba tầng:
 
 1. **Bảng FAQ** (tab `FAQ` trong Google Sheet đăng ký). Câu hỏi khớp rõ với một dòng thì trợ lý trả lời nguyên văn cột "Trả lời", ngay lập tức, không gửi đi đâu.
-2. **AI miễn phí** (Gemini, rồi Cloudflare) cho câu chưa khớp. AI được gửi kèm 3 dòng FAQ gần nhất để tham khảo cách Viện trả lời.
+2. **AI miễn phí** (Gemini, rồi Cloudflare) cho câu chưa khớp. AI được gửi kèm tối đa 3 dòng FAQ gần nhất để tham khảo cách Viện trả lời.
 3. **Số điện thoại và Zalo** khi không ai trả lời được. Nếu có dòng FAQ gần giống, học viên được chọn câu gần nhất.
 
 Bảng FAQ càng đầy đủ thì trợ lý càng nhanh, càng đúng, và càng ít câu hỏi của học viên phải gửi cho dịch vụ AI bên ngoài.
@@ -46,7 +46,9 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 Ví dụ ưu đãi hoàn tất trước 08/12/2026: tạo hai dòng.
 
 - `uu-dai-som`: Đến ngày `07/12/2026`, trả lời về mức giảm 10%.
-- `uu-dai-som-het`: Từ ngày `09/12/2026`, trả lời rằng ưu đãi đã hết.
+- `uu-dai-som-het`: Từ ngày `09/12/2026` đến ngày `27/12/2026`, trả lời rằng ưu đãi đã hết (sau hạn chót 28/12 thì không nói "hiện vẫn có ưu đãi" nữa).
+
+Trợ lý vẫn so câu hỏi với các dòng đã hết hạn. Nếu một dòng hết hạn khớp hơn mọi dòng đang dùng (ví dụ ngày 15/12 có người hỏi "đóng trước 8/12 được giảm bao nhiêu"), trợ lý không trả lời bằng bảng mà chuyển cho AI. Vì vậy khi tạo dòng "đã hết", chép sang đó các cách hỏi của dòng cũ.
 
 Hai ngày 08/12 và 28/12 cố ý để trống, vì thông báo ghi "trước" các ngày này; hôm đó trợ lý sẽ mời học viên liên hệ Viện xác nhận. Khi Viện chốt được hai ngày này có tính hay không, sửa ngày ở các dòng tương ứng.
 
@@ -60,12 +62,12 @@ Mục tiêu: biết học viên thật hỏi gì và hỏi bằng lời nào, r�
    - Facebook báo khi tệp sẵn sàng (vài phút đến khoảng một ngày); đường dẫn tải hết hạn sau vài ngày. Tên các mục có thể khác đôi chút: làm theo chữ trên màn hình.
    - Nên **thử trước với 1 tháng** để chắc tệp có hộp thư của Trang, rồi mới xuất cả khoảng thời gian.
    - Hộp thư Meta Business Suite không xuất tin nhắn hàng loạt được (nút Xuất ở đó chỉ xuất số liệu thống kê). Đừng dùng tiện ích "xuất tin nhắn" của bên thứ ba: dữ liệu học viên sẽ đi qua một công ty khác.
-2. **Làm sạch bằng công cụ có sẵn** (`tools/facebook-to-text.py` trong kho mã của trang; nhờ người phụ trách trang chép tệp này vào máy). Công cụ sửa lỗi chữ tiếng Việt của tệp Facebook (chữ "Há»c" thành "Học"), sắp tin nhắn theo thứ tự thời gian, ghi "Viện:" / "Học viên:" ở đầu mỗi lượt, thay tên học viên, email, số điện thoại, số CCCD/CMND bằng `[tên]`, `[email]`, `[số điện thoại]`, `[số giấy tờ]`, và chia thành các tệp `hoi-thoai-001.txt`, `hoi-thoai-002.txt`… mỗi tệp 25 cuộc hội thoại.
+2. **Làm sạch bằng công cụ có sẵn** (`tools/facebook-to-text.py` trong kho mã của trang; nhờ người phụ trách trang chép tệp này vào máy). Công cụ sửa lỗi chữ tiếng Việt của tệp Facebook (chữ "Há»c" thành "Học"), sắp tin nhắn theo thứ tự thời gian, ghi "Viện:" / "Học viên:" ở đầu mỗi lượt, thay tên học viên, email, số điện thoại, số CCCD/CMND bằng `[tên]`, `[email]`, `[số điện thoại]`, `[số giấy tờ]`, và chia thành các tệp `hoi-thoai-001.txt`, `hoi-thoai-002.txt`… mỗi tệp 15 cuộc hội thoại.
    - Cài Python từ python.org (một lần; khi cài, đánh dấu "Add python.exe to PATH").
    - Mở cmd ở thư mục chứa công cụ và chạy: `py facebook-to-text.py "C:\Users\<tên>\Downloads\facebook-xxxx.zip" "C:\FAQ\hoi-thoai"` (đường dẫn tệp tải về và thư mục kết quả). Công cụ tự đoán tên Trang; nếu đoán sai, thêm `--page "Tên Trang"`.
    - Tên học viên viết **bên trong** tin nhắn ("chào chị Lan") không tự xóa được: đọc lại trước khi dùng. Soạn xong thì xóa tệp tải về và thư mục kết quả.
 3. **Gom câu hỏi.** Đọc các tệp, chép các câu hỏi về khóa học vào "Cách hỏi khác" của dòng đúng, giữ nguyên cách viết của học viên (viết tắt, không dấu). Câu chưa có dòng nào thì tạo dòng mới. Ngoài tin nhắn, bình luận dưới các bài đăng khóa trước và các câu trả lời mẫu đã lưu trong Business Suite cũng là nguồn tốt.
-4. **Có thể nhờ AI chạy ngay trên máy văn phòng** (không gửi dữ liệu ra ngoài): cài LM Studio (miễn phí cho công việc, không cần tài khoản) trên máy Truyen-Thong, tìm "Gemma 4" và tải bản **12B Q4_K_M** (khoảng 8 GB, viết tiếng Việt tốt hơn); nếu card đồ họa đang bận dựng video/ảnh thì dùng bản **E4B** (khoảng 5 GB). Máy chỉ bật trong giờ hành chính nên làm vào lúc vắng việc (giờ trưa, cuối ngày); nếu trợ lý trên máy này đã được cài, bấm `AI-giai-phong-GPU` trước. Mở một tệp `hoi-thoai-xxx.txt`, dán vào LM Studio kèm câu lệnh:
+4. **Có thể nhờ AI chạy ngay trên máy văn phòng** (không gửi dữ liệu ra ngoài): cài LM Studio (miễn phí cho công việc, không cần tài khoản) trên máy Truyen-Thong, tìm "Gemma 4" và tải bản **12B Q4_K_M** (khoảng 8 GB, viết tiếng Việt tốt hơn); nếu card đồ họa đang bận dựng video/ảnh thì dùng bản **E4B** (khoảng 5 GB). Máy chỉ bật trong giờ hành chính nên làm vào lúc vắng việc (giờ trưa, cuối ngày); nếu trợ lý trên máy này đã được cài, bấm `AI-giai-phong-GPU` trước. Khi nạp mô hình trong LM Studio, mở phần cài đặt nạp (load settings) và đặt **Context Length** là **16384** (mặc định chỉ 4096, không đủ cho một tệp; nếu LM Studio báo "context length of only 4096 tokens" là chưa đổi). Mở một tệp `hoi-thoai-xxx.txt`, dán vào LM Studio kèm câu lệnh:
 
    > Dưới đây là các cuộc hội thoại tư vấn giữa Viện Phương Nam và học viên, đã ẩn thông tin cá nhân. Hãy liệt kê các câu hỏi của học viên về khóa học, mỗi câu một dòng, giữ nguyên cách viết của học viên (kể cả viết tắt, không dấu), bỏ các câu chào hỏi. Gộp các câu cùng ý vào một nhóm và đặt tên chủ đề ngắn (học phí, lịch học, đăng ký, thanh toán, nội dung khóa, giảng viên, chuẩn bị, giấy chứng nhận, khác). Không thêm câu hỏi nào không có trong hội thoại. Nếu có câu trả lời của Viện kèm số tiền, ngày, ưu đãi, địa chỉ hoặc số tài khoản, ghi "CẦN KIỂM TRA" bên cạnh.
 

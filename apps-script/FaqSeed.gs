@@ -300,11 +300,11 @@ var FAQ_SEED = [
   {
     id: 'ung-dung-ai',
     group: 'Nội dung',
-    question: 'Khóa học có dạy dùng AI để phân tích dữ liệu không?',
+    question: 'AI được dùng thế nào trong các khóa học?',
     variants: [
       'co hoc AI khong',
       'dung AI viet code R duoc khong',
-      'khoa hoc co dung chatgpt khong',
+      'co dung chatgpt khong',
       'ung dung AI trong khoa hoc',
       'AI hỗ trợ gì trong khóa học?',
       'co day dung tri tue nhan tao khong',
@@ -313,7 +313,7 @@ var FAQ_SEED = [
       'hoc cach hoi AI de viet code',
       'AI trong phan tich chi phi hieu qua'
     ],
-    answer: 'Dạ, có:\n- Khóa 1, Bài 2 “Ứng dụng AI trong viết R code”: dùng AI để viết, giải thích, sửa lỗi code, cách đặt câu hỏi cho AI và kiểm tra code do AI tạo ra.\n- Khóa 2, Bài 8 “Ứng dụng AI trong phân tích chi phí – hiệu quả”.\n- Khóa 3 dùng AI hỗ trợ viết code, giải thích câu lệnh, debugging.\nCác khóa đều chú trọng kiểm tra đề xuất của AI; thông báo không nêu tên công cụ AI cụ thể.',
+    answer: 'Dạ, các khóa có nội dung dùng AI hỗ trợ phân tích:\n- Khóa 1, Bài 2 “Ứng dụng AI trong viết R code”: dùng AI để viết, giải thích, sửa lỗi code, cách đặt câu hỏi cho AI và kiểm tra code do AI tạo ra.\n- Khóa 2, Bài 8 “Ứng dụng AI trong phân tích chi phí – hiệu quả”.\n- Khóa 3 dùng AI hỗ trợ viết code, giải thích câu lệnh, debugging.\nCác khóa đều chú trọng kiểm tra đề xuất của AI; thông báo không nêu tên công cụ AI cụ thể.',
     from: '',
     to: ''
   },
@@ -531,6 +531,27 @@ var FAQ_SEED = [
     to: ''
   },
   {
+    id: 'goi-gom-khoa',
+    group: 'Học phí',
+    question: 'Mỗi gói gồm những khóa nào và học những ngày nào?',
+    variants: [
+      'gói 1 gồm những khóa nào',
+      'goi 2 co nhung khoa gi',
+      'goi 3 hoc trong may ngay',
+      'goi 4 bat dau tu ngay nao',
+      'goi 6 chi co khoa 3 a',
+      'thanh phan cac goi',
+      'các gói khác nhau ở đâu',
+      'goi nao co khoa 2',
+      'g5 gom khoa nao',
+      'goi 1 hoc het bao nhieu ngay',
+      'lich hoc cua tung goi'
+    ],
+    answer: 'Dạ, mỗi gói gồm các khóa sau:\n- Gói 1: cả 03 khóa, 08 ngày, từ 08/01 đến 17/01/2027\n- Gói 2: Khóa 1 + Khóa 2, 05 ngày (08/01 đến 10/01, 12/01 và 13/01/2027)\n- Gói 3: Khóa 1 + Khóa 3, 06 ngày (08/01 đến 10/01, 15/01 đến 17/01/2027)\n- Gói 4: Khóa 2 + Khóa 3, 05 ngày (12/01, 13/01, 15/01 đến 17/01/2027)\n- Gói 5: Khóa 2, 02 ngày (12/01 và 13/01/2027)\n- Gói 6: Khóa 3, 03 ngày (15/01 đến 17/01/2027)\nNgày 11/01/2027 và ngày 14/01/2027 nghỉ. Không có gói chỉ gồm riêng Khóa 1.',
+    from: '',
+    to: ''
+  },
+  {
     id: 'chi-hoc-khoa-1',
     group: 'Học phí',
     question: 'Có đăng ký riêng Khóa 1 được không?',
@@ -555,7 +576,7 @@ var FAQ_SEED = [
     group: 'Học phí',
     question: 'Học phí đã bao gồm thuế và phí chưa?',
     variants: [
-      'hoc phi co bao gom VAT khong',
+      'hoc phi co tinh VAT khong',
       'da gom thue chua',
       'gia tren da bao gom thue phi chua',
       'co phai dong them le phi khong',
@@ -607,11 +628,17 @@ var FAQ_SEED = [
       'khuyen mai khoa hoc',
       'uu dai hoc phi',
       'dong bay gio con duoc giam khong',
-      'dang ky som co giam khong'
+      'dang ky som co giam khong',
+      'dong som co duoc giam khong',
+      'dong truoc 8/12 duoc giam bao nhieu',
+      'dong truoc 8/12 goi 1 con bao nhieu',
+      'giam 10% la sao',
+      'chuyen khoan truoc 8/12 thi con bao nhieu tien',
+      'hp sau giam bn'
     ],
     answer: 'Dạ, ưu đãi giảm 10% khi hoàn tất học phí trước 08/12/2026 đã hết hạn. Hiện Gói 1 đến Gói 4 vẫn có ưu đãi nhóm từ 3 người cùng gói, hoàn tất học phí theo nhóm (giảm 5%), và ưu đãi học viên cũ (giảm 10%, không áp dụng đồng thời ưu đãi khác); Gói 5 và Gói 6 không còn ưu đãi nào theo thông báo. Nếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
     from: '09/12/2026',
-    to: ''
+    to: '27/12/2026'
   },
   {
     id: 'uu-dai-nhom',
@@ -670,11 +697,12 @@ var FAQ_SEED = [
       'da hoc khoa truoc co duoc giam gia khong',
       'hoc vien cu dang ky goi 6 co giam khong',
       'hoc vien cu co cong them uu dai nhom khong',
-      'the nao la hoc vien cu'
+      'the nao la hoc vien cu',
+      'hvc dong som con bao nhieu tien'
     ],
     answer: 'Dạ, học viên cũ là anh/chị đã tham gia các khóa học do GS. Nguyễn Văn Tuấn phụ trách, được Viện Phương Nam tổ chức trước đây. Với Gói 1 đến Gói 4, học viên cũ được giảm 10% (mức giảm thêm 5% khi hoàn tất học phí trước 08/12/2026 đã hết hạn), tạm tính Gói 1 còn **7.920.000 đồng**, Gói 2 và Gói 4 còn **6.030.000 đồng**, Gói 3 còn **6.750.000 đồng**; số tiền chính thức do Viện xác nhận. Ưu đãi này không áp dụng đồng thời các ưu đãi khác và không áp dụng cho Gói 5, Gói 6. Nếu anh/chị đã hoàn tất học phí trước 08/12/2026, vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện xác nhận.',
     from: '09/12/2026',
-    to: ''
+    to: '27/12/2026'
   },
   {
     id: 'cong-don-uu-dai',

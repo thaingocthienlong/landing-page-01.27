@@ -28,8 +28,10 @@ var CHAT_MAX_OUTPUT = 1024;
 // Seconds for all model attempts together; the page gives up waiting at 60.
 var CHAT_TIME_BUDGET = 45;
 var CHAT_CALL_MAX = 25;
-// A host that cannot be reached (the office PC switched off) is skipped for this long.
+// A host that cannot be reached (the office PC switched off) is skipped for this long, and one
+// that timed out (often its model still loading) for the shorter time.
 var CHAT_DOWN_SECONDS = 180;
+var CHAT_SLOW_SECONDS = 60;
 var CHAT_OWN_NUMBERS = ['02822426789', '0949761636', '0912114511'];
 // Gemini finish reasons that mean a content filter stopped the answer; other stops are provider failures.
 var CHAT_FILTER_STOPS = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION', 'IMAGE_SAFETY'];
@@ -169,7 +171,7 @@ function chatCount_(prefix, limit) {
 
 // Tries each provider's models in order until one answers, within CHAT_TIME_BUDGET. A lone
 // model gets one retry on a transient failure. A key or billing failure skips the rest of that
-// provider, and an unreachable OpenAI-compatible host is skipped for CHAT_DOWN_SECONDS.
+// provider, and an OpenAI-compatible host that is unreachable or times out is skipped for a while.
 // 'permanent' means no attempt is worth repeating soon (bad key, quota used up for the day,
 // model gone), so the page can drop its "try again" button.
 function askModel_(config, messages, references) {
@@ -219,8 +221,10 @@ function askModel_(config, messages, references) {
     if (last.reply) return { status: tried.join('; '), reply: last.reply };
     if (last.transient) permanent = false;
     if (last.final) stopped[name] = true;
-    if (last.unreachable && entry.group.provider === 'openai') {
-      cache.put('chat_down_' + name, '1', CHAT_DOWN_SECONDS);
+    if (entry.group.provider === 'openai' && (last.unreachable || last.timedOut)) {
+      // A host that is off sits out 3 minutes. One that timed out, often a model still loading
+      // (the load carries on without us), sits out 1 minute, so a hung host cannot slow every visitor.
+      cache.put('chat_down_' + name, '1', last.unreachable ? CHAT_DOWN_SECONDS : CHAT_SLOW_SECONDS);
       stopped[name] = true;
     }
   }
@@ -352,7 +356,8 @@ function failure_(res) {
     final: code === 401 || code === 402 || code === 403 || keyProblem,
     transient: !code || (code === 429 && !daily) || code >= 500,
     // No connection, or a tunnel whose machine is off (Cloudflare answers 530, a proxy 502).
-    unreachable: (!code && !res.timedOut) || code === 502 || code === 530
+    unreachable: (!code && !res.timedOut) || code === 502 || code === 530,
+    timedOut: !code && !!res.timedOut
   };
 }
 
@@ -388,9 +393,18 @@ function maskPersonal_(text) {
     // after a country code (that is one of the institute's numbers the phone rule kept).
     .replace(/(?<![\d.,])(?<!84\)?[\s.\-])\d{3,4}(?:[ \-]\d{3,4}){2,3}(?!\d|[.,]\d|[ \-]\d)/g, function (found) {
       var length = found.replace(/\D/g, '').length;
-      return length === 9 || length === 12 ? '[số giấy tờ]' : found;
+      return (length === 9 || length === 12) && !chatOwnTail_(found) ? '[số giấy tờ]' : found;
     })
-    .replace(/(?<![\d.,])(?:\d{12}|\d{9})(?!\d|[.,]\d)/g, '[số giấy tờ]');
+    .replace(/(?<![\d.,])(?:\d{12}|\d{9})(?!\d|[.,]\d)/g, function (found) {
+      return chatOwnTail_(found) ? found : '[số giấy tờ]';
+    });
+}
+
+// True for the digits of an institute number written after a country code ("+84 (0) 949 761 636",
+// "(+84)949761636", "+8428 2242 6789"), which the phone rule has already kept.
+function chatOwnTail_(text) {
+  var digits = text.replace(/\D/g, '');
+  return CHAT_OWN_NUMBERS.indexOf('0' + digits) !== -1 || CHAT_OWN_NUMBERS.indexOf(digits.replace(/^840?/, '0')) !== -1;
 }
 
 function logChat_(values) {
