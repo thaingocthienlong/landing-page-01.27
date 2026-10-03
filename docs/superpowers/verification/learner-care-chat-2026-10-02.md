@@ -146,3 +146,29 @@ A last check of that commit found six smaller regressions, all fixed: with seven
 Apps Script harness, 40 cases     PASS
 Held-out halves (192 questions)   34 right, 0 wrong row, 8 answered that should go to the AI
 ```
+
+## Real Messenger consultations, 2026-10-03
+
+Input: the Institute's Page inbox export for 01/07–15/08/2026 (90 conversations about the previous regression course), anonymised in the scratchpad before analysis; the raw file is not in the repository. Findings are in `docs/phan-tich-tu-van-meta-2026.md`.
+
+- The Institute confirmed eight practices that the notice does not state. These are now in `Knowledge.gs` under "Viện xác nhận thêm" and in the FAQ answers:
+  - class hours, mornings theory and afternoons practice;
+  - online learners join live with the hall and ask by mic or chat;
+  - PDF slides beforehand, printed materials and a signed book, with postage to online learners;
+  - a completion certificate;
+  - the two lecturers' roles;
+  - Zalo contact after registration and a receipt photo after payment;
+  - a fixed schedule with no evening class and no next intake planned;
+  - time-limited replay for registered learners.
+- FAQ changes:
+  - five new rows;
+  - the ad's preset questions and real phrasings added as variants;
+  - answers rewritten in the staff's voice: "Dạ, ...", answer first, "ạ", open invitations instead of yes/no offers;
+  - the first table answer of a conversation opens "Dạ, em chào anh/chị.", and the welcome bubble now speaks as the Institute.
+- A fact-check agent removed two claims carried over from the old course that the Institute had not confirmed: online learners "see and hear everything", and contact "in order of registration". It also aligned the invoice and refund rows with the new receipt and online-switch facts, and corrected two lesson titles and the objective lists against the outlines. A style agent's fixes were applied to 40 rows.
+- Measured before the held-out phrasings were added: 2 of 24 real typed questions answered from the table, 0 wrong, 17 of 21 passed to the AI with the right row attached; 11 of 11 closing messages left alone. Learner and probe held-out halves (labels redone for the 55-row table): 38 right table answers, 1 with a wrong row and 10 that should have gone to the AI.
+
+```text
+Apps Script harness, 40 cases                PASS (adds first-turn greeting, staff-row greeting variants)
+FAQ seed self-check, 725 phrasings           711 own row, 14 deferred, 0 other row
+```

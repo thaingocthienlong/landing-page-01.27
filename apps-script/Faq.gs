@@ -22,8 +22,13 @@ var FAQ_MIN_MARGIN = 1.3;
 // in any of its phrasings. Words of one or two letters ("để", "ở") and package or course numbers
 // never count as rarest; instead a row that names a different package or course cannot answer.
 var FAQ_NEED_RAREST = true;
-// An unaccented word kept for meaning ("cho" can be chỗ) that is mostly a greeting ("cho em hỏi").
-var FAQ_NOT_RAREST = { cho: 1 };
+// Words that count for matching but never as the question's rarest word: "cho" (mostly "cho em
+// hỏi", though it can be chỗ) and the small connecting words of chat messages ("lớp này", "hiện
+// còn", "bên Zalo", "trong các buổi").
+var FAQ_NOT_RAREST = {
+  cho: 1, nay: 1, hien: 1, ben: 1, trong: 1, cac: 1, nhung: 1, roi: 1, thoi: 1, nao: 1, the: 1,
+  cung: 1, van: 1, con: 1, duoc: 1, voi: 1, sao: 1
+};
 // Words that make a message a question; a thank-you without any of them is not matched.
 var FAQ_ASKING = { khong: 1, nao: 1, gi: 1, sao: 1, dau: 1, chua: 1, may: 1, nhieu: 1, ai: 1, khi: 1 };
 // Rows below these are too weak to offer as "did you mean" or to hand the model as reference.
@@ -39,7 +44,8 @@ var FAQ_SHORTHAND = {
   bnhieu: 'bao nhieu', tg: 'thoi gian', tgian: 'thoi gian', ko: 'khong', k: 'khong',
   kg: 'khong', khg: 'khong', hok: 'khong', j: 'gi', dc: 'duoc', trc: 'truoc', hv: 'hoc vien',
   vs: 'voi', ng: 'nguoi', laptop: 'may tinh', k1: 'khoa 1', k2: 'khoa 2', k3: 'khoa 3',
-  g1: 'goi 1', g2: 'goi 2', g3: 'goi 3', g4: 'goi 4', g5: 'goi 5', g6: 'goi 6'
+  g1: 'goi 1', g2: 'goi 2', g3: 'goi 3', g4: 'goi 4', g5: 'goi 5', g6: 'goi 6',
+  ntn: 'nhu the nao', chtr: 'chuong trinh', ctr: 'chuong trinh', lh: 'lien he'
 };
 // Shorthand that only makes sense written with its accents.
 var FAQ_SHORTHAND_ACCENTED = { 'giá': 'phi', 'đt': 'dien thoai', 'hông': 'khong' };
