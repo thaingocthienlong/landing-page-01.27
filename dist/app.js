@@ -1237,7 +1237,7 @@
     });
   };
 
-  /* ---------- learner-care chat: questions go to the Apps Script endpoint, which asks Claude ---------- */
+  /* ---------- learner-care chat: questions go to the Apps Script endpoint, which asks the AI model ---------- */
 
   const setupChat = () => {
     const panel = document.getElementById("chat-panel");
