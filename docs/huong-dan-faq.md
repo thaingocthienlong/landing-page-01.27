@@ -20,14 +20,21 @@ Khi người phụ trách trang web báo đã cập nhật dữ liệu (thêm d�
 
 Menu làm gì:
 
-- Dòng mới và cách hỏi mới trên trang web được thêm vào bảng. Cách hỏi mà trang web đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa khỏi bảng. Dòng trang web đã bỏ được tắt (ghi `Không` ở cột Bật).
-- Ô nào vẫn còn nguyên chữ của lần cập nhật trước thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên.** Bản mới nằm ở cuối ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem); ghi chú nhân viên tự viết vẫn còn ở phía trên. Thấy bản mới đúng hơn thì chép phần chữ dưới dòng đầu của ghi chú vào ô; ghi chú đó tự mất ở lần cập nhật sau.
+- Dòng mới và cách hỏi mới trên trang web được thêm vào bảng. Cách hỏi mà trang web đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa khỏi bảng.
+- Dòng trang web đã bỏ được tắt (ghi `Không` ở cột Bật), một lần duy nhất: nếu Viện vẫn muốn dùng thì ghi lại `Có`, các lần sau menu không tắt nữa. Nếu sau này trang web dùng lại dòng đó, menu tự bật lại.
+- Ô nào vẫn còn nguyên chữ của lần cập nhật trước thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên.** Bản mới nằm trong ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem), giữa dòng `Bản mới trên trang web...` và dòng `(Hết ghi chú của menu cập nhật)`. Ghi chú nhân viên tự viết ở phía trên hay phía dưới hai dòng đó vẫn được giữ. Thấy bản mới đúng hơn thì chép phần chữ nằm giữa hai dòng đó vào ô; phần ghi chú của menu tự mất ở lần cập nhật sau.
 - Dòng hay cách hỏi nhân viên đã xóa thì không bị thêm lại. Dòng nhân viên tự thêm và các cột nhân viên thêm bên phải không bị đụng tới. Không dòng nào bị xóa.
-- Cách hỏi mới nào đã có ở một dòng khác đang bật thì không được thêm, để trợ lý không phải chọn giữa hai dòng. Nếu câu hỏi của một dòng mới trùng với dòng khác, thông báo sẽ ghi rõ: ghi `Không` ở cột Bật của một trong hai dòng.
+- Cách hỏi mới nào đã có ở một dòng khác đang bật thì chưa được thêm, để trợ lý không phải chọn giữa hai dòng; thông báo ghi rõ cách hỏi nào. Khi dòng kia được tắt hoặc bỏ cách hỏi đó, lần cập nhật sau sẽ thêm. Nếu câu hỏi của một dòng mới trùng với dòng khác, thông báo cũng ghi rõ: ghi `Không` ở cột Bật của một trong hai dòng.
+- Nếu trang web có dòng mới mà Mã trùng với một dòng Viện tự thêm, menu không gộp hai dòng và chưa thêm dòng mới. Thông báo ghi rõ dòng nào: đổi Mã của dòng Viện tự thêm (ví dụ thêm chữ `-vien`) rồi chọn lại menu.
+- Nếu tab `FAQ` hay tab `Thông tin thêm` bị xóa, hoặc bị xóa hết các dòng, lần cập nhật sau tạo lại đủ các dòng của trang web. Muốn tắt một dòng thì ghi `Không` ở cột Bật, đừng xóa.
 - Kết quả hiện trong hộp thông báo, kèm danh sách các ô được giữ nguyên, và được ghi ở tab `Lịch sử cập nhật` (tab tự tạo ở lần đầu, ghi cả những lần báo lỗi).
-- Nếu thông báo báo lỗi, bảng chưa thay đổi gì: chờ vài phút rồi chọn lại menu; vẫn lỗi thì chụp màn hình thông báo gửi người phụ trách trang web.
+- Nếu thông báo báo lỗi, làm theo hướng dẫn trong thông báo: thường là chờ vài phút rồi chọn lại menu (chọn lại nhiều lần cũng không sao). Vẫn lỗi thì chụp màn hình thông báo gửi người phụ trách trang web.
 
-Lưu ý: **đừng đổi mã (cột Mã) hay tên các cột** của tab `FAQ` và tab `Thông tin thêm`. Menu dùng mã để tìm dòng: đổi mã thì dòng đó thành dòng riêng của nhân viên, các bản cập nhật sau không tới được nữa. Đổi tên, thêm hay xóa cột ở giữa bảng thì menu dừng lại và báo lỗi.
+Lưu ý:
+
+- **Đừng đổi mã (cột Mã) hay tên các cột** của tab `FAQ` và tab `Thông tin thêm`. Menu dùng mã để tìm dòng: đổi mã thì dòng đó thành dòng riêng của nhân viên, các bản cập nhật sau không tới được nữa. Đổi tên, thêm hay xóa cột ở giữa bảng thì menu dừng lại và báo lỗi.
+- Lần đầu chọn menu, dòng hay cách hỏi đã bị xóa khỏi bảng từ trước đó sẽ được thêm lại, vì menu chưa biết là nhân viên đã xóa. Sau lần đầu, xem lại bảng và xóa hoặc tắt lại nếu cần; từ lần thứ hai menu đã nhớ.
+- Khôi phục bảng về một phiên bản cũ (Tệp > Nhật ký phiên bản) thì menu vẫn nhớ lần cập nhật gần nhất. Lần cập nhật sau, những ô khác với lần đó được coi là nhân viên đã sửa (giữ nguyên, bản mới nằm trong ghi chú), và những cách hỏi lần đó đã thêm không được thêm lại. Nếu cần, báo người phụ trách trang web.
 
 ## Tab "Thông tin thêm"
 

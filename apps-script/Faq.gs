@@ -323,7 +323,8 @@ function faqRows_() {
 // 'yyyyMMdd' from a date cell (a Date, or text written dd/MM/yyyy), or '' when empty or unreadable.
 function faqDay_(value, zone) {
   if (value instanceof Date && !isNaN(value)) return Utilities.formatDate(value, zone, 'yyyyMMdd');
-  var match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(value || '').trim());
+  // An apostrophe typed into a plain-text cell stays in the value; it is not part of the date.
+  var match = /^'?(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(value || '').trim());
   if (!match) return '';
   return match[3] + ('0' + match[2]).slice(-2) + ('0' + match[1]).slice(-2);
 }
