@@ -8,22 +8,32 @@ Trợ lý trên trang trả lời theo ba tầng:
 
 Bảng FAQ càng đầy đủ thì trợ lý càng nhanh, càng đúng, và càng ít câu hỏi của học viên phải gửi cho dịch vụ AI bên ngoài.
 
-Sửa tab `FAQ` hay tab `Thông tin thêm` thì trợ lý dùng ngay, không cần sửa Apps Script hay deploy lại.
+Sửa trực tiếp tab `FAQ` hay tab `Thông tin thêm` thì trợ lý dùng bản mới gần như ngay (chậm nhất 10 phút), không cần đụng tới Apps Script.
 
-## Cập nhật dữ liệu từ trang
+## Cập nhật dữ liệu từ trang web
 
-Khi người phụ trách trang báo đã cập nhật dữ liệu (thêm dòng, thêm cách hỏi thật, sửa câu trả lời, thêm điều Viện xác nhận), chờ vài phút rồi mở Google Sheet, chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang**. Lần đầu Google hỏi quyền truy cập: chọn cho phép.
+Khi người phụ trách trang web báo đã cập nhật dữ liệu (thêm dòng, thêm cách hỏi thật, sửa câu trả lời, thêm điều Viện xác nhận):
 
-- Dòng mới và cách hỏi mới được thêm vào. Cách hỏi cũ mà bản trên trang đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa.
-- Ô nào vẫn còn nguyên chữ do trang ghi thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên**; bản mới trên trang nằm trong ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem). Thấy bản mới đúng hơn thì chép vào ô; ghi chú tự mất ở lần cập nhật sau.
-- Dòng nhân viên tự thêm, cột "Bật" và các cột nhân viên thêm bên phải không bị đụng tới. Không dòng nào bị xóa.
-- Kết quả hiện trong hộp thông báo và được ghi ở tab `Lịch sử cập nhật`.
+1. Chờ khoảng 5 phút, rồi mở Google Sheet **trên máy tính** (ứng dụng Google Sheets trên điện thoại không có menu này).
+2. Chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang web**. Không thấy menu thì tải lại trang (phím F5).
+3. Lần đầu mỗi người dùng menu, Google hỏi quyền: chọn Tiếp tục, chọn tài khoản của mình, rồi Cho phép. Nếu Google báo ứng dụng chưa được xác minh, chọn Nâng cao rồi chọn dòng có tên dự án để đi tiếp (đây là đoạn mã của chính Viện). Cho phép xong, chọn lại menu.
+
+Menu làm gì:
+
+- Dòng mới và cách hỏi mới trên trang web được thêm vào bảng. Cách hỏi mà trang web đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa khỏi bảng. Dòng trang web đã bỏ được tắt (ghi `Không` ở cột Bật).
+- Ô nào vẫn còn nguyên chữ của lần cập nhật trước thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên.** Bản mới nằm ở cuối ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem); ghi chú nhân viên tự viết vẫn còn ở phía trên. Thấy bản mới đúng hơn thì chép phần chữ dưới dòng đầu của ghi chú vào ô; ghi chú đó tự mất ở lần cập nhật sau.
+- Dòng hay cách hỏi nhân viên đã xóa thì không bị thêm lại. Dòng nhân viên tự thêm và các cột nhân viên thêm bên phải không bị đụng tới. Không dòng nào bị xóa.
+- Cách hỏi mới nào đã có ở một dòng khác đang bật thì không được thêm, để trợ lý không phải chọn giữa hai dòng. Nếu câu hỏi của một dòng mới trùng với dòng khác, thông báo sẽ ghi rõ: ghi `Không` ở cột Bật của một trong hai dòng.
+- Kết quả hiện trong hộp thông báo, kèm danh sách các ô được giữ nguyên, và được ghi ở tab `Lịch sử cập nhật` (tab tự tạo ở lần đầu, ghi cả những lần báo lỗi).
+- Nếu thông báo báo lỗi, bảng chưa thay đổi gì: chờ vài phút rồi chọn lại menu; vẫn lỗi thì chụp màn hình thông báo gửi người phụ trách trang web.
+
+Lưu ý: **đừng đổi mã (cột Mã) hay tên các cột** của tab `FAQ` và tab `Thông tin thêm`. Menu dùng mã để tìm dòng: đổi mã thì dòng đó thành dòng riêng của nhân viên, các bản cập nhật sau không tới được nữa. Đổi tên, thêm hay xóa cột ở giữa bảng thì menu dừng lại và báo lỗi.
 
 ## Tab "Thông tin thêm"
 
-Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học online, giấy chứng nhận, hóa đơn...) nằm ở tab này, mỗi điều một dòng: `Mã`, `Nội dung`, `Bật`. AI đọc các dòng đang bật để trả lời những câu bảng FAQ không có.
+Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học online, giấy chứng nhận, hóa đơn...) nằm ở tab này. Tab tự xuất hiện sau lần đầu chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang web**. Mỗi điều một dòng: `Mã`, `Nội dung`, `Bật`. AI đọc các dòng đang bật để trả lời những câu bảng FAQ không có; sửa xong thì AI dùng gần như ngay.
 
-- Viện xác nhận thêm điều gì (ví dụ sĩ số dự kiến), thêm một dòng: mã ngắn không dấu (`si-so`), nội dung viết như một câu khẳng định, cột Bật ghi `Có`.
+- Viện xác nhận thêm điều gì (ví dụ sĩ số dự kiến), thêm một dòng: mã ngắn không dấu, chưa có ở dòng nào trong tab (ví dụ `si-so`), nội dung viết như một câu khẳng định, cột Bật ghi `Có`.
 - Điều nào không còn đúng: sửa nội dung, hoặc ghi `Không` ở cột Bật.
 - Chỉ ghi điều Viện đã xác nhận, đúng như Viện nói; AI sẽ nói lại với học viên như sự thật.
 
@@ -31,7 +41,7 @@ Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học 
 
 | Cột | Ý nghĩa | Ví dụ |
 |---|---|---|
-| Mã | Tên ngắn, không dấu, không trùng. Dùng để đọc nhật ký. | `goi-hoc-phi` |
+| Mã | Tên ngắn, không dấu, không trùng. Menu cập nhật dùng mã để tìm dòng, nên **đừng đổi mã của dòng có sẵn**. Mã cũng hiện trong nhật ký. | `goi-hoc-phi` |
 | Nhóm | Để dễ lọc: Học phí, Lịch học, Đăng ký... | Học phí |
 | Câu hỏi | Câu hỏi chuẩn, viết có dấu. Hiện cho học viên khi trợ lý gợi ý. | Học phí các gói là bao nhiêu? |
 | Cách hỏi khác | Mỗi dòng một cách hỏi (xuống dòng trong ô: Ctrl+Enter, hoặc Alt+Enter). Càng nhiều cách hỏi thật càng tốt. | hp goi 1 bao nhieu<br>giá khóa học<br>đóng bao nhiêu tiền |
@@ -78,7 +88,7 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Số tiền sau ưu đãi ghi là "tạm tính" và nói Viện xác nhận số tiền chính thức.
 - Muốn chỉ học viên tới phiếu đăng ký, viết đúng cụm **Đăng ký khóa học**: trang tự biến nó thành đường dẫn.
 - Số điện thoại viết đúng dạng (028) 2242 6789, 0949 761 636, 0912 114 511: trang tự biến thành nút gọi.
-- Điều thông báo chưa có và Viện chưa xác nhận (còn chỗ, sĩ số lớp, số buổi phải tham dự để được cấp giấy chứng nhận, học thử, giờ làm việc): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Bảo lưu hay rút học phí: mời liên hệ chuyên viên tư vấn. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, ngôn ngữ giảng dạy, tài liệu và sách, giấy chứng nhận, link xem lại bản ghi, hóa đơn VAT, liên hệ trong khoảng 1 ngày, xác nhận số tiền trước khi chuyển khoản, phiếu thu, nhóm Zalo lớp, hỗ trợ sau khóa) đã có trong bảng và trong `Knowledge.gs`.
+- Điều thông báo chưa có và Viện chưa xác nhận (còn chỗ, sĩ số lớp, số buổi phải tham dự để được cấp giấy chứng nhận, học thử, giờ làm việc): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Bảo lưu hay rút học phí: mời liên hệ chuyên viên tư vấn. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, ngôn ngữ giảng dạy, tài liệu và sách, giấy chứng nhận, link xem lại bản ghi, hóa đơn VAT, liên hệ trong khoảng 1 ngày, xác nhận số tiền trước khi chuyển khoản, phiếu thu, nhóm Zalo lớp, hỗ trợ sau khóa) đã có trong bảng FAQ và trong tab `Thông tin thêm`.
 
 ### Câu trả lời đổi theo ngày
 

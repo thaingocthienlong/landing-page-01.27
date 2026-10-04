@@ -1,0 +1,31 @@
+name: Check assistant data
+
+# Builds assistant-data.json on every pull request, so a FAQ row or confirmed fact the sheet's
+# update menu would refuse is caught before merge instead of after the site deploys.
+on:
+  pull_request:
+    paths:
+      - apps-script/FaqSeed.gs
+      - apps-script/Knowledge.gs
+      - tools/build-assistant-data.js
+      - .github/workflows/check-assistant-data.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build assistant data
+        run: node tools/build-assistant-data.js "$RUNNER_TEMP/assistant-data.json"

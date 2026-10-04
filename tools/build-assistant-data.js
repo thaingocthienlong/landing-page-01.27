@@ -1,4 +1,4 @@
-// Builds assistant-data.json, the file the sheet's "Cập nhật dữ liệu từ trang" menu reads
+// Builds assistant-data.json, the file the sheet's "Cập nhật dữ liệu từ trang web" menu reads
 // (apps-script/Sync.gs). The deploy workflow runs it before publishing the site:
 //
 //     node tools/build-assistant-data.js dist/assistant-data.json
@@ -36,21 +36,43 @@ function git(args) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
 
-// Every committed version of a file, oldest first; empty when git or its history is missing.
+// Every committed version of a file, oldest first. A shallow or missing history would publish a
+// file that marks every older cell as a staff edit, so it stops the build instead.
 function history(file, name) {
-  let commits = [];
-  try {
-    commits = git(["log", "--format=%H", "--", file]).split("\n").filter(Boolean).reverse();
-  } catch (err) {
-    return [];
+  if (git(["rev-parse", "--is-shallow-repository"]).trim() === "true") {
+    throw new Error("shallow git checkout: fetch the full history (actions/checkout with fetch-depth: 0)");
   }
+  const commits = git(["log", "--format=%H", "--", file]).split("\n").filter(Boolean).reverse();
+  if (!commits.length) throw new Error("no git history for " + file);
   return commits.map((sha) => {
     try {
       return load(git(["show", `${sha}:${file}`]), name);
     } catch (err) {
+      // Versions from before the list existed (KNOWLEDGE_EXTRA) or that do not run on their own.
       return undefined;
     }
   }).filter(Array.isArray);
+}
+
+// The rules Sync.gs checks (syncInvalid_), so a file the sheet would refuse is never published.
+function check(seed, facts) {
+  const isText = (value) => typeof value === "string";
+  const ids = new Set();
+  seed.forEach((row, i) => {
+    const name = `FAQ_SEED row ${row && row.id ? row.id : i + 1}`;
+    if (!row || !isText(row.id) || !row.id || ids.has(row.id)) throw new Error(name + ": missing or repeated id");
+    ids.add(row.id);
+    if (!isText(row.group) || !isText(row.question) || !row.question || !isText(row.answer) || !row.answer) throw new Error(name + ": group, question and answer must be text");
+    if (!Array.isArray(row.variants) || !row.variants.every(isText)) throw new Error(name + ": variants must be a list of text");
+    if (!isText(row.from || "") || !isText(row.to || "")) throw new Error(name + ": from and to must be text");
+  });
+  const factIds = new Set();
+  facts.forEach((fact, i) => {
+    const name = `KNOWLEDGE_EXTRA item ${fact && fact.id ? fact.id : i + 1}`;
+    if (!fact || !isText(fact.id) || !fact.id || factIds.has(fact.id)) throw new Error(name + ": missing or repeated id");
+    factIds.add(fact.id);
+    if (!isText(fact.text) || !fact.text) throw new Error(name + ": text must be non-empty");
+  });
 }
 
 function build() {
@@ -58,6 +80,7 @@ function build() {
   const facts = load(fs.readFileSync(path.join(root, KNOWLEDGE), "utf8"), "KNOWLEDGE_EXTRA");
   if (!Array.isArray(seed) || !seed.length) throw new Error("FAQ_SEED not found in " + SEED);
   if (!Array.isArray(facts) || !facts.length) throw new Error("KNOWLEDGE_EXTRA not found in " + KNOWLEDGE);
+  check(seed, facts);
 
   const pastRows = history(SEED, "FAQ_SEED").concat([seed]);
   const faq = seed.map((row) => {
@@ -94,13 +117,27 @@ function build() {
     return { id: fact.id, text: fact.text, known: { text: [...known] } };
   });
 
-  let version = "local";
-  try {
-    version = git(["log", "-1", "--format=%cs %h"]).trim();
-  } catch (err) {
-    // Built outside a git checkout.
-  }
-  return { format: 1, version, faq, facts: factRows };
+  // Rows and facts the repository once had and has dropped: Sync.gs switches them off.
+  const dropped = (past, current, field) => {
+    const now = new Set(current.map((item) => item.id));
+    const out = new Map();
+    past.forEach((list) => list.forEach((item) => {
+      if (!item || !item.id || now.has(item.id)) return;
+      if (!out.has(item.id)) out.set(item.id, new Set());
+      out.get(item.id).add(hash(item[field]));
+    }));
+    return [...out].map(([id, known]) => ({ id, known: { [field]: [...known] } }));
+  };
+
+  return {
+    format: 1,
+    version: git(["log", "-1", "--format=%cs %h"]).trim(),
+    time: git(["log", "-1", "--format=%cI"]).trim(),
+    faq,
+    facts: factRows,
+    retiredFaq: dropped(pastRows, seed, "answer"),
+    retiredFacts: dropped(pastFacts, facts, "text"),
+  };
 }
 
 const out = process.argv[2] || path.join(root, "dist", "assistant-data.json");

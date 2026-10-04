@@ -2,25 +2,35 @@
  * Brings the FAQ tab and the "Thông tin thêm" tab up to date with the repository, so new data
  * needs no pasted code and no new deployment. Each deployment of the site publishes
  * assistant-data.json (built by tools/build-assistant-data.js from FaqSeed.gs and Knowledge.gs).
- * In the sheet, staff choose Trợ lý AI > Cập nhật dữ liệu từ trang:
- *   - rows the repository has and the tab does not are added;
- *   - phrasings the repository added are appended, and phrasings it retired are removed;
- *   - a group, question, answer or date is replaced only while the cell still holds a text the
- *     repository wrote at some point (the data file lists their hashes), so a cell staff edited
- *     keeps their text and the repository's new text goes into the cell's note;
- *   - rows staff added themselves, the "Bật" column and columns to the right are never touched.
+ * In the sheet, staff choose Trợ lý AI > Cập nhật dữ liệu từ trang web. For each row (by Mã):
+ *   - a group, question, answer, date or fact is replaced only while the cell still holds what the
+ *     last update brought in (on the first update: a text the repository ever wrote, from the hashes
+ *     in the data file). A cell staff changed keeps their text; the new text goes into a block at
+ *     the end of the cell's note, below any note staff wrote;
+ *   - phrasings new in the repository since the last update are added, unless another active row
+ *     with overlapping dates already has them; phrasings the repository dropped are removed;
+ *     phrasings and rows staff deleted are not brought back;
+ *   - rows the repository dropped are switched off ("Không" in Bật) while their answer is still
+ *     the repository's text;
+ *   - rows staff added, columns to the right and every other cell are left alone.
+ * What the last update brought in is kept in the document properties (keys "sync:...").
  */
 
 var SYNC_DEFAULT_URL = 'https://thaingocthienlong.github.io/landing-page-01.27/assistant-data.json';
-var SYNC_NOTE_PREFIX = 'Bản mới trên trang';
+var SYNC_NOTE_PREFIX = 'Bản mới trên trang web';
 var SYNC_LOG_SHEET_NAME = 'Lịch sử cập nhật';
+var SYNC_MENU_ITEM = 'Cập nhật dữ liệu từ trang web';
+var SYNC_ASK_HELP = 'chụp màn hình thông báo này gửi người phụ trách trang web.';
 var FACTS_SHEET_NAME = 'Thông tin thêm';
 var FACTS_HEADERS = ['Mã', 'Nội dung', 'Bật'];
 var FACTS_CACHE_KEY = 'facts_rows_v1';
+// Folded words each header must contain, so a renamed or inserted column stops the update.
+var SYNC_FAQ_HEADER_WORDS = ['ma', 'nhom', 'cau hoi', 'cach hoi', 'tra loi', 'tu ngay', 'den ngay', 'bat'];
+var SYNC_FACTS_HEADER_WORDS = ['ma', 'noi dung', 'bat'];
 
 function onOpen() {
   try {
-    SpreadsheetApp.getUi().createMenu('Trợ lý AI').addItem('Cập nhật dữ liệu từ trang', 'syncAssistantData').addToUi();
+    SpreadsheetApp.getUi().createMenu('Trợ lý AI').addItem(SYNC_MENU_ITEM, 'syncAssistantData').addToUi();
   } catch (err) {
     // Opened without a user interface: no menu to add.
   }
@@ -37,148 +47,310 @@ function syncAssistantData() {
 }
 
 function syncAssistantData_() {
+  var book = SpreadsheetApp.getActiveSpreadsheet();
   var url = String(PropertiesService.getScriptProperties().getProperty('ASSISTANT_DATA_URL') || '').trim() || SYNC_DEFAULT_URL;
+  var retry = ' Bảng chưa thay đổi gì. Chờ vài phút rồi chọn lại menu; nếu vẫn lỗi, ' + SYNC_ASK_HELP;
   var data;
   try {
     // The time parameter skips the copy GitHub Pages keeps for up to 10 minutes.
     var res = UrlFetchApp.fetch(url + (url.indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now(), { muteHttpExceptions: true });
-    if (res.getResponseCode() !== 200) {
-      return { ok: false, message: 'Không tải được dữ liệu từ trang (mã ' + res.getResponseCode() + '). Bảng chưa thay đổi.' };
-    }
+    if (res.getResponseCode() !== 200) return syncFail_(book, '', 'Không tải được dữ liệu từ trang web (mã lỗi ' + res.getResponseCode() + ').' + retry);
     data = JSON.parse(res.getContentText());
   } catch (err) {
-    return { ok: false, message: 'Không đọc được dữ liệu từ trang. Bảng chưa thay đổi.' };
+    return syncFail_(book, '', 'Không đọc được dữ liệu từ trang web.' + retry);
   }
-  if (!syncValid_(data)) return { ok: false, message: 'Dữ liệu trên trang không đúng định dạng. Bảng chưa thay đổi.' };
+  var invalid = syncInvalid_(data);
+  if (invalid) return syncFail_(book, '', 'Dữ liệu trên trang web bị lỗi (' + invalid + ') nên chưa cập nhật được. Bảng chưa thay đổi gì. Vui lòng ' + SYNC_ASK_HELP);
 
   var lock = LockService.getDocumentLock() || LockService.getScriptLock();
-  lock.waitLock(20000);
+  if (!lock.tryLock(20000)) return { ok: false, message: 'Có người khác đang cập nhật. Chờ một phút rồi chọn lại menu.' };
+  var props = PropertiesService.getDocumentProperties() || PropertiesService.getScriptProperties();
   try {
-    var book = SpreadsheetApp.getActiveSpreadsheet();
-    var faq = syncTab_(book, FAQ_SHEET_NAME, FAQ_HEADERS, data.faq, data.version, {
+    var meta = JSON.parse(props.getProperty('sync:meta') || '{}');
+    if (meta.time && data.time && Date.parse(data.time) < Date.parse(meta.time)) {
+      return syncFail_(book, data.version, 'Dữ liệu trên trang web (' + syncLabel_(data.version) + ') cũ hơn lần cập nhật trước (' + syncLabel_(meta.version) + ') nên không dùng. Bảng chưa thay đổi gì. Chờ vài phút rồi chọn lại menu.');
+    }
+    var faqSheet = syncSheet_(book, FAQ_SHEET_NAME, faqStartSheet_);
+    var factsSheet = syncSheet_(book, FACTS_SHEET_NAME, factsStartSheet_);
+    var badHeader = syncHeaderProblem_(faqSheet, SYNC_FAQ_HEADER_WORDS) ? FAQ_SHEET_NAME
+      : syncHeaderProblem_(factsSheet, SYNC_FACTS_HEADER_WORDS) ? FACTS_SHEET_NAME : '';
+    if (badHeader) {
+      return syncFail_(book, data.version, 'Hàng tiêu đề của tab "' + badHeader + '" đã bị đổi (đổi tên, thêm hoặc xóa cột) nên chưa cập nhật được. Bảng chưa thay đổi gì. Đưa các cột về như cũ, hoặc ' + SYNC_ASK_HELP);
+    }
+    var label = syncLabel_(data.version);
+    var faq = syncTab_(book, faqSheet, data.faq, data.retiredFaq, props, 'faq', label, {
+      headers: FAQ_HEADERS,
       fields: [[1, 'group'], [2, 'question'], [4, 'answer'], [5, 'from'], [6, 'to']],
-      variants: 3,
-      start: faqStartSheet_,
-      row: function (item) { return [item.id, item.group, item.question, item.variants.join('\n'), item.answer, item.from || '', item.to || '', 'Có']; }
+      main: [4, 'answer'], variants: 3, on: 7,
+      row: function (item, variants) { return [item.id, item.group, item.question, variants.join('\n'), item.answer, item.from || '', item.to || '', 'Có']; }
     });
-    var facts = syncTab_(book, FACTS_SHEET_NAME, FACTS_HEADERS, data.facts, data.version, {
+    var facts = syncTab_(book, factsSheet, data.facts, data.retiredFacts, props, 'fact', label, {
+      headers: FACTS_HEADERS,
       fields: [[1, 'text']],
-      start: factsStartSheet_,
+      main: [1, 'text'], on: 2,
       row: function (item) { return [item.id, item.text, 'Có']; }
     });
-    faqClearCache_();
-    knowledgeClearCache_();
-    var message = syncMessage_(data.version, faq, facts);
+    props.setProperty('sync:meta', JSON.stringify({ time: data.time || '', version: data.version }));
+    var message = syncMessage_(label, faq, facts);
     syncLog_(book, data.version, message);
     return { ok: true, message: message, faq: faq, facts: facts };
+  } catch (err) {
+    return syncFail_(book, data.version, 'Cập nhật bị gián đoạn (' + err.message + '). Một phần bảng có thể đã được cập nhật; chọn lại menu để chạy tiếp. Nếu vẫn lỗi, ' + SYNC_ASK_HELP);
   } finally {
+    faqClearCache_();
+    knowledgeClearCache_();
     lock.releaseLock();
   }
 }
 
-function syncValid_(data) {
+function syncFail_(book, version, message) {
+  syncLog_(book, version, message);
+  return { ok: false, message: message };
+}
+
+// The first broken rule, or '' when the file can be used.
+function syncInvalid_(data) {
   var text = function (value) { return typeof value === 'string'; };
-  return !!data && data.format === 1 && text(data.version) && Array.isArray(data.faq) && Array.isArray(data.facts) &&
-    data.faq.every(function (item) {
-      return item && text(item.id) && item.id && text(item.group) && text(item.question) && item.question &&
-        text(item.answer) && item.answer && Array.isArray(item.variants) && item.variants.every(text);
-    }) &&
-    data.facts.every(function (item) { return item && text(item.id) && item.id && text(item.text) && item.text; });
+  var texts = function (list) { return Array.isArray(list) && list.every(text); };
+  if (!data || data.format !== 1 || !text(data.version) || !Array.isArray(data.faq) || !Array.isArray(data.facts) ||
+    (data.retiredFaq && !Array.isArray(data.retiredFaq)) || (data.retiredFacts && !Array.isArray(data.retiredFacts))) return 'định dạng';
+  var seen = {};
+  for (var i = 0; i < data.faq.length; i++) {
+    var item = data.faq[i];
+    var name = 'dòng FAQ ' + (item && text(item.id) && item.id ? item.id : i + 1);
+    if (!item || !text(item.id) || !item.id || seen['f' + item.id]) return name;
+    seen['f' + item.id] = true;
+    if (!text(item.group) || !text(item.question) || !item.question || !text(item.answer) || !item.answer || !texts(item.variants) ||
+      !text(item.from || '') || !text(item.to || '') || (item.retired && !texts(item.retired))) return name;
+  }
+  for (var j = 0; j < data.facts.length; j++) {
+    var fact = data.facts[j];
+    var factName = 'dòng Thông tin thêm ' + (fact && text(fact.id) && fact.id ? fact.id : j + 1);
+    if (!fact || !text(fact.id) || !fact.id || seen['t' + fact.id] || !text(fact.text) || !fact.text) return factName;
+    seen['t' + fact.id] = true;
+  }
+  return '';
+}
+
+function syncSheet_(book, name, start) {
+  var sheet = book.getSheetByName(name) || book.insertSheet(name);
+  if (sheet.getLastRow() === 0) start(sheet);
+  return sheet;
+}
+
+function syncHeaderProblem_(sheet, words) {
+  var row = sheet.getRange(1, 1, 1, words.length).getValues()[0];
+  return words.some(function (word, i) { return syncFold_(row[i]).indexOf(word) === -1; });
+}
+
+function syncFold_(value) {
+  return faqFold_(String(value || '').toLowerCase()).replace(/\s+/g, ' ').trim();
 }
 
 // Merges the repository's items into one tab; see the top of this file for the rules.
-function syncTab_(book, name, headers, items, version, spec) {
-  var counts = { rows: 0, updated: 0, kept: 0, added: 0, removed: 0 };
-  var sheet = book.getSheetByName(name);
-  if (!sheet) sheet = book.insertSheet(name);
-  if (sheet.getLastRow() === 0) spec.start(sheet);
-  var width = headers.length;
+function syncTab_(book, sheet, items, retiredItems, props, kind, label, spec) {
+  var counts = { rows: 0, updated: 0, added: 0, removed: 0, off: 0, kept: [], skipped: [], clashes: [] };
+  var tab = sheet.getName();
   var range = sheet.getDataRange();
   var values = range.getValues();
   var notes = range.getNotes();
-  var pad = function (cells, fill) {
-    var row = cells.slice(0, width);
-    while (row.length < width) row.push(fill);
-    return row;
-  };
-  var grid = values.map(function (cells) { return pad(cells, ''); });
-  var noteGrid = notes.map(function (cells) { return pad(cells, ''); });
+  var cell = function (cells, col) { return cells && col < cells.length ? cells[col] : ''; };
   var zone = book.getSpreadsheetTimeZone();
   var at = {};
-  grid.forEach(function (cells, i) {
-    var id = String(cells[0] || '').trim();
+  values.forEach(function (cells, i) {
+    var id = String(cell(cells, 0) || '').trim();
     if (i > 0 && id && !(id in at)) at[id] = i;
   });
-  var noteChanges = [];
-  var changed = {};
-  var added = [];
+  var lastIds = JSON.parse(props.getProperty('sync:' + kind + ':ids') || 'null');
+  var writes = [];
+  var appends = [];
+  var noteWrites = [];
+  var day = function (value) { return faqDay_(value instanceof Date ? value : syncText_(value), zone); };
+
+  // Phrasings by matcher words, for the "already on another active row" check (FAQ tab only).
+  var index = {};
+  var windowOf = function (cells) { return { from: day(cell(cells, 5)), to: day(cell(cells, 6)) }; };
+  var overlaps = function (a, b) { return (!a.from || !b.to || a.from <= b.to) && (!b.from || !a.to || b.from <= a.to); };
+  if (spec.variants !== undefined) {
+    values.forEach(function (cells, i) {
+      if (i === 0) return;
+      String(cell(cells, spec.variants) || '').split(/\r?\n/).concat([cell(cells, 2)]).forEach(function (line) {
+        if (!String(line || '').trim()) return;
+        var key = syncWords_(line);
+        (index[key] = index[key] || []).push(i);
+      });
+    });
+  }
+  // Phrasings the repository dropped, per row, worked out first so a phrasing moved to another
+  // row is not taken for a duplicate: since the last update or, on the first update, ever.
+  var states = {};
+  var droppedAt = {};
+  items.forEach(function (item) {
+    var state = JSON.parse(props.getProperty('sync:' + kind + ':' + item.id) || 'null');
+    states[item.id] = state;
+    var i = at[item.id];
+    if (i === undefined || spec.variants === undefined) return;
+    var repoKeys = (item.variants || []).map(syncWords_);
+    var dropped = {};
+    if (state && state.v) state.v.forEach(function (key) { if (repoKeys.indexOf(key) === -1) dropped[key] = true; });
+    else (item.retired || []).forEach(function (line) { dropped[syncWords_(line)] = true; });
+    droppedAt[i] = dropped;
+    Object.keys(dropped).forEach(function (key) {
+      if (index[key]) index[key] = index[key].filter(function (j) { return j !== i; });
+    });
+  });
+  var elsewhere = function (key, i, window) {
+    return (index[key] || []).some(function (j) {
+      return j !== i && syncOn_(cell(values[j], spec.on)) && overlaps(window, windowOf(values[j]));
+    });
+  };
 
   items.forEach(function (item) {
+    var stateKey = 'sync:' + kind + ':' + item.id;
+    var state = states[item.id];
+    var repoKeys = (item.variants || []).map(syncWords_);
+    var next = { h: {}, v: repoKeys };
+    spec.fields.forEach(function (pair) { next.h[pair[1]] = syncHash_(syncText_(item[pair[1]])); });
     var i = at[item.id];
     if (i === undefined) {
-      added.push(spec.row(item));
-      counts.rows += 1;
+      // Not in the tab and already brought in once: staff deleted it, so it stays out.
+      if (!(lastIds && lastIds.indexOf(item.id) !== -1)) {
+        var window = { from: day(item.from), to: day(item.to) };
+        var variants = (item.variants || []).filter(function (line) {
+          if (spec.variants === undefined || !elsewhere(syncWords_(line), -1, window)) return true;
+          counts.skipped.push('"' + line + '" (dòng mới ' + item.id + ')');
+          return false;
+        });
+        appends.push(spec.row(item, variants));
+        counts.rows += 1;
+        // A question cannot be left out like a phrasing: staff choose which row stays on.
+        if (spec.variants !== undefined && elsewhere(syncWords_(item.question), -1, window)) {
+          counts.clashes.push('dòng mới ' + item.id + ' ("' + item.question + '")');
+        }
+      }
+      props.setProperty(stateKey, JSON.stringify(next));
       return;
     }
-    var cells = grid[i];
+    var cells = values[i];
     spec.fields.forEach(function (pair) {
       var col = pair[0];
       var field = pair[1];
-      var current = field === 'from' || field === 'to' ? syncDayText_(cells[col], zone) : syncText_(cells[col]);
+      var isDate = field === 'from' || field === 'to';
+      var current = isDate ? syncDayText_(cell(cells, col), zone) : syncText_(cell(cells, col));
       var wanted = syncText_(item[field]);
-      var note = String(noteGrid[i][col] || '');
-      var ours = note.indexOf(SYNC_NOTE_PREFIX) === 0;
+      var note = String(cell(notes[i], col) || '');
+      // A note pasted whole into the cell counts as taking the new text.
+      var pasted = current.indexOf(SYNC_NOTE_PREFIX) === 0 && current.indexOf('\n') !== -1 &&
+        syncText_(current.slice(current.indexOf('\n') + 1)) === wanted;
       if (current === wanted) {
-        if (ours) noteChanges.push([i, col, '']);
+        syncNote_(noteWrites, i, col, note, '');
         return;
       }
-      var known = (item.known && item.known[field]) || [];
-      if (known.indexOf(syncHash_(current)) !== -1) {
-        cells[col] = item[field] || '';
+      var unchanged = state && state.h && state.h[field] !== undefined
+        ? state.h[field] === syncHash_(current)
+        : ((item.known && item.known[field]) || []).indexOf(syncHash_(current)) !== -1;
+      if (pasted || unchanged) {
+        writes.push({ row: i, col: col, value: item[field] || '', date: isDate });
         counts.updated += 1;
-        changed[i] = true;
-        if (ours) noteChanges.push([i, col, '']);
+        syncNote_(noteWrites, i, col, note, '');
         return;
       }
-      counts.kept += 1;
-      var text = SYNC_NOTE_PREFIX + ' (' + version + '):\n' + (item[field] || '(để trống)');
-      if (note !== text) noteChanges.push([i, col, text]);
+      counts.kept.push(tab + ', dòng ' + (i + 1) + ' (' + item.id + '), cột ' + spec.headers[col]);
+      syncNote_(noteWrites, i, col, note, wanted
+        ? SYNC_NOTE_PREFIX + ' (' + label + '). Ô này đã được sửa trong bảng nên được giữ nguyên. Muốn dùng bản mới, chép phần dưới dòng này vào ô:\n' + item[field]
+        : SYNC_NOTE_PREFIX + ' (' + label + ') để trống ô này. Ô này đã được sửa trong bảng nên được giữ nguyên. Muốn dùng bản mới, xóa chữ trong ô.');
     });
     if (spec.variants !== undefined) {
       var col = spec.variants;
-      var retired = {};
-      (item.retired || []).forEach(function (line) { retired[syncText_(line)] = true; });
-      var lines = String(cells[col] || '').split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
-      var keep = lines.filter(function (line) { return !retired[syncText_(line)]; });
+      var lines = String(cell(cells, col) || '').split(/\r?\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+      var dropped = droppedAt[i];
+      var keep = lines.filter(function (line) { return !dropped[syncWords_(line)]; });
       var seen = {};
-      [cells[2]].concat(keep).forEach(function (line) { seen[syncWords_(line)] = true; });
+      [cell(cells, 2)].concat(keep).forEach(function (line) { seen[syncWords_(line)] = true; });
       var before = keep.length;
-      item.variants.forEach(function (line) {
-        var key = syncWords_(line);
+      var rowWindow = windowOf(cells);
+      item.variants.forEach(function (line, k) {
+        var key = repoKeys[k];
         if (seen[key]) return;
         seen[key] = true;
+        // Brought in by an earlier update and since removed by staff: leave it out.
+        if (state && state.v && state.v.indexOf(key) !== -1) return;
+        if (elsewhere(key, i, rowWindow)) {
+          counts.skipped.push('"' + line + '" (' + item.id + ')');
+          return;
+        }
         keep.push(line);
       });
       if (keep.length !== lines.length || before !== lines.length) {
         counts.removed += lines.length - before;
         counts.added += keep.length - before;
-        cells[col] = keep.join('\n');
-        changed[i] = true;
+        writes.push({ row: i, col: col, value: keep.join('\n') });
       }
+    }
+    props.setProperty(stateKey, JSON.stringify(next));
+  });
+
+  // Rows the repository dropped: switched off while their main text is still the repository's.
+  (retiredItems || []).forEach(function (old) {
+    var i = at[old.id];
+    if (i === undefined || !syncOn_(cell(values[i], spec.on))) return;
+    var known = (old.known && old.known[spec.main[1]]) || [];
+    if (known.indexOf(syncHash_(syncText_(cell(values[i], spec.main[0])))) !== -1) {
+      writes.push({ row: i, col: spec.on, value: 'Không' });
+      counts.off += 1;
+    } else {
+      counts.kept.push(tab + ', dòng ' + (i + 1) + ' (' + old.id + '): trang web đã bỏ dòng này');
+      syncNote_(noteWrites, i, 0, String(cell(notes[i], 0) || ''), SYNC_NOTE_PREFIX + ' (' + label + ') đã bỏ dòng này. Dòng đã được sửa trong bảng nên vẫn để bật; nếu không cần nữa, ghi Không ở cột Bật.');
     }
   });
 
-  // Only rows that changed are written, so a formula or a fresh edit elsewhere in the tab stays.
-  Object.keys(changed).forEach(function (i) {
-    sheet.getRange(Number(i) + 1, 1, 1, width).setValues([grid[i]]);
+  syncWrite_(sheet, writes, appends, spec.headers.length);
+  noteWrites.forEach(function (change) {
+    var target = sheet.getRange(change.row + 1, change.col + 1);
+    if (change.note) target.setNote(change.note);
+    else target.clearNote();
   });
-  if (added.length) sheet.getRange(grid.length + 1, 1, added.length, width).setValues(added);
-  noteChanges.forEach(function (change) {
-    var cell = sheet.getRange(change[0] + 1, change[1] + 1);
-    if (change[2]) cell.setNote(change[2]);
-    else cell.clearNote();
-  });
+  props.setProperty('sync:' + kind + ':ids', JSON.stringify(items.map(function (item) { return item.id; })));
   return counts;
+}
+
+// Only the sync's own block of a note is replaced or removed; a note staff wrote stays above it.
+function syncNote_(noteWrites, row, col, note, block) {
+  var at = note.indexOf(SYNC_NOTE_PREFIX);
+  var staff = (at === -1 ? note : note.slice(0, at)).replace(/\s+$/, '');
+  var next = block ? (staff ? staff + '\n\n' : '') + block : staff;
+  if (next !== note) noteWrites.push({ row: row, col: col, note: next });
+}
+
+// Writes only the changed cells (neighbouring cells of a row at once), then appends new rows.
+function syncWrite_(sheet, writes, appends, width) {
+  var cells = writes.slice().sort(function (a, b) { return a.row - b.row || a.col - b.col; });
+  for (var k = 0; k < cells.length;) {
+    var run = [cells[k]];
+    while (k + run.length < cells.length && cells[k + run.length].row === run[0].row && cells[k + run.length].col === run[run.length - 1].col + 1) {
+      run.push(cells[k + run.length]);
+    }
+    sheet.getRange(run[0].row + 1, run[0].col + 1, 1, run.length).setValues([run.map(function (w) { return syncCell_(w.value, w.date); })]);
+    k += run.length;
+  }
+  if (!appends.length) return;
+  var rows = appends.map(function (values) {
+    return values.map(function (value, col) { return syncCell_(value, width > 3 && (col === 5 || col === 6)); });
+  });
+  var start = sheet.getLastRow() + 1;
+  var missing = start + rows.length - 1 - sheet.getMaxRows();
+  if (missing > 0) sheet.insertRowsAfter(sheet.getMaxRows(), missing);
+  sheet.getRange(start, 1, rows.length, width).setValues(rows);
+}
+
+// Text Sheets would read as a formula, a number or a date is stored as plain text.
+function syncCell_(value, date) {
+  if (typeof value !== 'string' || value === '') return value;
+  return date || /^[=+\-'@]/.test(value) ? "'" + value : value;
+}
+
+function syncOn_(value) {
+  return !/^(không|khong|tắt|tat|no|false|0)$/i.test(String(value === undefined || value === null ? '' : value).trim());
 }
 
 function factsStartSheet_(sheet) {
@@ -213,18 +385,37 @@ function syncWords_(line) {
   return words || syncText_(line).toLowerCase();
 }
 
-function syncMessage_(version, faq, facts) {
-  var changed = faq.rows + faq.updated + faq.added + faq.removed + facts.rows + facts.updated;
-  var kept = faq.kept + facts.kept;
+// "2026-10-03 d2d8909" reads as "bản ngày 03/10/2026" for staff; the log keeps the full version.
+function syncLabel_(version) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(version || ''));
+  return m ? 'bản ngày ' + m[3] + '/' + m[2] + '/' + m[1] : 'bản ' + version;
+}
+
+function syncMessage_(label, faq, facts) {
+  var changed = faq.rows + faq.updated + faq.added + faq.removed + faq.off + facts.rows + facts.updated + facts.off;
   var lines = [];
   if (changed) {
-    lines.push('Đã cập nhật từ trang (phiên bản ' + version + ').');
-    lines.push('FAQ: ' + faq.rows + ' dòng mới, ' + faq.added + ' cách hỏi mới, ' + faq.removed + ' cách hỏi cũ được bỏ, ' + faq.updated + ' ô được cập nhật.');
-    lines.push('Thông tin thêm: ' + facts.rows + ' dòng mới, ' + facts.updated + ' dòng được cập nhật.');
+    lines.push('Đã cập nhật từ trang web (' + label + ').');
+    lines.push('FAQ: ' + faq.rows + ' dòng mới, ' + faq.added + ' cách hỏi mới, ' + faq.removed + ' cách hỏi cũ được bỏ, ' + faq.updated + ' ô được cập nhật' + (faq.off ? ', ' + faq.off + ' dòng trang web đã bỏ được tắt' : '') + '.');
+    lines.push('Thông tin thêm: ' + facts.rows + ' dòng mới, ' + facts.updated + ' dòng được cập nhật' + (facts.off ? ', ' + facts.off + ' dòng trang web đã bỏ được tắt' : '') + '.');
   } else {
-    lines.push('Bảng đã giống dữ liệu trên trang (phiên bản ' + version + '), không có gì cần cập nhật.');
+    lines.push('Không có gì mới từ trang web (' + label + ').');
   }
-  if (kept) lines.push(kept + ' ô nhân viên đã sửa được giữ nguyên; bản mới nằm trong ghi chú của ô (ô có tam giác nhỏ ở góc).');
+  var kept = faq.kept.concat(facts.kept);
+  if (kept.length) {
+    lines.push('Giữ nguyên ' + kept.length + ' ô đã được sửa trong bảng. Bản mới nằm trong ghi chú của từng ô (tam giác nhỏ ở góc ô):');
+    kept.slice(0, 15).forEach(function (where) { lines.push('- ' + where); });
+    if (kept.length > 15) lines.push('- và ' + (kept.length - 15) + ' ô khác');
+  }
+  if (faq.clashes.length) {
+    lines.push('Câu hỏi của ' + faq.clashes.length + ' dòng mới trùng với một dòng khác đang bật; ghi Không ở cột Bật của một trong hai dòng:');
+    faq.clashes.forEach(function (what) { lines.push('- ' + what); });
+  }
+  if (faq.skipped.length) {
+    lines.push('Không thêm ' + faq.skipped.length + ' cách hỏi vì một dòng khác đang bật đã có:');
+    faq.skipped.slice(0, 10).forEach(function (what) { lines.push('- ' + what); });
+    if (faq.skipped.length > 10) lines.push('- và ' + (faq.skipped.length - 10) + ' cách hỏi khác');
+  }
   return lines.join('\n');
 }
 
@@ -239,38 +430,33 @@ function syncLog_(book, version, message) {
     var when = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm');
     sheet.appendRow([when, version, message].map(textCell_));
   } catch (err) {
-    // The log is a convenience; the update itself is already written.
+    // The log is a convenience; the result was already shown.
   }
 }
 
-// Enabled rows of the "Thông tin thêm" tab, or null while the tab does not exist (the prompt
-// then uses the facts built into Knowledge.gs).
+// Enabled rows of the "Thông tin thêm" tab, or null while the tab does not exist or cannot be
+// read; the prompt then uses the facts built into Knowledge.gs.
 function knowledgeFacts_() {
-  var cache = CacheService.getScriptCache();
-  var cached = cache.get(FACTS_CACHE_KEY);
-  if (cached) return JSON.parse(cached);
-  var sheet;
   try {
-    sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(FACTS_SHEET_NAME);
+    var cache = CacheService.getScriptCache();
+    var cached = cache.get(FACTS_CACHE_KEY);
+    if (cached) return JSON.parse(cached);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(FACTS_SHEET_NAME);
+    var facts = null;
+    if (sheet) {
+      facts = sheet.getDataRange().getValues().slice(1).map(function (cells) {
+        return { id: String(cells[0] || '').trim(), text: syncText_(cells[1]).replace(/\s*\n\s*/g, ' '), on: syncOn_(cells[2]) };
+      }).filter(function (fact) { return fact.on && fact.text; }).map(function (fact) { return { id: fact.id, text: fact.text }; });
+    }
+    try {
+      cache.put(FACTS_CACHE_KEY, JSON.stringify(facts), FAQ_CACHE_SECONDS);
+    } catch (err) {
+      // Too big for the cache: the tab is read on each question instead.
+    }
+    return facts;
   } catch (err) {
     return null;
   }
-  var facts = null;
-  if (sheet) {
-    facts = sheet.getDataRange().getValues().slice(1).map(function (cells) {
-      return {
-        id: String(cells[0] || '').trim(),
-        text: syncText_(cells[1]).replace(/\s*\n\s*/g, ' '),
-        on: !/^(không|khong|tắt|tat|no|false|0)$/i.test(String(cells[2] === undefined ? '' : cells[2]).trim())
-      };
-    }).filter(function (fact) { return fact.on && fact.text; }).map(function (fact) { return { id: fact.id, text: fact.text }; });
-  }
-  try {
-    cache.put(FACTS_CACHE_KEY, JSON.stringify(facts), FAQ_CACHE_SECONDS);
-  } catch (err) {
-    // Too big for the cache: the tab is read on each question instead.
-  }
-  return facts;
 }
 
 function knowledgeClearCache_() {

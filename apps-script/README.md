@@ -7,8 +7,9 @@ One Apps Script project, bound to the registration Google Sheet, serves two thin
 | `Code.gs` | Registration form: appends to the `Đăng ký` sheet and emails the team. Also routes requests. |
 | `Chat.gs` | Learner-care chat: answers from the FAQ tab when it can, otherwise asks a chain of low-cost AI models, and logs every exchange to the `Hỏi đáp` sheet. |
 | `Faq.gs` | The FAQ lookup: reads the staff-edited `FAQ` tab and finds the row a question matches. |
-| `FaqSeed.gs` | Starter FAQ rows, copied into the tab once by `setupFaq`. |
-| `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), plus the daily date note. |
+| `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
+| `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
+| `Sync.gs` | The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
 
 `doPost` in `Code.gs` sends any request with `"action": "chat"` to `Chat.gs` before taking the registration lock, so a slow model reply never holds up a registration.
 
@@ -28,6 +29,14 @@ With no AI configured at all, steps 1 and 3 still work: the chat runs as a FAQ b
 4. Project Settings (gear icon) > Script properties: set `CHAT_API_KEY` to that key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there.
 5. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider, which should start with `ok` and quote 8.800.000 đồng. `error-400` from Gemini usually means the key was pasted wrong.
 6. Deploy > Manage deployments > pencil icon on the existing web app > Version: **New version** > Deploy. This keeps the `/exec` URL, so `dist/index.html` needs no change. (Deploy > New deployment would create a different URL.)
+
+### Upgrading an existing deployment
+
+When new code arrives (not needed for data changes):
+
+1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`).
+2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
+3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
 ## Script properties
 
@@ -202,20 +211,22 @@ The thresholds favour sending a question to the AI over a wrong canned answer. T
 
 The chat reads its data from two tabs at run time, so changing data never needs pasted code or a new deployment:
 
-- `FAQ`: the rows the table answers from (`FaqSeed.gs` holds only the starter rows).
-- `Thông tin thêm`: the practices the Institute confirmed beyond the notice, one per row (`Mã`, `Nội dung`, `Bật`). The prompt uses the enabled rows in place of the facts built into `Knowledge.gs` (`KNOWLEDGE_EXTRA`); until the tab exists, the built-in facts apply. Edits take effect within seconds (the cache is cleared on edit, and expires after 10 minutes anyway).
+- `FAQ`: the rows the table answers from.
+- `Thông tin thêm`: the practices the Institute confirmed beyond the notice, one per row (`Mã`, `Nội dung`, `Bật`). The prompt uses the enabled rows in place of the facts built into `Knowledge.gs` (`KNOWLEDGE_EXTRA`); until the tab exists (the first menu run creates it), the built-in facts apply.
 
-Staff can edit both tabs directly. Changes made in the repository (new rows, phrasings from real conversations, corrected answers, confirmed facts) reach the tabs through the **Trợ lý AI > Cập nhật dữ liệu từ trang** menu:
+Edits to either tab take effect within seconds (the cache is cleared on edit, and expires after 10 minutes anyway). `FaqSeed.gs` and `KNOWLEDGE_EXTRA` are the repository's copy of the two tabs: `setupFaq` fills an empty `FAQ` tab from `FaqSeed.gs`, and after that, changes to either file reach the sheet only through the **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu. The copies pasted into Apps Script do not need updating for data changes.
 
-1. Merge the change into `main`. The deploy workflow runs `tools/build-assistant-data.js` and publishes `assistant-data.json` next to the page: the rows of `FaqSeed.gs`, the facts of `Knowledge.gs`, and for every field the hashes of all the versions the repository ever had, plus the phrasings it retired (built from git history).
-2. A few minutes later, open the Sheet and choose the menu item. The first time, Google asks for permission; accept.
-3. `Sync.gs` merges the file into the tabs and shows a summary, also kept in the `Lịch sử cập nhật` tab:
-   - rows the tab does not have are added, enabled;
-   - phrasings are added, and phrasings the repository retired (for example moved to another row) are removed;
-   - a group, question, answer or date is replaced only while the cell still holds a text the repository once wrote. A cell staff changed keeps their text, and the repository's new text goes into the cell's note (a small triangle in the corner) for staff to copy in or ignore; the note disappears once the cell matches;
-   - rows staff added, the `Bật` column and any columns staff added to the right are never touched. Nothing is deleted.
+1. Merge the change into `main`. A pull request that touches the data runs the `Check assistant data` workflow, which builds the file and fails on a row the menu would refuse. On merge, the deploy workflow runs `tools/build-assistant-data.js` and publishes `assistant-data.json` next to the page: the rows of `FaqSeed.gs`, the facts of `KNOWLEDGE_EXTRA`, the build time, and from git history the hashes of every version of each field, the phrasings each row has dropped and the rows and facts the repository has dropped.
+2. A few minutes later, open the Sheet on a computer and choose the menu item. Each Google account is asked for permission the first time.
+3. `Sync.gs` merges the file into the two tabs, row by row (matched by `Mã`), and shows a summary, also kept in the `Lịch sử cập nhật` tab (failures too):
+   - a group, question, answer, date or fact is replaced only while the cell still holds what the last update brought in (on the first update, any text the repository ever wrote). A cell staff changed keeps their text, and the new text goes into a block at the end of the cell's note, below any note staff wrote; the summary lists these cells. The block disappears once the cell matches, or when staff paste the block into the cell;
+   - phrasings new in the repository are added, unless another enabled row with overlapping dates already has them (listed in the summary); phrasings the repository dropped, for example moved to another row, are removed;
+   - rows and phrasings staff deleted are not brought back;
+   - rows the repository dropped are switched off (`Không` in `Bật`) while their answer is still the repository's text;
+   - a new row whose question an enabled row already uses is added and reported, so staff switch one of the two off;
+   - rows staff added, columns to the right of the eight FAQ columns and every other cell are left alone, and no row is deleted. Only changed cells are written, as plain text.
 
-If the file cannot be read, the menu says so and changes nothing. Code changes (`Faq.gs`, `Chat.gs`, the rules in `Knowledge.gs`) still need pasting and a new version of the deployment.
+What the last update brought in is kept in the document properties (keys starting `sync:`). The menu changes nothing when the file cannot be read or is invalid, when it is older than the last update applied, or when a tab's header row no longer has the expected columns.
 
 ## The `Hỏi đáp` sheet
 
@@ -250,8 +261,9 @@ Read it weekly (the staff guide shows how): AI answers to common questions shoul
 
 ## Updating what the chat knows
 
-- Course facts the AI uses: edit `Knowledge.gs`, run `chatSelfTest` if you want a quick check, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
-- FAQ answers: edit the `FAQ` tab; no deployment needed. Changes apply as soon as the tab is edited (or within 10 minutes).
+- Rules and notice facts (`CHAT_PROMPT_TEMPLATE` in `Knowledge.gs`): edit the file, paste it, run `chatSelfTest` if you want a quick check, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
+- Confirmed practices: edit the `Thông tin thêm` tab, or change `KNOWLEDGE_EXTRA` in the repository and use the update menu (see "Keeping the data current"). Once the tab exists, pasting `Knowledge.gs` does not change them.
+- FAQ answers: edit the `FAQ` tab, or change `FaqSeed.gs` in the repository and use the update menu; no deployment needed.
 
 ## Limits
 
