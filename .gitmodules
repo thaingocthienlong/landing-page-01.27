@@ -1,0 +1,4 @@
+[submodule "elearning-platform"]
+	path = elearning-platform
+	url = https://github.com/thaingocthienlong/elearning-platform.git
+	branch = master
