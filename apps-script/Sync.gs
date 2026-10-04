@@ -5,15 +5,15 @@
  * In the sheet, staff choose Trợ lý AI > Cập nhật dữ liệu từ trang web. For each row (by Mã):
  *   - a group, question, answer, date or fact is replaced only while the cell still holds what the
  *     last update brought in (on the first update: a text the repository ever wrote, from the hashes
- *     in the data file). A cell staff changed keeps their text; the new text goes into a block in
- *     the cell's note, between any notes staff wrote;
+ *     in the data file). A cell staff changed keeps their text; when the repository has a new text
+ *     for it, that text goes into a block in the cell's note, between any notes staff wrote;
  *   - phrasings new in the repository are added, unless another active row with overlapping dates
  *     already has them (checked against the tab as this update leaves it); phrasings the repository
  *     dropped are removed; phrasings and rows staff deleted are not brought back;
  *   - rows the repository dropped are switched off ("Không" in Bật) once, while their answer is
  *     still the repository's text, and switched back on if the repository brings them back;
- *   - a row staff added keeps its Mã even when the repository later adds a row with the same Mã:
- *     that new row waits until staff rename theirs;
+ *   - a row staff added keeps its Mã even when the repository adds a row with the same Mã, and a Mã
+ *     found on several rows is left alone: the summary asks staff to rename;
  *   - rows staff added, columns to the right and every other cell are left alone.
  * What the last update brought in is kept in the document properties (keys "sync:..."), saved only
  * after every cell is written, so an update that stops halfway is simply run again. A new or
@@ -86,13 +86,13 @@ function syncAssistantData_() {
     var faq = syncTab_(book, syncSheet_(book, FAQ_SHEET_NAME, faqStartSheet_), data.faq, data.retiredFaq, props, saved, 'faq', label, {
       headers: FAQ_HEADERS,
       fields: [[1, 'group'], [2, 'question'], [4, 'answer'], [5, 'from'], [6, 'to']],
-      main: [4, 'answer'], question: 2, variants: 3, from: 5, to: 6, on: 7,
+      main: [4, 'answer'], own: [[2, 'question'], [4, 'answer']], question: 2, variants: 3, from: 5, to: 6, on: 7,
       row: function (item) { return [item.id, item.group, item.question, '', item.answer, item.from || '', item.to || '', 'Có']; }
     });
     var facts = syncTab_(book, syncSheet_(book, FACTS_SHEET_NAME, factsStartSheet_), data.facts, data.retiredFacts, props, saved, 'fact', label, {
       headers: FACTS_HEADERS,
       fields: [[1, 'text']],
-      main: [1, 'text'], on: 2,
+      main: [1, 'text'], own: [[1, 'text']], on: 2,
       row: function (item) { return [item.id, item.text, 'Có']; }
     });
     // Saved last and in one call: an update that stops before this point left the old state, and
@@ -161,7 +161,7 @@ function syncFold_(value) {
 // Merges the repository's items into one tab; see the top of this file for the rules. The cells
 // are written here; the state to remember goes into `saved`, which the caller stores at the end.
 function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, spec) {
-  var counts = { rows: 0, updated: 0, added: 0, removed: 0, off: 0, on: 0, kept: [], skipped: [], clashes: [], taken: [] };
+  var counts = { rows: 0, updated: 0, added: 0, removed: 0, off: 0, on: 0, kept: [], skipped: [], clashes: [], taken: [], doubled: [] };
   var tab = sheet.getName();
   var key = 'sync:' + kind + ':';
   var range = sheet.getDataRange();
@@ -172,10 +172,20 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
   var day = function (value) { return faqDay_(value instanceof Date ? value : syncText_(value), zone); };
   var hashOf = function (value) { return syncHash_(syncText_(value)); };
   var at = {};
+  var rowsWith = {};
   values.forEach(function (cells, i) {
     var id = String(cell(cells, 0) || '').trim();
-    if (i > 0 && id && !(id in at)) at[id] = i;
+    if (i === 0 || !id) return;
+    if (!(id in at)) at[id] = i;
+    (rowsWith[id] = rowsWith[id] || []).push(i + 1);
   });
+  // A Mã on several rows (a row copied to start a new one): which row is the repository's is
+  // unknown, so none of them is touched until staff give the copies their own Mã.
+  var doubled = function (id) {
+    if (!rowsWith[id] || rowsWith[id].length < 2) return false;
+    counts.doubled.push(tab + ': Mã ' + id + ' (dòng ' + rowsWith[id].join(', ') + ')');
+    return true;
+  };
   // A new or emptied tab starts over: what earlier updates brought in no longer describes it.
   var fresh = !Object.keys(at).length;
   var load = function (name, empty) { return (fresh ? null : JSON.parse(props.getProperty(key + name) || 'null')) || empty; };
@@ -201,10 +211,14 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
       // Brought in by an earlier update and no longer in the tab: staff deleted it, so it stays out.
       return { item: item, role: lastIds && lastIds.indexOf(item.id) !== -1 ? 'deleted' : 'new' };
     }
-    // A Mã the repository never brought into this tab, on a row that is not the repository's
-    // text: a row staff added themselves. It is not merged with the new repository row.
-    var mainKnown = ((item.known && item.known[spec.main[1]]) || []).indexOf(hashOf(cell(values[i], spec.main[0]))) !== -1;
-    if (lastIds && lastIds.indexOf(item.id) === -1 && !state && !mainKnown) {
+    if (doubled(item.id)) return { item: item, role: 'doubled' };
+    // A Mã no update brought into this tab, on a row whose question and answer were never the
+    // repository's text: a row staff added themselves (also on the first update). It is not
+    // merged with the repository row; that row waits until staff rename theirs.
+    var ours = spec.own.some(function (pair) {
+      return ((item.known && item.known[pair[1]]) || []).indexOf(hashOf(cell(values[i], pair[0]))) !== -1;
+    });
+    if (!state && !(lastIds && lastIds.indexOf(item.id) !== -1) && !ours) {
       counts.taken.push(tab + ', dòng ' + (i + 1) + ' (Mã ' + item.id + ')');
       return { item: item, role: 'staff' };
     }
@@ -245,6 +259,13 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
         syncNote_(noteWrites, i, col, noteOf(i, col), '');
         return;
       }
+      // Staff's text stands. The repository's text goes into the note only when it is new to this
+      // cell: on the first update, when the repository changed it since the last update, or once
+      // for a cell back on an older repository text (an older wording restored, or a version of
+      // the sheet restored from its history).
+      var older = ((item.known && item.known[field]) || []).indexOf(syncHash_(current)) !== -1;
+      if (p.state && p.state.h && p.state.h[field] === syncHash_(wanted) &&
+        !(older && noteOf(i, col).indexOf(SYNC_NOTE_PREFIX) === -1)) return;
       counts.kept.push(tab + ', dòng ' + (i + 1) + ' (' + item.id + '), cột ' + spec.headers[col]);
       syncNote_(noteWrites, i, col, noteOf(i, col), wanted
         ? SYNC_NOTE_PREFIX + ' (' + label + '). Ô này đã được sửa trong bảng nên được giữ nguyên. Muốn dùng bản mới, chép các dòng nằm giữa dòng này và dòng ' + SYNC_NOTE_END + ' vào ô:\n' + item[field] + '\n' + SYNC_NOTE_END
@@ -253,12 +274,14 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
   });
 
   // 2. Rows the repository dropped: switched off once, while their main text is the repository's.
+  // Remembered as 'off' (switched off here, so switched back on if the repository brings the row
+  // back), 'staff' (already off) or 'kept' (edited, left on).
   (retiredItems || []).forEach(function (old) {
     var i = at[old.id];
-    if (i === undefined || offIds[old.id]) return;
+    if (i === undefined || offIds[old.id] || doubled(old.id)) return;
     var known = (old.known && old.known[spec.main[1]]) || [];
     if (!syncOn_(cell(live[i], spec.on))) {
-      offIds[old.id] = 'off';
+      offIds[old.id] = 'staff';
     } else if (known.indexOf(hashOf(cell(live[i], spec.main[0]))) !== -1) {
       put(i, spec.on, 'Không');
       counts.off += 1;
@@ -292,9 +315,13 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
     plan.forEach(function (p) {
       if (p.role !== 'row') return;
       var repoKeys = p.item.variants.map(syncWords_);
+      var repoTexts = p.item.variants.map(syncText_);
+      var was = p.state && p.state.v ? p.state.v.filter(function (text) { return repoTexts.indexOf(text) === -1; }) : (p.item.retired || []);
       var gone = dropped[p.i] = {};
-      if (p.state && p.state.v) p.state.v.forEach(function (words) { if (repoKeys.indexOf(words) === -1) gone[words] = true; });
-      else (p.item.retired || []).forEach(function (line) { gone[syncWords_(line)] = true; });
+      was.forEach(function (text) {
+        var words = syncWords_(text);
+        if (repoKeys.indexOf(words) === -1) gone[words] = true;
+      });
     });
     live.forEach(function (cells, i) {
       if (i === 0) return;
@@ -329,7 +356,9 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
       var removed = before.length - keep.length;
       var onRow = {};
       [cell(live[p.i], spec.question)].concat(keep).forEach(function (line) { onRow[syncWords_(line)] = true; });
-      var earlier = (p.state && p.state.v) || [];
+      // Remembered as text and read with the matcher of this run, so a code release that changes
+      // the matcher's word lists does not bring back a phrasing staff removed.
+      var earlier = ((p.state && p.state.v) || []).map(syncWords_);
       var added = 0;
       p.item.variants.forEach(function (line) {
         var words = syncWords_(line);
@@ -354,10 +383,18 @@ function syncTab_(book, sheet, items, retiredItems, props, saved, kind, label, s
       }
       // Remembered: the repository's phrasings on the row now, and those staff removed earlier. A
       // phrasing skipped as a duplicate is not, so it arrives once the other row is switched off.
-      p.v = p.item.variants.map(syncWords_).filter(function (words) { return onRow[words] || earlier.indexOf(words) !== -1; });
+      p.v = p.item.variants.filter(function (line) {
+        var words = syncWords_(line);
+        return onRow[words] || earlier.indexOf(words) !== -1;
+      }).map(syncText_);
     });
   }
 
+  // The lock keeps a second update out, not people: if anyone changed the tab since it was read,
+  // the row numbers above may point elsewhere, so nothing is written and staff run the menu again.
+  if (JSON.stringify(sheet.getDataRange().getValues()) !== JSON.stringify(values)) {
+    throw new Error('tab "' + tab + '" vừa được sửa trong lúc cập nhật');
+  }
   syncWrite_(sheet, Object.keys(writes).map(function (k) { return writes[k]; }), live.slice(values.length), spec.headers.length);
   noteWrites.forEach(function (change) {
     var target = sheet.getRange(change.row + 1, change.col + 1);
@@ -464,7 +501,8 @@ function syncLabel_(version) {
 }
 
 function syncMessage_(label, faq, facts) {
-  var changed = faq.rows + faq.updated + faq.added + faq.removed + faq.off + faq.on + facts.rows + facts.updated + facts.off + facts.on;
+  var changed = faq.rows + faq.updated + faq.added + faq.removed + faq.off + faq.on + faq.kept.length +
+    facts.rows + facts.updated + facts.off + facts.on + facts.kept.length;
   var turned = function (counts) {
     return (counts.off ? ', ' + counts.off + ' dòng trang web đã bỏ được tắt' : '') + (counts.on ? ', ' + counts.on + ' dòng trang web dùng lại được bật lại' : '');
   };
@@ -476,6 +514,11 @@ function syncMessage_(label, faq, facts) {
   } else {
     lines.push('Không có gì mới từ trang web (' + label + ').');
   }
+  var doubled = faq.doubled.concat(facts.doubled);
+  if (doubled.length) {
+    lines.push('Chưa cập nhật ' + doubled.length + ' dòng của trang web vì Mã của dòng đó có ở nhiều dòng trong bảng. Đổi Mã của các dòng chép thêm (ví dụ thêm chữ -2) rồi chọn lại menu:');
+    doubled.forEach(function (where) { lines.push('- ' + where); });
+  }
   var taken = faq.taken.concat(facts.taken);
   if (taken.length) {
     lines.push('Chưa thêm ' + taken.length + ' dòng mới của trang web vì Mã của dòng đó trùng với một dòng do Viện tự thêm. Đổi Mã của dòng trong bảng (ví dụ thêm chữ -vien) rồi chọn lại menu:');
@@ -483,7 +526,7 @@ function syncMessage_(label, faq, facts) {
   }
   var kept = faq.kept.concat(facts.kept);
   if (kept.length) {
-    lines.push('Giữ nguyên ' + kept.length + ' ô đã được sửa trong bảng. Bản mới nằm trong ghi chú của từng ô (tam giác nhỏ ở góc ô):');
+    lines.push('Trang web có bản mới cho ' + kept.length + ' ô đã được sửa trong bảng; các ô này được giữ nguyên. Bản mới nằm trong ghi chú của từng ô (tam giác nhỏ ở góc ô):');
     kept.slice(0, 15).forEach(function (where) { lines.push('- ' + where); });
     if (kept.length > 15) lines.push('- và ' + (kept.length - 15) + ' ô khác');
   }
