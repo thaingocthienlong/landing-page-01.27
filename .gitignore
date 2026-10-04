@@ -11,3 +11,6 @@ media/certificate/mockup/*.pdf
 
 # python
 __pycache__/
+
+# built by the deploy workflow (tools/build-assistant-data.js)
+dist/assistant-data.json

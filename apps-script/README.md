@@ -22,7 +22,7 @@ With no AI configured at all, steps 1 and 3 still work: the chat runs as a FAQ b
 
 ## Setting it up
 
-1. Open the Sheet > Extensions > Apps Script. Create script files named `Chat`, `Faq`, `FaqSeed` and `Knowledge` and paste the matching `.gs` files. Replace `Code` with `Code.gs`.
+1. Open the Sheet > Extensions > Apps Script. Create script files named `Chat`, `Faq`, `FaqSeed`, `Knowledge` and `Sync` and paste the matching `.gs` files. Replace `Code` with `Code.gs`. Reload the Sheet: a **Trợ lý AI** menu appears (see "Keeping the data current").
 2. Choose `setupFaq` in the function list and Run. It creates the `FAQ` tab with the starter rows (it never overwrites a tab that has rows).
 3. Get a free Gemini key: sign in to aistudio.google.com with the institute's Google account and accept the terms. AI Studio creates a Cloud project and an API key for new users; otherwise use API keys > Create API key. No credit card is needed. Make sure the key sits in a project **with no billing account**: a key inherits its project's billing, and a billed project is charged for every question. If the account already has Google Cloud projects with billing (for Maps, for example), choose to create a new project in the dialog, then check that AI Studio shows the project on the Free tier. On the API keys page, choose Add restrictions > Restrict to Gemini API only. (On a Google Workspace account, an admin can switch AI Studio off; ask them if it is blocked.)
 4. Project Settings (gear icon) > Script properties: set `CHAT_API_KEY` to that key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there.
@@ -42,6 +42,7 @@ Each provider reads a group of properties with its own prefix. A provider withou
 | `…EXTRA_BODY` | JSON merged into the top level of every request (host switches such as turning reasoning off). For Gemini, a `generationConfig` here replaces the default one entirely. |
 | `…HEADERS` | JSON of extra HTTP headers (for example a tunnel's access token). |
 | `CHAT_MAX_PER_HOUR` | AI calls allowed per clock hour across all visitors, default `100`. `0` pauses the AI; the FAQ keeps answering. |
+| `ASSISTANT_DATA_URL` | Optional. Where the update menu reads the data file; default `https://thaingocthienlong.github.io/landing-page-01.27/assistant-data.json`. |
 
 Recommended setup:
 
@@ -196,6 +197,25 @@ The thresholds favour sending a question to the AI over a wrong canned answer. T
 - Declines medical questions and anything outside the course series.
 - The AI is told each day whether the 08/12/2026 offer date and the 28/12/2026 deadline have passed (worked out in `Knowledge.gs`, not by the model). On those two days themselves it asks the learner to confirm with the Institute, because the notice says "before" both dates; the dated FAQ rows leave those two days uncovered for the same reason.
 - Does not collect callback requests. The panel always shows Call and Zalo links.
+
+## Keeping the data current
+
+The chat reads its data from two tabs at run time, so changing data never needs pasted code or a new deployment:
+
+- `FAQ`: the rows the table answers from (`FaqSeed.gs` holds only the starter rows).
+- `Thông tin thêm`: the practices the Institute confirmed beyond the notice, one per row (`Mã`, `Nội dung`, `Bật`). The prompt uses the enabled rows in place of the facts built into `Knowledge.gs` (`KNOWLEDGE_EXTRA`); until the tab exists, the built-in facts apply. Edits take effect within seconds (the cache is cleared on edit, and expires after 10 minutes anyway).
+
+Staff can edit both tabs directly. Changes made in the repository (new rows, phrasings from real conversations, corrected answers, confirmed facts) reach the tabs through the **Trợ lý AI > Cập nhật dữ liệu từ trang** menu:
+
+1. Merge the change into `main`. The deploy workflow runs `tools/build-assistant-data.js` and publishes `assistant-data.json` next to the page: the rows of `FaqSeed.gs`, the facts of `Knowledge.gs`, and for every field the hashes of all the versions the repository ever had, plus the phrasings it retired (built from git history).
+2. A few minutes later, open the Sheet and choose the menu item. The first time, Google asks for permission; accept.
+3. `Sync.gs` merges the file into the tabs and shows a summary, also kept in the `Lịch sử cập nhật` tab:
+   - rows the tab does not have are added, enabled;
+   - phrasings are added, and phrasings the repository retired (for example moved to another row) are removed;
+   - a group, question, answer or date is replaced only while the cell still holds a text the repository once wrote. A cell staff changed keeps their text, and the repository's new text goes into the cell's note (a small triangle in the corner) for staff to copy in or ignore; the note disappears once the cell matches;
+   - rows staff added, the `Bật` column and any columns staff added to the right are never touched. Nothing is deleted.
+
+If the file cannot be read, the menu says so and changes nothing. Code changes (`Faq.gs`, `Chat.gs`, the rules in `Knowledge.gs`) still need pasting and a new version of the deployment.
 
 ## The `Hỏi đáp` sheet
 

@@ -13,7 +13,7 @@
  * that changes daily is chatDateNote_ below, sent after it.
  */
 
-var CHAT_SYSTEM_PROMPT = [
+var CHAT_PROMPT_TEMPLATE = [
   'Bạn là trợ lý AI chăm sóc học viên của Viện phát triển nguồn lực xã hội Phương Nam (Viện Phương Nam), trả lời trong khung hỏi đáp trên trang giới thiệu chuỗi khóa học "Phân tích định lượng với R – Từ cơ bản đến chuyên sâu" (tháng 01/2027). Người hỏi là người đang tìm hiểu hoặc đã đăng ký: nhà nghiên cứu, học viên sau đại học, giảng viên, người làm y tế, dược, kinh tế y tế. Nhiều người chưa từng lập trình.',
   '',
   '# Cách trả lời',
@@ -61,18 +61,7 @@ var CHAT_SYSTEM_PROMPT = [
   '- Mỗi ngày gồm 2 buổi (khóa 3 ngày có 6 buổi, khóa 2 ngày có 4 buổi).',
   '',
   '## Viện xác nhận thêm (ngoài thông báo)',
-  '- Giờ học: sáng 8:30–11:30, chiều 13:30–17:00. Buổi sáng học lý thuyết: thầy giảng nguyên lý, logic của từng phương pháp và cách chọn phương pháp phù hợp với câu hỏi nghiên cứu, dữ liệu. Buổi chiều thực hành bằng R trên dữ liệu thực tế.',
-  '- Lịch học cố định theo lịch GS. Nguyễn Văn Tuấn từ Úc về Việt Nam giảng dạy: không có lớp buổi tối, không đổi giờ theo từng người; hiện chưa có kế hoạch cho đợt sau.',
-  '- Học online qua Zoom diễn ra cùng lúc với lớp tại hội trường, như cầu truyền hình trực tiếp: học viên online hỏi thầy trực tiếp qua mic hoặc viết câu hỏi trên khung chat. Học viên online thấy màn hình máy thầy khi chạy R và nghe rõ hội trường; buổi thực hành chiều, học viên online gặp lỗi code thì có người hỗ trợ qua Zoom hoặc khung chat. Học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào online.',
-  '- Phần lý thuyết chủ yếu do GS. Tuấn giảng, phần thực hành TS. Thạch hướng dẫn nhiều hơn; khi một thầy giảng, thầy kia vẫn có mặt trong lớp. Hai thầy giảng bằng tiếng Việt; slide và thuật ngữ có tiếng Anh.',
-  '- Tài liệu: file PDF slide bài giảng gửi trước khóa học 2–3 ngày; tài liệu in và sách tặng có chữ ký của GS. Tuấn. Học viên online được gửi tài liệu in, sách và giấy chứng nhận qua bưu điện sau khóa học, Viện chịu phí gửi.',
-  '- Hoàn thành khóa học được cấp giấy chứng nhận hoàn thành khóa học, dự kiến ghi tên các khóa học đã đăng ký tham gia (học gói nhiều khóa: chỉ nói như vậy, không nói mỗi khóa một giấy). Chỉ có giấy chứng nhận hoàn thành: không tính giờ CME, không có bài kiểm tra cuối khóa. Ai cần ghi tên theo hộ chiếu (thứ tự First name, Last name) thì báo chuyên viên khi xác nhận đăng ký. Người đang tìm hiểu có thể xin mẫu giấy chứng nhận qua Zalo Ms. Thảo hoặc Ms. Vy. Số buổi phải tham dự để được cấp giấy chứng nhận: chưa có thông tin.',
-  '- Bản ghi buổi học: học viên đã đăng ký được xem lại qua link Viện gửi. Link mở ngoài giờ học ngay từ ngày học đầu tiên và hết hạn khoảng 2 ngày sau khi khóa học kết thúc; ngày cụ thể Viện báo cho học viên. Vì cam kết bản quyền với GS. Tuấn, Viện không bán hay cung cấp bản ghi cho người không đăng ký.',
-  '- Sau khi nhận phiếu đăng ký, Ms. Vy hoặc Ms. Thảo liên hệ qua Zalo trong khoảng 1 ngày làm việc để xác nhận thông tin, gói học, hình thức học và hỗ trợ hoàn tất thủ tục; không tìm thấy Zalo của học viên thì gửi email. Điền phiếu chưa giữ chỗ: chỉ khi hoàn tất học phí, học viên mới có tên trong danh sách chính thức. Học viên chờ chuyên viên xác nhận gói và số tiền qua Zalo rồi mới chuyển khoản.',
-  '- Nhóm Zalo lớp được lập 3–4 ngày trước khai giảng; link Zoom và hướng dẫn cài đặt R gửi trong nhóm. Sau khóa học, học viên vẫn hỏi được thầy hoặc Viện trong nhóm Zalo lớp.',
-  '- Sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên chụp gửi học viên qua Zalo để xác nhận. Viện xuất hóa đơn VAT ghi tên đơn vị: sau khi hoàn tất học phí, chuyên viên gửi link để học viên điền thông tin xuất hóa đơn. Hóa đơn điện tử hay hóa đơn giấy, các chứng từ khác để thanh toán với cơ quan: chưa có thông tin.',
-  '- Hủy đăng ký, bảo lưu, hoàn, rút hay chuyển học phí (kể cả đổi gói, người khác học thay, đổi hẳn hình thức học): không nêu hay đoán quy định nào; mời liên hệ tư vấn viên qua các số ở trên để được hỗ trợ cụ thể.',
-  '- Các mốc ưu đãi ấn định theo thông báo chính thức. Không tự nói mốc có được gia hạn hay không; người hỏi cần hỗ trợ cụ thể về mốc ưu đãi thì mời liên hệ tư vấn viên.',
+  '{{THONG_TIN_THEM}}',
   '',
   '## Ba khóa học',
   '1. Khóa 1, "Phân tích dữ liệu với R cơ bản": 03 ngày (6 buổi), từ 08/01 đến 10/01/2027 (thứ Sáu đến Chủ nhật), 7 bài.',
@@ -181,6 +170,38 @@ var CHAT_SYSTEM_PROMPT = [
   'Hỏi: Bệnh nhân của tôi nên dùng thuốc gì?',
   'Đáp: Dạ, em không tư vấn y khoa được. Em chỉ hỗ trợ các câu hỏi về chuỗi khóa học Phân tích định lượng với R, như chọn gói, học phí, lịch học và cách đăng ký.'
 ].join('\n');
+
+// Practices the Institute confirmed beyond the notice. They are also the starter rows of the
+// "Thông tin thêm" tab: once the tab exists, the prompt uses its enabled rows instead, so staff
+// add or correct a confirmed fact in the sheet without changing this code.
+var KNOWLEDGE_EXTRA = [
+  { id: 'gio-hoc', text: 'Giờ học: sáng 8:30–11:30, chiều 13:30–17:00. Buổi sáng học lý thuyết: thầy giảng nguyên lý, logic của từng phương pháp và cách chọn phương pháp phù hợp với câu hỏi nghiên cứu, dữ liệu. Buổi chiều thực hành bằng R trên dữ liệu thực tế.' },
+  { id: 'lich-co-dinh', text: 'Lịch học cố định theo lịch GS. Nguyễn Văn Tuấn từ Úc về Việt Nam giảng dạy: không có lớp buổi tối, không đổi giờ theo từng người; hiện chưa có kế hoạch cho đợt sau.' },
+  { id: 'hoc-online', text: 'Học online qua Zoom diễn ra cùng lúc với lớp tại hội trường, như cầu truyền hình trực tiếp: học viên online hỏi thầy trực tiếp qua mic hoặc viết câu hỏi trên khung chat. Học viên online thấy màn hình máy thầy khi chạy R và nghe rõ hội trường; buổi thực hành chiều, học viên online gặp lỗi code thì có người hỗ trợ qua Zoom hoặc khung chat. Học viên học trực tiếp, buổi nào bận không đến lớp được thì có thể vào online.' },
+  { id: 'giang-vien', text: 'Phần lý thuyết chủ yếu do GS. Tuấn giảng, phần thực hành TS. Thạch hướng dẫn nhiều hơn; khi một thầy giảng, thầy kia vẫn có mặt trong lớp. Hai thầy giảng bằng tiếng Việt; slide và thuật ngữ có tiếng Anh.' },
+  { id: 'tai-lieu', text: 'Tài liệu: file PDF slide bài giảng gửi trước khóa học 2–3 ngày; tài liệu in và sách tặng có chữ ký của GS. Tuấn. Học viên online được gửi tài liệu in, sách và giấy chứng nhận qua bưu điện sau khóa học, Viện chịu phí gửi.' },
+  { id: 'giay-chung-nhan', text: 'Hoàn thành khóa học được cấp giấy chứng nhận hoàn thành khóa học, dự kiến ghi tên các khóa học đã đăng ký tham gia (học gói nhiều khóa: chỉ nói như vậy, không nói mỗi khóa một giấy). Chỉ có giấy chứng nhận hoàn thành: không tính giờ CME, không có bài kiểm tra cuối khóa. Ai cần ghi tên theo hộ chiếu (thứ tự First name, Last name) thì báo chuyên viên khi xác nhận đăng ký. Người đang tìm hiểu có thể xin mẫu giấy chứng nhận qua Zalo Ms. Thảo hoặc Ms. Vy. Số buổi phải tham dự để được cấp giấy chứng nhận: chưa có thông tin.' },
+  { id: 'ban-ghi', text: 'Bản ghi buổi học: học viên đã đăng ký được xem lại qua link Viện gửi. Link mở ngoài giờ học ngay từ ngày học đầu tiên và hết hạn khoảng 2 ngày sau khi khóa học kết thúc; ngày cụ thể Viện báo cho học viên. Vì cam kết bản quyền với GS. Tuấn, Viện không bán hay cung cấp bản ghi cho người không đăng ký.' },
+  { id: 'dang-ky', text: 'Sau khi nhận phiếu đăng ký, Ms. Vy hoặc Ms. Thảo liên hệ qua Zalo trong khoảng 1 ngày làm việc để xác nhận thông tin, gói học, hình thức học và hỗ trợ hoàn tất thủ tục; không tìm thấy Zalo của học viên thì gửi email. Điền phiếu chưa giữ chỗ: chỉ khi hoàn tất học phí, học viên mới có tên trong danh sách chính thức. Học viên chờ chuyên viên xác nhận gói và số tiền qua Zalo rồi mới chuyển khoản.' },
+  { id: 'nhom-zalo', text: 'Nhóm Zalo lớp được lập 3–4 ngày trước khai giảng; link Zoom và hướng dẫn cài đặt R gửi trong nhóm. Sau khóa học, học viên vẫn hỏi được thầy hoặc Viện trong nhóm Zalo lớp.' },
+  { id: 'phieu-thu-hoa-don', text: 'Sau khi Viện nhận học phí, kế toán viết phiếu thu và chuyên viên chụp gửi học viên qua Zalo để xác nhận. Viện xuất hóa đơn VAT ghi tên đơn vị: sau khi hoàn tất học phí, chuyên viên gửi link để học viên điền thông tin xuất hóa đơn. Hóa đơn điện tử hay hóa đơn giấy, các chứng từ khác để thanh toán với cơ quan: chưa có thông tin.' },
+  { id: 'bao-luu-rut', text: 'Hủy đăng ký, bảo lưu, hoàn, rút hay chuyển học phí (kể cả đổi gói, người khác học thay, đổi hẳn hình thức học): không nêu hay đoán quy định nào; mời liên hệ tư vấn viên qua các số ở trên để được hỗ trợ cụ thể.' },
+  { id: 'moc-uu-dai', text: 'Các mốc ưu đãi ấn định theo thông báo chính thức. Không tự nói mốc có được gia hạn hay không; người hỏi cần hỗ trợ cụ thể về mốc ưu đãi thì mời liên hệ tư vấn viên.' }
+];
+
+var CHAT_SYSTEM_PROMPT = chatPromptWith_(KNOWLEDGE_EXTRA);
+
+function chatPromptWith_(facts) {
+  var lines = facts.map(function (fact) { return '- ' + fact.text; }).join('\n');
+  return CHAT_PROMPT_TEMPLATE.replace('{{THONG_TIN_THEM}}', function () { return lines; });
+}
+
+// The prompt with the facts from the "Thông tin thêm" tab, or the built-in ones while the tab
+// does not exist.
+function chatSystemPrompt_() {
+  var facts = knowledgeFacts_();
+  return facts ? chatPromptWith_(facts) : CHAT_SYSTEM_PROMPT;
+}
 
 // Sent after the prompt on every request. The offer and deadline status is worked out here, so a
 // small model never has to compare dates itself. The notice says "trước" (before) both dates, so the

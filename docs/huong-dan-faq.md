@@ -8,6 +8,25 @@ Trợ lý trên trang trả lời theo ba tầng:
 
 Bảng FAQ càng đầy đủ thì trợ lý càng nhanh, càng đúng, và càng ít câu hỏi của học viên phải gửi cho dịch vụ AI bên ngoài.
 
+Sửa tab `FAQ` hay tab `Thông tin thêm` thì trợ lý dùng ngay, không cần sửa Apps Script hay deploy lại.
+
+## Cập nhật dữ liệu từ trang
+
+Khi người phụ trách trang báo đã cập nhật dữ liệu (thêm dòng, thêm cách hỏi thật, sửa câu trả lời, thêm điều Viện xác nhận), chờ vài phút rồi mở Google Sheet, chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang**. Lần đầu Google hỏi quyền truy cập: chọn cho phép.
+
+- Dòng mới và cách hỏi mới được thêm vào. Cách hỏi cũ mà bản trên trang đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa.
+- Ô nào vẫn còn nguyên chữ do trang ghi thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên**; bản mới trên trang nằm trong ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem). Thấy bản mới đúng hơn thì chép vào ô; ghi chú tự mất ở lần cập nhật sau.
+- Dòng nhân viên tự thêm, cột "Bật" và các cột nhân viên thêm bên phải không bị đụng tới. Không dòng nào bị xóa.
+- Kết quả hiện trong hộp thông báo và được ghi ở tab `Lịch sử cập nhật`.
+
+## Tab "Thông tin thêm"
+
+Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học online, giấy chứng nhận, hóa đơn...) nằm ở tab này, mỗi điều một dòng: `Mã`, `Nội dung`, `Bật`. AI đọc các dòng đang bật để trả lời những câu bảng FAQ không có.
+
+- Viện xác nhận thêm điều gì (ví dụ sĩ số dự kiến), thêm một dòng: mã ngắn không dấu (`si-so`), nội dung viết như một câu khẳng định, cột Bật ghi `Có`.
+- Điều nào không còn đúng: sửa nội dung, hoặc ghi `Không` ở cột Bật.
+- Chỉ ghi điều Viện đã xác nhận, đúng như Viện nói; AI sẽ nói lại với học viên như sự thật.
+
 ## Các cột trong tab FAQ
 
 | Cột | Ý nghĩa | Ví dụ |

@@ -69,24 +69,29 @@ function setupFaq() {
     return;
   }
   sheet.clear();
-  sheet.appendRow(FAQ_HEADERS);
-  sheet.getRange(1, 1, 1, FAQ_HEADERS.length).setFontWeight('bold').setBackground('#0a3d91').setFontColor('#ffffff');
-  sheet.setFrozenRows(1);
-  // Dates stay text, so "07/12/2026" is read as day/month whatever the sheet's locale.
-  sheet.getRange('F:G').setNumberFormat('@');
+  faqStartSheet_(sheet);
   if (FAQ_SEED.length) {
     var rows = FAQ_SEED.map(function (row) {
       return [row.id, row.group, row.question, row.variants.join('\n'), row.answer, row.from, row.to, 'Có'];
     });
     sheet.getRange(2, 1, rows.length, FAQ_HEADERS.length).setValues(rows);
   }
+  faqClearCache_();
+  Logger.log('FAQ tab ready with ' + FAQ_SEED.length + ' starter rows.');
+}
+
+// Header, frozen first row and column layout of an empty FAQ tab.
+function faqStartSheet_(sheet) {
+  sheet.appendRow(FAQ_HEADERS);
+  sheet.getRange(1, 1, 1, FAQ_HEADERS.length).setFontWeight('bold').setBackground('#0a3d91').setFontColor('#ffffff');
+  sheet.setFrozenRows(1);
+  // Dates stay text, so "07/12/2026" is read as day/month whatever the sheet's locale.
+  sheet.getRange('F:G').setNumberFormat('@');
   sheet.getRange('C:E').setWrap(true).setVerticalAlignment('top');
   sheet.setColumnWidths(1, 2, 140);
   sheet.setColumnWidth(3, 260);
   sheet.setColumnWidth(4, 320);
   sheet.setColumnWidth(5, 420);
-  faqClearCache_();
-  Logger.log('FAQ tab ready with ' + FAQ_SEED.length + ' starter rows.');
 }
 
 /**
@@ -104,10 +109,12 @@ function FAQ_KHOP(question) {
   return [[result.answer ? 'trả lời' : 'AI hoặc gợi ý', best.row.id, Math.round(best.score * 10) / 10, Math.round(best.coverage * 100) / 100, result.reason]];
 }
 
-// Clears the cached rows as soon as staff edit the FAQ tab.
+// Clears the cached rows as soon as staff edit the FAQ tab or the "Thông tin thêm" tab.
 function onEdit(e) {
   try {
-    if (e && e.range && e.range.getSheet().getName() === FAQ_SHEET_NAME) faqClearCache_();
+    var name = e && e.range ? e.range.getSheet().getName() : '';
+    if (name === FAQ_SHEET_NAME) faqClearCache_();
+    if (name === FACTS_SHEET_NAME) knowledgeClearCache_();
   } catch (err) {
     // The cache also expires on its own after FAQ_CACHE_SECONDS.
   }
