@@ -4,6 +4,8 @@
 site-package*.tar.gz
 site-package-stage-*/
 media/certificate/mockup/*.pdf
+# inbox exports hold customer names and messages
+assets/*.csv
 
 # claude local
 .claude/settings.local.json
