@@ -172,3 +172,60 @@ Input: the Institute's Page inbox export for 01/07–15/08/2026 (90 conversation
 Apps Script harness, 40 cases                PASS (adds first-turn greeting, staff-row greeting variants)
 FAQ seed self-check, 725 phrasings           711 own row, 14 deferred, 0 other row
 ```
+
+## Answers formatted for phone reading, 2026-10-03
+
+After the first live use, the owner reported that answers showed as one long, unformatted paragraph. Three fixes:
+
+- `Knowledge.gs`: the formatting rule now says the first sentence answers, alone; the rest goes in short paragraphs of at most 2 sentences separated by a blank line; 2+ points become a "- " list; key figures are bold. The examples follow the same layout.
+- `dist/app.js`: a line over 170 characters with 2+ sentences is split into the first sentence, then 2-sentence paragraphs. "GS.", "TS.", "PGS.", "ThS.", "Ms.", "Mr.", "TP." are not sentence ends.
+- `FaqSeed.gs`: the 55 answers rewritten with lists and short paragraphs (fees per package, discounts, hours, payment steps, objectives, curriculum). Figures and facts unchanged. Staff must recreate the FAQ tab (`setupFaq`) for the new seed to take effect.
+
+```text
+Apps Script harness, 40 cases                PASS
+Mask cases, 48                               PASS
+FAQ seed self-check, 725 phrasings           711 own row, 14 deferred, 0 other row
+Real held-out, 23 answerable                 21 right, 0 wrong, 2 to AI (refs right)
+Closing messages, 11                         11 left alone
+UI checks, 20 (Playwright, 390/360/320px)    PASS (adds the long-paragraph split, abbreviations kept)
+```
+
+## Second Meta export, 2026-10-03
+
+Input: the full inbox export for 01/07–15/08/2026 (455 conversations, 365 of them new), anonymised in the scratchpad with the same cleaner as `tools/facebook-to-text.py`; the raw file is not in the repository. Findings and the list of practices to confirm with the Institute are in `docs/phan-tich-tu-van-meta-2026.md`.
+
+- Extraction: one agent per 40K-character chunk listed every learner message, staff practice and unanswered question; a second agent per chunk audited the list (2 missed items added, 2 staff lines removed). Every extracted message was found verbatim in its conversation.
+- Labels: two agents per batch labelled 218 unique messages against the 55-row table, an adjudicator settled 7 disagreements; after the update, two new agents relabelled the held-out half and the closings against the 58-row table (6 settled).
+- Engine: an exact repeat of one active row's phrasing answers that row ("Hỏi giá", 11 conversations, went to the AI); acknowledgements ("ok", "okie", "ừ") are stop words; "nữa" never counts as the rarest word.
+- Review: a fact-check agent and a style agent read every new or changed answer and the new prompt rules. Their findings were applied, including a renderer bug from the previous round: `dist/app.js` split "**GS.TS. Nguyễn Văn Tuấn**" because the abbreviation check only allowed a space before the title. A probe agent wrote 45 questions around the three new rows: 4 answered right, 0 with a wrong row, 33 passed to the AI, 7 of 8 that should go to the AI did.
+
+```text
+Apps Script harness, 41 cases                       PASS (adds exact phrasing, acknowledgements)
+Mask cases, 48                                      PASS
+UI checks, 21 (Playwright)                          PASS (adds bold titles; the new check fails on the old renderer)
+FAQ seed self-check, 889 phrasings                  889 own row
+Second export, held-out, before (55 rows)           23 of 70 right, 0 wrong, 28 of 47 to AI with the right reference
+Second export, held-out, after dev rows (58 rows)   25 of 72 right, 1 wrong, 31 of 46 to AI with the right reference
+Second export, closings                             45 of 46 left to the AI ("học phí đắt quá" gets the discount row)
+First export, held-out                              22 of 23 right (was 21), 0 wrong; closings 11 of 11
+Learner and probe held-out halves (58 rows)         40 right, 2 wrong rows, 10 wrongly answered (55 rows: 38, 1, 10)
+```
+
+## Practices confirmed by the Institute, 2026-10-03 (second batch)
+
+The Institute answered a confirmation questionnaire built from the practices staff stated in the second export (online support, the replay link, teaching language, VAT invoice, payment after confirmation, seats, contact time, the certificate, the class Zalo group, support after the course, deferring or withdrawing fees). The answers are in `Knowledge.gs` ("Viện xác nhận thêm") and in 22 FAQ answers, with two new rows (`ngon-ngu`, `ho-tro-sau-khoa`); the open questions are listed in `docs/phan-tich-tu-van-meta-2026.md`.
+
+- A fact-check agent compared every changed sentence with the answers quoted verbatim, a style agent read the same text. Fixes applied: invoice type and employer paperwork stay "no information"; payment is confirmed via Zalo, the phone is only a fallback; deferring, withdrawing or refunding has no stated rule and goes to the advisers; the bot never says whether offer dates can be extended; no "one certificate per course"; the old "call before transferring" step removed from the prompt example and from `uu-dai-som`; "gửi đến khoảng 2 ngày sau" (readable as "sent 2 days after") reworded.
+- Phrasings that pulled unrelated questions into the new answers were reworded: sample-size questions matched the sample certificate ("mẫu"), "has a Zalo group" matched after-course support, and "bằng" in the language phrasings let "học bằng điện thoại" match registration.
+- Two agents and an adjudicator relabelled the 13 probe questions whose topic changed: 9 now belong to the new or updated rows, 4 still go to the AI (accommodation, language of the printed materials, tests in general, a name-order follow-up).
+
+```text
+Apps Script harness, 41 cases                       PASS
+Mask cases, 48                                      PASS
+FAQ seed self-check, 919 phrasings                  919 own row
+Learner and probe held-out halves (60 rows)         42 right, 3 wrong rows, 11 wrongly answered
+First export, held-out                              22 of 23 right, 0 wrong; closings 11 of 11
+Second export, closings                             45 of 46 left to the AI
+Boundary probes (45)                                5 right, 1 wrong row (hiring question gets khoa-khac), 7 of 8 kept for the AI
+```
+

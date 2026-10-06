@@ -7,8 +7,9 @@ One Apps Script project, bound to the registration Google Sheet, serves two thin
 | `Code.gs` | Registration form: appends to the `Đăng ký` sheet and emails the team. Also routes requests. |
 | `Chat.gs` | Learner-care chat: answers from the FAQ tab when it can, otherwise asks a chain of low-cost AI models, and logs every exchange to the `Hỏi đáp` sheet. |
 | `Faq.gs` | The FAQ lookup: reads the staff-edited `FAQ` tab and finds the row a question matches. |
-| `FaqSeed.gs` | Starter FAQ rows, copied into the tab once by `setupFaq`. |
-| `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), plus the daily date note. |
+| `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
+| `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
+| `Sync.gs` | The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
 
 `doPost` in `Code.gs` sends any request with `"action": "chat"` to `Chat.gs` before taking the registration lock, so a slow model reply never holds up a registration.
 
@@ -22,12 +23,20 @@ With no AI configured at all, steps 1 and 3 still work: the chat runs as a FAQ b
 
 ## Setting it up
 
-1. Open the Sheet > Extensions > Apps Script. Create script files named `Chat`, `Faq`, `FaqSeed` and `Knowledge` and paste the matching `.gs` files. Replace `Code` with `Code.gs`.
+1. Open the Sheet > Extensions > Apps Script. Create script files named `Chat`, `Faq`, `FaqSeed`, `Knowledge` and `Sync` and paste the matching `.gs` files. Replace `Code` with `Code.gs`. Reload the Sheet: a **Trợ lý AI** menu appears (see "Keeping the data current").
 2. Choose `setupFaq` in the function list and Run. It creates the `FAQ` tab with the starter rows (it never overwrites a tab that has rows).
 3. Get a free Gemini key: sign in to aistudio.google.com with the institute's Google account and accept the terms. AI Studio creates a Cloud project and an API key for new users; otherwise use API keys > Create API key. No credit card is needed. Make sure the key sits in a project **with no billing account**: a key inherits its project's billing, and a billed project is charged for every question. If the account already has Google Cloud projects with billing (for Maps, for example), choose to create a new project in the dialog, then check that AI Studio shows the project on the Free tier. On the API keys page, choose Add restrictions > Restrict to Gemini API only. (On a Google Workspace account, an admin can switch AI Studio off; ask them if it is blocked.)
 4. Project Settings (gear icon) > Script properties: set `CHAT_API_KEY` to that key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there.
 5. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider, which should start with `ok` and quote 8.800.000 đồng. `error-400` from Gemini usually means the key was pasted wrong.
 6. Deploy > Manage deployments > pencil icon on the existing web app > Version: **New version** > Deploy. This keeps the `/exec` URL, so `dist/index.html` needs no change. (Deploy > New deployment would create a different URL.)
+
+### Upgrading an existing deployment
+
+When new code arrives (not needed for data changes):
+
+1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`).
+2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
+3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
 ## Script properties
 
@@ -42,6 +51,7 @@ Each provider reads a group of properties with its own prefix. A provider withou
 | `…EXTRA_BODY` | JSON merged into the top level of every request (host switches such as turning reasoning off). For Gemini, a `generationConfig` here replaces the default one entirely. |
 | `…HEADERS` | JSON of extra HTTP headers (for example a tunnel's access token). |
 | `CHAT_MAX_PER_HOUR` | AI calls allowed per clock hour across all visitors, default `100`. `0` pauses the AI; the FAQ keeps answering. |
+| `ASSISTANT_DATA_URL` | Optional. Where the update menu reads the data file; default `https://thaingocthienlong.github.io/landing-page-01.27/assistant-data.json`. |
 
 Recommended setup:
 
@@ -164,33 +174,65 @@ Estimates from published benchmarks of similar cards, not measured on this PC: 3
 
 ## FAQ matching
 
-`Faq.gs` scores every phrasing of every row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings and particles are ignored, neighbouring word pairs add weight, and a number after "gói" or "khóa" is read together with it, so "gói 2" never matches "khóa 2". A row answers only when its score, its coverage of the question and its lead over the next row all pass the thresholds at the top of `Faq.gs`, when it shares at least a third of the question's words, and when the row (in any phrasing) contains the question's rarest word of three letters or more (package and course numbers and "cho" do not count). A row whose phrasings name a different package or course than the question (the Khóa 1 schedule for "khóa 2") cannot answer, and a thank-you with no question word is never matched. `=FAQ_KHOP` shows which rule stopped a question. Coverage weighs each word by how rare it is in the table, and a word the table never uses counts in full, so "khóa học có dùng Python không" is not answered by a row that shares only "khóa học có dùng … không". Rows with "Bật" = `Không` are ignored. Rows outside their "Từ ngày / Đến ngày" window never answer, and when one of them matches better than every active row, the question goes to the AI instead (on 15/12, "đóng trước 8/12 giảm bao nhiêu" must not get a neighbouring row's answer). The three closest active rows that share at least a third of the question's words go to the AI as reference.
+`Faq.gs` scores every phrasing of every row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings, particles and acknowledgements ("ok", "ừ") are ignored, neighbouring word pairs add weight, and a number after "gói" or "khóa" is read together with it, so "gói 2" never matches "khóa 2". A row answers only when its score, its coverage of the question and its lead over the next row all pass the thresholds at the top of `Faq.gs`, when it shares at least a third of the question's words, and when the row (in any phrasing) contains the question's rarest word of three letters or more (package and course numbers and common function words such as "cho", "rồi" and "nữa" do not count). A question whose words, read the same way, are exactly those of one phrasing of one active row is answered by that row without the thresholds: staff add learners' real messages as phrasings, and many are too short to score ("Hỏi giá" leaves one word). A phrasing that two active rows share never takes this shortcut. A row whose phrasings name a different package or course than the question (the Khóa 1 schedule for "khóa 2") cannot answer, and a thank-you with no question word is never matched. `=FAQ_KHOP` shows which rule stopped a question. Coverage weighs each word by how rare it is in the table, and a word the table never uses counts in full, so "khóa học có dùng Python không" is not answered by a row that shares only "khóa học có dùng … không". Rows with "Bật" = `Không` are ignored. Rows outside their "Từ ngày / Đến ngày" window never answer, and when one of them matches better than every active row, the question goes to the AI instead (on 15/12, "đóng trước 8/12 giảm bao nhiêu" must not get a neighbouring row's answer). The three closest active rows that share at least a third of the question's words go to the AI as reference.
 
 The thresholds were tuned on half of two sets and measured on the other half:
 
 - 110 learner-style questions written separately from the starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
 - 274 questions a code reviewer wrote to break the matcher, most asking something next to a row's topic ("khóa học có dạy Python không", "gói 2 học mấy ngày"), each labelled with the rows that answer it correctly, or none, by two separate agents and an adjudicator.
 
-Held-out halves (192 questions). The labels were redone for the 55-row table, so the first version's figures (measured with the earlier labels) are only a rough comparison:
+Held-out halves (192 questions). The labels were redone for the 55-row table, so the first version's figures (measured with the earlier labels) are only a rough comparison. For the 60-row table, two agents and an adjudicator relabelled the 13 questions whose topic got confirmed facts on 03/10/2026 (teaching language, support after the course, final tests); the rest keep the 55-row labels. Of its three wrong rows, one is a hiring question that gets the new "other programmes" row instead of the out-of-scope row (both decline and give the numbers):
 
-| | This version (55 rows) | First version (49 rows) |
-|---|---|---|
-| Questions some row answers correctly | 38 of 108 answered from the table, 1 with a wrong row, 69 passed to the AI (53 of them with the right row among its references) | 43 of 102 answered right, 9 with a wrong row |
-| Questions no row answers | 74 of 84 passed to the AI, 10 answered from the table | 65 of 90 passed, 25 answered from the table |
-| Share of table answers that are right | 38 of 49 (78%) | 43 of 77 (56%) |
+| | This version (60 rows) | 55 rows | First version (49 rows) |
+|---|---|---|---|
+| Questions some row answers correctly | 42 of 113 answered from the table, 3 with a wrong row, 68 passed to the AI (52 of them with the right row among its references) | 38 of 108 answered, 1 with a wrong row | 43 of 102 answered right, 9 with a wrong row |
+| Questions no row answers | 68 of 79 passed to the AI, 11 answered from the table | 74 of 84 passed, 10 answered | 65 of 90 passed, 25 answered from the table |
+| Share of table answers that are right | 42 of 56 (75%) | 38 of 49 (78%) | 43 of 77 (56%) |
 
-Real Messenger questions from the Institute's August 2026 inbox (`docs/phan-tich-tu-van-meta-2026.md`): of 24 typed questions held out before their phrasings were added, 2 were answered from the table and none wrongly; 17 of the other 21 went to the AI with the right row among its references. All 11 thank-you and closing messages were left to the AI. Real messages are short and full of chat words ("bn", "ntn", "Chtr"), which is why most of them need the AI until their phrasings are in the table; they are now.
+Real Messenger questions from the Institute's July–August 2026 inbox (`docs/phan-tich-tu-van-meta-2026.md`), each time half held out and measured before its phrasings were added, labelled by two agents and an adjudicator:
+
+- First export (90 conversations): of 24 held-out typed questions, 2 were answered from the table and none wrongly; 17 of the other 21 went to the AI with the right row among its references. All 11 thank-you and closing messages were left to the AI.
+- Second export (365 more conversations): the table answered 23 of the 70 held-out questions that a row of the old table answers before the update, and 25 of the 72 that a row of the new table answers after it (one with a wrong row, a follow-up that only makes sense after the previous message); 31 of the 46 passed to the AI had the right row among its references (28 before). 45 of 46 closing messages were left to the AI; the other, "học phí đắt quá", now gets the discount row.
+
+Real messages are short, full of chat words ("bn", "ntn", "tt ck") and often lean on the previous message, which is why most new ones need the AI until their phrasings are in the table; the held-out ones are now in it too.
 
 The thresholds favour sending a question to the AI over a wrong canned answer. The remaining wrong table answers are questions next to a row's topic ("đóng tiền mặt ở đâu" getting the payment row). Most questions passed on are long messages with personal context ("em là dược sĩ, mù code…") or a word the table does not use yet. Adding real phrasings from the Facebook conversations to "Cách hỏi khác", and rows for side questions learners actually ask, improves both numbers. Some held-out questions were read during development, and the matching rules were revised several times after looking at held-out results (each time to fix a class of errors a reviewer found, not to fit single questions), so take the figures as approximate. The test sets stayed outside the repository; once staff edit the rows, check new phrasings with `=FAQ_KHOP` in the sheet.
 
 ## What the chat does and does not do
 
-- Answers from the FAQ tab and `Knowledge.gs` only. Besides the notice, `Knowledge.gs` holds practices the Institute confirmed on 03/10/2026 (class hours, online learners joining live with the hall, materials and the signed book, the completion certificate, time-limited replay for registered learners, the Zalo contact and receipt steps). When something is in neither (Zoom link timing, the replay period, invoices, refunds, seats left, attendance needed for the certificate) it says so and gives (028) 2242 6789, Ms. Vy 0949 761 636 and Ms. Thảo 0912 114 511.
+- Answers from the FAQ tab and `Knowledge.gs` only. Besides the notice, `Knowledge.gs` holds practices the Institute confirmed on 03/10/2026: class hours; online learners joining live with the hall, seeing the lecturer's screen and getting help with code errors; teaching in Vietnamese; materials and the signed book; the completion certificate (course names, no CME, no final test, passport name order on request, a sample via Zalo); the replay link (from day one to about two days after the course); the Zalo contact within about one working day, confirming the amount before paying, the receipt and the VAT invoice; the class Zalo group 3–4 days before the start and support there after the course. Deferring or withdrawing a fee goes to the advisers. When something is in neither (seats left, class size, attendance needed for the certificate, trial sessions, office hours) it says so and gives (028) 2242 6789, Ms. Vy 0949 761 636 and Ms. Thảo 0912 114 511.
 - Never registers, holds a seat, confirms a payment or grants a discount. It points to the form on the page, the phone numbers, or in-person registration at 45 Đinh Tiên Hoàng.
 - Discounted amounts are labelled as estimates (tạm tính); the Institute confirms the final amount. It says the notice does not settle whether the early-payment and group discounts stack.
 - Declines medical questions and anything outside the course series.
 - The AI is told each day whether the 08/12/2026 offer date and the 28/12/2026 deadline have passed (worked out in `Knowledge.gs`, not by the model). On those two days themselves it asks the learner to confirm with the Institute, because the notice says "before" both dates; the dated FAQ rows leave those two days uncovered for the same reason.
 - Does not collect callback requests. The panel always shows Call and Zalo links.
+
+## Keeping the data current
+
+The chat reads its data from two tabs at run time, so changing data never needs pasted code or a new deployment:
+
+- `FAQ`: the rows the table answers from.
+- `Thông tin thêm`: the practices the Institute confirmed beyond the notice, one per row (`Mã`, `Nội dung`, `Bật`). The prompt uses the enabled rows in place of the facts built into `Knowledge.gs` (`KNOWLEDGE_EXTRA`); until the tab exists (the first menu run creates it), the built-in facts apply.
+
+Edits to either tab take effect within seconds (the cache is cleared on edit, and expires after 10 minutes anyway). `FaqSeed.gs` and `KNOWLEDGE_EXTRA` are the repository's copy of the two tabs: `setupFaq` fills an empty `FAQ` tab from `FaqSeed.gs`, and after that, changes to either file reach the sheet only through the **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu. The copies pasted into Apps Script do not need updating for data changes.
+
+1. Merge the change into `main`. A pull request that touches the data runs the `Check assistant data` workflow, which builds the file and fails on a row the menu would refuse. On merge, the deploy workflow runs `tools/build-assistant-data.js` and publishes `assistant-data.json` next to the page: the rows of `FaqSeed.gs`, the facts of `KNOWLEDGE_EXTRA`, the build time, and from git history the hashes of every version of each field, the phrasings each row has dropped and the rows and facts the repository has dropped.
+2. A few minutes later, open the Sheet on a computer and choose the menu item. Each Google account is asked for permission the first time.
+3. `Sync.gs` merges the file into the two tabs, row by row (matched by `Mã`), and shows a summary, also kept in the `Lịch sử cập nhật` tab (failures too):
+   - a group, question, answer, date or fact is replaced only while the cell still holds what the last update brought in (on the first update, any text the repository ever wrote). A cell staff changed keeps their text; when the repository has a new text for it (on the first update, or changed since the last one), that text goes into a block in the cell's note, between the line `Bản mới trên trang web...` and the closing line `(Hết ghi chú của menu cập nhật)`; staff notes above or below the block stay. The summary lists these cells. The block disappears once the cell matches, or when staff paste the block into the cell;
+   - phrasings new in the repository are added, unless another enabled row with overlapping dates already has them (listed in the summary, and added on a later update once that row is off or drops the phrasing); phrasings the repository dropped, for example moved to another row, are removed. These checks read the tab as the same update leaves it, so a row switched off or given an end date in this update no longer counts;
+   - rows and phrasings staff deleted are not brought back;
+   - rows the repository dropped are switched off (`Không` in `Bật`) once, while their answer is still the repository's text. A row staff switch back on stays on, and a row the repository brings back is switched on again;
+   - a new row whose question an enabled row already uses is added and reported, so staff switch one of the two off;
+   - a new repository row whose `Mã` a row staff added already uses (a row whose question and answer were never the repository's) is not merged into that row, on the first update too: it waits, and the summary asks staff to rename their `Mã`. A `Mã` on several rows is left alone the same way;
+   - rows staff added, columns to the right of the eight FAQ columns and every other cell are left alone, and no row is deleted. Only changed cells are written, formatted as plain text first so nothing is read as a formula, number or date.
+
+What the last update brought in is kept in the document properties (keys starting `sync:`; phrasings as text, so a matcher change in `Faq.gs` does not bring back a phrasing staff removed), saved in one call after every cell is written: an update that stops halfway (a protected range, a timeout) saves nothing, and choosing the menu again finishes it. The lock keeps out a second update but not people: if a tab changed while the menu was reading it, nothing is written to it and the summary asks to run the menu again. The menu changes nothing when the file cannot be read or is invalid, when it is older than the last update applied, or when a tab's header row no longer has the expected columns (both headers are checked before either tab is created).
+
+A tab that is missing or has no rows left is rebuilt from the repository, as if it were the first update. Two cases the remembered state cannot cover:
+
+- On the first update, rows and phrasings staff deleted before the menu existed come back (nothing recorded that staff deleted them, and a tab made from an older `FaqSeed.gs` is missing rows the same way). Staff check the tab once after the first update.
+- Restoring the sheet from version history does not restore the document properties. On the next update, cells that differ from the last update count as staff edits (kept, with the new text in the note), and phrasings that update added are not added again.
 
 ## The `Hỏi đáp` sheet
 
@@ -225,8 +267,9 @@ Read it weekly (the staff guide shows how): AI answers to common questions shoul
 
 ## Updating what the chat knows
 
-- Course facts the AI uses: edit `Knowledge.gs`, run `chatSelfTest` if you want a quick check, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
-- FAQ answers: edit the `FAQ` tab; no deployment needed. Changes apply as soon as the tab is edited (or within 10 minutes).
+- Rules and notice facts (`CHAT_PROMPT_TEMPLATE` in `Knowledge.gs`): edit the file, paste it, run `chatSelfTest` if you want a quick check, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
+- Confirmed practices: edit the `Thông tin thêm` tab, or change `KNOWLEDGE_EXTRA` in the repository and use the update menu (see "Keeping the data current"). Once the tab exists, pasting `Knowledge.gs` does not change them.
+- FAQ answers: edit the `FAQ` tab, or change `FaqSeed.gs` in the repository and use the update menu; no deployment needed.
 
 ## Limits
 

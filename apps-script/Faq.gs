@@ -27,7 +27,7 @@ var FAQ_NEED_RAREST = true;
 // còn", "bên Zalo", "trong các buổi").
 var FAQ_NOT_RAREST = {
   cho: 1, nay: 1, hien: 1, ben: 1, trong: 1, cac: 1, nhung: 1, roi: 1, thoi: 1, nao: 1, the: 1,
-  cung: 1, van: 1, con: 1, duoc: 1, voi: 1, sao: 1
+  cung: 1, van: 1, con: 1, duoc: 1, voi: 1, sao: 1, nua: 1
 };
 // Words that make a message a question; a thank-you without any of them is not matched.
 var FAQ_ASKING = { khong: 1, nao: 1, gi: 1, sao: 1, dau: 1, chua: 1, may: 1, nhieu: 1, ai: 1, khi: 1 };
@@ -57,7 +57,8 @@ var FAQ_STOP = {
   'z': 1, 'thế': 1, 'dạ': 1, 'vâng': 1, 'chào': 1, 'chao': 1, 'xin': 1, 'hỏi': 1, 'hoi': 1,
   'là': 1, 'thì': 1, 'của': 1, 'cua': 1, 'và': 1, 'với': 1, 'ạh': 1, 'ah': 1, 'ơ': 1, 'luôn': 1,
   'chút': 1, 'chut': 1, 'xíu': 1, 'xiu': 1, 'tí': 1, 'nhỉ': 1, 'bạn': 1,
-  'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1
+  'page': 1, 'shop': 1, 'alo': 1, 'hello': 1, 'hi': 1,
+  'ok': 1, 'oke': 1, 'okie': 1, 'okey': 1, 'okay': 1, 'ừ': 1, 'ừm': 1
 };
 
 function setupFaq() {
@@ -68,45 +69,52 @@ function setupFaq() {
     return;
   }
   sheet.clear();
-  sheet.appendRow(FAQ_HEADERS);
-  sheet.getRange(1, 1, 1, FAQ_HEADERS.length).setFontWeight('bold').setBackground('#0a3d91').setFontColor('#ffffff');
-  sheet.setFrozenRows(1);
-  // Dates stay text, so "07/12/2026" is read as day/month whatever the sheet's locale.
-  sheet.getRange('F:G').setNumberFormat('@');
+  faqStartSheet_(sheet);
   if (FAQ_SEED.length) {
     var rows = FAQ_SEED.map(function (row) {
       return [row.id, row.group, row.question, row.variants.join('\n'), row.answer, row.from, row.to, 'Có'];
     });
     sheet.getRange(2, 1, rows.length, FAQ_HEADERS.length).setValues(rows);
   }
+  faqClearCache_();
+  Logger.log('FAQ tab ready with ' + FAQ_SEED.length + ' starter rows.');
+}
+
+// Header, frozen first row and column layout of an empty FAQ tab.
+function faqStartSheet_(sheet) {
+  sheet.appendRow(FAQ_HEADERS);
+  sheet.getRange(1, 1, 1, FAQ_HEADERS.length).setFontWeight('bold').setBackground('#0a3d91').setFontColor('#ffffff');
+  sheet.setFrozenRows(1);
+  // Dates stay text, so "07/12/2026" is read as day/month whatever the sheet's locale.
+  sheet.getRange('F:G').setNumberFormat('@');
   sheet.getRange('C:E').setWrap(true).setVerticalAlignment('top');
   sheet.setColumnWidths(1, 2, 140);
   sheet.setColumnWidth(3, 260);
   sheet.setColumnWidth(4, 320);
   sheet.setColumnWidth(5, 420);
-  faqClearCache_();
-  Logger.log('FAQ tab ready with ' + FAQ_SEED.length + ' starter rows.');
 }
 
 /**
  * Shows how the chat would handle a question: the decision, the best row and its score.
  *
  * @param {string} question A learner question.
- * @return The decision (trả lời / AI hoặc gợi ý), best row id, score, coverage and, when the
- *     table does not answer, why.
+ * @return The decision (trả lời / AI hoặc gợi ý), the answering or best row id, score, coverage
+ *     and why: "khớp nguyên văn" for a phrasing in the table, the blocking rule when it does not answer.
  * @customfunction
  */
 function FAQ_KHOP(question) {
   var result = faqLookup_(String(question || ''));
-  var best = result.ranked[0];
+  var best = result.ranked.filter(function (entry) { return entry.row === result.answer; })[0] || result.ranked[0];
   if (!best) return [['không khớp', '', 0, 0, '']];
   return [[result.answer ? 'trả lời' : 'AI hoặc gợi ý', best.row.id, Math.round(best.score * 10) / 10, Math.round(best.coverage * 100) / 100, result.reason]];
 }
 
-// Clears the cached rows as soon as staff edit the FAQ tab.
+// Clears the cached rows as soon as staff edit the FAQ tab or the "Thông tin thêm" tab.
 function onEdit(e) {
   try {
-    if (e && e.range && e.range.getSheet().getName() === FAQ_SHEET_NAME) faqClearCache_();
+    var name = e && e.range ? e.range.getSheet().getName() : '';
+    if (name === FAQ_SHEET_NAME) faqClearCache_();
+    if (name === FACTS_SHEET_NAME) knowledgeClearCache_();
   } catch (err) {
     // The cache also expires on its own after FAQ_CACHE_SECONDS.
   }
@@ -144,6 +152,9 @@ function faqLookup_(question) {
   // answered by a neighbouring row that happens to be active.
   var docs = [];
   var vocabulary = {};
+  // Active rows by the exact words of each phrasing. Staff add learners' real messages as
+  // phrasings, and some are too short to score ("Hỏi giá"), so an exact repeat answers directly.
+  var phrasings = {};
   rows.forEach(function (row) {
     row.active = (!row.from || today >= row.from) && (!row.to || today <= row.to);
     vocabulary[row.id] = {};
@@ -151,8 +162,12 @@ function faqLookup_(question) {
       var terms = faqTerms_(text);
       if (terms.all.length) docs.push({ row: row, terms: terms });
       terms.words.forEach(function (word) { vocabulary[row.id][word] = true; });
+      var said = ' ' + terms.words.join(' ');
+      if (row.active && terms.words.length) (phrasings[said] = phrasings[said] || {})[row.id] = row;
     });
   });
+  var same = phrasings[' ' + query.words.join(' ')] || {};
+  var exact = Object.keys(same).length === 1 ? same[Object.keys(same)[0]] : null;
   var frequency = {};
   var totalLength = 0;
   docs.forEach(function (doc) {
@@ -213,8 +228,8 @@ function faqLookup_(question) {
     : second && top.score < second.score * FAQ_MIN_MARGIN ? 'gần bằng dòng ' + second.row.id
     : '';
   return {
-    answer: reason ? null : top.row,
-    reason: reason,
+    answer: exact || (reason ? null : top.row),
+    reason: exact ? 'khớp nguyên văn' : reason,
     candidates: ranked.filter(function (entry) {
       return entry.score >= FAQ_MIN_CANDIDATE && entry.share >= FAQ_MIN_CANDIDATE_SHARE;
     }).slice(0, 3).map(function (entry) { return entry.row; }),
@@ -308,7 +323,8 @@ function faqRows_() {
 // 'yyyyMMdd' from a date cell (a Date, or text written dd/MM/yyyy), or '' when empty or unreadable.
 function faqDay_(value, zone) {
   if (value instanceof Date && !isNaN(value)) return Utilities.formatDate(value, zone, 'yyyyMMdd');
-  var match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(value || '').trim());
+  // An apostrophe typed into a plain-text cell stays in the value; it is not part of the date.
+  var match = /^'?(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(value || '').trim());
   if (!match) return '';
   return match[3] + ('0' + match[2]).slice(-2) + ('0' + match[1]).slice(-2);
 }

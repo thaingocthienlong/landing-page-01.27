@@ -2,9 +2,9 @@
  * Learner-care chat for the landing page. Each question is first looked up in the staff-kept FAQ
  * tab (Faq.gs); a clear match is answered with the approved wording. Other questions go to a
  * chain of low-cost models (Google Gemini by default, then optional OpenAI-compatible hosts such
- * as Cloudflare Workers AI or the office PC), grounded in CHAT_SYSTEM_PROMPT (Knowledge.gs) and
- * the closest FAQ rows. Every exchange is logged to the 'Hỏi đáp' sheet. doPost in Code.gs
- * routes requests with action 'chat' here.
+ * as Cloudflare Workers AI or the office PC), grounded in the prompt from Knowledge.gs (with the
+ * facts of the 'Thông tin thêm' tab) and the closest FAQ rows. Every exchange is logged to the
+ * 'Hỏi đáp' sheet. doPost in Code.gs routes requests with action 'chat' here.
  *
  * Setup (full steps in README.md): add the .gs files to the Apps Script project that holds
  * Code.gs, run setupFaq once, set the CHAT_API_KEY script property to a Google AI Studio key,
@@ -260,7 +260,7 @@ function askGemini_(group, model, messages, timeout, references) {
   if (thinking) generationConfig.thinkingConfig = thinking;
   var body = mergeExtra_({
     // The date note and FAQ rows come last, so the long prompt stays an identical, cacheable prefix.
-    systemInstruction: { parts: [{ text: CHAT_SYSTEM_PROMPT }, { text: chatDateNote_() + references }] },
+    systemInstruction: { parts: [{ text: chatSystemPrompt_() }, { text: chatDateNote_() + references }] },
     contents: messages.map(function (turn) {
       return { role: turn.role === 'assistant' ? 'model' : 'user', parts: [{ text: turn.content }] };
     }),
@@ -306,7 +306,7 @@ function askOpenAI_(group, model, messages, timeout, references) {
   var body = mergeExtra_({
     model: model,
     max_tokens: CHAT_MAX_OUTPUT,
-    messages: [{ role: 'system', content: CHAT_SYSTEM_PROMPT + chatDateNote_() + references }].concat(messages)
+    messages: [{ role: 'system', content: chatSystemPrompt_() + chatDateNote_() + references }].concat(messages)
   }, group.extra);
   var headers = mergeExtra_({}, group.headers);
   headers.Authorization = 'Bearer ' + group.apiKey;

@@ -8,11 +8,48 @@ Trợ lý trên trang trả lời theo ba tầng:
 
 Bảng FAQ càng đầy đủ thì trợ lý càng nhanh, càng đúng, và càng ít câu hỏi của học viên phải gửi cho dịch vụ AI bên ngoài.
 
+Sửa trực tiếp tab `FAQ` hay tab `Thông tin thêm` thì trợ lý dùng bản mới gần như ngay (chậm nhất 10 phút), không cần đụng tới Apps Script.
+
+## Cập nhật dữ liệu từ trang web
+
+Khi người phụ trách trang web báo đã cập nhật dữ liệu (thêm dòng, thêm cách hỏi thật, sửa câu trả lời, thêm điều Viện xác nhận):
+
+1. Chờ khoảng 5 phút, rồi mở Google Sheet **trên máy tính** (ứng dụng Google Sheets trên điện thoại không có menu này).
+2. Chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang web**. Không thấy menu thì tải lại trang (phím F5).
+3. Lần đầu mỗi người dùng menu, Google hỏi quyền: chọn Tiếp tục, chọn tài khoản của mình, rồi Cho phép. Nếu Google báo ứng dụng chưa được xác minh, chọn Nâng cao rồi chọn dòng có tên dự án để đi tiếp (đây là đoạn mã của chính Viện). Cho phép xong, chọn lại menu.
+
+Menu làm gì:
+
+- Dòng mới và cách hỏi mới trên trang web được thêm vào bảng. Cách hỏi mà trang web đã bỏ (ví dụ đã chuyển sang dòng khác) được xóa khỏi bảng.
+- Dòng trang web đã bỏ được tắt (ghi `Không` ở cột Bật), một lần duy nhất: nếu Viện vẫn muốn dùng thì ghi lại `Có`, các lần sau menu không tắt nữa. Nếu sau này trang web dùng lại dòng đó, menu tự bật lại.
+- Ô nào vẫn còn nguyên chữ của lần cập nhật trước thì được cập nhật. **Ô nào nhân viên đã sửa thì giữ nguyên chữ của nhân viên.** Khi trang web có bản mới cho ô đó, bản mới nằm trong ghi chú của ô (ô có tam giác nhỏ ở góc, rê chuột vào để xem), giữa dòng `Bản mới trên trang web...` và dòng `(Hết ghi chú của menu cập nhật)`. Ghi chú nhân viên tự viết ở phía trên hay phía dưới hai dòng đó vẫn được giữ. Thấy bản mới đúng hơn thì chép phần chữ nằm giữa hai dòng đó vào ô; phần ghi chú của menu tự mất ở lần cập nhật sau.
+- Dòng hay cách hỏi nhân viên đã xóa thì không bị thêm lại. Dòng nhân viên tự thêm và các cột nhân viên thêm bên phải không bị đụng tới. Không dòng nào bị xóa.
+- Cách hỏi mới nào đã có ở một dòng khác đang bật thì chưa được thêm, để trợ lý không phải chọn giữa hai dòng; thông báo ghi rõ cách hỏi nào. Khi dòng kia được tắt hoặc bỏ cách hỏi đó, lần cập nhật sau sẽ thêm. Nếu câu hỏi của một dòng mới trùng với dòng khác, thông báo cũng ghi rõ: ghi `Không` ở cột Bật của một trong hai dòng.
+- Nếu trang web có dòng mới mà Mã trùng với một dòng Viện tự thêm, menu không gộp hai dòng và chưa thêm dòng mới. Thông báo ghi rõ dòng nào: đổi Mã của dòng Viện tự thêm (ví dụ thêm chữ `-vien`) rồi chọn lại menu.
+- Nếu một Mã có ở hai dòng trở lên (thường do chép một dòng để làm dòng mới mà chưa đổi Mã), menu không đụng tới các dòng đó và thông báo ghi rõ số dòng. Đổi Mã của dòng chép thêm (ví dụ thêm chữ `-2`) rồi chọn lại menu.
+- Nếu tab `FAQ` hay tab `Thông tin thêm` bị xóa, hoặc bị xóa hết các dòng, lần cập nhật sau tạo lại đủ các dòng của trang web. Muốn tắt một dòng thì ghi `Không` ở cột Bật, đừng xóa.
+- Kết quả hiện trong hộp thông báo, kèm danh sách các ô nhân viên đã sửa mà trang web có bản mới, và được ghi ở tab `Lịch sử cập nhật` (tab tự tạo ở lần đầu, ghi cả những lần báo lỗi).
+- Nếu thông báo báo lỗi, làm theo hướng dẫn trong thông báo: thường là chờ vài phút rồi chọn lại menu (chọn lại nhiều lần cũng không sao). Nếu có người sửa bảng đúng lúc menu đang chạy, menu dừng lại, không ghi gì vào tab đó và báo chọn lại menu. Vẫn lỗi thì chụp màn hình thông báo gửi người phụ trách trang web.
+
+Lưu ý:
+
+- **Đừng đổi mã (cột Mã) hay tên các cột** của tab `FAQ` và tab `Thông tin thêm`. Menu dùng mã để tìm dòng: đổi mã thì dòng đó thành dòng riêng của nhân viên, các bản cập nhật sau không tới được nữa. Đổi tên, thêm hay xóa cột ở giữa bảng thì menu dừng lại và báo lỗi.
+- Lần đầu chọn menu, dòng hay cách hỏi đã bị xóa khỏi bảng từ trước đó sẽ được thêm lại, vì menu chưa biết là nhân viên đã xóa. Sau lần đầu, xem lại bảng và xóa hoặc tắt lại nếu cần; từ lần thứ hai menu đã nhớ.
+- Khôi phục bảng về một phiên bản cũ (Tệp > Nhật ký phiên bản) thì menu vẫn nhớ lần cập nhật gần nhất. Lần cập nhật sau, những ô khác với lần đó được coi là nhân viên đã sửa (giữ nguyên, bản mới nằm trong ghi chú), và những cách hỏi lần đó đã thêm không được thêm lại. Nếu cần, báo người phụ trách trang web.
+
+## Tab "Thông tin thêm"
+
+Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học online, giấy chứng nhận, hóa đơn...) nằm ở tab này. Tab tự xuất hiện sau lần đầu chọn menu **Trợ lý AI > Cập nhật dữ liệu từ trang web**. Mỗi điều một dòng: `Mã`, `Nội dung`, `Bật`. AI đọc các dòng đang bật để trả lời những câu bảng FAQ không có; sửa xong thì AI dùng gần như ngay.
+
+- Viện xác nhận thêm điều gì (ví dụ sĩ số dự kiến), thêm một dòng: mã ngắn không dấu, chưa có ở dòng nào trong tab (ví dụ `si-so`), nội dung viết như một câu khẳng định, cột Bật ghi `Có`.
+- Điều nào không còn đúng: sửa nội dung, hoặc ghi `Không` ở cột Bật.
+- Chỉ ghi điều Viện đã xác nhận, đúng như Viện nói; AI sẽ nói lại với học viên như sự thật.
+
 ## Các cột trong tab FAQ
 
 | Cột | Ý nghĩa | Ví dụ |
 |---|---|---|
-| Mã | Tên ngắn, không dấu, không trùng. Dùng để đọc nhật ký. | `goi-hoc-phi` |
+| Mã | Tên ngắn, không dấu, không trùng. Menu cập nhật dùng mã để tìm dòng, nên **đừng đổi mã của dòng có sẵn**. Mã cũng hiện trong nhật ký. | `goi-hoc-phi` |
 | Nhóm | Để dễ lọc: Học phí, Lịch học, Đăng ký... | Học phí |
 | Câu hỏi | Câu hỏi chuẩn, viết có dấu. Hiện cho học viên khi trợ lý gợi ý. | Học phí các gói là bao nhiêu? |
 | Cách hỏi khác | Mỗi dòng một cách hỏi (xuống dòng trong ô: Ctrl+Enter, hoặc Alt+Enter). Càng nhiều cách hỏi thật càng tốt. | hp goi 1 bao nhieu<br>giá khóa học<br>đóng bao nhiêu tiền |
@@ -31,17 +68,35 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Từ đồng nghĩa: giá / phí / tiền / chi phí; khai giảng / bắt đầu / học khi nào; ghi danh / đăng ký.
 - Câu ngắn kiểu tin nhắn: `lịch học?`, `học phí`.
 - Gói và khóa: nếu dòng chỉ nói về một gói hay một khóa (ví dụ lịch Khóa 1), ghi số đó trong cách hỏi ("khóa 1 học ngày nào"). Nếu dòng đúng cho mọi gói (ví dụ ưu đãi nhóm), đừng ghi số gói nào, hoặc ghi đủ các gói: dòng có ghi "gói 2" thì sẽ không trả lời câu hỏi về "gói 3".
+- Câu học viên gõ **giống hệt** một cách hỏi đã có (không tính dấu, chữ hoa và các từ như ạ, ơi, ad, cho em hỏi) luôn được trả lời bằng dòng đó, kể cả câu rất ngắn như `Hỏi giá`. Vì vậy chép nguyên văn tin nhắn thật của học viên là cách chắc nhất. Đừng ghi cùng một cách hỏi cho hai dòng cùng đang bật: khi đó trợ lý không biết chọn dòng nào. Hai dòng thay nhau theo ngày (ưu đãi sớm và ưu đãi đã hết) thì ghi giống nhau được.
 - Không chép lời chào hay lời cảm ơn vào "Cách hỏi khác" ("chào ad", "cho em hỏi", "cảm ơn"): trợ lý tự bỏ qua phần lớn các từ này, còn chép vào thì dòng đó dễ bị chọn nhầm cho những câu chỉ có lời chào.
 
 ### Câu trả lời
 
-- Giọng như tư vấn viên của Viện: xưng "em", gọi "anh/chị", mở bằng "Dạ, ...", câu đầu trả lời thẳng điều được hỏi, thêm "ạ" khi tự nhiên. Có thể kết bằng một gợi ý ngắn ("anh/chị cần em gửi thêm lịch học không ạ?"), nhưng đừng dòng nào cũng hỏi lại. 1 đến 4 câu ngắn, hoặc gạch đầu dòng bằng "- ", in đậm bằng `**...**`. Không viết tắt, không dùng bảng, tiêu đề, biểu tượng cảm xúc.
+- Giọng như tư vấn viên của Viện: xưng "em", gọi "anh/chị", mở bằng "Dạ, ...", câu đầu trả lời thẳng điều được hỏi, thêm "ạ" khi tự nhiên. Có thể kết bằng một gợi ý ngắn ("anh/chị cần em gửi thêm lịch học không ạ?"), nhưng đừng dòng nào cũng hỏi lại. Không viết tắt, không dùng bảng, tiêu đề, biểu tượng cảm xúc.
+- Học viên đọc trên điện thoại, nên đừng viết thành một đoạn dài:
+  - Câu đầu là câu trả lời, đứng riêng một đoạn.
+  - Phần còn lại chia đoạn ngắn, mỗi đoạn tối đa 2 câu. Giữa hai đoạn để một dòng trống (trong ô: Ctrl+Enter hai lần).
+  - Từ 2 ý trở lên (các gói, điều kiện, mốc ngày, các bước) thì mỗi ý một dòng, bắt đầu bằng "- ". Trang tự hiện thành danh sách.
+  - In đậm con số chính bằng `**...**`, ví dụ `**8.360.000 đồng**`, `**08/12/2026**`.
+  - Ví dụ một ô:
+
+    ```text
+    Dạ, mỗi ngày học 2 buổi ạ:
+    - Sáng **8:30–11:30**: lý thuyết
+    - Chiều **13:30–17:00**: thực hành bằng R trên dữ liệu thực tế
+
+    Lịch học cố định theo lịch GS. Nguyễn Văn Tuấn về Việt Nam giảng dạy, nên không có lớp buổi tối ạ.
+    ```
+
+  Nếu một đoạn vẫn quá dài (trên khoảng 170 ký tự), trang tự tách thành câu đầu và các đoạn 2 câu, nhưng tự chia đoạn vẫn dễ đọc hơn.
+- Câu hỏi gộp hai ý thì câu trả lời phải có cả hai. Ví dụ nút quảng cáo "Học phí khóa học là bao nhiêu? Hiện đang có ưu đãi gì không?" được ghi ở các dòng ưu đãi, vì các dòng này nêu cả học phí gốc lẫn ưu đãi; nhân viên từng bỏ sót phần ưu đãi ở khoảng 49 cuộc hội thoại.
 - Không cần viết "em chào anh/chị" trong câu trả lời: nếu đó là câu hỏi đầu tiên của học viên, trợ lý tự thêm "Dạ, em chào anh/chị." vào đầu.
 - Mọi con số (học phí, ngày, phần trăm, số tài khoản) phải đúng như thông báo chính thức.
 - Số tiền sau ưu đãi ghi là "tạm tính" và nói Viện xác nhận số tiền chính thức.
 - Muốn chỉ học viên tới phiếu đăng ký, viết đúng cụm **Đăng ký khóa học**: trang tự biến nó thành đường dẫn.
 - Số điện thoại viết đúng dạng (028) 2242 6789, 0949 761 636, 0912 114 511: trang tự biến thành nút gọi.
-- Điều thông báo chưa có và Viện chưa xác nhận (thời điểm gửi link Zoom, thời hạn xem lại bản ghi, hóa đơn, hoàn/hủy, còn chỗ, số buổi phải tham dự để được cấp giấy chứng nhận): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, tài liệu và sách, giấy chứng nhận, ghi hình có thời hạn, liên hệ và gửi phiếu thu qua Zalo) đã có trong bảng và trong `Knowledge.gs`.
+- Điều thông báo chưa có và Viện chưa xác nhận (còn chỗ, sĩ số lớp, số buổi phải tham dự để được cấp giấy chứng nhận, học thử, giờ làm việc): trả lời là chưa có thông tin và mời gọi Viện, cho tới khi Viện có câu trả lời chính thức. Bảo lưu hay rút học phí: mời liên hệ chuyên viên tư vấn. Những điều Viện đã xác nhận ngày 03/10/2026 (giờ học, học online cùng lúc với lớp, ngôn ngữ giảng dạy, tài liệu và sách, giấy chứng nhận, link xem lại bản ghi, hóa đơn VAT, liên hệ trong khoảng 1 ngày, xác nhận số tiền trước khi chuyển khoản, phiếu thu, nhóm Zalo lớp, hỗ trợ sau khóa) đã có trong bảng FAQ và trong tab `Thông tin thêm`.
 
 ### Câu trả lời đổi theo ngày
 
@@ -88,7 +143,7 @@ Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 =FAQ_KHOP("hp goi 1 bao nhieu")
 ```
 
-Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng gần nhất đang dùng, điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do khi không trả lời:
+Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng trả lời (hoặc dòng gần nhất), điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do:
 
 | Lý do | Nghĩa | Việc cần làm |
 |---|---|---|
@@ -97,6 +152,7 @@ Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả
 | `gần bằng dòng ...` | Hai dòng khớp gần như nhau | Thêm câu hỏi vào dòng đúng để nó vượt lên |
 | `dòng nói về gói hoặc khóa khác` | Câu hỏi về "khóa 2" mà dòng gần nhất chỉ ghi "khóa 1" | Thêm vào dòng đúng của khóa/gói đó; nếu dòng đúng cho mọi gói, xem mục "Gói và khóa" ở trên |
 | `lời cảm ơn` | Tin nhắn chỉ là lời cảm ơn, không có câu hỏi | Không cần làm gì |
+| `khớp nguyên văn` | Câu hỏi giống hệt một cách hỏi của dòng (ô đầu là `trả lời`) | Không cần làm gì |
 | `dòng hết hạn khớp hơn: ...` | Một dòng đã hết hạn (hoặc chưa tới ngày) khớp hơn | Sửa dòng thay thế cho dòng hết hạn đó (ví dụ chép cách hỏi sang dòng "đã hết"), **không** thêm vào dòng hiện ở ô thứ hai |
 
 Nếu một câu học viên hay hỏi mà ra sai dòng, thêm câu đó vào "Cách hỏi khác" của dòng đúng.

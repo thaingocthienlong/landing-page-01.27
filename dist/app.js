@@ -1344,6 +1344,34 @@
       parent.append(text.slice(last));
     };
 
+    // Free models often send one long paragraph, a wall of text on a phone. A long line is set as
+    // its first sentence (the answer), then two sentences per paragraph. "Ms. Vy", "TP. Hồ Chí Minh"
+    // and "GS.TS." are not sentence ends.
+    // a title before a name ("**GS.TS. Nguyễn Văn Tuấn**") is not a sentence end, and a split
+    // inside **bold** would leave the markers unpaired
+    const ABBR = /(?:^|[\s*("“])(?:GS\.TS|PGS|GS|TS|ThS|BS|Ms|Mr|TP)\.$/;
+    const sentences = (line) => {
+      const out = [];
+      let start = 0;
+      for (const match of line.matchAll(/[.!?](?:["”)])?\s+(?=[\p{Lu}\d“"(*])/gu)) {
+        const end = match.index + match[0].trimEnd().length;
+        if (ABBR.test(line.slice(start, end))) continue;
+        if ((line.slice(0, end).match(/\*\*/g) || []).length % 2) continue;
+        out.push(line.slice(start, end).trim());
+        start = match.index + match[0].length;
+      }
+      out.push(line.slice(start).trim());
+      return out.filter(Boolean);
+    };
+    const chunks = (line) => {
+      if (line.length <= 170) return [line];
+      const parts = sentences(line);
+      if (parts.length < 2) return [line];
+      const out = [parts[0]];
+      for (let i = 1; i < parts.length; i += 2) out.push(parts.slice(i, i + 2).join(" "));
+      return out;
+    };
+
     // the model writes short paragraphs and "- " lists; everything is set as text, never as HTML
     const renderText = (container, text) => {
       let list = null;
@@ -1370,6 +1398,16 @@
           return;
         }
         list = null;
+        const parts = chunks(line);
+        if (parts.length > 1) {
+          parts.forEach((part) => {
+            const block = document.createElement("p");
+            inline(block, part);
+            container.append(block);
+          });
+          paragraph = null;
+          return;
+        }
         if (paragraph) paragraph.append(document.createElement("br"));
         else {
           paragraph = document.createElement("p");
