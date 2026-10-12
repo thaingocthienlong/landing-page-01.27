@@ -24,8 +24,11 @@ function fakeSheet(name) {
   const lastRow = () => { let n = data.length; while (n > 0 && !(data[n - 1] || []).some(filled)) n--; return n; };
   const lastCol = () => data.reduce((m, r) => { let n = (r || []).length; while (n > 0 && !filled(r[n - 1])) n--; return Math.max(m, n); }, 0);
   const write = (r, c, v) => { data[r - 1] = data[r - 1] || []; data[r - 1][c - 1] = v; };
+  // Like a real grid: a new tab has 1000 rows and a range past the last row throws until insertRowsAfter adds rows.
+  let gridRows = 1000;
 
   const range = (row, col, rows = 1, cols = 1) => {
+    if (row < 1 || row + rows - 1 > sheet.getMaxRows()) throw new Error('The coordinates of the range are outside the dimensions of the sheet.');
     const each = (fn) => { for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) fn(row + i, col + j); };
     const grid = (fn) => Array.from({ length: rows }, (_, i) => Array.from({ length: cols }, (_, j) => fn(row + i, col + j)));
     const put = (kind, value) => each((r, c) => { if (value == null) delete marks[kind][r + ',' + c]; else marks[kind][r + ',' + c] = value; });
@@ -67,7 +70,8 @@ function fakeSheet(name) {
     setName(next) { delete sheets[name]; name = next; sheets[name] = sheet; return sheet; },
     getLastRow: lastRow,
     getLastColumn: lastCol,
-    getMaxRows: () => Math.max(1000, data.length),
+    getMaxRows: () => Math.max(gridRows, data.length),
+    insertRowsAfter(after, count) { gridRows = Math.max(gridRows, data.length) + count; return sheet; },
     getRange: range,
     getDataRange: () => range(1, 1, Math.max(1, lastRow()), Math.max(1, lastCol())),
     appendRow(values) { data[lastRow()] = values.slice(); return sheet; },
@@ -323,6 +327,10 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(ctx.channelFromPage_('https://x.vn/?utm_source=%E0%A4%A'), '%e0%a4%a', 'malformed escape does not throw');
   assert.strictEqual(ctx.parseAmount_(6700000), 6700000, 'numeric cell');
   assert.strictEqual(ctx.parseAmount_('999'), 0, 'under 1000 is not a fee');
+  // A 1-2 digit decimal tail is cents, not x100; a phone-number-sized figure is refused (0), never sent as a fee.
+  [['6700000.00', 6700000], ['6.700.000,00', 6700000], ['6,700,000.50', 6700000], ['6.700.000,5 đ', 6700000], ['6700000,00 đ', 6700000],
+    ['0912000111', 0], ['100000000', 100000000], ['100000001', 0], ['6.7', 0]]
+    .forEach(([v, n]) => assert.strictEqual(ctx.parseAmount_(v), n, String(v)));
 }
 
 // Ledger.gs: setupLedger on a sheet that already has a different header, and on a blank workbook.
@@ -363,6 +371,27 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   const written = sheets['Nhật ký'].data[3];
   assert.deepStrictEqual([written[0], written[2], written[3], written[4]], [11, 'R27-001', 'đăng ký', 'Gói 1']);
   assert.match(written[1], /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/);
+}
+
+// Ledger.gs: the journal keeps accepting events after the 1000-row grid of a new tab is full.
+{
+  reset();
+  const tab = fakeSheet('Thử lưới');
+  assert.strictEqual(tab.getMaxRows(), 1000);
+  assert.throws(() => tab.getRange(1001, 1), /outside the dimensions/);
+  assert.strictEqual(tab.insertRowsAfter(1000, 1).getMaxRows(), 1001);
+  tab.getRange(1001, 1).setValue('x');
+  assert.throws(() => tab.getRange(1002, 1), /outside the dimensions/);
+  delete sheets['Thử lưới'];
+
+  ctx.setupLedger();
+  const journal = sheets['Nhật ký'];
+  const free = journal.getMaxRows() - journal.getLastRow();
+  const ids = [];
+  for (let i = 0; i < free + 5; i++) ids.push(ctx.journal_('R27-001', 'đăng ký', 'Gói ' + (i % 6 + 1)));
+  assert.deepStrictEqual(ids, Array.from({ length: free + 5 }, (_, i) => i + 1), 'ids keep increasing past the grid');
+  assert.ok(journal.getMaxRows() >= journal.getLastRow(), 'grid grew');
+  assert.deepStrictEqual([journal.data[journal.getLastRow() - 1][0], journal.data[journal.getLastRow() - 1][4]], [free + 5, 'Gói ' + ((free + 4) % 6 + 1)]);
 }
 
 console.log('apps-script check: all passed');

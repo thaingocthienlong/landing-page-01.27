@@ -122,10 +122,10 @@ function transferNote_(code, packageId) {
   return digits ? code + ' GOI' + digits : code;
 }
 
-// Staff type amounts as 6.700.000, 6,700,000 or 6.700.000 đ; under 1000 is not a fee.
+// Staff type 6.700.000, 6,700,000 or 6.700.000 đ; a 1-2 digit decimal tail is dropped, and under 1000 or over 100 million (a phone number) is invalid.
 function parseAmount_(value) {
-  var n = Number(clean_(value).replace(/\D/g, ''));
-  return n < 1000 ? 0 : n;
+  var n = Number(clean_(value).replace(/[.,]\d{1,2}(?!\d)\D*$/, '').replace(/\D/g, ''));
+  return n < 1000 || n > 1e8 ? 0 : n;
 }
 
 // The caller holds the script lock, so reading the last Id and appending cannot race.
@@ -136,6 +136,8 @@ function journal_(code, event, detail) {
   // The header row and any stray text count as 0.
   var id = (last > 0 ? Number(sheet.getRange(last, 1).getValue()) || 0 : 0) + 1;
   var row = [id, Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss'), clean_(code), clean_(event), clean_(detail)];
+  // A new tab has 1000 rows; writing past the grid throws, and the registration row is already saved by then.
+  if (last + 1 > sheet.getMaxRows()) sheet.insertRowsAfter(sheet.getMaxRows(), 1);
   sheet.getRange(last + 1, 2, 1, 4).setNumberFormat('@');
   sheet.getRange(last + 1, 1, 1, 5).setValues([row]);
   return id;
