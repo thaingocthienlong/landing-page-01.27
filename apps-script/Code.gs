@@ -17,7 +17,8 @@ var MIN_SECONDS_TO_FILL = 3;
 var HEADERS = [
   'Thời gian', 'Mã gói', 'Gói đăng ký quan tâm', 'Họ và chữ lót', 'Tên', 'Email', 'Số điện thoại',
   'Giới tính', 'Ngày sinh', 'Tỉnh/Thành phố', 'Vị trí công tác', 'Đơn vị công tác',
-  'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái'
+  'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái',
+  'Mã học viên', 'Đợt', 'Kênh', 'Hình thức', 'Số tiền phải đóng', 'Email CK đã gửi', 'Ngày đóng', 'Phụ trách', 'Ghi chú'
 ];
 
 function setup() {

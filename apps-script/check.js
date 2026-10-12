@@ -262,4 +262,107 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   );
 }
 
+// Ledger.gs: learner-ledger columns, intake/package/journal tabs and the helpers on top of them.
+{
+  reset();
+  const OLD = ctx.HEADERS.slice(0, 17);
+  sheets['Đăng ký'] = fakeSheet('Đăng ký');
+  sheets['Đăng ký'].data.push(OLD.slice(), ['01/10/2026 09:00:00', 'Gói 2', 'x', 'Trần Thị', 'Bình', 'b@example.com', '0912000111', 'Nữ', '', '', '', '', '', '', 'Có', '', 'Mới']);
+  ctx.setupLedger();
+  assert.strictEqual(ctx.HEADERS.length, 26);
+  assert.deepStrictEqual(plain(sheets['Đăng ký'].data[0]), plain(ctx.HEADERS));
+  assert.strictEqual(sheets['Đăng ký'].data[1][3], 'Trần Thị', 'old rows untouched');
+  assert.deepStrictEqual(plain(sheets['Đợt học'].data[1]), ['R27', 'Phân tích định lượng với R', 'R27-', '08/12/2026', '28/12/2026', '08/01/2027', 'Có']);
+  assert.deepStrictEqual(plain(sheets['Gói'].data.map((r) => r[3]).slice(1)), ['8800000', '6700000', '7500000', '6700000', '3500000', '4500000']);
+  ctx.setupLedger();
+  assert.strictEqual(sheets['Gói'].data.length, 7, 'second run adds nothing');
+  assert.deepStrictEqual(plain(sheets['Nhật ký'].data[0]), ['Id', 'Thời gian', 'Mã học viên', 'Sự kiện', 'Chi tiết']);
+
+  assert.strictEqual(ctx.ledgerIntake_('r27').prefix, 'R27-');
+  assert.strictEqual(ctx.ledgerIntake_('').dot, 'R27', 'single open intake');
+  assert.strictEqual(ctx.ledgerIntake_('X99').dot, 'R27', 'unknown code falls back to the single open intake');
+  sheets['Đợt học'].data.push(['S28', 'Khóa khác', 'S28-', '', '', '', 'Có']);
+  assert.strictEqual(ctx.ledgerIntake_(''), null, 'two open intakes and no code');
+  assert.strictEqual(ctx.ledgerIntake_('S28').prefix, 'S28-');
+  sheets['Đợt học'].data.pop();
+
+  assert.strictEqual(ctx.nextLearnerCode_(['', 'R27-001', 'R27-009', 'S28-050', 'ghi tay'], 'R27-'), 'R27-010');
+  assert.strictEqual(ctx.nextLearnerCode_([], 'R27-'), 'R27-001');
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/?utm_source=Facebook&utm_medium=cpc'), 'facebook');
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/'), '');
+  assert.strictEqual(ctx.channelFromPage_(''), '');
+  assert.strictEqual(ctx.transferNote_('R27-012', 'Gói 1'), 'R27-012 GOI1');
+  assert.strictEqual(ctx.transferNote_('R27-012', ''), 'R27-012');
+  [['6.700.000', 6700000], ['6.700.000 đ', 6700000], ['6,700,000', 6700000], ['6700000', 6700000], ['', 0], ['0', 0], ['abc', 0]]
+    .forEach(([v, n]) => assert.strictEqual(ctx.parseAmount_(v), n, String(v)));
+  assert.strictEqual(ctx.journal_('R27-001', 'đăng ký', 'Gói 1'), 1);
+  assert.strictEqual(ctx.journal_('R27-002', 'đăng ký', 'Gói 2'), 2);
+}
+
+// Ledger.gs: edges the happy path above skips.
+{
+  reset();
+  assert.strictEqual(ctx.ledgerIntake_('R27'), null, 'no intake tab: unmigrated sheet keeps working');
+  assert.strictEqual(ctx.journal_('R27-001', 'đăng ký', 'Gói 1'), 0, 'no journal tab: nothing written');
+  fakeSheet('Đợt học');
+  assert.strictEqual(ctx.ledgerIntake_('R27'), null, 'empty intake tab');
+  sheets['Đợt học'].data.push(ctx.LEDGER_INTAKES.headers.slice());
+  assert.strictEqual(ctx.ledgerIntake_('R27'), null, 'header-only intake tab');
+
+  assert.deepStrictEqual(plain(ctx.LEDGER_STATUSES), ['Mới', 'Đã liên hệ', 'Chờ CK', 'Đã đóng', 'Hủy']);
+  assert.deepStrictEqual(plain(ctx.LEDGER_FORMATS), ['Trực tiếp', 'Online']);
+
+  // Sheets turns a typed date into a Date value; the deadline must still read dd/MM/yyyy.
+  sheets['Đợt học'].data.push(['R27', 'Chuỗi R', 'R27-', new Date('2026-12-08T00:00:00+07:00'), '28/12/2026', '', 'có']);
+  const intake = ctx.ledgerIntake_('');
+  assert.deepStrictEqual([intake.earlyDeadline, intake.deadline, intake.start], ['08/12/2026', '28/12/2026', '']);
+
+  assert.strictEqual(ctx.nextLearnerCode_(['R27-999'], 'R27-'), 'R27-1000');
+  assert.strictEqual(ctx.nextLearnerCode_(['r27-020', ' R27-007 '], 'R27-'), 'R27-021', 'staff-typed codes count');
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/?a=1&utm_source=' + 'z'.repeat(80)).length, 50);
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/?utm_source=%E0%A4%A'), '%e0%a4%a', 'malformed escape does not throw');
+  assert.strictEqual(ctx.parseAmount_(6700000), 6700000, 'numeric cell');
+  assert.strictEqual(ctx.parseAmount_('999'), 0, 'under 1000 is not a fee');
+}
+
+// Ledger.gs: setupLedger on a sheet that already has a different header, and on a blank workbook.
+{
+  reset();
+  sheets['Đăng ký'] = fakeSheet('Đăng ký');
+  const header = ctx.HEADERS.slice(0, 17);
+  header[19] = 'Khác';
+  sheets['Đăng ký'].data.push(header);
+  assert.throws(() => ctx.setupLedger(), /Khác/);
+  assert.strictEqual(sheets['Đăng ký'].data[0][19], 'Khác', 'foreign header kept');
+  assert.strictEqual(sheets['Đăng ký'].data[0][17], undefined, 'nothing written before the check passed');
+  assert.deepStrictEqual(Object.keys(sheets), ['Đăng ký'], 'no tab created either');
+
+  reset();
+  const summary = ctx.setupLedger();
+  assert.deepStrictEqual(plain(sheets['Đăng ký'].data[0]), plain(ctx.HEADERS), 'blank workbook gets the full header');
+  assert.strictEqual(typeof summary, 'string');
+  const main = sheets['Đăng ký'];
+  const col = ctx.ledgerCol_;
+  assert.deepStrictEqual([col('Trạng thái'), col('Mã học viên'), col('Hình thức'), col('Ghi chú')], [17, 18, 21, 26]);
+  assert.deepStrictEqual(plain(main.getRange(2, col('Trạng thái')).getDataValidation()), { list: plain(ctx.LEDGER_STATUSES), dropdown: true, allowInvalid: false });
+  assert.deepStrictEqual(plain(main.getRange(40, col('Hình thức')).getDataValidation()), { list: plain(ctx.LEDGER_FORMATS), dropdown: true, allowInvalid: false });
+  assert.strictEqual(main.getRange(2, col('Tên')).getDataValidation(), null);
+  assert.strictEqual(sheets['Nhật ký'].protections.length, 1);
+  assert.strictEqual(sheets['Nhật ký'].protections[0].warningOnly, true);
+  ctx.setupLedger();
+  assert.strictEqual(sheets['Nhật ký'].protections.length, 1, 'second run does not stack protections');
+
+  main.data.push(['01/10/2026 09:00:00', 'Gói 2', 'x', 'Trần Thị', 'Bình', 'b@example.com']);
+  const row = plain(ctx.ledgerRow_(main, 2));
+  assert.strictEqual(Object.keys(row).length, 26);
+  assert.deepStrictEqual([row['Tên'], row['Email'], row['Mã học viên']], ['Bình', 'b@example.com', '']);
+
+  ctx.journal_('', 'x', 'y');
+  sheets['Nhật ký'].data.push(['10', '', '', 'tay', '']);
+  assert.strictEqual(ctx.journal_('R27-001', 'đăng ký', 'Gói 1'), 11, 'text id on the last row still counts');
+  const written = sheets['Nhật ký'].data[3];
+  assert.deepStrictEqual([written[0], written[2], written[3], written[4]], [11, 'R27-001', 'đăng ký', 'Gói 1']);
+  assert.match(written[1], /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/);
+}
+
 console.log('apps-script check: all passed');
