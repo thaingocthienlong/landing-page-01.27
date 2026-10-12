@@ -1,0 +1,30 @@
+name: Check Apps Script
+
+# Runs both Apps Script harnesses on every pull request that touches apps-script/, so a backend
+# regression is caught before the code is pasted into the sheet.
+on:
+  pull_request:
+    paths:
+      - apps-script/**
+      - .github/workflows/check-apps-script.yml
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check the registration backend
+        run: node apps-script/check.js
+
+      - name: Check the attendance script
+        run: node apps-script/attendance/check.js

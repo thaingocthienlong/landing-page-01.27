@@ -6,7 +6,7 @@
  * setup() once and authorize, then Deploy > New deployment > Web app
  * (Execute as: Me, Who has access: Anyone). Put the /exec URL in the
  * data-endpoint attribute of #consultation-form in dist/index.html.
- * Requests with action 'chat' go to the learner-care chat in Chat.gs.
+ * Requests with action 'chat' go to the learner-care chat in Chat.gs, any other action to BotApi.gs.
  */
 
 var SHEET_NAME = 'Đăng ký';
@@ -17,7 +17,8 @@ var MIN_SECONDS_TO_FILL = 3;
 var HEADERS = [
   'Thời gian', 'Mã gói', 'Gói đăng ký quan tâm', 'Họ và chữ lót', 'Tên', 'Email', 'Số điện thoại',
   'Giới tính', 'Ngày sinh', 'Tỉnh/Thành phố', 'Vị trí công tác', 'Đơn vị công tác',
-  'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái'
+  'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái',
+  'Mã học viên', 'Đợt', 'Kênh', 'Hình thức', 'Số tiền phải đóng', 'Email CK đã gửi', 'Ngày đóng', 'Phụ trách', 'Ghi chú'
 ];
 
 function setup() {
@@ -43,6 +44,8 @@ function doPost(e) {
   }
   // Chat waits seconds on the model, so it must not hold the registration lock (Chat.gs).
   if (data.action === 'chat') return handleChat_(data);
+  // Every other action is the bot's read-only API (BotApi.gs); it skips the lock, and registration payloads carry no action.
+  if (data.action) return handleBotApi_(data);
 
   var lock = LockService.getScriptLock();
   try {
@@ -63,20 +66,60 @@ function doPost(e) {
     );
     if (cache.get(key)) return json_({ ok: true, duplicate: true });
 
+    var sheet = getSheet_();
+    if (sheet.getLastRow() === 0) setup();
+    var last = sheet.getLastRow();
+    var next = last + 1;
+
+    // An unmigrated or odd ledger tab leaves the code blank instead of costing the learner the registration.
+    var intake = null;
+    var code = '';
+    try {
+      intake = ledgerIntake_(clean_(data.dot));
+      // A blank prefix would number every intake from 001.
+      if (intake && !intake.prefix) intake = null;
+      if (intake) {
+        var taken = last > 1 ? sheet.getRange(2, ledgerCol_('Mã học viên'), last - 1, 1).getValues().map(function (r) { return r[0]; }) : [];
+        code = nextLearnerCode_(taken, intake.prefix);
+      }
+    } catch (err) {
+      intake = null;
+    }
+
     var row = [
       new Date(), data.package_id, data.package, data.ho_lot, data.ten, data.emailcontact, data.phoneregister,
       data.gioi_tinh, data.ngay_sinh, data.tinh_thanh, data.vi_tri, data.don_vi,
-      data.biet_qua, data.biet_qua_other || '', 'Có', data.page, 'Mới'
+      data.biet_qua, data.biet_qua_other || '', 'Có', data.page, 'Mới',
+      code, intake ? intake.dot : '', channelFromPage_(data.page), '', '', '', '', '', ''
     ].map(clean_);
     row[0] = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
 
-    var sheet = getSheet_();
-    if (sheet.getLastRow() === 0) setup();
-    var next = sheet.getLastRow() + 1;
+    // A new tab has 1000 rows; writing past the grid throws.
+    if (next > sheet.getMaxRows()) sheet.insertRowsAfter(sheet.getMaxRows(), 1);
     sheet.getRange(next, 1, 1, row.length).setNumberFormat('@').setValues([row]);
 
     cache.put(key, '1', 600);
-    notify_(data, row);
+
+    // The row is saved and cached: a mail or journal failure must not become an error the learner retries.
+    var note = function (c, event, detail) { try { journal_(c, event, detail); } catch (ignore) {} };
+    var reason = function (err) { return String((err && err.message) || err).slice(0, 200); };
+    try {
+      notify_(data, row);
+    } catch (err) {
+      note(code, 'lỗi email', 'thông báo Viện: ' + reason(err));
+    }
+    if (!intake) {
+      note('', 'lỗi đợt', clean_(data.dot));
+    } else {
+      note(code, 'đăng ký', data.package_id);
+      var why = '';
+      try {
+        sendConfirmation_(ledgerRow_(sheet, next), intake);
+      } catch (err) {
+        why = reason(err);
+      }
+      note(code, why ? 'lỗi email' : 'email xác nhận', why);
+    }
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: 'server' });
