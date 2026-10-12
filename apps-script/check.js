@@ -394,4 +394,95 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual([journal.data[journal.getLastRow() - 1][0], journal.data[journal.getLastRow() - 1][4]], [free + 5, 'Gói ' + ((free + 4) % 6 + 1)]);
 }
 
+// Registration with the ledger: learner code, receipt email to the learner, and the journal.
+{
+  reset();
+  ctx.setupLedger();
+  const journalEvents = () => sheets['Nhật ký'].data.slice(1).map((r) => r[3]);
+  const rowOf = (code) => { const s = sheets['Đăng ký']; const i = s.data.findIndex((r) => r[ctx.HEADERS.indexOf('Mã học viên')] === code); return ctx.ledgerRow_(s, i + 1); };
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  let r = rowOf('R27-001');
+  assert.strictEqual(r['Đợt'], 'R27');
+  assert.strictEqual(r['Kênh'], 'facebook');
+  assert.strictEqual(r['Trạng thái'], 'Mới');
+  const learnerMail = mail.calls.find((m) => m.to === 'an@example.com');
+  assert.ok(learnerMail.subject.includes('R27-001'));
+  assert.ok(learnerMail.htmlBody.includes('28/12/2026'));
+  assert.ok(!learnerMail.htmlBody.includes('img.vietqr.io'), 'no QR before staff confirm the amount');
+  assert.strictEqual(learnerMail.replyTo, 'vanphong@vienphuongnam.com.vn');
+  assert.deepStrictEqual(journalEvents().slice(-2), ['đăng ký', 'email xác nhận']);
+
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'c@example.com' }), { ok: true });
+  assert.ok(rowOf('R27-002'), 'codes continue');
+
+  mail.failFor.add('bad@example.com');
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'bad@example.com' }), { ok: true }, 'learner mail failure never fails the registration');
+  assert.strictEqual(journalEvents().slice(-1)[0], 'lỗi email');
+
+  sheets['Đợt học'].data.push(['S28', 'Khóa khác', 'S28-', '', '', '', 'Có']);
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'd@example.com', dot: '' }), { ok: true });
+  assert.strictEqual(sheets['Đăng ký'].data.slice(-1)[0][ctx.HEADERS.indexOf('Mã học viên')], '', 'no code when the intake is ambiguous');
+  assert.strictEqual(journalEvents().slice(-1)[0], 'lỗi đợt');
+  assert.ok(!mail.calls.some((m) => m.to === 'd@example.com'));
+  sheets['Đợt học'].data.pop();
+}
+
+// Registration: what the receipt says, and what it must not say.
+{
+  reset();
+  ctx.setupLedger();
+  assert.deepStrictEqual(post({ ...FORM, ho_lot: 'Lê <b>Văn</b>', ten: 'Tâm & Co' }), { ok: true });
+  const m = mail.calls.find((x) => x.to === 'an@example.com');
+  assert.strictEqual(m.subject, 'Viện Phương Nam đã nhận phiếu đăng ký – R27-001');
+  assert.strictEqual(m.name, 'Viện Phương Nam');
+  const html = m.htmlBody;
+  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Gói 1 (3 khóa', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
+    'xác nhận số tiền', 'chưa giữ chỗ', 'trước ngày 28/12/2026', '(028) 2242 6789', '0949 761 636 (Ms. Vy)', '0912 114 511 (Ms. Thảo)', 'vanphong@vienphuongnam.com.vn']
+    .forEach((s) => assert.ok(html.includes(s), 'receipt mentions ' + s));
+  assert.ok(!html.includes('<b>Văn'), 'learner-typed values are escaped');
+  ['vietqr', 'STK', 'GOI1', 'Số tài khoản'].forEach((s) => assert.ok(!html.includes(s), 'no payment details: ' + s));
+
+  sheets['Đợt học'].data[1][4] = '';
+  post({ ...FORM, emailcontact: 'e@example.com' });
+  assert.ok(!mail.calls.find((x) => x.to === 'e@example.com').htmlBody.includes('trước ngày'), 'blank deadline leaves no dangling date');
+}
+
+// Registration: a ledger problem never costs the learner the registration they already sent.
+{
+  reset();
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  const old = sheets['Đăng ký'];
+  assert.strictEqual(old.getLastRow(), 2);
+  assert.strictEqual(old.data[1].length, ctx.HEADERS.length, 'a full-width row even without ledger tabs');
+  assert.deepStrictEqual(plain(old.data[1].slice(17, 20)), ['', '', 'facebook']);
+  assert.deepStrictEqual(mail.calls.map((m) => m.to), [OWNER + ',vanphong@vienphuongnam.com.vn'], 'unmigrated sheet: staff mail only, no learner mail');
+
+  reset();
+  ctx.setupLedger();
+  sheets['Đợt học'].data[1][2] = '';
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  assert.strictEqual(sheets['Đăng ký'].data[1][ctx.HEADERS.indexOf('Mã học viên')], '', 'blank prefix is no intake');
+  assert.deepStrictEqual(sheets['Nhật ký'].data.slice(1).map((x) => [x[2], x[3], x[4]]), [['', 'lỗi đợt', 'R27']]);
+  assert.ok(!mail.calls.some((m) => m.to === 'an@example.com'));
+
+  reset();
+  ctx.setupLedger();
+  sheets['Nhật ký'].getRange = () => { throw new Error('boom'); };
+  assert.deepStrictEqual(post(FORM), { ok: true }, 'a broken journal does not fail the registration');
+  assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true }, 'the duplicate guard was written before the ledger calls');
+  assert.strictEqual(sheets['Đăng ký'].getLastRow(), 2);
+  assert.ok(mail.calls.some((m) => m.to === 'an@example.com'), 'the learner still gets the receipt');
+}
+
+// Registration: the sheet keeps accepting rows after the 1000-row grid of a tab is full.
+{
+  reset();
+  ctx.setupLedger();
+  const main = sheets['Đăng ký'];
+  while (main.data.length < main.getMaxRows()) main.data.push(['x']);
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  assert.strictEqual(main.getLastRow(), 1001);
+  assert.strictEqual(main.data[1000][ctx.HEADERS.indexOf('Mã học viên')], 'R27-001');
+}
+
 console.log('apps-script check: all passed');

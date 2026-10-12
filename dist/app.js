@@ -1052,7 +1052,7 @@
         phoneregister: get("phoneregister"), gioi_tinh: get("gioi_tinh"), ngay_sinh: birthText(), tinh_thanh: get("tinh_thanh"),
         vi_tri: get("vi_tri"), don_vi: get("don_vi"),
         biet_qua: get("biet_qua"), biet_qua_other: get("biet_qua_other"), agreement: form.agreement.checked,
-        page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"),
+        page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"), dot: get("dot"),
       };
     };
 
