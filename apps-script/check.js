@@ -436,11 +436,11 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(m.subject, 'Viện Phương Nam đã nhận phiếu đăng ký – R27-001');
   assert.strictEqual(m.name, 'Viện Phương Nam');
   const html = m.htmlBody;
-  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Gói 1 (3 khóa', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
+  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Gói đã chọn: Gói 1</p>', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
     'xác nhận số tiền', 'chưa giữ chỗ', 'trước ngày 28/12/2026', '(028) 2242 6789', '0949 761 636 (Ms. Vy)', '0912 114 511 (Ms. Thảo)', 'vanphong@vienphuongnam.com.vn']
     .forEach((s) => assert.ok(html.includes(s), 'receipt mentions ' + s));
   assert.ok(!html.includes('<b>Văn'), 'learner-typed values are escaped');
-  ['vietqr', 'STK', 'GOI1', 'Số tài khoản'].forEach((s) => assert.ok(!html.includes(s), 'no payment details: ' + s));
+  ['vietqr', 'STK', 'GOI1', 'Số tài khoản', 'đồng', '8.800.000'].forEach((s) => assert.ok(!html.includes(s), 'no payment details: ' + s));
 
   sheets['Đợt học'].data[1][4] = '';
   post({ ...FORM, emailcontact: 'e@example.com' });
@@ -472,6 +472,16 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true }, 'the duplicate guard was written before the ledger calls');
   assert.strictEqual(sheets['Đăng ký'].getLastRow(), 2);
   assert.ok(mail.calls.some((m) => m.to === 'an@example.com'), 'the learner still gets the receipt');
+
+  reset();
+  ctx.setupLedger();
+  mail.failFor.add(OWNER + ',vanphong@vienphuongnam.com.vn');
+  assert.deepStrictEqual(post(FORM), { ok: true }, 'a failed staff mail does not fail the registration');
+  assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
+  const journal = sheets['Nhật ký'].data.slice(1).map((x) => [x[2], x[3], x[4]]);
+  assert.deepStrictEqual(journal.map((x) => x[1]), ['lỗi email', 'đăng ký', 'email xác nhận'], 'the registration is still journaled and the learner still gets the receipt');
+  assert.deepStrictEqual(journal[0], ['R27-001', 'lỗi email', 'thông báo Viện: Invalid email: ' + OWNER + ',vanphong@vienphuongnam.com.vn']);
+  assert.ok(mail.calls.some((m) => m.to === 'an@example.com'));
 }
 
 // Registration: the sheet keeps accepting rows after the 1000-row grid of a tab is full.

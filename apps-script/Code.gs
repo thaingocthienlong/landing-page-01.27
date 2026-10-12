@@ -97,10 +97,15 @@ function doPost(e) {
     sheet.getRange(next, 1, 1, row.length).setNumberFormat('@').setValues([row]);
 
     cache.put(key, '1', 600);
-    notify_(data, row);
 
-    // The row is saved and cached: a journal or mail failure must not become an error the learner retries.
+    // The row is saved and cached: a mail or journal failure must not become an error the learner retries.
     var note = function (c, event, detail) { try { journal_(c, event, detail); } catch (ignore) {} };
+    var reason = function (err) { return String((err && err.message) || err).slice(0, 200); };
+    try {
+      notify_(data, row);
+    } catch (err) {
+      note(code, 'lỗi email', 'thông báo Viện: ' + reason(err));
+    }
     if (!intake) {
       note('', 'lỗi đợt', clean_(data.dot));
     } else {
@@ -109,7 +114,7 @@ function doPost(e) {
       try {
         sendConfirmation_(ledgerRow_(sheet, next), intake);
       } catch (err) {
-        why = String((err && err.message) || err).slice(0, 200);
+        why = reason(err);
       }
       note(code, why ? 'lỗi email' : 'email xác nhận', why);
     }
