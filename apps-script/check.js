@@ -207,6 +207,27 @@ function reset() {
   ui.alerts.length = 0;
 }
 
+// Ledger tab helpers. File scope, not inside a block: the bot-feed tests reuse edit(). Columns are looked up by header name.
+const colOf = (header) => ctx.ledgerCol_(header);
+const cellAt = (row, header) => ((sheets['Đăng ký'].data[row - 1] || [])[colOf(header) - 1] ?? '');
+const setCell = (row, header, value) => { sheets['Đăng ký'].getRange(row, colOf(header)).setValue(value); };
+const noteAt = (row, header) => sheets['Đăng ký'].getRange(row, colOf(header)).getNote();
+const bgAt = (row, header) => sheets['Đăng ký'].getRange(row, colOf(header)).getBackground();
+const journalRows = () => (sheets['Nhật ký'] ? sheets['Nhật ký'].data.slice(1) : []);
+// Pastes value over numRows cells of the column, then fires the installable trigger the way Sheets would.
+const edit = (rowIndex, value, numRows = 1, header = 'Trạng thái') => {
+  const range = fakeRange('Đăng ký', rowIndex, colOf(header), numRows, 1);
+  range.setValues(Array.from({ length: numRows }, () => [value]));
+  ctx.onLedgerEdit({ range });
+};
+const selectRows = (rowIndex, numRows) => { ui.range = fakeRange('Đăng ký', rowIndex, 1, numRows, ctx.HEADERS.length); };
+const manualRow = ({ code = '', dot = '', ho = 'Phạm Thị', ten = 'Mai', page = 'https://vienphuongnam.com.vn/?utm_source=Zalo' } = {}) => {
+  const row = { 'Thời gian': '02/10/2026 10:00:00', 'Mã gói': 'Gói 2', 'Gói đăng ký quan tâm': 'Gói 2 (2 khóa · 6.700.000 đồng)', 'Họ và chữ lót': ho,
+    'Tên': ten, 'Email': 'mai@example.com', 'Số điện thoại': '0988000111', 'Trang gửi': page, 'Trạng thái': 'Mới', 'Mã học viên': code, 'Đợt': dot };
+  return ctx.HEADERS.map((h) => row[h] ?? '');
+};
+const lastCodes = (n) => sheets['Đăng ký'].data.slice(-n).map((r) => r[colOf('Mã học viên') - 1]);
+
 // Registration as it behaves today.
 reset();
 assert.deepStrictEqual(post({ ...FORM, elapsed: 1 }), { ok: false, error: 'too-fast' });
@@ -493,6 +514,236 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(post(FORM), { ok: true });
   assert.strictEqual(main.getLastRow(), 1001);
   assert.strictEqual(main.data[1000][ctx.HEADERS.indexOf('Mã học viên')], 'R27-001');
+}
+
+// Trạng thái trigger: payment email with VietQR when staff choose Chờ CK, paid date, resend, code assignment and the trigger install.
+{
+  reset();
+  ctx.setupLedger();
+  ['an@example.com', 'b@example.com', 'c@example.com'].forEach((emailcontact) => assert.deepStrictEqual(post({ ...FORM, emailcontact }), { ok: true }));
+  assert.deepStrictEqual(lastCodes(3), ['R27-001', 'R27-002', 'R27-003']);
+  setCell(3, 'Hình thức', 'Online');
+
+  // rows 2..4 = R27-001..R27-003; R27-001 has no amount yet
+  mail.calls.length = 0;
+  edit(2, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, 0);
+  assert.ok(noteAt(2, 'Số tiền phải đóng').includes('Số tiền'), 'missing amount is flagged on the cell');
+  assert.strictEqual(bgAt(2, 'Số tiền phải đóng'), '#f8d7da');
+
+  setCell(2, 'Số tiền phải đóng', '6.700.000 đ');
+  edit(2, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, 1);
+  const m = mail.calls[0];
+  assert.ok(m.htmlBody.includes('R27-001 GOI1'));
+  assert.ok(m.htmlBody.includes('6.700.000'));
+  assert.ok(m.htmlBody.includes('2242 6789'));
+  const qr = m.htmlBody.match(/https:\/\/img\.vietqr\.io\/image\/[^"]+/)[0];
+  assert.ok(qr.startsWith('https://img.vietqr.io/image/970448-22426789-compact2.png?'));
+  assert.ok(qr.includes('amount=6700000') && qr.includes('addInfo=R27-001%20GOI1'));
+  assert.ok(!qr.includes('0909123456') && !/Nguy/.test(decodeURIComponent(qr)), 'no learner data in the QR URL');
+  assert.ok(cellAt(2, 'Email CK đã gửi'));
+  assert.strictEqual(noteAt(2, 'Số tiền phải đóng'), '', 'flag cleared once valid');
+  assert.strictEqual(bgAt(2, 'Số tiền phải đóng'), '#ffffff');
+
+  assert.deepStrictEqual([m.to, m.replyTo, m.name], ['an@example.com', 'vanphong@vienphuongnam.com.vn', 'Viện Phương Nam']);
+  assert.strictEqual(m.subject, 'Hướng dẫn chuyển khoản học phí – R27-001');
+  ['Nguyễn Văn An', 'Gói 1', '6.700.000 đồng', 'VIEN PHAT TRIEN NGUON LUC XA HOI PHUONG NAM', 'Ngân hàng Phương Đông (OCB), chi nhánh Tân Thuận',
+    'trước ngày 28/12/2026', 'phiếu thu', 'Zalo', '(028) 2242 6789', '0949 761 636 (Ms. Vy)', '0912 114 511 (Ms. Thảo)', 'vanphong@vienphuongnam.com.vn']
+    .forEach((s) => assert.ok(m.htmlBody.includes(s), 'payment email mentions ' + s));
+  assert.match(m.htmlBody, /quét bằng ứng dụng ngân hàng để điền sẵn số tiền và nội dung/i);
+  assert.ok(!m.htmlBody.includes('Hình thức'), 'no format line when the cell is empty');
+  assert.ok(!m.htmlBody.includes('—'), 'no em dash');
+  assert.deepStrictEqual(plain(journalRows().slice(-2).map((j) => j.slice(2, 5))), [['R27-001', 'đổi trạng thái', 'Chờ CK'], ['R27-001', 'email CK', '6700000']]);
+  assert.match(cellAt(2, 'Email CK đã gửi'), /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/);
+
+  edit(2, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, 1, 'never sent twice by the trigger');
+
+  setCell(3, 'Số tiền phải đóng', '8800000');           // row 4 keeps no amount
+  edit(2, 'Chờ CK', 3);                                  // pasted over rows 2..4
+  assert.strictEqual(mail.calls.length, 2, 'only row 3 is new and complete');
+  assert.ok(noteAt(4, 'Số tiền phải đóng'));
+  assert.deepStrictEqual([mail.calls[1].to, mail.calls[1].htmlBody.includes('R27-002 GOI1'), mail.calls[1].htmlBody.includes('8.800.000 đồng'), mail.calls[1].htmlBody.includes('Online')], ['b@example.com', true, true, true]);
+
+  edit(3, 'Đã đóng');
+  assert.match(cellAt(3, 'Ngày đóng'), /^\d{2}\/\d{2}\/\d{4}$/);
+  assert.deepStrictEqual(journalRows().slice(-1)[0].slice(2, 5), ['R27-002', 'đổi trạng thái', 'Đã đóng']);
+  const paidCount = journalRows().filter((j) => j[4] === 'Đã đóng').length;
+  edit(3, 'Đã đóng');
+  assert.strictEqual(journalRows().filter((j) => j[4] === 'Đã đóng').length, paidCount, 'paid recorded once');
+
+  const before = mail.calls.length;
+  edit(2, 'ghi chú bất kỳ', 1, 'Ghi chú');
+  assert.strictEqual(mail.calls.length, before, 'other columns do nothing');
+
+  selectRows(2, 1);
+  ctx.resendPaymentEmail();
+  assert.strictEqual(mail.calls.length, before + 1, 'menu resend ignores the sent flag');
+  assert.strictEqual(ui.alerts[0][1], 'YES_NO', 'asks before sending');
+
+  selectRows(2, 3);                                      // rows 2..4: sent, paid, and Chờ CK without an amount
+  ctx.resendPaymentEmail();
+  assert.strictEqual(mail.calls.length, before + 2, 'only the Chờ CK row with an amount is sent; paid rows never get payment details');
+  selectRows(3, 1);
+  ctx.resendPaymentEmail();
+  assert.strictEqual(mail.calls.length, before + 2, 'a row that is not in Chờ CK is skipped');
+  const realUi = ctx.SpreadsheetApp.getUi;
+  ctx.SpreadsheetApp.getUi = () => ({ ...realUi(), alert: () => 'NO' });
+  selectRows(2, 1);
+  ctx.resendPaymentEmail();
+  ctx.SpreadsheetApp.getUi = realUi;
+  assert.strictEqual(mail.calls.length, before + 2, 'answering No sends nothing');
+
+  sheets['Đăng ký'].data.push(manualRow({ code: 'R27-020' }), manualRow({ code: '' }), manualRow({ code: '', dot: 'R27' })); // staff-typed rows
+  const codeOf = (r) => Number(String(r[colOf('Mã học viên') - 1]).slice(4));
+  const max = Math.max(...sheets['Đăng ký'].data.slice(1).map(codeOf));
+  const pad = (n) => 'R27-' + String(n).padStart(3, '0');
+  const journaled = journalRows().length;
+  const waits = lock.waits;
+  const n = ctx.assignMissingCodes();
+  assert.strictEqual(n, 2);
+  assert.deepStrictEqual(lastCodes(2), [pad(max + 1), pad(max + 2)], 'continue after the highest code, no duplicates');
+  assert.strictEqual(max, 20);
+  assert.ok(lock.waits > waits, 'takes the script lock so a registration cannot get the same code');
+  assert.strictEqual(journalRows().length, journaled, 'never journals: legacy rows must not reach the staff feed');
+  const end = sheets['Đăng ký'].data.length;
+  assert.deepStrictEqual([cellAt(end, 'Đợt'), cellAt(end, 'Kênh'), cellAt(end - 1, 'Đợt'), cellAt(end - 1, 'Kênh')], ['R27', 'zalo', 'R27', 'zalo']);
+  assert.strictEqual(ctx.assignMissingCodes(), 0);
+
+  ctx.installLedgerTrigger(); ctx.installLedgerTrigger();
+  assert.strictEqual(triggers.filter((t) => t.handler === 'onLedgerEdit').length, 1);
+}
+
+// Trạng thái trigger: bad data is flagged on the cell, a failed send is journaled and can be retried, and nothing throws out to the user.
+{
+  reset();
+  ctx.setupLedger();
+  post(FORM);
+  setCell(2, 'Số tiền phải đóng', '6.700.000');
+  setCell(2, 'Email', 'khong-hop-le');
+  mail.calls.length = 0;
+  edit(2, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, 0);
+  assert.ok(noteAt(2, 'Email').includes('Email không hợp lệ'));
+  assert.strictEqual(bgAt(2, 'Email'), '#f8d7da');
+  assert.strictEqual(cellAt(2, 'Email CK đã gửi'), '');
+
+  setCell(2, 'Email', 'an@example.com');
+  mail.failFor.add('an@example.com');
+  edit(2, 'Chờ CK');
+  assert.strictEqual(cellAt(2, 'Email CK đã gửi'), '', 'a failed send is not recorded as sent');
+  assert.deepStrictEqual(plain(journalRows().slice(-1)[0].slice(2, 5)), ['R27-001', 'lỗi email', 'email CK: Invalid email: an@example.com']);
+  assert.ok(noteAt(2, 'Email CK đã gửi').includes('Invalid email'), 'staff see why on the sent cell');
+  assert.strictEqual(noteAt(2, 'Email'), '', 'the email flag is cleared once valid');
+  mail.failFor.clear();
+  edit(2, 'Chờ CK');
+  assert.ok(cellAt(2, 'Email CK đã gửi'), 'choosing Chờ CK again retries');
+  assert.strictEqual(noteAt(2, 'Email CK đã gửi'), '');
+  assert.strictEqual(mail.calls.length, 2, 'one failed attempt and one retry');
+
+  // A long provider message is cut to 200 characters after the prefix.
+  const longMail = 'a'.repeat(250) + '@example.com';
+  sheets['Đăng ký'].data.push(manualRow({ code: 'R27-007', dot: 'R27' }));
+  setCell(3, 'Email', longMail);
+  setCell(3, 'Số tiền phải đóng', '3500000');
+  mail.failFor.add(longMail);
+  edit(3, 'Chờ CK');
+  assert.strictEqual(journalRows().slice(-1)[0][4].length, 'email CK: '.length + 200);
+
+  // A row with no learner code would give a transfer note nobody can match.
+  sheets['Đăng ký'].data.push(manualRow({ code: '' }));
+  setCell(4, 'Số tiền phải đóng', '3500000');
+  const sent = mail.calls.length;
+  edit(4, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, sent);
+  assert.ok(noteAt(4, 'Mã học viên').includes('Mã học viên'));
+
+  // Not our tab, not our column, the header row, or no range at all: ignored without a throw.
+  const quiet = mail.calls.length;
+  const events = journalRows().length;
+  ctx.onLedgerEdit(undefined);
+  ctx.onLedgerEdit({});
+  ctx.onLedgerEdit({ range: fakeRange('Nhật ký', 2, colOf('Trạng thái')) });
+  ctx.onLedgerEdit({ range: fakeRange('Đăng ký', 1, colOf('Trạng thái')) });
+  ctx.onLedgerEdit({ range: fakeRange('Đăng ký', 2, 1, 3, colOf('Trạng thái') - 1) });
+  assert.strictEqual(mail.calls.length, quiet);
+  assert.strictEqual(journalRows().length, events);
+
+  // A status the trigger only records: journaled, no mail.
+  edit(2, 'Hủy');
+  assert.deepStrictEqual(plain(journalRows().slice(-1)[0].slice(2, 5)), ['R27-001', 'đổi trạng thái', 'Hủy']);
+  assert.strictEqual(mail.calls.length, sent);
+}
+
+// Payment email: values are escaped, and it still works on a sheet without the ledger tabs.
+{
+  reset();
+  ctx.setupLedger();
+  post({ ...FORM, ho_lot: 'Lê <b>Văn</b>', ten: 'Tâm & Co' });
+  setCell(2, 'Số tiền phải đóng', '6700000');
+  mail.calls.length = 0;
+  edit(2, 'Chờ CK');
+  const html = mail.calls[0].htmlBody;
+  assert.ok(html.includes('Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co'));
+  assert.ok(!html.includes('<b>Văn'), 'learner-typed values are escaped');
+  assert.ok(html.includes('amount=6700000&amp;addInfo=R27-001%20GOI1&amp;accountName='), 'the QR address is HTML-escaped inside the attribute');
+  assert.strictEqual(
+    ctx.vietQrUrl_(6700000, 'R27-001 GOI1'),
+    'https://img.vietqr.io/image/970448-22426789-compact2.png?amount=6700000&addInfo=R27-001%20GOI1&accountName=VIEN%20PHAT%20TRIEN%20NGUON%20LUC%20XA%20HOI%20PHUONG%20NAM'
+  );
+
+  sheets['Đợt học'].data[1][4] = '';
+  setCell(2, 'Email CK đã gửi', '');
+  edit(2, 'Chờ CK');
+  assert.ok(!mail.calls[1].htmlBody.includes('trước ngày'), 'blank deadline leaves no dangling date');
+
+  reset();
+  ctx.setup();
+  sheets['Đăng ký'].data.push(manualRow({ code: 'R27-001' }));
+  setCell(2, 'Số tiền phải đóng', '6700000');
+  edit(2, 'Chờ CK');
+  assert.strictEqual(mail.calls.length, 1, 'no Đợt học and no Nhật ký tab: still sent');
+  assert.ok(!mail.calls[0].htmlBody.includes('trước ngày'));
+  assert.ok(cellAt(2, 'Email CK đã gửi'));
+}
+
+// assignMissingCodes: only rows with a name and a known intake, and the code counts each intake on its own.
+{
+  reset();
+  ctx.setupLedger();
+  post(FORM);
+  sheets['Đợt học'].data.push(['S28', 'Khóa khác', 'S28-', '', '', '', 'Có']);
+  const main = sheets['Đăng ký'];
+  main.data.push(manualRow({ dot: 'S28' }), manualRow({ dot: 'R27' }), manualRow({ dot: '' }), manualRow({ dot: 'R27', ho: '', ten: '' }));
+  setCell(3, 'Kênh', 'tay');
+  const n = ctx.assignMissingCodes();
+  assert.strictEqual(n, 2, 'two open intakes: a blank Đợt cannot be decided; a blank name gets nothing');
+  assert.deepStrictEqual(lastCodes(4), ['S28-001', 'R27-002', '', '']);
+  assert.strictEqual(cellAt(3, 'Kênh'), 'tay', 'an existing channel is kept');
+  assert.strictEqual(cellAt(4, 'Kênh'), 'zalo');
+  assert.ok(ui.alerts.length >= 1, 'tells staff what happened');
+
+  main.data.length = 1;
+  assert.strictEqual(ctx.assignMissingCodes(), 0, 'empty sheet');
+}
+
+// ledgerMenu_ adds the Sổ học viên menu, and onOpen in Sync.gs calls it after the Trợ lý AI menu.
+{
+  const calls = [];
+  const menu = { addItem(label, fn) { calls.push([label, fn]); return menu; }, addToUi() { calls.push('addToUi'); return menu; } };
+  ctx.ledgerMenu_({ createMenu(name) { calls.push(name); return menu; } });
+  assert.deepStrictEqual(calls, ['Sổ học viên', ['Cấp mã cho dòng chưa có mã', 'assignMissingCodes'], ['Gửi lại email CK (dòng đang chọn)', 'resendPaymentEmail'],
+    ['Bật gửi email tự động', 'installLedgerTrigger'], ['Cài đặt Sổ học viên', 'setupLedger'], 'addToUi']);
+  calls.filter(Array.isArray).forEach(([, fn]) => assert.strictEqual(typeof ctx[fn], 'function', fn + ' exists'));
+  assert.strictEqual(typeof ctx.onLedgerEdit, 'function');
+
+  const seen = [];
+  const uiApi = { createMenu(name) { seen.push(name); const m = { addItem() { return m; }, addToUi() { return m; } }; return m; } };
+  const syncCtx = vm.createContext({ SpreadsheetApp: { getUi: () => uiApi }, ledgerMenu_: (given) => seen.push(given === uiApi ? 'ledger' : 'wrong ui') });
+  vm.runInContext(fs.readFileSync(path.join(__dirname, 'Sync.gs'), 'utf8'), syncCtx);
+  syncCtx.onOpen();
+  assert.deepStrictEqual(seen, ['Trợ lý AI', 'ledger']);
 }
 
 console.log('apps-script check: all passed');

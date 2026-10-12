@@ -153,3 +153,184 @@ function ledgerRow_(sheet, rowIndex) {
 function ledgerCol_(header) {
   return HEADERS.indexOf(header) + 1;
 }
+
+var LEDGER_FLAG = '#f8d7da';
+var LEDGER_EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+function ledgerNow_(format) {
+  return Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', format);
+}
+
+// The email or the stamp is already done by then, so a journal failure must not undo or repeat it.
+function ledgerNote_(code, event, detail) {
+  try { journal_(code, event, detail); } catch (ignore) {}
+}
+
+function ledgerTell_(message) {
+  try {
+    SpreadsheetApp.getUi().alert(message);
+  } catch (err) {
+    Logger.log(message);
+  }
+}
+
+// Text format keeps a stamped date or a code from turning into a date or number cell.
+function ledgerPut_(sheet, rowIndex, header, text) {
+  sheet.getRange(rowIndex, ledgerCol_(header)).setNumberFormat('@').setValue(text);
+}
+
+// Only a cell this code flagged is cleared, so a note or colour staff added stays.
+function ledgerFlag_(sheet, rowIndex, header, text) {
+  var cell = sheet.getRange(rowIndex, ledgerCol_(header));
+  if (text) cell.setBackground(LEDGER_FLAG).setNote(text);
+  else if (cell.getBackground() === LEDGER_FLAG) cell.setBackground(null).clearNote();
+}
+
+// The simple onEdit in Faq.gs cannot send mail, so this one is an installable trigger. It never throws at whoever is editing.
+function onLedgerEdit(e) {
+  try {
+    var range = e && e.range;
+    var status = ledgerCol_('Trạng thái');
+    if (!range || range.getSheet().getName() !== SHEET_NAME) return;
+    if (status < range.getColumn() || status >= range.getColumn() + range.getNumColumns()) return;
+    var first = Math.max(range.getRow(), 2);
+    var count = range.getRow() + range.getNumRows() - first;
+    if (count < 1) return;
+    var sheet = range.getSheet();
+    var lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    try {
+      sheet.getRange(first, status, count, 1).getValues().forEach(function (v, i) {
+        ledgerStatusChanged_(sheet, first + i, clean_(v[0]));
+      });
+    } finally {
+      try { lock.releaseLock(); } catch (ignore) {}
+    }
+  } catch (err) {
+    Logger.log('onLedgerEdit: ' + err);
+  }
+}
+
+function ledgerStatusChanged_(sheet, rowIndex, status) {
+  if (!status) return;
+  var r = ledgerRow_(sheet, rowIndex);
+  if (status === 'Đã đóng') {
+    // The date doubles as "already recorded", so a second Đã đóng on the row adds nothing.
+    if (clean_(r['Ngày đóng'])) return;
+    ledgerPut_(sheet, rowIndex, 'Ngày đóng', ledgerNow_('dd/MM/yyyy'));
+  }
+  ledgerNote_(clean_(r['Mã học viên']), 'đổi trạng thái', status);
+  if (status === 'Chờ CK' && !clean_(r['Email CK đã gửi'])) ledgerSendPayment_(sheet, rowIndex, r);
+}
+
+// Returns true when the email went out. Bad data and a failed send are flagged on the row and journaled, never thrown.
+function ledgerSendPayment_(sheet, rowIndex, r) {
+  var code = clean_(r['Mã học viên']);
+  var amount = parseAmount_(r['Số tiền phải đóng']);
+  var checks = [
+    ['Mã học viên', code, 'Thiếu Mã học viên. Dùng menu Sổ học viên > Cấp mã cho dòng chưa có mã, rồi Gửi lại email CK.'],
+    ['Email', LEDGER_EMAIL.test(clean_(r['Email'])), 'Email không hợp lệ. Sửa xong, dùng menu Sổ học viên > Gửi lại email CK.'],
+    ['Số tiền phải đóng', amount, 'Thiếu hoặc sai Số tiền phải đóng (ví dụ 6.700.000). Sửa xong, dùng menu Sổ học viên > Gửi lại email CK.']
+  ];
+  var ready = true;
+  checks.forEach(function (check) {
+    ledgerFlag_(sheet, rowIndex, check[0], check[1] ? '' : check[2]);
+    if (!check[1]) ready = false;
+  });
+  if (!ready) return false;
+  try {
+    sendPaymentEmail_(r, ledgerIntake_(clean_(r['Đợt'])) || {});
+  } catch (err) {
+    var why = String((err && err.message) || err).slice(0, 200);
+    ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', 'Chưa gửi được email: ' + why + ' Dùng menu Sổ học viên > Gửi lại email CK để thử lại.');
+    ledgerNote_(code, 'lỗi email', 'email CK: ' + why);
+    return false;
+  }
+  ledgerPut_(sheet, rowIndex, 'Email CK đã gửi', ledgerNow_('dd/MM/yyyy HH:mm:ss'));
+  ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', '');
+  ledgerNote_(code, 'email CK', amount);
+  return true;
+}
+
+function installLedgerTrigger() {
+  var have = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'onLedgerEdit'; });
+  if (!have) ScriptApp.newTrigger('onLedgerEdit').forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet()).onEdit().create();
+  ledgerTell_(have ? 'Gửi email tự động đã bật từ trước.' : 'Đã bật. Từ giờ chọn Chờ CK ở cột Trạng thái là học viên nhận email chuyển khoản.');
+}
+
+// Never journals: rows typed before the ledger existed must not look like new registrations to the staff feed.
+function assignMissingCodes() {
+  var sheet = getSheet_();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  var done = 0;
+  var skipped = 0;
+  try {
+    var last = sheet.getLastRow();
+    var rows = last > 1 ? sheet.getRange(2, 1, last - 1, HEADERS.length).getValues() : [];
+    var taken = rows.map(function (v) { return v[ledgerCol_('Mã học viên') - 1]; });
+    var intakes = {};
+    rows.forEach(function (v, i) {
+      var at = function (header) { return clean_(v[ledgerCol_(header) - 1]); };
+      if (at('Mã học viên')) return;
+      var dot = at('Đợt');
+      if (intakes[dot] === undefined) intakes[dot] = ledgerIntake_(dot);
+      var intake = intakes[dot];
+      if (!(at('Họ và chữ lót') || at('Tên')) || !intake || !intake.prefix) {
+        skipped++;
+        return;
+      }
+      var code = nextLearnerCode_(taken, intake.prefix);
+      taken.push(code);
+      ledgerPut_(sheet, i + 2, 'Mã học viên', code);
+      if (!dot) ledgerPut_(sheet, i + 2, 'Đợt', intake.dot);
+      var channel = at('Kênh') ? '' : channelFromPage_(at('Trang gửi'));
+      if (channel) ledgerPut_(sheet, i + 2, 'Kênh', channel);
+      done++;
+    });
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+  ledgerTell_('Đã cấp mã cho ' + done + ' dòng.' + (skipped ? ' Bỏ qua ' + skipped + ' dòng chưa có họ tên hoặc chưa xác định được đợt.' : ''));
+  return done;
+}
+
+// Rows outside Chờ CK are skipped: no payment detail may reach a learner before staff move the row there.
+function resendPaymentEmail() {
+  var app = SpreadsheetApp.getUi();
+  var range = SpreadsheetApp.getActiveRange();
+  var sheet = range && range.getSheet();
+  var first = range ? Math.max(range.getRow(), 2) : 0;
+  var last = range ? Math.min(range.getRow() + range.getNumRows() - 1, sheet.getLastRow()) : 0;
+  if (!sheet || sheet.getName() !== SHEET_NAME || last < first) {
+    app.alert('Chọn các dòng học viên trong tab "' + SHEET_NAME + '" rồi chạy lại.');
+    return;
+  }
+  var ask = 'Gửi lại email chuyển khoản cho ' + (last - first + 1) + ' dòng đang chọn? Học viên sẽ nhận email lần nữa.';
+  if (app.alert(ask, app.ButtonSet.YES_NO) !== app.Button.YES) return;
+  var sent = 0;
+  var skipped = 0;
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    for (var row = first; row <= last; row++) {
+      var r = ledgerRow_(sheet, row);
+      if (clean_(r['Trạng thái']) !== 'Chờ CK') skipped++;
+      else if (ledgerSendPayment_(sheet, row, r)) sent++;
+    }
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+  var failed = last - first + 1 - sent - skipped;
+  app.alert('Đã gửi ' + sent + ' email.' + (skipped ? ' Bỏ qua ' + skipped + ' dòng không ở trạng thái Chờ CK.' : '') +
+    (failed ? ' ' + failed + ' dòng chưa gửi được, xem ô tô đỏ.' : ''));
+}
+
+function ledgerMenu_(ui) {
+  ui.createMenu('Sổ học viên')
+    .addItem('Cấp mã cho dòng chưa có mã', 'assignMissingCodes')
+    .addItem('Gửi lại email CK (dòng đang chọn)', 'resendPaymentEmail')
+    .addItem('Bật gửi email tự động', 'installLedgerTrigger')
+    .addItem('Cài đặt Sổ học viên', 'setupLedger')
+    .addToUi();
+}
