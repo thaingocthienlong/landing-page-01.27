@@ -197,23 +197,52 @@ function onLedgerEdit(e) {
     var count = range.getRow() + range.getNumRows() - first;
     if (count < 1) return;
     var sheet = range.getSheet();
-    var lock = LockService.getScriptLock();
-    lock.waitLock(20000);
-    try {
-      sheet.getRange(first, status, count, 1).getValues().forEach(function (v, i) {
-        ledgerStatusChanged_(sheet, first + i, clean_(v[0]));
-      });
-    } finally {
-      try { lock.releaseLock(); } catch (ignore) {}
-    }
+    // This read only skips cleared cells; every status is decided on a fresh read of the row.
+    sheet.getRange(first, status, count, 1).getValues().forEach(function (v, i) {
+      if (clean_(v[0])) ledgerOnRow_(sheet, first + i, function (r) { ledgerStatusChanged_(sheet, first + i, r); });
+    });
   } catch (err) {
     Logger.log('onLedgerEdit: ' + err);
   }
 }
 
-function ledgerStatusChanged_(sheet, rowIndex, status) {
+function ledgerWhy_(err) {
+  return String((err && err.message) || err).slice(0, 200);
+}
+
+// Each row takes the script lock alone, so a registration waits for one row and not for a whole paste. Returns work's result, 'busy' or 'failed'; never throws.
+function ledgerOnRow_(sheet, rowIndex, work) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+  } catch (err) {
+    // No journal here: the Id is only safe to read while holding the lock.
+    try {
+      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý dòng này vì bảng đang bận. Đổi Trạng thái sang giá trị khác rồi chọn lại, hoặc với Chờ CK dùng menu Sổ học viên > Gửi lại email CK.');
+    } catch (ignore) {}
+    return 'busy';
+  }
+  var r = null;
+  try {
+    r = ledgerRow_(sheet, rowIndex);
+    ledgerFlag_(sheet, rowIndex, 'Trạng thái', '');
+    return work(r);
+  } catch (err) {
+    // The flag is what staff see, so it comes first and its own failure is not allowed to hide the journal entry.
+    var why = ledgerWhy_(err);
+    try {
+      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý xong dòng này: ' + why + ' Kiểm tra cột Email CK đã gửi trước khi dùng menu Sổ học viên > Gửi lại email CK.');
+    } catch (ignore) {}
+    ledgerNote_(r ? clean_(r['Mã học viên']) : '', 'lỗi email', 'email CK: ' + why);
+    return 'failed';
+  } finally {
+    try { lock.releaseLock(); } catch (ignore) {}
+  }
+}
+
+function ledgerStatusChanged_(sheet, rowIndex, r) {
+  var status = clean_(r['Trạng thái']);
   if (!status) return;
-  var r = ledgerRow_(sheet, rowIndex);
   if (status === 'Đã đóng') {
     // The date doubles as "already recorded", so a second Đã đóng on the row adds nothing.
     if (clean_(r['Ngày đóng'])) return;
@@ -241,14 +270,19 @@ function ledgerSendPayment_(sheet, rowIndex, r) {
   try {
     sendPaymentEmail_(r, ledgerIntake_(clean_(r['Đợt'])) || {});
   } catch (err) {
-    var why = String((err && err.message) || err).slice(0, 200);
-    ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', 'Chưa gửi được email: ' + why + ' Dùng menu Sổ học viên > Gửi lại email CK để thử lại.');
+    var why = ledgerWhy_(err);
     ledgerNote_(code, 'lỗi email', 'email CK: ' + why);
+    ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', 'Chưa gửi được email: ' + why + ' Dùng menu Sổ học viên > Gửi lại email CK để thử lại.');
     return false;
   }
-  ledgerPut_(sheet, rowIndex, 'Email CK đã gửi', ledgerNow_('dd/MM/yyyy HH:mm:ss'));
-  ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', '');
+  // First write after the send, so a later failure cannot leave an email out and unstamped.
+  try {
+    ledgerPut_(sheet, rowIndex, 'Email CK đã gửi', ledgerNow_('dd/MM/yyyy HH:mm:ss'));
+  } catch (err) {
+    throw new Error('Email đã gửi nhưng chưa ghi được ngày gửi: ' + ledgerWhy_(err));
+  }
   ledgerNote_(code, 'email CK', amount);
+  try { ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', ''); } catch (ignore) {}
   return true;
 }
 
@@ -268,8 +302,11 @@ function assignMissingCodes() {
   try {
     var last = sheet.getLastRow();
     var rows = last > 1 ? sheet.getRange(2, 1, last - 1, HEADERS.length).getValues() : [];
-    var taken = rows.map(function (v) { return v[ledgerCol_('Mã học viên') - 1]; });
+    var cols = ['Mã học viên', 'Đợt', 'Kênh'].map(ledgerCol_);
+    var taken = rows.map(function (v) { return v[cols[0] - 1]; });
     var intakes = {};
+    var firstDone = -1;
+    var lastDone = -1;
     rows.forEach(function (v, i) {
       var at = function (header) { return clean_(v[ledgerCol_(header) - 1]); };
       if (at('Mã học viên')) return;
@@ -282,12 +319,21 @@ function assignMissingCodes() {
       }
       var code = nextLearnerCode_(taken, intake.prefix);
       taken.push(code);
-      ledgerPut_(sheet, i + 2, 'Mã học viên', code);
-      if (!dot) ledgerPut_(sheet, i + 2, 'Đợt', intake.dot);
-      var channel = at('Kênh') ? '' : channelFromPage_(at('Trang gửi'));
-      if (channel) ledgerPut_(sheet, i + 2, 'Kênh', channel);
+      v[cols[0] - 1] = code;
+      if (!dot) v[cols[1] - 1] = intake.dot;
+      if (!at('Kênh')) v[cols[2] - 1] = channelFromPage_(at('Trang gửi'));
+      if (firstDone < 0) firstDone = i;
+      lastDone = i;
       done++;
     });
+    // One write per column over the changed span: the lock is held for a few calls, not a few per legacy row.
+    if (done) {
+      var span = rows.slice(firstDone, lastDone + 1);
+      cols.forEach(function (col) {
+        sheet.getRange(firstDone + 2, col, span.length, 1).setNumberFormat('@')
+          .setValues(span.map(function (v) { return [v[col - 1]]; }));
+      });
+    }
   } finally {
     try { lock.releaseLock(); } catch (ignore) {}
   }
@@ -296,6 +342,11 @@ function assignMissingCodes() {
 }
 
 // Rows outside Chờ CK are skipped: no payment detail may reach a learner before staff move the row there.
+function ledgerResend_(sheet, rowIndex, r) {
+  if (clean_(r['Trạng thái']) !== 'Chờ CK') return 'skipped';
+  return ledgerSendPayment_(sheet, rowIndex, r) ? 'sent' : 'failed';
+}
+
 function resendPaymentEmail() {
   var app = SpreadsheetApp.getUi();
   var range = SpreadsheetApp.getActiveRange();
@@ -310,16 +361,10 @@ function resendPaymentEmail() {
   if (app.alert(ask, app.ButtonSet.YES_NO) !== app.Button.YES) return;
   var sent = 0;
   var skipped = 0;
-  var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
-    for (var row = first; row <= last; row++) {
-      var r = ledgerRow_(sheet, row);
-      if (clean_(r['Trạng thái']) !== 'Chờ CK') skipped++;
-      else if (ledgerSendPayment_(sheet, row, r)) sent++;
-    }
-  } finally {
-    try { lock.releaseLock(); } catch (ignore) {}
+  for (var row = first; row <= last; row++) {
+    var result = ledgerOnRow_(sheet, row, function (r) { return ledgerResend_(sheet, row, r); });
+    if (result === 'sent') sent++;
+    else if (result === 'skipped') skipped++;
   }
   var failed = last - first + 1 - sent - skipped;
   app.alert('Đã gửi ' + sent + ' email.' + (skipped ? ' Bỏ qua ' + skipped + ' dòng không ở trạng thái Chờ CK.' : '') +

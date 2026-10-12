@@ -11,7 +11,7 @@ const sheets = {};
 const cache = new Map();
 const props = {};
 const triggers = [];
-const lock = { waits: 0 };
+const lock = { waits: 0, held: 0, failAt: 0 };
 const mail = { calls: [], failFor: new Set() };
 const ui = { range: null, alerts: [] };
 
@@ -141,7 +141,17 @@ const ctx = vm.createContext({
       setProperty: (key, value) => { props[key] = String(value); }
     })
   },
-  LockService: { getScriptLock: () => ({ waitLock() { lock.waits++; }, releaseLock() {} }) },
+  // failAt: the n-th acquisition since reset() times out, like a lock another run holds for more than the wait.
+  LockService: {
+    getScriptLock: () => ({
+      waitLock() {
+        lock.waits++;
+        if (lock.waits === lock.failAt) throw new Error('Lock timeout: another process was holding the lock for too long.');
+        lock.held++;
+      },
+      releaseLock() { if (lock.held > 0) lock.held--; }
+    })
+  },
   Session: {
     getEffectiveUser: () => ({ getEmail: () => OWNER }),
     getActiveUser: () => ({ getEmail: () => OWNER })
@@ -201,6 +211,8 @@ function reset() {
   cache.clear();
   triggers.length = 0;
   lock.waits = 0;
+  lock.held = 0;
+  lock.failAt = 0;
   mail.calls.length = 0;
   mail.failFor.clear();
   ui.range = null;
@@ -726,6 +738,131 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
 
   main.data.length = 1;
   assert.strictEqual(ctx.assignMissingCodes(), 0, 'empty sheet');
+}
+
+// Trạng thái trigger: every row is decided on a fresh read under its own lock, and one failing row never stops the rows after it.
+{
+  // n registrations with an amount each, on rows 2..n+1, and no mail or lock counted yet.
+  const fresh = (n) => {
+    reset();
+    ctx.setupLedger();
+    for (let i = 0; i < n; i++) post({ ...FORM, emailcontact: 'p' + i + '@example.com' });
+    for (let i = 0; i < n; i++) setCell(i + 2, 'Số tiền phải đóng', '6700000');
+    mail.calls.length = 0;
+    lock.waits = 0;
+  };
+  const sentTo = () => mail.calls.map((m) => m.to);
+  const hookRange = (hook) => {
+    const main = sheets['Đăng ký'];
+    const real = main.getRange;
+    main.getRange = (row, col, rows, cols) => hook(real(row, col, rows, cols), row, col, rows, cols);
+    return () => { main.getRange = real; };
+  };
+
+  // A row cancelled while earlier rows are still being mailed gets nothing.
+  fresh(3);
+  const realSend = ctx.MailApp.sendEmail;
+  ctx.MailApp.sendEmail = (opts) => { realSend(opts); if (opts.to === 'p0@example.com') setCell(3, 'Trạng thái', 'Hủy'); };
+  edit(2, 'Chờ CK', 3);
+  ctx.MailApp.sendEmail = realSend;
+  assert.deepStrictEqual(sentTo(), ['p0@example.com', 'p2@example.com'], 'row 3 was cancelled before its turn');
+  assert.strictEqual(cellAt(3, 'Email CK đã gửi'), '');
+  assert.deepStrictEqual(plain(journalRows().filter((j) => j[2] === 'R27-002').slice(-1)[0].slice(3, 5)), ['đổi trạng thái', 'Hủy']);
+
+  // One lock per row, each released before the next row.
+  fresh(3);
+  edit(2, 'Chờ CK', 3);
+  assert.strictEqual(lock.waits, 3, 'a registration waits for one row, not for the whole paste');
+  assert.strictEqual(lock.held, 0, 'every lock released');
+
+  // A row that never gets the lock is flagged for staff, the rows around it are handled, and the resend menu finishes it.
+  fresh(3);
+  lock.failAt = 2;
+  assert.doesNotThrow(() => edit(2, 'Chờ CK', 3));
+  lock.failAt = 0;
+  assert.deepStrictEqual(sentTo(), ['p0@example.com', 'p2@example.com']);
+  assert.strictEqual(bgAt(3, 'Trạng thái'), '#f8d7da');
+  assert.ok(noteAt(3, 'Trạng thái').includes('Gửi lại email CK'), 'the note points staff to the resend menu');
+  assert.ok(!journalRows().some((j) => j[2] === 'R27-002' && j[3] === 'đổi trạng thái'), 'nothing is recorded for a row that was not processed');
+  selectRows(3, 1);
+  ctx.resendPaymentEmail();
+  assert.deepStrictEqual(sentTo().slice(-1), ['p1@example.com']);
+  assert.strictEqual(noteAt(3, 'Trạng thái'), '', 'the flag is cleared once the row is handled');
+
+  // A row that cannot be read does not stop the rows after it, and staff see why.
+  fresh(3);
+  let restore = hookRange((range, row, col, rows, cols) => {
+    if (row === 3 && cols === ctx.HEADERS.length) throw new Error('Service error: Spreadsheets');
+    return range;
+  });
+  assert.doesNotThrow(() => edit(2, 'Chờ CK', 3));
+  restore();
+  assert.deepStrictEqual(sentTo(), ['p0@example.com', 'p2@example.com']);
+  assert.ok(noteAt(3, 'Trạng thái').includes('Service error: Spreadsheets'));
+  assert.deepStrictEqual(plain(journalRows().filter((j) => j[3] === 'lỗi email').map((j) => j[4])), ['email CK: Service error: Spreadsheets']);
+
+  // Same when flagging the row is what throws.
+  fresh(3);
+  setCell(3, 'Số tiền phải đóng', '');
+  restore = hookRange((range, row, col) => {
+    if (row === 3 && col === colOf('Số tiền phải đóng')) range.setNote = () => { throw new Error('quota'); };
+    return range;
+  });
+  assert.doesNotThrow(() => edit(2, 'Chờ CK', 3));
+  restore();
+  assert.deepStrictEqual(sentTo(), ['p0@example.com', 'p2@example.com']);
+  assert.ok(noteAt(3, 'Trạng thái').includes('quota'));
+  assert.deepStrictEqual(plain(journalRows().filter((j) => j[3] === 'lỗi email').map((j) => [j[2], j[4]])), [['R27-002', 'email CK: quota']]);
+
+  // After a successful send the sent cell is written first: a journal that fails changes nothing.
+  fresh(1);
+  sheets['Nhật ký'].getRange = () => { throw new Error('boom'); };
+  edit(2, 'Chờ CK');
+  assert.ok(cellAt(2, 'Email CK đã gửi'), 'stamped although the journal failed');
+  edit(2, 'Chờ CK');
+  assert.deepStrictEqual(sentTo(), ['p0@example.com'], 'a second Chờ CK sends nothing');
+
+  // If the stamp itself fails the email is already out: say so, so nobody sends it twice.
+  fresh(1);
+  restore = hookRange((range, row, col) => {
+    if (col === colOf('Email CK đã gửi')) range.setNumberFormat = () => { throw new Error('quota'); };
+    return range;
+  });
+  assert.doesNotThrow(() => edit(2, 'Chờ CK'));
+  restore();
+  assert.deepStrictEqual(sentTo(), ['p0@example.com']);
+  assert.ok(noteAt(2, 'Trạng thái').includes('Email đã gửi nhưng chưa ghi được ngày gửi'));
+  assert.deepStrictEqual(plain(journalRows().filter((j) => j[3] === 'lỗi email').map((j) => j[4])), ['email CK: Email đã gửi nhưng chưa ghi được ngày gửi: quota']);
+}
+
+// assignMissingCodes: the number of sheet writes does not grow with the number of legacy rows, and it holds the lock once.
+{
+  const run = (n) => {
+    reset();
+    ctx.setupLedger();
+    const main = sheets['Đăng ký'];
+    for (let i = 0; i < n; i++) main.data.push(manualRow(i === 1 ? { code: 'R27-009', dot: 'R27' } : {}));
+    setCell(3, 'Kênh', 'tay');
+    let writes = 0;
+    const real = main.getRange;
+    main.getRange = (...args) => {
+      const range = real(...args);
+      ['setValue', 'setValues'].forEach((m) => { const f = range[m]; range[m] = (...x) => { writes++; return f(...x); }; });
+      return range;
+    };
+    lock.waits = 0;
+    const done = ctx.assignMissingCodes();
+    return { done, writes, waits: lock.waits, codes: main.data.slice(1).map((r) => r[colOf('Mã học viên') - 1]) };
+  };
+  const few = run(4);
+  const many = run(60);
+  assert.deepStrictEqual([few.done, many.done], [3, 59]);
+  assert.ok(many.writes <= 3, 'one write per column');
+  assert.strictEqual(many.writes, few.writes, 'writes do not grow with the rows');
+  assert.deepStrictEqual([few.waits, many.waits], [1, 1]);
+  assert.strictEqual(new Set(many.codes).size, 60, 'no duplicate codes');
+  assert.deepStrictEqual([many.codes[0], many.codes[1], many.codes[59]], ['R27-010', 'R27-009', 'R27-068']);
+  assert.deepStrictEqual([cellAt(3, 'Kênh'), cellAt(3, 'Đợt'), cellAt(2, 'Kênh'), cellAt(2, 'Đợt')], ['tay', 'R27', 'zalo', 'R27'], 'values the rows already had are kept');
 }
 
 // ledgerMenu_ adds the Sổ học viên menu, and onOpen in Sync.gs calls it after the Trợ lý AI menu.
