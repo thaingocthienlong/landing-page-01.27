@@ -14,6 +14,8 @@ const triggers = [];
 const lock = { waits: 0, held: 0, failAt: 0 };
 const mail = { calls: [], failFor: new Set() };
 const ui = { range: null, alerts: [] };
+// The Sheet's owner as getOwner() reports it: email null is a shared-drive file (no owner), fails makes the call throw.
+const sheetOwner = { email: OWNER, fails: false };
 
 function fakeSheet(name) {
   const data = [];
@@ -98,7 +100,11 @@ const book = {
     if (sheets[name]) throw new Error('A sheet with the name "' + name + '" already exists.');
     return fakeSheet(name);
   },
-  getSpreadsheetTimeZone: () => 'Asia/Ho_Chi_Minh'
+  getSpreadsheetTimeZone: () => 'Asia/Ho_Chi_Minh',
+  getOwner() {
+    if (sheetOwner.fails) throw new Error('Service error: Drive');
+    return sheetOwner.email === null ? null : { getEmail: () => sheetOwner.email };
+  }
 };
 
 const Button = { OK: 'OK', CANCEL: 'CANCEL', YES: 'YES', NO: 'NO' };
@@ -217,6 +223,8 @@ function reset() {
   mail.failFor.clear();
   ui.range = null;
   ui.alerts.length = 0;
+  sheetOwner.email = OWNER;
+  sheetOwner.fails = false;
 }
 
 // Ledger tab helpers. File scope, not inside a block: the bot-feed tests reuse edit(). Columns are looked up by header name.
@@ -326,8 +334,10 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(ctx.nextLearnerCode_(['', 'R27-001', 'R27-009', 'S28-050', 'ghi tay'], 'R27-'), 'R27-010');
   assert.strictEqual(ctx.nextLearnerCode_([], 'R27-'), 'R27-001');
   assert.strictEqual(ctx.channelFromPage_('https://x.vn/?utm_source=Facebook&utm_medium=cpc'), 'facebook');
-  assert.strictEqual(ctx.channelFromPage_('https://x.vn/'), '');
-  assert.strictEqual(ctx.channelFromPage_(''), '');
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/'), 'trực tiếp', 'a page without utm_source is a direct visit');
+  assert.strictEqual(ctx.channelFromPage_('https://x.vn/?utm_source='), 'trực tiếp', 'an empty utm_source is no source');
+  assert.strictEqual(ctx.channelFromPage_(''), '', 'no page at all says nothing');
+  assert.strictEqual(ctx.channelFromPage_(undefined), '');
   assert.strictEqual(ctx.transferNote_('R27-012', 'Gói 1'), 'R27-012 GOI1');
   assert.strictEqual(ctx.transferNote_('R27-012', ''), 'R27-012');
   [['6.700.000', 6700000], ['6.700.000 đ', 6700000], ['6,700,000', 6700000], ['6700000', 6700000], ['', 0], ['0', 0], ['abc', 0]]
@@ -1025,6 +1035,71 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   delete sheets['Đăng ký'];
   assert.deepStrictEqual(feed(0).events, [], 'no registration tab: nothing to join');
   assert.ok(!sheets['Đăng ký'], 'and the feed does not create it');
+}
+
+// Ledger.gs: a journal staff sorted newest-first still numbers the next event from the highest Id, and the bot feed returns it.
+{
+  reset();
+  ctx.setupLedger();
+  props.BOT_KEY = 'k'.repeat(43);
+  const feed = (after) => post({ action: 'feed', key: props.BOT_KEY, after });
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'b@example.com', ten: 'Bình' }), { ok: true });
+  const journal = sheets['Nhật ký'];
+  const cursor = feed(null).last;
+  journal.data.splice(1, journal.data.length - 1, ...journal.data.slice(1).reverse());
+  assert.strictEqual(Number(journal.data[journal.getLastRow() - 1][0]), 1, 'sorted newest-first: the last row holds Id 1');
+
+  assert.strictEqual(ctx.journal_('R27-001', 'đổi trạng thái', 'Đã đóng'), cursor + 1, 'next Id is the highest plus one, not the last row plus one');
+  assert.strictEqual(ctx.journal_('R27-002', 'đăng ký', 'Gói 1'), cursor + 2);
+  const ids = journal.data.slice(1).map((r) => Number(r[0]));
+  assert.strictEqual(new Set(ids).size, ids.length, 'no duplicate Id');
+  assert.strictEqual(Math.max(...ids), cursor + 2);
+
+  const out = feed(cursor);
+  assert.deepStrictEqual(out.events.map((e) => [e.id, e.type, e.code]), [[cursor + 1, 'paid', 'R27-001'], [cursor + 2, 'registered', 'R27-002']]);
+  assert.strictEqual(out.last, cursor + 2);
+}
+
+// installLedgerTrigger: a trigger runs and mails as the account that created it, so only the Sheet's owner may add it.
+{
+  reset();
+  sheetOwner.email = 'staff@example.com';
+  ctx.installLedgerTrigger();
+  assert.strictEqual(triggers.length, 0, 'an editor who is not the owner creates no trigger');
+  assert.deepStrictEqual(plain(ui.alerts), [['Chỉ chủ Sheet bật được gửi email tự động.']]);
+
+  sheetOwner.email = OWNER;
+  ctx.installLedgerTrigger();
+  ctx.installLedgerTrigger();
+  assert.deepStrictEqual(plain(triggers), [{ handler: 'onLedgerEdit' }], 'the owner creates it once');
+  assert.match(ui.alerts[1][0], /Đã bật/);
+  assert.match(ui.alerts[2][0], /đã bật từ trước/);
+
+  // No owner (shared drive), an owner the script cannot read, or a failing lookup: no way to tell, so it proceeds as before.
+  [[null, false], ['', false], [OWNER, true]].forEach(([email, fails]) => {
+    reset();
+    sheetOwner.email = email;
+    sheetOwner.fails = fails;
+    ctx.installLedgerTrigger();
+    assert.strictEqual(triggers.length, 1, 'owner ' + JSON.stringify(email) + (fails ? ' (lookup throws)' : ''));
+    assert.match(ui.alerts[0][0], /Đã bật/);
+  });
+}
+
+// Kênh: a page without utm_source reads trực tiếp, and a row with no page keeps an empty channel in doPost and in assignMissingCodes.
+{
+  reset();
+  ctx.setupLedger();
+  assert.deepStrictEqual(post({ ...FORM, page: 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/' }), { ok: true });
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'b@example.com', page: '' }), { ok: true });
+  assert.deepStrictEqual([cellAt(2, 'Kênh'), cellAt(3, 'Kênh')], ['trực tiếp', '']);
+
+  const main = sheets['Đăng ký'];
+  main.data.push(manualRow({ page: 'https://vienphuongnam.com.vn/' }), manualRow({ page: '' }), manualRow({ page: 'https://vienphuongnam.com.vn/?utm_source=Zalo' }));
+  assert.strictEqual(ctx.assignMissingCodes(), 3);
+  assert.deepStrictEqual([cellAt(4, 'Kênh'), cellAt(5, 'Kênh'), cellAt(6, 'Kênh')], ['trực tiếp', '', 'zalo']);
+  assert.deepStrictEqual(lastCodes(3), ['R27-003', 'R27-004', 'R27-005'], 'the row without a page still gets its code');
 }
 
 console.log('apps-script check: all passed');

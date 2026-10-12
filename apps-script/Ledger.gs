@@ -109,12 +109,14 @@ function nextLearnerCode_(codes, prefix) {
   return prefix + next;
 }
 
+// A page with no utm_source is a direct visit; no page at all stays blank so a row typed by hand claims no channel.
 function channelFromPage_(page) {
-  var found = /[?&]utm_source=([^&#]*)/i.exec(clean_(page));
-  if (!found) return '';
-  var value = found[1];
+  var url = clean_(page);
+  if (!url) return '';
+  var found = /[?&]utm_source=([^&#]*)/i.exec(url);
+  var value = found ? found[1] : '';
   try { value = decodeURIComponent(value.replace(/\+/g, ' ')); } catch (err) {}
-  return value.trim().toLowerCase().slice(0, 50);
+  return value.trim().toLowerCase().slice(0, 50) || 'trực tiếp';
 }
 
 function transferNote_(code, packageId) {
@@ -133,8 +135,9 @@ function journal_(code, event, detail) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEDGER_JOURNAL.name);
   if (!sheet) return 0;
   var last = sheet.getLastRow();
-  // The header row and any stray text count as 0.
-  var id = (last > 0 ? Number(sheet.getRange(last, 1).getValue()) || 0 : 0) + 1;
+  // Highest Id plus one, not the last row's: staff may sort the tab newest-first. Stray text counts as 0.
+  var ids = last > 1 ? sheet.getRange(2, 1, last - 1, 1).getValues() : [];
+  var id = ids.reduce(function (max, r) { return Math.max(max, Number(r[0]) || 0); }, 0) + 1;
   var row = [id, Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss'), clean_(code), clean_(event), clean_(detail)];
   // A new tab has 1000 rows; writing past the grid throws, and the registration row is already saved by then.
   if (last + 1 > sheet.getMaxRows()) sheet.insertRowsAfter(sheet.getMaxRows(), 1);
@@ -287,6 +290,13 @@ function ledgerSendPayment_(sheet, rowIndex, r) {
 }
 
 function installLedgerTrigger() {
+  // A trigger mails as its creator and getProjectTriggers lists only the caller's, so an editor would add a second one; no readable owner (shared drive) proceeds.
+  var owner = '';
+  try { owner = SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail(); } catch (err) {}
+  if (owner && owner !== Session.getEffectiveUser().getEmail()) {
+    ledgerTell_('Chỉ chủ Sheet bật được gửi email tự động.');
+    return;
+  }
   var have = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'onLedgerEdit'; });
   if (!have) ScriptApp.newTrigger('onLedgerEdit').forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet()).onEdit().create();
   ledgerTell_(have ? 'Gửi email tự động đã bật từ trước.' : 'Đã bật. Từ giờ chọn Chờ CK ở cột Trạng thái là học viên nhận email chuyển khoản.');
