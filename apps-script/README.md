@@ -1,17 +1,20 @@
 # Apps Script backend
 
-One Apps Script project, bound to the registration Google Sheet, serves two things from the same web app URL (the `/exec` URL in `dist/index.html`):
+One Apps Script project, bound to the registration Google Sheet, serves registrations, the learner-care chat and the bot feed from the same web app URL (the `/exec` URL in `dist/index.html`):
 
 | File | What it does |
 |---|---|
-| `Code.gs` | Registration form: appends to the `Đăng ký` sheet and emails the team. Also routes requests. |
+| `Code.gs` | Registration form: appends to the `Đăng ký` sheet, assigns the learner code, emails the team and the learner. Also routes requests. |
 | `Chat.gs` | Learner-care chat: answers from the FAQ tab when it can, otherwise asks a chain of low-cost AI models, and logs every exchange to the `Hỏi đáp` sheet. |
 | `Faq.gs` | The FAQ lookup: reads the staff-edited `FAQ` tab and finds the row a question matches. |
 | `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
 | `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
+| `Ledger.gs` | The learner ledger: the extra `Đăng ký` columns, the `Đợt học`, `Gói` and `Nhật ký` tabs, the `Trạng thái` trigger and the **Sổ học viên** menu actions. See "Sổ học viên". |
+| `LedgerMail.gs` | The learner emails: the confirmation after registering and the transfer details (with a VietQR code) when staff choose `Chờ CK`. |
+| `BotApi.gs` | The `feed` action the chat bot polls for new registrations and payments, guarded by the `BOT_KEY` property. |
 | `Sync.gs` | The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
 
-`doPost` in `Code.gs` sends any request with `"action": "chat"` to `Chat.gs` before taking the registration lock, so a slow model reply never holds up a registration.
+`doPost` in `Code.gs` sends any request with `"action": "chat"` to `Chat.gs`, and any other `action` to `BotApi.gs`, before taking the registration lock, so a slow model reply never holds up a registration.
 
 ## How a question is answered
 
@@ -274,3 +277,36 @@ Read it weekly (the staff guide shows how): AI answers to common questions shoul
 ## Limits
 
 30 questions per visitor session per clock hour (FAQ answers included); `CHAT_MAX_PER_HOUR` AI calls across everyone (default 100) per clock hour; 1,000 characters per question; the last 12 turns of history; 1,024 output tokens per answer; 45 seconds for all model attempts on one question, at most 25 for one attempt (the page stops waiting at 60). A visitor over their own limit is told to try again next hour; when the shared cap is reached, the closest FAQ questions are offered, or visitors are told the assistant is busy, without blaming them.
+
+## Sổ học viên
+
+The `Đăng ký` tab is also the learner ledger. Each registration gets a learner code such as `R27-001` and the learner gets a confirmation email; staff move the learner along in the `Trạng thái` column; every step is logged in the `Nhật ký` tab; and the chat bot (a separate service) reads that log through the `feed` action. The design is in the repository `thaingocthienlong/zalo-cskh-bot`: `docs/superpowers/specs/2026-10-12-he-thong-cskh-toan-dien-design.md`.
+
+### Setting it up
+
+1. Paste the changed `Code.gs` and `Sync.gs`, and create script files `Ledger`, `LedgerMail` and `BotApi` with the matching `.gs` files.
+2. Check the `Đăng ký` tab first. It needs at least 26 columns (A to Z, the Sheets default; insert columns if staff removed any), and columns R to Z must be empty or already hold the headers `setupLedger` writes (`Mã học viên`, `Đợt`, `Kênh`, `Hình thức`, `Số tiền phải đóng`, `Email CK đã gửi`, `Ngày đóng`, `Phụ trách`, `Ghi chú`). Any other header there makes `setupLedger` stop before it writes anything.
+3. Choose `setupLedger` in the function list and Run, and accept the permissions Google asks for. It adds the columns, the `Trạng thái` and `Hình thức` dropdowns, and the `Đợt học`, `Gói` and `Nhật ký` tabs (filled for the R27 intake and its six packages; a tab that already has rows is left alone). Reload the Sheet: a **Sổ học viên** menu appears.
+4. Menu **Sổ học viên > Bật gửi email tự động**, and authorize. It installs the trigger that reacts to the `Trạng thái` column. Without it, choosing a status sends no email and writes nothing to `Nhật ký`, so the bot never sees a payment.
+5. Project Settings > Script properties: add `BOT_KEY`, a long random value. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` and give the bot the same value in its environment. Never commit it. While `BOT_KEY` is missing or empty, `feed` refuses every request.
+6. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy. This keeps the `/exec` URL.
+
+Until `setupLedger` has run, registrations still work, but they get no learner code and no emails.
+
+### How staff use `Trạng thái`
+
+A registration starts at `Mới`, then goes `Đã liên hệ`, `Chờ CK`, `Đã đóng`; `Hủy` is available at any point.
+
+- Fill `Hình thức` and `Số tiền phải đóng` before choosing `Chờ CK`. Amounts like `6.700.000` are fine. Choosing `Chờ CK` emails the learner the transfer details with a VietQR code, once. If the code, the email or the amount is missing or wrong, that cell turns red with a note saying what to fix, and nothing is sent.
+- To send the email again, select the rows and choose **Sổ học viên > Gửi lại email CK (dòng đang chọn)**. It asks first, and skips rows that are not in `Chờ CK`.
+- `Đã đóng` fills `Ngày đóng` and logs the payment. Choosing it again on the same row adds nothing.
+- Rows typed by hand or from before the ledger get a code from **Sổ học viên > Cấp mã cho dòng chưa có mã**. That never reaches the bot, so old rows do not look like new registrations.
+
+### The bot feed
+
+Send a `POST` to the `/exec` URL with the body `{"action":"feed","key":"<BOT_KEY>","after":<last>}`. The key is checked first, and the feed never takes the registration lock.
+
+- A wrong, missing or empty key gives `{"ok":false,"error":"unauthorized"}`. A correct key with any other action gives `{"ok":false,"error":"bad-request"}`.
+- `after` is the `last` of the previous response. Without a number from 0 up (a first call, or `null`), the response has no events and the current `last`, so the bot starts from now and never replays the journal.
+- Otherwise the response is `{"ok":true,"last":N,"events":[...]}`: at most 50 events, oldest first. A full page means there may be more, so call again with the new `last`.
+- `registered` comes from each `đăng ký` row of `Nhật ký`: `{id, time, type, code, dot, package, name, phone, channel}`. `paid` comes from each `đổi trạng thái` row whose detail is `Đã đóng`: `{id, time, type, code, name}`. Everything but `id`, `time`, `type` and `code` is read from the learner's row in `Đăng ký`, found by code; `name` is `Họ và chữ lót` and `Tên` together. An event whose code no longer matches a row (deleted, or retyped) is skipped, and `last` still moves past it.

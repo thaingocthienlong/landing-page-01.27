@@ -883,4 +883,148 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(seen, ['Trợ lý AI', 'ledger']);
 }
 
+// BotApi.gs: the keyed feed the chat bot polls for new registrations and payments.
+{
+  reset();
+  ctx.setupLedger();
+  assert.deepStrictEqual(post(FORM), { ok: true });
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'b@example.com', ten: 'Bình' }), { ok: true });
+  assert.deepStrictEqual(lastCodes(2), ['R27-001', 'R27-002']);
+  setCell(3, 'Số tiền phải đóng', '6.700.000');
+  edit(3, 'Chờ CK');
+  edit(3, 'Đã đóng');
+  const lastJournalId = () => Number(sheets['Nhật ký'].data[sheets['Nhật ký'].getLastRow() - 1][0]);
+
+  props.BOT_KEY = 'k'.repeat(43);
+  assert.deepStrictEqual(post({ action: 'feed', key: 'wrong', after: 0 }), { ok: false, error: 'unauthorized' });
+  delete props.BOT_KEY;
+  assert.deepStrictEqual(post({ action: 'feed', key: '', after: 0 }), { ok: false, error: 'unauthorized' });
+  assert.deepStrictEqual(post({ action: 'feed', after: 0 }), { ok: false, error: 'unauthorized' });
+  props.BOT_KEY = 'k'.repeat(43);
+  const feed = (after) => post({ action: 'feed', key: props.BOT_KEY, after });
+
+  const locksBefore = lock.waits;
+  const first = feed(null);
+  assert.deepStrictEqual(first.events, [], 'no cursor yet: nothing is replayed');
+  assert.strictEqual(first.last, lastJournalId());
+  assert.strictEqual(lock.waits, locksBefore, 'feed never takes the registration lock');
+
+  const all = feed(0);
+  assert.deepStrictEqual(all.events[0], { id: 1, time: all.events[0].time, type: 'registered', code: 'R27-001', dot: 'R27',
+    package: 'Gói 1', name: 'Nguyễn Văn An', phone: '0909123456', channel: 'facebook' });
+  assert.ok(all.events.every((e) => e.type === 'registered' || e.type === 'paid'), 'mail and error rows are not events');
+  assert.deepStrictEqual(all.events.filter((e) => e.type === 'paid').map((e) => e.code), ['R27-002']);
+  const paid = all.events.filter((e) => e.type === 'paid')[0];
+  assert.deepStrictEqual(paid, { id: paid.id, time: paid.time, type: 'paid', code: 'R27-002', name: 'Nguyễn Văn Bình' });
+  assert.strictEqual(all.last, lastJournalId());
+  assert.ok(journalRows().some((j) => j[3] === 'đổi trạng thái' && j[4] === 'Chờ CK'), 'a status change other than Đã đóng exists and is skipped');
+
+  sheets['Đăng ký'].data.splice(1, sheets['Đăng ký'].data.length - 1, ...sheets['Đăng ký'].data.slice(1).reverse());
+  assert.strictEqual(feed(0).events[0].name, 'Nguyễn Văn An', 'staff sorting rows does not change names');
+
+  for (let i = 0; i < 60; i++) ctx.journal_('R27-001', 'đăng ký', 'Gói 1');
+  const page1 = feed(all.last);
+  assert.strictEqual(page1.events.length, 50);
+  assert.strictEqual(page1.last, page1.events[49].id);
+  const page2 = feed(page1.last);
+  assert.strictEqual(page2.events.length, 10);
+  assert.strictEqual(page2.last, lastJournalId());
+  assert.deepStrictEqual(post({ action: 'nope', key: props.BOT_KEY }), { ok: false, error: 'bad-request' });
+}
+
+// BotApi.gs: the key, the cursor, and what the feed refuses to do.
+{
+  reset();
+  ctx.setupLedger();
+  post(FORM);
+  const high = journalRows().length;
+  const call = (body) => post({ action: 'feed', ...body });
+
+  props.BOT_KEY = 'k'.repeat(43);
+  [{ key: 'k'.repeat(42) }, { key: 'k'.repeat(44) }, { key: 0 }, { key: ['k'.repeat(43)] }, { key: null }, {}]
+    .forEach((body) => assert.deepStrictEqual(call({ ...body, after: 0 }), { ok: false, error: 'unauthorized' }, JSON.stringify(body)));
+  assert.deepStrictEqual(post({ action: 'nope', key: 'wrong' }), { ok: false, error: 'unauthorized' }, 'the key is checked before the action');
+  props.BOT_KEY = '';
+  [{ key: '' }, { key: 'x' }, {}].forEach((body) => assert.deepStrictEqual(call({ ...body, after: 0 }), { ok: false, error: 'unauthorized' }, 'empty BOT_KEY refuses all'));
+  const refused = ctx.doPost({ postData: { contents: JSON.stringify({ action: 'feed', key: 'guess-123', after: 0 }) } }).getContent();
+  assert.ok(!refused.includes('guess-123') && !refused.includes('R27'), 'a refusal echoes neither the key nor learner data');
+
+  props.BOT_KEY = 'k'.repeat(43);
+  const feed = (body) => call({ key: props.BOT_KEY, ...body });
+  // Only a JSON number from 0 up is a cursor: null would read as 0 and replay the whole journal.
+  [{}, { after: null }, { after: '0' }, { after: '1' }, { after: -1 }, { after: true }, { after: [0] }, { after: {} }]
+    .forEach((body) => assert.deepStrictEqual(feed(body), { ok: true, last: high, events: [] }, JSON.stringify(body)));
+  assert.strictEqual(feed({ after: 0 }).events.length, 1);
+  assert.deepStrictEqual(feed({ after: high + 5 }), { ok: true, last: high, events: [] }, 'a cursor past the end comes back to the real last Id');
+
+  // Ids may be text, and 10 is after 9.
+  const t = '02/10/2026 10:00:00';
+  sheets['Nhật ký'].data.push(['9', t, 'R27-001', 'đăng ký', 'Gói 1'], ['10', t, 'R27-001', 'đăng ký', 'Gói 1']);
+  assert.deepStrictEqual(feed({ after: 2 }).events.map((e) => e.id), [9, 10]);
+  assert.deepStrictEqual([feed({ after: 9 }).events.map((e) => e.id), feed({ after: 9 }).last], [[10], 10]);
+  // Staff sorting the tab must not reorder or skip events.
+  sheets['Nhật ký'].data.splice(1, sheets['Nhật ký'].data.length - 1, ...sheets['Nhật ký'].data.slice(1).reverse());
+  assert.deepStrictEqual(feed({ after: 2 }).events.map((e) => e.id), [9, 10]);
+  assert.deepStrictEqual(feed({ after: 0 }).events.map((e) => e.id), [1, 9, 10]);
+  sheets['Nhật ký'].data.splice(1, sheets['Nhật ký'].data.length - 1, ...sheets['Nhật ký'].data.slice(1).reverse());
+  sheets['Nhật ký'].data.pop();
+  sheets['Nhật ký'].data.pop();
+
+  // Read-only: no tab, row, mail or lock changes.
+  const snapshot = () => JSON.stringify(Object.keys(sheets).map((name) => [name, sheets[name].data]));
+  const before = [snapshot(), mail.calls.length, lock.waits];
+  feed({ after: 0 });
+  feed({});
+  assert.deepStrictEqual([snapshot(), mail.calls.length, lock.waits], before);
+
+  // A failure inside answers with a bare 'server'.
+  const realRange = sheets['Nhật ký'].getRange;
+  sheets['Nhật ký'].getRange = () => { throw new Error('quota for R27-001'); };
+  const broken = ctx.doPost({ postData: { contents: JSON.stringify({ action: 'feed', key: props.BOT_KEY, after: 0 }) } }).getContent();
+  sheets['Nhật ký'].getRange = realRange;
+  assert.deepStrictEqual(JSON.parse(broken), { ok: false, error: 'server' });
+  assert.ok(!broken.includes('R27-001'));
+}
+
+// BotApi.gs: a journal that is missing or empty, and events whose learner row is gone.
+{
+  reset();
+  props.BOT_KEY = 'k'.repeat(43);
+  const feed = (after) => post({ action: 'feed', key: props.BOT_KEY, after });
+  assert.deepStrictEqual(feed(0), { ok: true, last: 0, events: [] }, 'no journal tab');
+  assert.deepStrictEqual(Object.keys(sheets), [], 'the feed creates no tab');
+  ctx.setupLedger();
+  assert.deepStrictEqual(feed(0), { ok: true, last: 0, events: [] }, 'header-only journal');
+  assert.deepStrictEqual(feed(null), { ok: true, last: 0, events: [] });
+
+  post(FORM);
+  post({ ...FORM, emailcontact: 'b@example.com', ten: 'Bình' });
+  sheets['Đăng ký'].data.splice(1, 1);                   // R27-001 deleted by staff
+  ctx.journal_('NOPE-9', 'đổi trạng thái', 'Đã đóng');
+  const high = journalRows().length;
+  const out = feed(0);
+  assert.deepStrictEqual(out.events.map((e) => [e.type, e.code]), [['registered', 'R27-002']], 'rows without a learner are omitted, not thrown');
+  assert.strictEqual(out.last, high, 'and they still move the cursor');
+
+  // Omitted events do not count toward the page of 50.
+  for (let i = 0; i < 55; i++) ctx.journal_('ZZ-001', 'đăng ký', 'Gói 1');
+  ctx.journal_('R27-002', 'đăng ký', 'Gói 2');
+  const big = feed(high);
+  assert.deepStrictEqual([big.events.length, big.events[0].code, big.last], [1, 'R27-002', high + 56]);
+
+  // One read of the registration tab per response, however many events.
+  for (let i = 0; i < 60; i++) ctx.journal_('R27-002', 'đăng ký', 'Gói 2');
+  const main = sheets['Đăng ký'];
+  let reads = 0;
+  const realRange = main.getRange;
+  main.getRange = (...args) => { reads++; return realRange(...args); };
+  assert.strictEqual(feed(0).events.length, 50);
+  main.getRange = realRange;
+  assert.strictEqual(reads, 1);
+
+  delete sheets['Đăng ký'];
+  assert.deepStrictEqual(feed(0).events, [], 'no registration tab: nothing to join');
+  assert.ok(!sheets['Đăng ký'], 'and the feed does not create it');
+}
+
 console.log('apps-script check: all passed');
