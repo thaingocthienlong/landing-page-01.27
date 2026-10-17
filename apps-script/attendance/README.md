@@ -6,7 +6,7 @@ Lễ tân quét mã QR trên thẻ học viên bằng camera điện thoại. Tr
 
 1. Dùng tài khoản `@vienphuongnam.com.vn` tạo một Google Sheet mới, ví dụ "Điểm danh R 01/2027".
 2. Trong Sheet: Tiện ích mở rộng > Apps Script. Dán nội dung `Code.gs` vào file `Code.gs`. Thêm file HTML tên `Index` và dán nội dung `Index.html`.
-3. Chọn hàm `setup`, bấm Chạy, cấp quyền. Sheet có 4 trang tính: Học viên, Buổi (16 buổi, sáng và chiều của 8 ngày học), Lượt quét, Tổng hợp. Tải lại Sheet sẽ thấy menu **Điểm danh**.
+3. Chọn hàm `setup`, bấm Chạy, cấp quyền. Sheet có các trang tính Học viên, Buổi (16 buổi, sáng và chiều của 8 ngày học), Lượt quét và Zoom. Trang Tổng hợp xuất hiện ở lần đầu chạy Cập nhật tổng hợp. Tải lại Sheet sẽ thấy menu **Điểm danh**.
 4. Triển khai > Tùy chọn triển khai mới > Ứng dụng web:
    - Thực thi với tư cách: **Tôi**
    - Người có quyền truy cập: **Bất kỳ ai trong vienphuongnam.com.vn**
@@ -19,11 +19,25 @@ Sửa `Code.gs` hay `Index.html` sau khi đã triển khai thì phải vào Tri�
 
 ## Nhập danh sách học viên
 
-1. Dán học viên đã hoàn tất học phí vào trang tính **Học viên**, mỗi người một dòng. Tên cột giống Sheet đăng ký. Cột Gói ghi `Gói 1` đến `Gói 6` (lấy từ cột Mã gói).
-2. Menu Điểm danh > **Cấp mã học viên**. Mỗi người mới nhận một mã `R27-001`, `R27-002`… và một Link QR.
-3. Dùng cột Link QR để tạo mã QR in lên thẻ và gửi ảnh mã QR cho học viên. Học viên quên thẻ có thể đưa ảnh này trên điện thoại cho lễ tân quét.
+1. Từ Sổ học viên (Sheet đăng ký), chép học viên đã hoàn tất học phí vào trang tính **Học viên**, mỗi người một dòng:
+   - Cột Mã: lấy từ cột Mã học viên. Mã này đã gửi cho học viên trong email xác nhận đăng ký.
+   - Cột Gói: lấy từ cột Mã gói (`Gói 1` đến `Gói 6`).
+   - Cột Hình thức: `Trực tiếp` hoặc `Online`.
+   - Cột Email: giữ đúng email đăng ký, vì điểm danh Zoom khớp theo email này.
+2. Menu Điểm danh > **Tạo link QR**. Mỗi dòng có Mã nhận một Link QR. Ứng dụng không tự cấp mã, để mã không trùng với mã đã gửi cho học viên. Dòng chưa có Mã thì không có link.
+3. Tạo ảnh QR hàng loạt (mục bên dưới), in lên thẻ và gửi ảnh cho học viên. Học viên quên thẻ có thể đưa ảnh này trên điện thoại cho lễ tân quét.
 
-Không sửa mã đã cấp, vì thẻ in theo mã. Người đăng ký muộn: thêm dòng mới rồi bấm Cấp mã học viên lần nữa; mã cũ giữ nguyên.
+Không sửa Mã, vì thẻ in theo mã. Người đăng ký muộn: thêm dòng mới, lấy Mã từ Sổ học viên, rồi bấm Tạo link QR lần nữa.
+
+## Tạo ảnh QR hàng loạt
+
+Các trang tạo QR miễn phí như emn178 chỉ tạo được từng mã một. Script `qr.py` tạo cả danh sách trong một lần và chạy trên máy, không gửi link đi đâu.
+
+1. Mở trang tính Học viên > Tệp > Tải xuống > Giá trị được phân tách bằng dấu phẩy (.csv).
+2. Cài thư viện (một lần): `pip install segno`
+3. Chạy `python apps-script/attendance/qr.py hoc-vien.csv qr`. Mỗi học viên có một ảnh trong thư mục `qr`, tên theo mã, ví dụ `R27-001.png`. Script báo các dòng bị bỏ qua vì thiếu Mã hoặc Link QR.
+
+File CSV và thư mục ảnh có danh sách học viên, nên để ngoài repo. In QR trên thẻ rộng ít nhất 25 mm.
 
 ## Chạy thử trước khóa học
 
@@ -49,6 +63,25 @@ Quét trước 12:00 tính là buổi sáng, từ 12:00 tính là buổi chiều
 
 **Sau 30 phút vào học:** trợ giảng đếm người trong phòng, so với số người đã điểm danh ở đầu trang. Chênh lệch thì kiểm tra lại.
 
+## Học viên Zoom
+
+Tài khoản Zoom Workplace Pro có đăng ký cuộc họp và báo cáo người tham gia. Mỗi học viên vào bằng link riêng gắn với email đăng ký, nên báo cáo Zoom cho biết ai đã vào.
+
+**Chuẩn bị mỗi khóa:**
+
+1. Tạo cuộc họp có lịch, không dùng ID cuộc họp cá nhân. Bật Registration (Required). Bỏ các câu hỏi đăng ký bắt buộc ngoài họ tên và email.
+2. Trên trang cuộc họp: tab Registration > Import from CSV. File gồm 3 cột Email, First Name, Last Name, lấy từ học viên Online trong trang tính Học viên (Email, Tên, Họ và chữ lót). Chọn gửi thư mời để Zoom gửi link riêng cho từng người.
+3. Đặt múi giờ của tài khoản Zoom là GMT+7, vì giờ vào trong báo cáo dùng múi giờ này.
+4. Nhắc học viên vào bằng link riêng. Ai vào bằng link chung thì đổi tên hiển thị thành `R27-001 Họ Tên` (mã của mình); ứng dụng cũng khớp theo mã trong tên.
+
+**Sau mỗi ngày học:**
+
+1. Zoom web > Reports > Usage > cuộc họp của ngày > bấm số ở cột Participants > Export.
+2. Trong Sheet điểm danh: mở trang tính Zoom, xóa nội dung cũ. Tệp > Nhập > Tải lên file CSV, chọn "Thay thế trang tính hiện tại" và bỏ chọn "Chuyển đổi văn bản thành số, ngày và công thức".
+3. Menu Điểm danh > **Nhập điểm danh Zoom**. Hộp thoại báo số lượt đã ghi và những người không ghi kèm lý do. Giảng viên và Ban tổ chức luôn nằm trong danh sách không ghi. Học viên vào bằng email khác: sửa cột Email trong trang tính Học viên rồi chạy lại. Chạy lại không ghi trùng.
+
+Cách tính: vào trước 12:00 là có mặt buổi sáng. Vào sau 12:00, hoặc vẫn còn trong phòng lúc 13:30, là có mặt buổi chiều. Có vào là tính, không xét số phút. Cột Nguồn trong Lượt quét ghi "Zoom".
+
 ## Cuối ngày
 
 Menu Điểm danh > **Cập nhật tổng hợp**. Trang tính Tổng hợp có mỗi học viên một dòng, mỗi buổi một cột:
@@ -56,11 +89,6 @@ Menu Điểm danh > **Cập nhật tổng hợp**. Trang tính Tổng hợp có 
 - `✓` có mặt, ô trống là chưa điểm danh, `·` là buổi không thuộc gói của học viên.
 - Cột K1, K2, K3: số buổi có mặt trên tổng số buổi của khóa, ví dụ `5/6`.
 - Cột Tra tên: số lần quên thẻ. Từ 2 lần trở lên thì nhắc học viên.
-
-## Chưa làm
-
-- Điểm danh học viên Zoom: chờ Viện cho biết tài khoản Zoom có bản Pro không.
-- Tạo ảnh mã QR: dùng công cụ tạo QR Viện đang dùng với cột Link QR, hoặc làm cùng mẫu thẻ đeo (`media/badge/`).
 
 ## Kiểm tra code
 
