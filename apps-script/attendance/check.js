@@ -19,35 +19,34 @@ function fakeSheet() {
           return self;
         };
         if (key === 'setValue') return (v) => self.setValues([[v]]);
+        if (key === 'getDisplayValue') return () => String(cell(row - 1, col - 1));
         if (key === 'getValues') return () => Array.from({ length: rows }, (_, i) => Array.from({ length: cols }, (_, j) => cell(row - 1 + i, col - 1 + j)));
         return () => self;
       }
     });
     return self;
   };
+  const all = () => data.map((_, r) => Array.from({ length: width() }, (_, c) => cell(r, c)));
   return {
     data,
     getLastRow: () => data.length,
     getLastColumn: () => width(),
     getMaxRows: () => 1000,
     getRange: range,
-    getDataRange: () => ({ getValues: () => data.map((_, r) => Array.from({ length: width() }, (_, c) => cell(r, c))) }),
-    clearContents: () => { data.length = 0; },
+    getDataRange: () => ({ getValues: all, getDisplayValues: () => all().map((r) => r.map(String)) }),
     setFrozenRows() {},
     setFrozenColumns() {}
   };
 }
 
 const sheets = {};
-const alerts = [];
 const book = {
   getSheetByName: (name) => sheets[name] || null,
   insertSheet: (name) => (sheets[name] = fakeSheet()),
-  getSpreadsheetTimeZone: () => 'Asia/Ho_Chi_Minh',
   toast() {}
 };
 const ctx = vm.createContext({
-  SpreadsheetApp: { getActiveSpreadsheet: () => book, getUi: () => ({ alert: (m) => alerts.push(m) }) },
+  SpreadsheetApp: { getActiveSpreadsheet: () => book },
   LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
   Session: { getActiveUser: () => ({ getEmail: () => 'letan@vienphuongnam.com.vn' }) },
   Utilities: {
@@ -57,11 +56,6 @@ const ctx = vm.createContext({
         .formatToParts(date).forEach((x) => { p[x.type] = x.value; });
       if (fmt === 'H') return String(Number(p.hour));
       return fmt.replace('dd', p.day).replace('MM', p.month).replace('yyyy', p.year).replace('HH', p.hour).replace('mm', p.minute).replace('ss', p.second);
-    },
-    parseDate(text, tz, fmt) {
-      assert.strictEqual(tz + fmt, 'Asia/Ho_Chi_Minhdd/MM/yyyy HH:mm');
-      const [, d, m, y, hm] = text.match(/^(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)$/);
-      return new Date(`${y}-${m}-${d}T${hm}:00+07:00`);
     }
   }
 });
@@ -69,52 +63,91 @@ vm.runInContext(fs.readFileSync(path.join(__dirname, 'Code.gs'), 'utf8'), ctx);
 
 const at = (iso) => new Date(iso + '+07:00');
 const plain = (v) => JSON.parse(JSON.stringify(v));
+const grid = () => sheets['Điểm danh'].data;
 const log = () => sheets['Lượt quét'].data.slice(1);
+// What Gate Keeper does when it admits someone from the Zoom waiting room.
+const gatekeeperWrites = (row, col, value) => { grid()[row - 1][col] = value; };
 
 ctx.setup();
-assert.strictEqual(sheets['Buổi'].data.length, 17, '16 sessions plus header');
+assert.strictEqual(grid()[0].length, 11 + 16, '11 learner columns, 16 sessions');
+assert.deepStrictEqual(grid()[0].slice(10, 14), ['Link QR', '08/01/2027', '', '09/01/2027']);
+assert.deepStrictEqual(grid()[1].slice(10, 14), ['', 'Sáng', 'Chiều', 'Sáng']);
+ctx.setup();
+assert.strictEqual(grid().length, 2, 'a second setup leaves the grid alone');
 
-assert.ok(sheets['Zoom'], 'setup makes the Zoom tab');
-
-sheets['Học viên'].getRange(2, 1, 5, 10).setValues([
-  ['R27-001', 'Nguyễn Thị', 'Hương', 'Gói 1', 'Trực tiếp', '12/03/1988', '0909 123 636', 'Huong@example.com', 'Bệnh viện A', ''],
-  ['R27-002', 'Trần Thị', 'Hương', 'Gói 5', 'Trực tiếp', '04/07/1992', '0912 000 111', 'tran@example.com', 'Trường B', ''],
-  ['R27-003', 'Lê Văn', 'Đức', '3', 'Trực tiếp', '01/01/1990', '0933 444 555', 'duc@example.com', 'Sở C', ''],
-  ['R27-004', 'Phạm Minh', 'Tâm', 'Gói 4', 'Online', '05/05/1985', '0977 222 333', 'tam@example.com', 'Viện D', ''],
-  ['', 'Võ', 'An', 'Gói 2', 'Trực tiếp', '', '', '', '', '']
+sheets['Điểm danh'].getRange(3, 1, 6, 11).setValues([
+  ['R27-001', 'Nguyễn Thị', 'Hương', 'Gói 1', 'Trực tiếp', '12/03/1988', '0909 123 636', '', 'Bệnh viện A', '', ''],
+  ['R27-002', 'Trần Thị', 'Hương', 'Gói 5', 'Online', '04/07/1992', '0912 000 111', '', 'Trường B', 'Zoom: Huong Tran', ''],
+  ['r27-003', 'Lê Văn', 'Đức', '3', 'Trực tiếp', '01/01/1990', '0933 444 555', '', 'Sở C', '', ''],
+  ['R27-004', 'Phạm Minh', 'Tâm', 'Gói 4', 'Online', '', '0977 222 333', '', '', '', ''],
+  ['', 'Võ', 'An', 'Gói 2', 'Trực tiếp', '', '', '', '', '', ''],
+  ['R27-005', 'Đỗ', 'Bình', '', 'Trực tiếp', '', '0988 000 999', '', '', '', '']
 ]);
+
+const g = ctx.grid_();
+assert.strictEqual(g.sessions.length, 16);
+assert.deepStrictEqual(plain(g.sessions[0]), { col: 11, day: '08/01', part: 'Sáng', course: 'K1' });
+assert.deepStrictEqual(plain(g.sessions[15]), { col: 26, day: '17/01', part: 'Chiều', course: 'K3' });
+assert.deepStrictEqual(plain(g.rows.map((r) => r.id)), ['R27-001', 'R27-002', 'R27-003', 'R27-004', 'R27-005'], 'rows without a code are skipped');
+assert.deepStrictEqual(plain(g.rows[2].courses), ['K1', 'K3']);
+assert.strictEqual(ctx.dayOf_('8/1/2027'), '08/01');
+
 assert.strictEqual(ctx.makeQrLinks(), 0, 'no links before WEBAPP_URL is set');
 ctx.WEBAPP_URL = 'https://script.google.com/a/macros/vienphuongnam.com.vn/s/X/exec';
-assert.strictEqual(ctx.makeQrLinks(), 4, 'rows without a code get no link');
-assert.deepStrictEqual(sheets['Học viên'].data.slice(1).map((r) => r[9]), [
-  ctx.WEBAPP_URL + '?id=R27-001', ctx.WEBAPP_URL + '?id=R27-002', ctx.WEBAPP_URL + '?id=R27-003', ctx.WEBAPP_URL + '?id=R27-004', ''
+assert.strictEqual(ctx.makeQrLinks(), 5);
+assert.deepStrictEqual(grid().slice(2).map((r) => r[10]), [
+  ctx.WEBAPP_URL + '?id=R27-001', ctx.WEBAPP_URL + '?id=R27-002', ctx.WEBAPP_URL + '?id=R27-003', ctx.WEBAPP_URL + '?id=R27-004', '', ctx.WEBAPP_URL + '?id=R27-005'
 ]);
+
+// 08/01 morning, K1. Gate Keeper has already let R27-005 in from Zoom.
+gatekeeperWrites(8, 11, 'ONL');
+assert.deepStrictEqual(plain(ctx.status_(at('2027-01-08T08:00:00')).count), { total: 1, offline: 0, online: 1 });
 
 let r = ctx.checkIn_('r27-001', 'QR', at('2027-01-08T08:20:00'));
 assert.strictEqual(r.kind, 'ok');
 assert.strictEqual(r.time, '08:20');
-assert.strictEqual(r.count, 1);
-assert.deepStrictEqual(plain(r.session), { course: 'K1', name: 'Phân tích dữ liệu với R cơ bản', day: '08/01/2027', part: 'Sáng' });
+assert.deepStrictEqual(plain(r.count), { total: 2, offline: 1, online: 1 });
+assert.deepStrictEqual(plain(r.session), { course: 'K1', name: 'Phân tích dữ liệu với R cơ bản', day: '08/01/2027', part: 'Sáng', col: 11 });
+assert.strictEqual(grid()[2][11], 'OFF', 'OFF lands in the learner row, morning column');
 assert.deepStrictEqual(log()[0], ['08/01/2027', 'Sáng', '08:20:00', 'R27-001', 'Nguyễn Thị Hương', 'K1', 'QR', 'letan@vienphuongnam.com.vn']);
 
 r = ctx.checkIn_('R27-001', 'QR', at('2027-01-08T08:25:00'));
-assert.strictEqual(r.kind, 'again');
-assert.strictEqual(r.time, '08:20');
+assert.deepStrictEqual([r.kind, r.mark, r.time], ['again', 'OFF', '08:20']);
 assert.strictEqual(log().length, 1, 'rescan writes nothing');
 
 r = ctx.checkIn_('R27-002', 'QR', at('2027-01-08T08:26:00'));
 assert.strictEqual(r.kind, 'wrong-course');
 assert.deepStrictEqual(plain(r.learner.courses), ['K2']);
-assert.strictEqual(r.count, 1, 'rejected scan still reports the session count');
+assert.strictEqual(r.count.total, 2, 'rejected scan still reports the session count');
+assert.strictEqual(ctx.checkIn_('R27-005', 'QR', at('2027-01-08T08:27:00')).kind, 'wrong-course', 'no package, no check-in');
 assert.strictEqual(ctx.checkIn_('R27-999', 'QR', at('2027-01-08T08:27:00')).kind, 'unknown');
 assert.strictEqual(ctx.checkIn_('R27-001', 'QR', at('2027-01-11T09:00:00')).kind, 'no-session', '11/01 is a rest day');
 assert.strictEqual(log().length, 1, 'rejected scans write nothing');
 
-assert.strictEqual(ctx.checkIn_('R27-003', 'QR', at('2027-01-08T08:31:00')).count, 2);
+assert.strictEqual(ctx.checkIn_('R27-003', 'Tra tên', at('2027-01-08T08:31:00')).kind, 'ok');
 r = ctx.checkIn_('R27-001', 'QR', at('2027-01-08T13:40:00'));
-assert.strictEqual(r.session.part, 'Chiều');
-assert.strictEqual(r.count, 1, 'afternoon counts separately');
-assert.strictEqual(ctx.checkIn_('R27-003', 'Tra tên', at('2027-01-09T08:40:00')).kind, 'ok');
+assert.deepStrictEqual([r.kind, r.session.part, r.count.total], ['ok', 'Chiều', 1]);
+assert.strictEqual(grid()[2][12], 'OFF');
+
+// 12/01 morning, K2: Gate Keeper admitted R27-002 from Zoom before the badge was scanned.
+gatekeeperWrites(4, 17, 'ONL');
+r = ctx.checkIn_('R27-002', 'QR', at('2027-01-12T08:40:00'));
+assert.deepStrictEqual([r.kind, r.mark, r.time], ['again', 'ONL', '']);
+assert.strictEqual(grid()[3][17], 'ONL', 'a Zoom mark is never overwritten');
+
+// The 30-minute list for 09/01 morning: K1 learners plus the row with no package.
+let m = ctx.missing_(at('2027-01-09T09:00:00'));
+assert.deepStrictEqual(plain(m.people.map((p) => p.id)), ['R27-001', 'R27-003', 'R27-005']);
+assert.deepStrictEqual(plain(m.people[0]), { id: 'R27-001', name: 'Nguyễn Thị Hương', format: 'Trực tiếp', phone: '0909 123 636' });
+m = ctx.missing_(at('2027-01-08T09:00:00'));
+assert.deepStrictEqual(plain([m.people.map((p) => p.id), m.count.total]), [[], 3], 'R27-005 came in by Zoom');
+assert.deepStrictEqual(plain(ctx.missing_(at('2027-01-11T09:00:00'))), { session: null, count: null, people: [] });
+
+// A trial day outside the course calendar: any learner on the grid can check in.
+grid()[0][27] = '20/10/2026';
+grid()[1][27] = 'Sáng';
+r = ctx.checkIn_('R27-002', 'QR', at('2026-10-20T08:05:00'));
+assert.deepStrictEqual([r.kind, r.session.course, r.session.col], ['ok', '', 27]);
 
 const ids = (q) => plain(ctx.search(q)).map((x) => x.id);
 assert.deepStrictEqual(ids('huong'), ['R27-001', 'R27-002']);
@@ -123,63 +156,5 @@ assert.deepStrictEqual(ids('duc'), ['R27-003'], 'đ folds to d');
 assert.deepStrictEqual(ids('636'), ['R27-001'], 'last digits of phone');
 assert.deepStrictEqual(ids('h'), []);
 assert.strictEqual(ctx.search('huong')[0].birth, '12/03/1988');
-
-// A paper-list row typed in by hand, with Sheets having turned the day into a Date.
-sheets['Lượt quét'].data.push([at('2027-01-10T00:00:00'), 'Sáng', '', 'R27-003', '', 'K1', 'Giấy', '']);
-r = ctx.checkIn_('R27-003', 'QR', at('2027-01-10T08:50:00'));
-assert.strictEqual(r.kind, 'again', 'paper row blocks a second scan');
-assert.strictEqual(r.time, '');
-
-ctx.buildSummary();
-const summary = sheets['Tổng hợp'].data;
-const head = summary[0];
-const row = (id) => summary.find((x) => x[0] === id);
-const col = (name) => head.indexOf(name);
-assert.strictEqual(head.length, 3 + 16 + 3 + 1);
-assert.strictEqual(head[3], 'K1\n08/01 Sáng');
-assert.deepStrictEqual([row('R27-001')[col('K1')], row('R27-001')[col('K2')], row('R27-001')[col('K3')]], ['2/6', '0/4', '0/6']);
-assert.deepStrictEqual([row('R27-002')[3], row('R27-002')[col('K1')], row('R27-002')[col('K2')]], ['·', '', '0/4']);
-assert.deepStrictEqual([row('R27-003')[3], row('R27-003')[4], row('R27-003')[col('K1')], row('R27-003')[col('Tra tên')]], ['✓', '', '3/6', 1]);
-
-// Zoom: the participant report for K2 on 12/01, with the meeting header rows left in.
-const days = { '08/01/2027': true, '12/01/2027': true };
-const iso = (d) => d && d.toISOString();
-assert.strictEqual(iso(ctx.zoomTime_('01/12/2027 12:10:00 AM', days)), '2027-01-11T17:10:00.000Z', 'mm/dd, 12 AM is midnight');
-assert.strictEqual(iso(ctx.zoomTime_('12/01/2027 08:00', days)), '2027-01-12T01:00:00.000Z', 'dd/mm');
-assert.strictEqual(iso(ctx.zoomTime_('2027-01-08 13:05:09', days)), '2027-01-08T06:05:00.000Z', 'ISO');
-assert.strictEqual(ctx.zoomTime_('03/04/2027 08:00 AM', days), null, 'not a class day');
-assert.strictEqual(ctx.zoomTime_('Duration (Minutes)', days), null);
-
-sheets['Zoom'].data.push(
-  ['Meeting ID', 'Topic', 'Start Time', 'End Time', 'User Email', 'Duration (Minutes)', 'Participants'],
-  ['812 3456 7890', 'Chi phí - hiệu quả', '01/12/2027 08:00:12 AM', '01/12/2027 05:05:40 PM', 'zoom@vienphuongnam.com.vn', '545', '6'],
-  [],
-  ['Name (Original Name)', 'User Email', 'Join Time', 'Leave Time', 'Duration (Minutes)', 'Guest'],
-  ['Phạm Minh Tâm', 'tam@example.com', '01/12/2027 08:21:05 AM', '01/12/2027 05:01:10 PM', '520', 'No'],
-  ['R27-001 Nguyễn Thị Hương', '', '01/12/2027 08:40:00 AM', '01/12/2027 11:58:00 AM', '198', 'Yes'],
-  ['Nguyễn Thị Hương', 'huong@example.com', '2027-01-12 13:35:00', '2027-01-12 17:00:00', '205', 'No'],
-  ['Phạm Minh Tâm', 'tam@example.com', '01/12/2027 10:02:00 AM', '01/12/2027 10:30:00 AM', '28', 'No'],
-  // Sheets in a dd/mm locale read "01/12/2027 08:15 AM" as 1 December.
-  ['Trần Thị Hương', 'tran@example.com', at('2027-12-01T08:15:00'), at('2027-12-01T11:50:00'), '215', 'No'],
-  ['Lê Văn Đức', 'duc@example.com', '01/12/2027 08:30:00 AM', '01/12/2027 04:00:00 PM', '450', 'No'],
-  ['GS.TS. Nguyễn Văn Tuấn', 'tuan@example.edu.au', '01/12/2027 08:25:00 AM', '01/12/2027 05:00:00 PM', '515', 'No']
-);
-const before = log().length;
-r = ctx.importZoom();
-assert.deepStrictEqual([r.ok, r.again], [5, 1]);
-assert.deepStrictEqual(plain(r.skipped), {
-  '812 3456 7890': 'không khớp học viên',
-  'Lê Văn Đức': 'gói không có K2',
-  'GS.TS. Nguyễn Văn Tuấn': 'không khớp học viên'
-});
-assert.deepStrictEqual(log().slice(before).map((x) => [x[3], x[1], x[2], x[6]]), [
-  ['R27-004', 'Sáng', '08:21:00', 'Zoom'],
-  ['R27-004', 'Chiều', '13:30:00', 'Zoom'],
-  ['R27-001', 'Sáng', '08:40:00', 'Zoom'],
-  ['R27-001', 'Chiều', '13:35:00', 'Zoom'],
-  ['R27-002', 'Sáng', '08:15:00', 'Zoom']
-]);
-assert.match(alerts[0], /^Đã ghi 5 lượt\. Đã có từ trước: 1\./);
-assert.strictEqual(ctx.importZoom().ok, 0, 'a second import writes nothing');
 
 console.log('attendance check: all passed');

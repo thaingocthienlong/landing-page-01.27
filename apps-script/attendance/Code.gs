@@ -1,6 +1,8 @@
 /**
- * Attendance for the R series (01/2027). A badge QR opens this web app with
- * ?id=<code>; each learner gets one row per session in "Lượt quét".
+ * Attendance for the R series (01/2027), sharing the "Điểm danh" tab with Zoom Meeting Gate Keeper:
+ * one row per learner, one column per session (a date header with Sáng/Chiều under it).
+ * Gate Keeper writes ONL when it admits someone from the Zoom waiting room; a badge QR opens this
+ * web app with ?id=<code> and writes OFF. "Lượt quét" keeps the time, source and staff member of each OFF.
  *
  * Deploy as Web app with Execute as: Me, Who has access: Anyone within
  * vienphuongnam.com.vn, so learners scanning their own badge hit a sign-in wall.
@@ -10,13 +12,11 @@
 var TZ = 'Asia/Ho_Chi_Minh';
 // Paste the /exec URL after deploying; "Tạo link QR" builds the QR links from it.
 var WEBAPP_URL = '';
-// Codes come from the registration ledger (Mã học viên), never from this sheet.
-var ID_PREFIX = 'R27-';
 var SOURCE_QR = 'QR';
 var SOURCE_NAME = 'Tra tên';
-var SOURCE_ZOOM = 'Zoom';
-// Someone still connected at the afternoon start counts for the afternoon too.
-var AFTERNOON_START = '13:30';
+// Gate Keeper reads OFF as attending in person and keeps the same name out of Zoom for that session.
+var MARK_OFFLINE = 'OFF';
+var MARK_ONLINE = 'ONL';
 
 var COURSES = {
   K1: { name: 'Phân tích dữ liệu với R cơ bản', days: ['08/01/2027', '09/01/2027', '10/01/2027'] },
@@ -24,43 +24,49 @@ var COURSES = {
   K3: { name: 'Phân tích dữ liệu chuỗi thời gian', days: ['15/01/2027', '16/01/2027', '17/01/2027'] }
 };
 var PACKAGES = { 1: ['K1', 'K2', 'K3'], 2: ['K1', 'K2'], 3: ['K1', 'K3'], 4: ['K2', 'K3'], 5: ['K2'], 6: ['K3'] };
+var COURSE_BY_DAY = {};
+Object.keys(COURSES).forEach(function (course) {
+  COURSES[course].days.forEach(function (day) { COURSE_BY_DAY[day.slice(0, 5)] = course; });
+});
+var PARTS = { sang: 'Sáng', chieu: 'Chiều' };
 
-var LEARNERS = { name: 'Học viên', headers: ['Mã', 'Họ và chữ lót', 'Tên', 'Gói', 'Hình thức', 'Ngày sinh', 'Số điện thoại', 'Email', 'Đơn vị công tác', 'Link QR'] };
-var SESSIONS = { name: 'Buổi', headers: ['Khóa', 'Ngày', 'Buổi'] };
+// Họ và tên lót, Tên and Ghi chú are the headers Gate Keeper matches Zoom names against; it ignores the rest.
+var GRID = {
+  name: 'Điểm danh',
+  headers: ['Mã học viên', 'Họ và tên lót', 'Tên', 'Gói', 'Hình thức', 'Ngày sinh', 'Số điện thoại', 'Địa chỉ email', 'Đơn vị/ Cơ quan công tác', 'Ghi chú', 'Link QR']
+};
 var LOG = { name: 'Lượt quét', headers: ['Ngày', 'Buổi', 'Giờ', 'Mã', 'Họ tên', 'Khóa', 'Nguồn', 'Người ghi'] };
-var SUMMARY = { name: 'Tổng hợp' };
-var ZOOM = { name: 'Zoom' };
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Điểm danh')
     .addItem('Tạo các trang tính', 'setup')
     .addItem('Tạo link QR', 'makeQrLinks')
-    .addItem('Nhập điểm danh Zoom', 'importZoom')
-    .addItem('Cập nhật tổng hợp', 'buildSummary')
     .addToUi();
 }
 
 function setup() {
-  [LEARNERS, SESSIONS, LOG].forEach(function (def) {
-    var sheet = sheet_(def);
-    if (sheet.getLastRow() === 0) {
-      sheet.getRange(1, 1, 1, def.headers.length).setValues([def.headers]).setFontWeight('bold');
-      sheet.setFrozenRows(1);
-    }
-    // Text format keeps 08/01/2027 from turning into 1 August in an en-US sheet.
-    sheet.getRange(2, 1, sheet.getMaxRows() - 1, def.headers.length).setNumberFormat('@');
-  });
-  var sessions = sheet_(SESSIONS);
-  if (sessions.getLastRow() < 2) {
-    var rows = [];
+  var grid = sheet_(GRID);
+  if (grid.getLastRow() === 0) {
+    var head = GRID.headers.slice();
+    var parts = GRID.headers.map(function () { return ''; });
     Object.keys(COURSES).forEach(function (course) {
       COURSES[course].days.forEach(function (day) {
-        rows.push([course, day, 'Sáng'], [course, day, 'Chiều']);
+        head.push(day, '');
+        parts.push('Sáng', 'Chiều');
       });
     });
-    sessions.getRange(2, 1, rows.length, 3).setValues(rows);
+    // Text format keeps 08/01/2027 a label and stops codes and phone numbers from turning into numbers.
+    grid.getRange(1, 1, grid.getMaxRows(), head.length).setNumberFormat('@');
+    grid.getRange(1, 1, 2, head.length).setValues([head, parts]).setFontWeight('bold');
+    grid.setFrozenRows(2);
+    grid.setFrozenColumns(3);
   }
-  sheet_(ZOOM);
+  var log = sheet_(LOG);
+  if (log.getLastRow() === 0) {
+    log.getRange(1, 1, 1, LOG.headers.length).setValues([LOG.headers]).setFontWeight('bold');
+    log.setFrozenRows(1);
+  }
+  log.getRange(2, 1, log.getMaxRows() - 1, LOG.headers.length).setNumberFormat('@');
 }
 
 function makeQrLinks() {
@@ -68,86 +74,20 @@ function makeQrLinks() {
     toast_('Chưa có link ứng dụng: điền WEBAPP_URL trong Code.gs.');
     return 0;
   }
-  var sheet = sheet_(LEARNERS);
-  var head = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var made = 0;
-  var missing = 0;
-  var links = read_(LEARNERS).map(function (r) {
-    var id = text_(r['Mã']);
-    if (id) made++;
-    else if (text_(r['Tên'])) missing++;
-    return [id ? WEBAPP_URL + '?id=' + encodeURIComponent(id) : ''];
-  });
-  if (links.length) sheet.getRange(2, head.indexOf('Link QR') + 1, links.length, 1).setValues(links);
-  toast_('Đã tạo ' + made + ' link QR.' + (missing ? ' ' + missing + ' dòng chưa có Mã: chép Mã học viên từ Sổ học viên.' : ''));
-  return made;
-}
-
-// Reads the participant report pasted into the Zoom tab and checks people in through checkIn_.
-// shortcut: checkIn_ re-reads the sheets per row (about a second each), fine for one session; batch the reads if a run times out.
-function importZoom() {
-  var days = {};
-  read_(SESSIONS).forEach(function (r) { days[text_(r['Ngày'])] = true; });
-  var byEmail = {};
-  read_(LEARNERS).forEach(function (r) {
-    if (text_(r['Mã']) && text_(r['Email'])) byEmail[text_(r['Email']).toLowerCase()] = text_(r['Mã']);
-  });
-  var tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
-  var codeRe = new RegExp(ID_PREFIX + '\\d+', 'i');
-  var done = { ok: 0, again: 0 };
-  var skipped = {};
-
-  sheet_(ZOOM).getDataRange().getValues().forEach(function (row) {
-    var cells = row.map(function (v) {
-      return Object.prototype.toString.call(v) === '[object Date]' ? Utilities.formatDate(v, tz, 'dd/MM/yyyy HH:mm') : String(v).trim();
-    });
-    var line = cells.join(' ');
-    var code = (line.match(codeRe) || [])[0];
-    var email = (line.match(/[^\s@,;]+@[^\s@,;]+\.[a-z]{2,}/i) || [])[0];
-    if (!code && !email) return;
-    var label = cells[0] || email;
-    var id = code ? code.toUpperCase() : byEmail[email.toLowerCase()];
-    if (!id) {
-      skipped[label] = 'không khớp học viên';
-      return;
-    }
-    // Zoom lists the join time before the leave time.
-    var times = cells.map(function (c) { return zoomTime_(c, days); }).filter(Boolean);
-    if (!times.length) {
-      skipped[label] = 'không có giờ vào trong ngày học';
-      return;
-    }
-    var moments = [times[0]];
-    var resume = Utilities.parseDate(Utilities.formatDate(times[0], TZ, 'dd/MM/yyyy') + ' ' + AFTERNOON_START, TZ, 'dd/MM/yyyy HH:mm');
-    if (Number(Utilities.formatDate(times[0], TZ, 'H')) < 12 && times[1] && times[1] >= resume) moments.push(resume);
-    moments.forEach(function (at) {
-      var r = checkIn_(id, SOURCE_ZOOM, at);
-      if (r.kind === 'ok' || r.kind === 'again') done[r.kind]++;
-      else skipped[label] = { unknown: 'không có mã ' + id, 'no-session': 'ngoài buổi học', 'wrong-course': 'gói không có ' + (r.session && r.session.course) }[r.kind];
-    });
-  });
-
-  var lines = Object.keys(skipped).map(function (k) { return k + ': ' + skipped[k]; });
-  var message = 'Đã ghi ' + done.ok + ' lượt. Đã có từ trước: ' + done.again + '.' +
-    (lines.length ? '\n\nKhông ghi (giảng viên và Ban tổ chức cũng nằm ở đây):\n' + lines.join('\n') : '');
-  SpreadsheetApp.getUi().alert(message);
-  return { ok: done.ok, again: done.again, skipped: skipped };
-}
-
-// Zoom writes 01/08/2027 08:25:31 AM or 2027-01-08 08:25:31 depending on account settings, and Sheets
-// may have swapped day and month on import, so the reading that lands on a class day wins.
-function zoomTime_(text, days) {
-  var m = String(text).match(/(\d{1,4})[\/-](\d{1,2})[\/-](\d{1,4}),?\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*([AP]M)?/i);
-  if (!m) return null;
-  var hour = m[6] ? Number(m[4]) % 12 + (/^p/i.test(m[6]) ? 12 : 0) : Number(m[4]);
-  var year = m[1].length === 4 ? m[1] : m[3];
-  var orders = m[1].length === 4 ? [[m[3], m[2]]] : [[m[1], m[2]], [m[2], m[1]]];
-  var pad = function (n) { return ('0' + Number(n)).slice(-2); };
-  for (var i = 0; i < orders.length; i++) {
-    var day = pad(orders[i][0]) + '/' + pad(orders[i][1]) + '/' + year;
-    if (days[day]) return Utilities.parseDate(day + ' ' + pad(hour) + ':' + m[5], TZ, 'dd/MM/yyyy HH:mm');
+  var g = grid_();
+  if (g.head < 0 || g.cols.link < 0) {
+    toast_('Trang Điểm danh thiếu cột Mã học viên hoặc Link QR.');
+    return 0;
   }
-  return null;
+  var body = g.values.slice(g.head + 1);
+  var links = body.map(function (v) {
+    var id = cell_(v, g.cols.code).toUpperCase();
+    return [id ? WEBAPP_URL + '?id=' + encodeURIComponent(id) : cell_(v, g.cols.link)];
+  });
+  if (links.length) g.sheet.getRange(g.head + 2, g.cols.link + 1, links.length, 1).setValues(links);
+  var missing = body.filter(function (v) { return !cell_(v, g.cols.code) && nameOf_(v, g.cols); }).length;
+  toast_('Đã tạo ' + g.rows.length + ' link QR.' + (missing ? ' ' + missing + ' dòng chưa có Mã học viên: chép từ Sổ học viên.' : ''));
+  return g.rows.length;
 }
 
 function doGet(e) {
@@ -166,14 +106,13 @@ function search(query) {
   var digits = String(query).replace(/\D/g, '');
   var byPhone = digits.length >= 3 && digits === String(query).trim();
   if (!byPhone && words.join('').length < 2) return [];
-  return read_(LEARNERS).filter(function (r) {
-    if (!text_(r['Mã'])) return false;
-    if (byPhone) return String(r['Số điện thoại']).replace(/\D/g, '').slice(-digits.length) === digits;
-    var hay = fold_(fullName_(r) + ' ' + r['Mã']);
+  return grid_().rows.filter(function (r) {
+    if (byPhone) return r.phone.replace(/\D/g, '').slice(-digits.length) === digits;
+    var hay = fold_(r.name + ' ' + r.id);
     return words.every(function (w) { return hay.indexOf(w) >= 0; });
   }).slice(0, 8).map(function (r) {
     var card = card_(r);
-    card.birth = text_(r['Ngày sinh']);
+    card.birth = r.birth;
     return card;
   });
 }
@@ -182,38 +121,62 @@ function checkInByName(id) {
   return checkIn_(id, SOURCE_NAME, new Date());
 }
 
+// Called from the page about 30 minutes in: everyone in this session's course with no mark yet.
+function missing() {
+  return missing_(new Date());
+}
+
+function missing_(now) {
+  var g = grid_();
+  var session = session_(now, g);
+  if (!session) return { session: null, count: null, people: [] };
+  // A row with no readable package is listed too, so nobody drops out of the call list unseen.
+  var people = g.rows.filter(function (r) {
+    var due = !session.course || !r.courses.length || r.courses.indexOf(session.course) >= 0;
+    return due && !cell_(r.marks, session.col);
+  }).map(function (r) {
+    return { id: r.id, name: r.name, format: r.format, phone: r.phone };
+  });
+  return { session: session, count: count_(g, session), people: people };
+}
+
 function status_(now) {
-  var session = session_(now);
-  return { kind: 'status', session: session, count: session ? count_(read_(LOG), session) : 0 };
+  var g = grid_();
+  var session = session_(now, g);
+  return { kind: 'status', session: session, count: session ? count_(g, session) : null };
 }
 
 function checkIn_(id, source, now) {
   id = text_(id).toUpperCase();
-  var session = session_(now);
-  var row = read_(LEARNERS).filter(function (r) { return text_(r['Mã']).toUpperCase() === id; })[0];
-  var out = { id: id, session: session, learner: row ? card_(row) : null, count: 0 };
-  if (!row || !session || out.learner.courses.indexOf(session.course) < 0) {
-    if (session) out.count = count_(read_(LOG), session);
+  var g = grid_();
+  var session = session_(now, g);
+  var row = g.rows.filter(function (r) { return r.id === id; })[0];
+  var out = { id: id, session: session, learner: row ? card_(row) : null, count: session ? count_(g, session) : null };
+  if (!row || !session || (session.course && out.learner.courses.indexOf(session.course) < 0)) {
     return kind_(out, !row ? 'unknown' : !session ? 'no-session' : 'wrong-course');
   }
 
-  // Two phones scanning the same badge at once must not write two rows.
+  // Re-read under the lock: another phone, or Gate Keeper, may have marked this learner since the read above.
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    var log = read_(LOG);
-    var earlier = log.filter(function (r) { return same_(r, session) && text_(r['Mã']).toUpperCase() === id; })[0];
-    out.count = count_(log, session);
-    if (earlier) {
-      out.time = text_(earlier['Giờ']).slice(0, 5);
+    var target = g.sheet.getRange(row.row, session.col + 1);
+    var mark = String(target.getDisplayValue()).trim();
+    if (mark) {
+      var earlier = read_(LOG).filter(function (r) {
+        return text_(r['Ngày']) === session.day && text_(r['Buổi']) === session.part && text_(r['Mã']).toUpperCase() === id;
+      })[0];
+      out.mark = mark;
+      out.time = earlier ? text_(earlier['Giờ']).slice(0, 5) : '';
       return kind_(out, 'again');
     }
     var time = Utilities.formatDate(now, TZ, 'HH:mm:ss');
-    var by = Session.getActiveUser().getEmail();
-    var sheet = sheet_(LOG);
-    sheet.getRange(sheet.getLastRow() + 1, 1, 1, LOG.headers.length).setNumberFormat('@')
-      .setValues([[session.day, session.part, time, id, out.learner.name, session.course, source, by]]);
-    out.count++;
+    target.setValue(MARK_OFFLINE);
+    var log = sheet_(LOG);
+    log.getRange(log.getLastRow() + 1, 1, 1, LOG.headers.length).setNumberFormat('@')
+      .setValues([[session.day, session.part, time, id, row.name, session.course, source, Session.getActiveUser().getEmail()]]);
+    out.count.total++;
+    out.count.offline++;
     out.time = time.slice(0, 5);
     return kind_(out, 'ok');
   } finally {
@@ -221,58 +184,90 @@ function checkIn_(id, source, now) {
   }
 }
 
-function buildSummary() {
-  var sessions = read_(SESSIONS).map(function (r) {
-    return { course: text_(r['Khóa']), day: text_(r['Ngày']), part: text_(r['Buổi']) };
-  });
-  var present = {};
-  var lookups = {};
-  read_(LOG).forEach(function (r) {
-    var id = text_(r['Mã']).toUpperCase();
-    present[id + '|' + text_(r['Ngày']) + '|' + text_(r['Buổi'])] = true;
-    if (text_(r['Nguồn']) === SOURCE_NAME) lookups[id] = (lookups[id] || 0) + 1;
-  });
-  var courses = Object.keys(COURSES);
-  var head = ['Mã', 'Họ tên', 'Gói']
-    .concat(sessions.map(function (s) { return s.course + '\n' + s.day.slice(0, 5) + ' ' + s.part; }))
-    .concat(courses, [SOURCE_NAME]);
-  var rows = read_(LEARNERS).filter(function (r) { return text_(r['Mã']); }).map(function (r) {
-    var card = card_(r);
-    var mine = sessions.map(function (s) {
-      if (card.courses.indexOf(s.course) < 0) return '·';
-      return present[card.id + '|' + s.day + '|' + s.part] ? '✓' : '';
-    });
-    var totals = courses.map(function (c) {
-      if (card.courses.indexOf(c) < 0) return '';
-      var all = sessions.filter(function (s) { return s.course === c; });
-      var seen = all.filter(function (s) { return present[card.id + '|' + s.day + '|' + s.part]; });
-      return seen.length + '/' + all.length;
-    });
-    return [card.id, card.name, card.pkg ? 'Gói ' + card.pkg : ''].concat(mine, totals, [lookups[card.id] || '']);
-  });
-  var sheet = sheet_(SUMMARY);
-  sheet.clearContents();
-  // Text format stops Sheets from reading "5/6" as a date.
-  sheet.getRange(1, 1, rows.length + 1, head.length).setNumberFormat('@').setValues([head].concat(rows));
-  sheet.getRange(1, 1, 1, head.length).setFontWeight('bold').setWrap(true);
-  sheet.setFrozenRows(1);
-  sheet.setFrozenColumns(2);
-  toast_('Đã cập nhật ' + rows.length + ' học viên.');
-  return rows.length;
+// Reads the shared tab the way Gate Keeper does: the first row holding a date, with Sáng/Chiều in one of
+// the next four rows, gives the sessions; the row holding "Mã học viên" gives the learner columns.
+function grid_() {
+  var sheet = sheet_(GRID);
+  var values = sheet.getDataRange().getDisplayValues();
+  var g = { sheet: sheet, values: values, head: -1, cols: {}, sessions: [], rows: [] };
+  var top = Math.min(values.length, 30);
+  var r;
+
+  for (r = 0; r < top && !g.sessions.length; r++) {
+    if (!values[r].some(dayOf_)) continue;
+    for (var s = r + 1; s < Math.min(values.length, r + 5) && !g.sessions.length; s++) {
+      var day = '';
+      for (var c = 0; c < values[s].length; c++) {
+        day = dayOf_(values[r][c]) || day;
+        var part = PARTS[fold_(values[s][c])];
+        if (part && day) g.sessions.push({ col: c, day: day, part: part, course: COURSE_BY_DAY[day] || '' });
+      }
+    }
+  }
+
+  for (r = 0; r < top && g.head < 0; r++) {
+    var keys = values[r].map(fold_);
+    if (keys.indexOf('ma hoc vien') < 0) continue;
+    var at = function (names) {
+      for (var i = 0; i < keys.length; i++) if (names.indexOf(keys[i]) >= 0) return i;
+      return -1;
+    };
+    g.head = r;
+    g.cols = {
+      code: at(['ma hoc vien']),
+      family: at(['ho va ten lot', 'ho ten lot', 'ho dem', 'ho va chu lot']),
+      given: at(['ten']),
+      full: at(['ho va ten', 'ho ten', 'ho va ten hoc vien', 'ten hoc vien']),
+      pkg: at(['goi', 'ma goi']),
+      format: at(['hinh thuc']),
+      birth: at(['ngay sinh']),
+      phone: at(['so dien thoai']),
+      unit: keys.map(function (k) { return k.indexOf('don vi') === 0; }).indexOf(true),
+      link: at(['link qr'])
+    };
+  }
+
+  if (g.head >= 0) {
+    for (r = g.head + 1; r < values.length; r++) {
+      var v = values[r];
+      var id = cell_(v, g.cols.code).toUpperCase();
+      if (!id) continue;
+      var pkg = Number((cell_(v, g.cols.pkg).match(/[1-6]/) || [0])[0]);
+      g.rows.push({
+        row: r + 1, id: id, name: nameOf_(v, g.cols), pkg: pkg, courses: PACKAGES[pkg] || [],
+        format: cell_(v, g.cols.format), birth: cell_(v, g.cols.birth), phone: cell_(v, g.cols.phone),
+        unit: cell_(v, g.cols.unit), marks: v
+      });
+    }
+  }
+  return g;
 }
 
-function session_(now) {
-  var day = Utilities.formatDate(now, TZ, 'dd/MM/yyyy');
+function session_(now, g) {
+  var day = Utilities.formatDate(now, TZ, 'dd/MM');
   var part = Number(Utilities.formatDate(now, TZ, 'H')) < 12 ? 'Sáng' : 'Chiều';
-  var found = read_(SESSIONS).filter(function (r) { return text_(r['Ngày']) === day && text_(r['Buổi']) === part; })[0];
+  var found = g.sessions.filter(function (s) { return s.day === day && s.part === part; })[0];
   if (!found) return null;
-  var course = text_(found['Khóa']);
-  return { course: course, name: COURSES[course] ? COURSES[course].name : '', day: day, part: part };
+  return {
+    course: found.course, name: found.course ? COURSES[found.course].name : '',
+    day: Utilities.formatDate(now, TZ, 'dd/MM/yyyy'), part: part, col: found.col
+  };
+}
+
+function count_(g, session) {
+  var count = { total: 0, offline: 0, online: 0 };
+  g.rows.forEach(function (r) {
+    var mark = cell_(r.marks, session.col);
+    if (!mark) return;
+    count.total++;
+    if (mark.indexOf(MARK_OFFLINE) === 0) count.offline++;
+    else if (mark.indexOf(MARK_ONLINE) === 0) count.online++;
+  });
+  return count;
 }
 
 function card_(r) {
-  var pkg = Number((String(r['Gói']).match(/[1-6]/) || [0])[0]);
-  return { id: text_(r['Mã']).toUpperCase(), name: fullName_(r), unit: text_(r['Đơn vị công tác']), pkg: pkg, courses: PACKAGES[pkg] || [] };
+  return { id: r.id, name: r.name, unit: r.unit, pkg: r.pkg, courses: r.courses };
 }
 
 function kind_(out, kind) {
@@ -280,21 +275,24 @@ function kind_(out, kind) {
   return out;
 }
 
-function same_(r, session) {
-  return text_(r['Ngày']) === session.day && text_(r['Buổi']) === session.part;
+function nameOf_(v, cols) {
+  if (cols.full >= 0) return cell_(v, cols.full);
+  return [cell_(v, cols.family), cell_(v, cols.given)].filter(String).join(' ');
 }
 
-function count_(log, session) {
-  return log.filter(function (r) { return same_(r, session); }).length;
+// 8/1, 08/01 and 08/01/2027 all become 08/01, the key COURSE_BY_DAY uses.
+function dayOf_(value) {
+  var m = String(value).match(/\b(\d{1,2})[\/.-](\d{1,2})(?:[\/.-]\d{2,4})?\b/);
+  return m ? ('0' + m[1]).slice(-2) + '/' + ('0' + m[2]).slice(-2) : '';
 }
 
-function fullName_(r) {
-  return (text_(r['Họ và chữ lót']) + ' ' + text_(r['Tên'])).trim();
+function cell_(v, i) {
+  return i < 0 || v[i] === undefined || v[i] === null ? '' : String(v[i]).trim();
 }
 
 // Lets staff type "huong" for "Hương"; đ has no decomposed form, so it is mapped by hand.
 function fold_(value) {
-  return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').trim();
+  return String(value).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/đ/g, 'd').trim();
 }
 
 function text_(value) {

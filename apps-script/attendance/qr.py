@@ -1,4 +1,4 @@
-"""One QR PNG per learner, named by learner code, from the Học viên tab downloaded as CSV.
+"""One QR PNG per learner, named by learner code, from the Điểm danh tab downloaded as CSV.
 
     python apps-script/attendance/qr.py hoc-vien.csv qr-out
 
@@ -19,10 +19,11 @@ def main(src, out):
     made, skipped = 0, []
     with open(src, encoding='utf-8-sig', newline='') as f:
         for n, row in enumerate(csv.DictReader(f), start=2):
-            if not any((v or '').strip() for v in row.values()):
-                continue
-            code = (row.get('Mã') or '').strip().upper()
+            code = (row.get('Mã học viên') or '').strip().upper()
             link = (row.get('Link QR') or '').strip()
+            # The Sáng/Chiều row and learners still waiting for a code have neither.
+            if not code and not link:
+                continue
             # The code becomes a file name, so only letters, digits and dashes pass.
             if not re.fullmatch(r'[A-Z0-9-]+', code) or not link.startswith('https://script.google.com/'):
                 skipped.append(f'dòng {n} ({code or "chưa có Mã"})')
