@@ -55,7 +55,17 @@
     background: var(--cobalt); color: var(--paper); font: 700 1rem/1 var(--sans); cursor: pointer;
   }
   button:hover { background: var(--cobalt-deep); }
-  button:disabled { background: var(--ink-3); cursor: progress; }
+  button.ghost { margin-top: .75rem; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); }
+  button.ghost:hover { background: var(--ink); color: var(--paper); }
+  button:disabled, button.ghost:disabled { border-color: var(--ink-3); background: var(--ink-3); color: var(--paper); cursor: progress; }
+  .missing { margin-top: 2.25rem; }
+  .missing .note { margin-top: .25rem; }
+  #missing-state { margin-top: .5rem; min-height: 1.5em; }
+  .call {
+    display: inline-flex; align-items: center; min-height: 48px; padding: 0 .25rem;
+    color: var(--cobalt); font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .call:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 3px; }
   @media (max-width: 26rem) { .item button { width: 100%; } }
 </style>
 </head>
@@ -80,6 +90,14 @@
     <p id="search-state" class="note" role="status"></p>
     <ul id="list" class="list"></ul>
   </section>
+
+  <section class="missing rule" aria-labelledby="missing-title">
+    <h2 id="missing-title">Chưa điểm danh</h2>
+    <p class="note">Học viên của buổi này chưa có dấu tại lớp hay Zoom. Xem sau 30 phút vào học để gọi nhắc.</p>
+    <button type="button" id="missing-load" class="ghost">Xem danh sách</button>
+    <p id="missing-state" class="note" role="status"></p>
+    <ul id="missing-list" class="list"></ul>
+  </section>
 </main>
 
 <script>
@@ -94,10 +112,11 @@
     var timer;
 
     function header(session, count) {
-      el('session').textContent = session ? session.course + ' · ' + session.name : 'Giờ này không có buổi học';
+      el('session').textContent = !session ? 'Giờ này không có buổi học'
+        : session.course ? session.course + ' · ' + session.name : 'Buổi ngoài lịch khóa học';
       el('meta').textContent = session
-        ? session.part + ' ' + session.day + ' · ' + count + ' người đã điểm danh'
-        : 'Lịch các buổi nằm trong trang tính Buổi.';
+        ? session.part + ' ' + session.day + ' · ' + count.total + ' người đã điểm danh: ' + count.offline + ' tại lớp, ' + count.online + ' Zoom'
+        : 'Các buổi lấy từ hàng ngày và hàng Sáng/Chiều của trang tính Điểm danh.';
     }
 
     function about(learner) {
@@ -108,9 +127,10 @@
       var who = r.learner;
       var text = {
         ok: ['ok', 'Đã ghi lúc ' + r.time, who && about(who)],
-        again: ['same', r.time ? 'Đã điểm danh lúc ' + r.time + ', không ghi thêm' : 'Đã điểm danh buổi này, không ghi thêm', who && about(who)],
+        again: ['same', /^ONL/.test(r.mark || '') ? 'Đã vào Zoom buổi này, không ghi thêm'
+          : r.time ? 'Đã điểm danh lúc ' + r.time + ', không ghi thêm' : 'Đã điểm danh buổi này, không ghi thêm', who && about(who)],
         'wrong-course': ['stop', who && who.pkg ? 'Không ghi: không học ' + (r.session && r.session.course) : 'Không ghi: chưa rõ gói đăng ký',
-          who && who.pkg ? 'Gói ' + who.pkg + ' chỉ gồm ' + who.courses.join(', ') + '.' : 'Điền số gói trong trang tính Học viên.'],
+          who && who.pkg ? 'Gói ' + who.pkg + ' chỉ gồm ' + who.courses.join(', ') + '.' : 'Điền số gói trong trang tính Điểm danh.'],
         unknown: ['stop', 'Không ghi: không có mã ' + r.id, 'Tìm theo tên ở ô bên dưới.'],
         'no-session': ['stop', 'Không ghi: giờ này không có buổi học', who && about(who)],
         offline: ['stop', 'Chưa ghi được: không kết nối được máy chủ', 'Kiểm tra mạng rồi bấm Điểm danh lần nữa.']
@@ -187,6 +207,62 @@
         })
         .checkInByName(id);
     }
+
+    var missingButton = el('missing-load');
+    var missingState = el('missing-state');
+    var missingList = el('missing-list');
+
+    function renderMissing(m) {
+      missingList.textContent = '';
+      if (!m.session) { missingState.textContent = 'Giờ này không có buổi học.'; return; }
+      header(m.session, m.count);
+      var at = new Date().toTimeString().slice(0, 5);
+      if (!m.people.length) { missingState.textContent = 'Mọi học viên của buổi này đã điểm danh (lúc ' + at + ').'; return; }
+      missingState.textContent = m.people.length + ' người chưa điểm danh, cập nhật lúc ' + at + '.';
+      m.people.forEach(function (p) {
+        var li = document.createElement('li');
+        li.className = 'item';
+        var text = document.createElement('div');
+        text.className = 'item-text';
+        [['item-name', p.name], ['item-detail', [p.id, p.format].filter(Boolean).join(' · ')]].forEach(function (pair) {
+          var line = document.createElement('p');
+          line.className = pair[0];
+          line.textContent = pair[1];
+          text.appendChild(line);
+        });
+        li.appendChild(text);
+        if (p.phone) {
+          var call = document.createElement('a');
+          call.className = 'call';
+          call.href = 'tel:' + p.phone.replace(/[^\d+]/g, '');
+          call.textContent = p.phone;
+          call.setAttribute('aria-label', 'Gọi ' + p.name + ', ' + p.phone);
+          li.appendChild(call);
+        } else {
+          var none = document.createElement('p');
+          none.className = 'item-detail';
+          none.textContent = 'Chưa có số điện thoại';
+          li.appendChild(none);
+        }
+        missingList.appendChild(li);
+      });
+    }
+
+    missingButton.addEventListener('click', function () {
+      missingButton.disabled = true;
+      missingState.textContent = 'Đang tải…';
+      google.script.run
+        .withSuccessHandler(function (m) {
+          missingButton.disabled = false;
+          missingButton.textContent = 'Tải lại';
+          renderMissing(m);
+        })
+        .withFailureHandler(function () {
+          missingButton.disabled = false;
+          missingState.textContent = 'Không tải được do mất kết nối. Bấm lại khi có mạng.';
+        })
+        .missing();
+    });
 
     input.addEventListener('input', function () {
       clearTimeout(timer);

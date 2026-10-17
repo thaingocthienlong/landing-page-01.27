@@ -29,7 +29,7 @@ Màu K1/K2/K3 chỉ dùng cho chip khóa, không dùng cho vai trò. Không dùn
 
 ## Ghép dữ liệu
 
-Từ trang tính Học viên của Sheet điểm danh (`apps-script/attendance/README.md`), lọc học viên offline: mã, họ, tên, chức vụ/đơn vị, gói, Link QR. Mã QR trên thẻ chứa Link QR; lễ tân quét mã này để điểm danh. Gói đổi ra chip khóa: Gói 1 = K1 K2 K3; Gói 2 = K1 K2; Gói 3 = K1 K3; Gói 4 = K2 K3; Gói 5 = K2; Gói 6 = K3.
+Từ trang tính Điểm danh của Sheet điểm danh (`apps-script/attendance/README.md`), lọc học viên có Hình thức `Trực tiếp`: mã học viên, họ, tên, đơn vị, gói, Link QR. Mã QR trên thẻ chứa Link QR; lễ tân quét mã này để điểm danh. Gói đổi ra chip khóa: Gói 1 = K1 K2 K3; Gói 2 = K1 K2; Gói 3 = K1 K3; Gói 4 = K2 K3; Gói 5 = K2; Gói 6 = K3.
 
 Template HTML khổ thật trong `badge/template/` dùng `media/poster/ads/story.css`, xếp 4 thẻ trên một tờ A4 có dấu cắt, xuất PDF bằng Chrome headless. File ghép chứa dữ liệu cá nhân: để ngoài repo. Dự phòng: in thẻ trống tên để viết tay cho người đăng ký muộn hoặc in sai.
 
