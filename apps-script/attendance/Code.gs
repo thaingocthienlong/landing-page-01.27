@@ -10,13 +10,15 @@
  */
 
 var TZ = 'Asia/Ho_Chi_Minh';
-// Paste the /exec URL after deploying; "Tạo link QR" builds the QR links from it.
+// Paste the /exec URL after deploying; "Chuẩn bị danh sách" builds the QR links from it.
 var WEBAPP_URL = '';
 var SOURCE_QR = 'QR';
 var SOURCE_NAME = 'Tra tên';
-// Gate Keeper reads OFF as attending in person and keeps the same name out of Zoom for that session.
+// Gate Keeper reads OFF as attending in person and keeps the same name out of Zoom for that session,
+// and keeps KĐK ("không đăng ký", a session outside the learner's package) out of Zoom too.
 var MARK_OFFLINE = 'OFF';
 var MARK_ONLINE = 'ONL';
+var MARK_NOT_ENROLLED = 'KĐK';
 
 var COURSES = {
   K1: { name: 'Phân tích dữ liệu với R cơ bản', days: ['08/01/2027', '09/01/2027', '10/01/2027'] },
@@ -40,7 +42,7 @@ var LOG = { name: 'Lượt quét', headers: ['Ngày', 'Buổi', 'Giờ', 'Mã', 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Điểm danh')
     .addItem('Tạo các trang tính', 'setup')
-    .addItem('Tạo link QR', 'makeQrLinks')
+    .addItem('Chuẩn bị danh sách', 'prepareRoster')
     .addToUi();
 }
 
@@ -69,25 +71,52 @@ function setup() {
   log.getRange(2, 1, log.getMaxRows() - 1, LOG.headers.length).setNumberFormat('@');
 }
 
-function makeQrLinks() {
-  if (!WEBAPP_URL) {
-    toast_('Chưa có link ứng dụng: điền WEBAPP_URL trong Code.gs.');
-    return 0;
-  }
+// Run before the course and after adding or changing learners, not during a session: Gate Keeper may be
+// writing ONL into the same columns. Fills QR links and KĐK in sessions outside each learner's package.
+function prepareRoster() {
   var g = grid_();
-  if (g.head < 0 || g.cols.link < 0) {
-    toast_('Trang Điểm danh thiếu cột Mã học viên hoặc Link QR.');
-    return 0;
+  if (g.head < 0) {
+    toast_('Trang Điểm danh chưa có cột Mã học viên.');
+    return { links: 0, marked: 0, cleared: 0 };
   }
   var body = g.values.slice(g.head + 1);
-  var links = body.map(function (v) {
-    var id = cell_(v, g.cols.code).toUpperCase();
-    return [id ? WEBAPP_URL + '?id=' + encodeURIComponent(id) : cell_(v, g.cols.link)];
+  var links = 0;
+  if (WEBAPP_URL && g.cols.link >= 0) {
+    var column = body.map(function (v) {
+      var id = cell_(v, g.cols.code).toUpperCase();
+      return [id ? WEBAPP_URL + '?id=' + encodeURIComponent(id) : cell_(v, g.cols.link)];
+    });
+    if (column.length) g.sheet.getRange(g.head + 2, g.cols.link + 1, column.length, 1).setValues(column);
+    links = g.rows.length;
+  }
+
+  var mark = [];
+  var clear = [];
+  var unknown = 0;
+  g.rows.forEach(function (r) {
+    if (!r.courses.length) {
+      unknown++;
+      return;
+    }
+    g.sessions.forEach(function (s) {
+      if (!s.course) return;
+      var cell = cell_(r.marks, s.col);
+      var due = r.courses.indexOf(s.course) >= 0;
+      if (!due && !cell) mark.push(a1_(r.row, s.col));
+      else if (due && cell && !isMark_(cell)) clear.push(a1_(r.row, s.col));
+    });
   });
-  if (links.length) g.sheet.getRange(g.head + 2, g.cols.link + 1, links.length, 1).setValues(links);
+  if (mark.length) g.sheet.getRangeList(mark).setValue(MARK_NOT_ENROLLED);
+  if (clear.length) g.sheet.getRangeList(clear).clearContent();
+
   var missing = body.filter(function (v) { return !cell_(v, g.cols.code) && nameOf_(v, g.cols); }).length;
-  toast_('Đã tạo ' + g.rows.length + ' link QR.' + (missing ? ' ' + missing + ' dòng chưa có Mã học viên: chép từ Sổ học viên.' : ''));
-  return g.rows.length;
+  toast_([
+    WEBAPP_URL ? 'Đã tạo ' + links + ' link QR.' : 'Chưa tạo link QR: điền WEBAPP_URL trong Code.gs.',
+    'Đánh dấu KĐK ' + mark.length + ' ô' + (clear.length ? ', bỏ KĐK ' + clear.length + ' ô' : '') + '.',
+    missing ? missing + ' dòng chưa có Mã học viên: chép từ Sổ học viên.' : '',
+    unknown ? unknown + ' học viên chưa rõ gói nên chưa đánh dấu KĐK.' : ''
+  ].filter(String).join(' '));
+  return { links: links, marked: mark.length, cleared: clear.length };
 }
 
 function doGet(e) {
@@ -133,7 +162,7 @@ function missing_(now) {
   // A row with no readable package is listed too, so nobody drops out of the call list unseen.
   var people = g.rows.filter(function (r) {
     var due = !session.course || !r.courses.length || r.courses.indexOf(session.course) >= 0;
-    return due && !cell_(r.marks, session.col);
+    return due && !isMark_(cell_(r.marks, session.col));
   }).map(function (r) {
     return { id: r.id, name: r.name, format: r.format, phone: r.phone };
   });
@@ -162,7 +191,7 @@ function checkIn_(id, source, now) {
   try {
     var target = g.sheet.getRange(row.row, session.col + 1);
     var mark = String(target.getDisplayValue()).trim();
-    if (mark) {
+    if (isMark_(mark)) {
       var earlier = read_(LOG).filter(function (r) {
         return text_(r['Ngày']) === session.day && text_(r['Buổi']) === session.part && text_(r['Mã']).toUpperCase() === id;
       })[0];
@@ -258,7 +287,7 @@ function count_(g, session) {
   var count = { total: 0, offline: 0, online: 0 };
   g.rows.forEach(function (r) {
     var mark = cell_(r.marks, session.col);
-    if (!mark) return;
+    if (!isMark_(mark)) return;
     count.total++;
     if (mark.indexOf(MARK_OFFLINE) === 0) count.offline++;
     else if (mark.indexOf(MARK_ONLINE) === 0) count.online++;
@@ -288,6 +317,18 @@ function dayOf_(value) {
 
 function cell_(v, i) {
   return i < 0 || v[i] === undefined || v[i] === null ? '' : String(v[i]).trim();
+}
+
+// KĐK only says the session is outside the package; it is not attendance.
+function isMark_(value) {
+  return value !== '' && fold_(value) !== 'kdk';
+}
+
+// Zero-based column to A1, e.g. a1_(3, 26) is AA3.
+function a1_(row, col) {
+  var name = '';
+  for (var n = col + 1; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + (n - 1) % 26) + name;
+  return name + row;
 }
 
 // Lets staff type "huong" for "Hương"; đ has no decomposed form, so it is mapped by hand.

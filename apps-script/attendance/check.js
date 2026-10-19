@@ -33,6 +33,15 @@ function fakeSheet() {
     getLastColumn: () => width(),
     getMaxRows: () => 1000,
     getRange: range,
+    getRangeList: (a1s) => {
+      const cells = a1s.map((a1) => {
+        const [, letters, row] = a1.match(/^([A-Z]+)(\d+)$/);
+        const col = [...letters].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0);
+        return [Number(row), col];
+      });
+      const put = (v) => cells.forEach(([row, col]) => range(row, col).setValue(v));
+      return { setValue: put, clearContent: () => put('') };
+    },
     getDataRange: () => ({ getValues: all, getDisplayValues: () => all().map((r) => r.map(String)) }),
     setFrozenRows() {},
     setFrozenColumns() {}
@@ -92,9 +101,21 @@ assert.deepStrictEqual(plain(g.rows.map((r) => r.id)), ['R27-001', 'R27-002', 'R
 assert.deepStrictEqual(plain(g.rows[2].courses), ['K1', 'K3']);
 assert.strictEqual(ctx.dayOf_('8/1/2027'), '08/01');
 
-assert.strictEqual(ctx.makeQrLinks(), 0, 'no links before WEBAPP_URL is set');
+assert.strictEqual(ctx.a1_(3, 0), 'A3');
+assert.strictEqual(ctx.a1_(3, 26), 'AA3');
+
+// Columns 11-16 are K1, 17-20 K2, 21-26 K3.
+const sessionsOf = (row) => Array.from({ length: 16 }, (_, i) => grid()[row - 1][11 + i] || '·').join(' ');
+assert.deepStrictEqual(plain(ctx.prepareRoster()), { links: 0, marked: 22, cleared: 0 }, 'KĐK even before WEBAPP_URL is set');
+assert.strictEqual(grid()[2][10], '', 'no links before WEBAPP_URL is set');
+assert.strictEqual(sessionsOf(3), '· · · · · · · · · · · · · · · ·', 'Gói 1 has every course');
+assert.strictEqual(sessionsOf(4), 'KĐK KĐK KĐK KĐK KĐK KĐK · · · · KĐK KĐK KĐK KĐK KĐK KĐK', 'Gói 5 is K2 only');
+assert.strictEqual(sessionsOf(5), '· · · · · · KĐK KĐK KĐK KĐK · · · · · ·', 'Gói 3 is K1 and K3');
+assert.strictEqual(sessionsOf(6), 'KĐK KĐK KĐK KĐK KĐK KĐK · · · · · · · · · ·', 'Gói 4 is K2 and K3');
+assert.strictEqual(sessionsOf(8), '· · · · · · · · · · · · · · · ·', 'no package, no marks');
+
 ctx.WEBAPP_URL = 'https://script.google.com/a/macros/vienphuongnam.com.vn/s/X/exec';
-assert.strictEqual(ctx.makeQrLinks(), 5);
+assert.deepStrictEqual(plain(ctx.prepareRoster()), { links: 5, marked: 0, cleared: 0 }, 'a second run marks nothing new');
 assert.deepStrictEqual(grid().slice(2).map((r) => r[10]), [
   ctx.WEBAPP_URL + '?id=R27-001', ctx.WEBAPP_URL + '?id=R27-002', ctx.WEBAPP_URL + '?id=R27-003', ctx.WEBAPP_URL + '?id=R27-004', '', ctx.WEBAPP_URL + '?id=R27-005'
 ]);
@@ -148,6 +169,13 @@ grid()[0][27] = '20/10/2026';
 grid()[1][27] = 'Sáng';
 r = ctx.checkIn_('R27-002', 'QR', at('2026-10-20T08:05:00'));
 assert.deepStrictEqual([r.kind, r.session.course, r.session.col], ['ok', '', 27]);
+
+// R27-002 moves from Gói 5 to Gói 1 after the roster was prepared.
+grid()[3][3] = 'Gói 1';
+r = ctx.checkIn_('R27-002', 'QR', at('2027-01-09T08:10:00'));
+assert.deepStrictEqual([r.kind, grid()[3][13]], ['ok', 'OFF'], 'a stale KĐK never blocks a course the package now has');
+assert.deepStrictEqual(plain(ctx.prepareRoster()), { links: 5, marked: 0, cleared: 11 });
+assert.ok(!sessionsOf(4).includes('KĐK'));
 
 const ids = (q) => plain(ctx.search(q)).map((x) => x.id);
 assert.deepStrictEqual(ids('huong'), ['R27-001', 'R27-002']);
