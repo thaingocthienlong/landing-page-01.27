@@ -24,7 +24,7 @@ Taught directly by GS.TS. Nguyễn Văn Tuấn (UTS / UNSW Sydney, 35+ years of 
 
 ## Operating Context
 
-Source of truth is the v4 notice (`assets/THÔNG BÁO_v.4_CHUỖI KHÓA NCKH (01.2027).docx`); page wording follows its terms (Chuỗi khóa học, Thời gian tổ chức, Hình thức tổ chức, Địa điểm tổ chức, Phần mềm sử dụng, Giảng viên, Gói đăng ký, Học phí/học viên, Ưu đãi học phí, Hình thức nộp học phí). The page deliberately carries no link to the official registration page; the notice's QR code is not duplicated. Payment is by cash or bank transfer (OCB, Tân Thuận branch).
+Source of truth is the final notice, Số 11/2026/TB-VPN of 02/11/2026 (`assets/THÔNG BÁO_FINAL_PTDLR (01.2027).docx`), which supersedes v4; page wording follows its terms (Chuỗi khóa học, Thời gian tổ chức, Hình thức tổ chức, Địa điểm tổ chức, Phần mềm sử dụng, Giảng viên, Gói đăng ký, Học phí/học viên, Ưu đãi học phí, Hình thức nộp học phí). The page deliberately carries no link to the official registration page; the notice's QR code is not duplicated. Payment is by cash or bank transfer (OCB, Tân Thuận branch).
 
 ## Capabilities and Constraints
 

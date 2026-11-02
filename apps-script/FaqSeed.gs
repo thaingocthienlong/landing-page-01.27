@@ -30,7 +30,7 @@ var FAQ_SEED = [
       'Cho ttin',
       'Tôi quan tâm đến mặt hàng/dịch vụ này. Bạn giới thiệu rõ hơn được không?'
     ],
-    answer: 'Dạ, chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” gồm 3 khóa, học từ ngày 08/01/2027 đến ngày 17/01/2027 ạ:\n- Khóa 1: Phân tích dữ liệu với R cơ bản (03 ngày)\n- Khóa 2: Phân tích chi phí - hiệu quả trong y tế (02 ngày)\n- Khóa 3: Phân tích dữ liệu chuỗi thời gian (03 ngày)\nGS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy, cùng TS. Trần Sơn Thạch.\n\nAnh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được, đăng ký theo gói (Gói 1 đến Gói 6). Anh/chị muốn biết học phí các gói, cứ nhắn em nhé.',
+    answer: 'Dạ, chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” gồm 3 khóa, học từ ngày 08/01/2027 đến ngày 17/01/2027 ạ:\n- Khóa 1: Phân tích dữ liệu với R cơ bản (03 ngày)\n- Khóa 2: Phân tích chi phí - hiệu quả trong y tế (02 ngày)\n- Khóa 3: Phân tích dữ liệu chuỗi thời gian với R (03 ngày)\nGS.TS. Nguyễn Văn Tuấn trực tiếp giảng dạy, cùng TS. Trần Sơn Thạch.\n\nAnh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được, đăng ký theo gói (Gói 1 đến Gói 6). Anh/chị muốn biết học phí các gói, cứ nhắn em nhé.',
     from: '',
     to: ''
   },
@@ -179,7 +179,7 @@ var FAQ_SEED = [
       'khoa 3 hoc thu may',
       'khoa 3 bat dau khi nao a'
     ],
-    answer: 'Dạ, Khóa 3 “Phân tích dữ liệu chuỗi thời gian” học 03 ngày (6 buổi), từ 15/01 đến 17/01/2027 (thứ Sáu đến Chủ nhật) ạ. Khóa 3 có trong Gói 1, Gói 3, Gói 4 và Gói 6.',
+    answer: 'Dạ, Khóa 3 “Phân tích dữ liệu chuỗi thời gian với R” học 03 ngày (6 buổi), từ 15/01 đến 17/01/2027 (thứ Sáu đến Chủ nhật) ạ. Khóa 3 có trong Gói 1, Gói 3, Gói 4 và Gói 6.',
     from: '',
     to: ''
   },
@@ -512,7 +512,7 @@ var FAQ_SEED = [
       'gs tuan nghien cuu ve gi',
       'thay tuan o uts phai khong'
     ],
-    answer: 'Dạ, GS.TS. Nguyễn Văn Tuấn hiện công tác tại Đại học Công nghệ Sydney (UTS) và Đại học New South Wales (UNSW Sydney) ạ:\n- Hơn 35 năm kinh nghiệm nghiên cứu y khoa; tác giả và đồng tác giả hơn 350 bài báo khoa học trên các tập san quốc tế.\n- Người Việt đầu tiên được trao chức danh Giáo sư xuất sắc (Distinguished Professor) của UTS; Viện sĩ Viện Hàn lâm Y học Úc.\n- Công trình có ảnh hưởng sâu rộng trong lĩnh vực loãng xương, được ScholarGPS xếp vào nhóm 0,05% các nhà khoa học có ảnh hưởng nhất thế giới.\n- Hơn 25 năm đóng góp cho nghiên cứu y khoa và giáo dục đại học tại Việt Nam.',
+    answer: 'Dạ, GS.TS. Nguyễn Văn Tuấn hiện công tác tại Đại học Công nghệ Sydney (UTS) và Đại học New South Wales (UNSW Sydney) ạ:\n- Hơn 35 năm kinh nghiệm nghiên cứu y khoa; tác giả và đồng tác giả hơn 350 bài báo khoa học trên các tập san quốc tế.\n- Người Việt đầu tiên được trao chức danh Giáo sư xuất sắc (Distinguished Professor) của UTS; Viện sĩ Viện Hàn lâm Y học Úc.\n- Công trình có ảnh hưởng sâu rộng trong lĩnh vực loãng xương, được ScholarGPS xếp vào nhóm 0,05% các nhà khoa học có ảnh hưởng nhất thế giới liên tiếp 2 năm, 2025 và 2026.\n- Hơn 25 năm đóng góp cho nghiên cứu y khoa và giáo dục đại học tại Việt Nam.',
     from: '',
     to: ''
   },
