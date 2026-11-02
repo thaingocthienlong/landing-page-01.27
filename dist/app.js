@@ -563,7 +563,7 @@
       ],
       date: "Từ 15/01 đến 17/01/2027",
       duration: "03 ngày",
-      title: "Phân tích dữ liệu chuỗi thời gian",
+      title: "Phân tích dữ liệu chuỗi thời gian với R",
       description: "Đối tượng: nhà nghiên cứu, nghiên cứu sinh, giảng viên và người làm việc với dữ liệu ghi nhận theo thời gian trong y học, kinh tế, tài chính, môi trường và các lĩnh vực liên quan.",
       skills: ["Nhận diện đặc điểm chính của dữ liệu chuỗi thời gian; hiểu tính dừng, tự tương quan và các thành phần của chuỗi", "Xây dựng mô hình dự báo từ exponential smoothing đến ARIMA", "Đánh giá và so sánh các mô hình bằng những thước đo sai số"],
     },
