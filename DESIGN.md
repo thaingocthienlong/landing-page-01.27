@@ -250,7 +250,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 - Programs section renamed "Giới thiệu chung" (heading, top nav, side menu, hero button).
 - Schedule: heading above, calendar and Bảng 1 full width; day cells 84px with 1.625rem numerals, course labels centred under their days, Bảng 1 left aligned throughout; note reads "Ngày 11/01/2027 và ngày 14/01/2027 nghỉ."
 - Tuition: returning-learner offer shown as one 15% figure in a highlighted row (falls back to a struck 15% over 10% after 08/12/2026); larger package text; panel row 730px; one notes block under the packages (tax line, then group offer, returning-learner definition, no stacking) replaces the price note and the timeline notes.
-- Close section: new two-sentence CTA copy; contact names carry "(SĐT/Zalo)". Footer logo sits in a white circle with a pale ring. Faculty cards link GS.TS. Nguyễn Văn Tuấn to his UTS profile (as in the 03/11/2026 post) and TS. Trần Sơn Thạch to ScholarGPS (the Garvan link in that post returns 404).
+- Close section: new two-sentence CTA copy; contact names carry "(SĐT/Zalo)". Footer logo sits in a white circle with a pale ring. Faculty cards link to each lecturer's ScholarGPS profile.
 
 ## Review round 2
 
