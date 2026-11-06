@@ -326,6 +326,9 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .split-body { min-width: 0; }
 .stack > .section-head, .tuition .section-head { max-width: none; }
 .stack .split-body { margin-top: clamp(24px, 3vw, 36px); }
+/* month sits centred over the calendar so 08–17 is never read as another month */
+.schedule .section-head { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: baseline; column-gap: 24px; }
+.schedule .schedule-month { margin: 0; font: 600 clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem)/1.12 var(--serif); color: var(--cobalt); white-space: nowrap; }
 .calendar { margin-bottom: 48px; }
 .cal-days, .cal-bars { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
 .cal-days span { display: grid; place-items: center; min-height: 84px; background: var(--cobalt); color: #fff; font: 600 1.625rem var(--serif); font-variant-numeric: tabular-nums; }
@@ -597,6 +600,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .lesson-no { font-size: 1.625rem; }
   .lesson-body { padding-left: 0; }
   .cal-days span { min-height: 56px; font-size: 1.125rem; }
+  .schedule .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; }
   .bar { font-size: 0.9375rem; }
   .strip .strip-deadline { display: none; }
   .strip { font-size: 0.8125rem; }
