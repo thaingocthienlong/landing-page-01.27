@@ -323,7 +323,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 
 /* schedule and tables */
 .split-body { min-width: 0; }
-.stack > .section-head { max-width: none; }
+.stack > .section-head, .tuition .section-head { max-width: none; }
 .stack .split-body { margin-top: clamp(24px, 3vw, 36px); }
 .calendar { margin-bottom: 48px; }
 .cal-days, .cal-bars { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
@@ -714,6 +714,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .js .mobile-bar [data-chat-open] { display: inline-flex; }
 }
 
-@media (max-width: 359px) {
+/* "Gọi Hotline" needs the icon room below 400px */
+@media (max-width: 399px) {
   .mobile-bar .button .i { display: none; }
 }
