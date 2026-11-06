@@ -247,7 +247,8 @@ section { padding-block: var(--section); }
 .stepper li.is-done { color: #fff; }
 .stepper li.is-done .step-no { background: rgba(255, 255, 255, 0.22); border-color: transparent; }
 .reg-aside-foot { margin-top: 12px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.28); display: grid; gap: 10px; }
-.reg-aside-foot p { display: flex; justify-content: space-between; align-items: baseline; color: var(--cobalt-tint); }
+.reg-aside-foot p { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 12px; color: var(--cobalt-tint); }
+.reg-aside-foot p span { white-space: nowrap; }
 .reg-aside-foot strong { font: 700 1.25rem var(--serif); color: #fff; font-variant-numeric: tabular-nums; }
 .reg-aside-foot a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-weight: 600; color: #fff; }
 
@@ -412,7 +413,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .tl-mark-1 { left: calc(68 / 88 * 100%); }
 .tl-mark-2 { left: auto; right: 0; transform: none; }
 .tl-mark-2::before { left: auto; right: 0; margin-left: 0; }
-.tl-mark-2 small { width: max-content; max-width: 260px; text-align: right; margin-left: auto; }
+.tl-mark-2 small { width: max-content; max-width: 150px; text-align: right; margin-left: auto; }
 
 .pkg-deals strong span { font: inherit; color: inherit; }
 .pkg-deals li.deal-hl { display: block; margin-top: 4px; padding: 14px 16px; background: var(--cobalt); color: #fff; }
@@ -561,6 +562,15 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .pkg.is-open .pkg-body { display: flex; }
   .pkg-deals li { grid-template-columns: auto minmax(0, 1fr); }
   .primary-nav a:not(.nav-cta):nth-child(n + 5) { display: none; }
+  /* the 08/12 and 28/12 captions overlap on a line narrower than ~1000px */
+  .timeline { display: grid; gap: 22px; height: auto; margin: 28px 0 40px; }
+  .tl-before, .tl-after { display: none; }
+  .tl-now { position: relative; left: auto; top: auto; width: auto; height: auto; }
+  .tl-now::before, .tl-now::after { display: none; }
+  .tl-now .tl-now-label, .tl-now[data-edge] .tl-now-label { position: static; display: inline-block; transform: none; }
+  .tl-mark, .tl-mark-1, .tl-mark-2 { position: relative; left: auto; top: auto; transform: none; padding: 0 0 0 38px; text-align: left; white-space: normal; }
+  .tl-mark::before, .tl-mark-2::before { left: 0; top: 0; margin-left: 0; }
+  .tl-mark small, .tl-mark-2 small { width: auto; max-width: none; margin: 3px 0 0; text-align: left; }
 }
 
 @media (max-width: 900px) {
@@ -582,14 +592,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 }
 
 @media (max-width: 720px) {
-  .timeline { display: grid; gap: 22px; height: auto; margin: 28px 0 40px; }
-  .tl-before, .tl-after { display: none; }
-  .tl-now { position: relative; left: auto; top: auto; width: auto; height: auto; }
-  .tl-now::before, .tl-now::after { display: none; }
-  .tl-now .tl-now-label, .tl-now[data-edge] .tl-now-label { position: static; display: inline-block; transform: none; }
-  .tl-mark, .tl-mark-1, .tl-mark-2 { position: relative; left: auto; top: auto; transform: none; padding: 0 0 0 38px; text-align: left; white-space: normal; }
-  .tl-mark::before, .tl-mark-2::before { left: 0; top: 0; margin-left: 0; }
-  .tl-mark small, .tl-mark-2 small { width: auto; max-width: none; margin: 3px 0 0; text-align: left; }
   .brand-mark { height: 54px; }
   .lesson-head { grid-template-columns: 2.5rem minmax(0, 1fr) 1.5rem; column-gap: 10px; }
   .lesson-no { font-size: 1.625rem; }
@@ -717,4 +719,10 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 /* "Gọi Hotline" needs the icon room below 400px */
 @media (max-width: 399px) {
   .mobile-bar .button .i { display: none; }
+}
+
+/* below 360px "Gọi Hotline" leaves "Đăng ký" almost no slack */
+@media (max-width: 359px) {
+  .js .mobile-bar { gap: 6px; }
+  .js .mobile-bar .button { padding-inline: 8px; }
 }
