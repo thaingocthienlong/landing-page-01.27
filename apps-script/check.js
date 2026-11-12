@@ -1168,8 +1168,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(['+84 912 114 511', '912114511', '0912-114-511', ''].map((v) => ctx.normalizePhone_(v)), ['0912114511', '0912114511', '0912114511', '']);
   assert.deepStrictEqual(['k1k301', 'K201', 'gen02', 'k1', ''].map((v) => ctx.leadGroup_(v)), ['K1K3', 'K2', 'GEN', '', '']);
   assert.strictEqual(ctx.leadSource_(true, META), 'Quảng cáo Meta');
-  assert.strictEqual(ctx.leadSource_(false, { utm_source: 'meta', utm_medium: 'messenger' }), '');
-  assert.strictEqual(ctx.leadChannel_(false, { utm_medium: 'messenger' }), 'Messenger');
+  assert.strictEqual(ctx.leadSource_(false, { utm_source: 'meta', utm_medium: 'messenger' }), 'Chưa rõ');
+  assert.deepStrictEqual([ctx.leadChannel_(true), ctx.leadChannel_(false)], ['Web - form tư vấn', 'Web - form đăng ký']);
   assert.strictEqual(ctx.leadSource_(true, {}), 'Chưa rõ');
   assert.deepStrictEqual(['Email', 'Zalo', 'Hội nhóm Facebook', 'Website Viện Phương Nam', 'Người quen giới thiệu', 'Khác', ''].map((biet_qua) => ctx.leadSource_(false, { biet_qua })),
     ['Email/Zalo của Viện', 'Email/Zalo của Viện', 'Facebook tự nhiên', 'Website', 'Người quen giới thiệu', 'Khác', 'Chưa rõ']);
@@ -1182,7 +1182,7 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   reset();
   prefillTrack();
   prefillFees();
-  row(TRACK, 2)[0] = '01/11/2026 09:00:00';
+  row(TRACK, 2)[1] = 'Lead Messenger nhập tay'; // an adviser's row with no time in A is still taken
   row(TRACK, 2)[2] = '0909000000';
   assert.deepStrictEqual(post(LEAD), { ok: true });
   assert.deepStrictEqual(plain(row(TRACK, 3)).slice(0, 20), [
@@ -1224,10 +1224,10 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual([evil[1], evil[8]], ["'=IMPORTXML(\"https://x\",\"//a\")", "'+k201"]);
   assert.strictEqual(ctx.textCell_('An'), 'An');
 
-  // Messenger: channel set, source left for the adviser.
+  // Messenger: the form decides the channel; the source is Chưa rõ for the adviser to settle.
   cache.clear();
   assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
-  assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Messenger', '', '']);
+  assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Web - form tư vấn', 'Chưa rõ', '']);
 
   // A full tab grows by one row copied from the last, and the copy's inputs are overwritten.
   reset();
