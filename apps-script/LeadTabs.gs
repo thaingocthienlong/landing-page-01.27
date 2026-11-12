@@ -3,7 +3,8 @@
  * "Học viên - Học phí", so advisers stop retyping rows from "Lead web". Staff own those tabs:
  * every row already carries formulas, checkboxes and dropdowns, so only the input columns are
  * written, only with values from their dropdown lists, and the next free row is the first one
- * whose column A is empty. Missing tabs are skipped.
+ * whose columns A, B and C are all empty (advisers may type a Messenger lead with no time).
+ * Missing tabs are skipped.
  */
 
 var TRACK_SHEET = 'Theo dõi lead';
@@ -33,16 +34,16 @@ function normalizePhone_(value) {
   return digits;
 }
 
-function leadChannel_(isConsult, data) {
-  if (clean_(data.utm_medium).toLowerCase() === 'messenger') return 'Messenger';
+// The form, never the medium: the Messenger label stays in "Lead web", where the Dashboard counts it.
+function leadChannel_(isConsult) {
   return isConsult ? 'Web - form tư vấn' : 'Web - form đăng ký';
 }
 
-// Messenger leads stay blank: only the adviser can tell an ad conversation from an organic one.
+// Messenger leads read Chưa rõ: only the adviser can tell an ad conversation from an organic one.
 function leadSource_(isConsult, data) {
   var source = clean_(data.utm_source).toLowerCase();
   var medium = clean_(data.utm_medium).toLowerCase();
-  if (medium === 'messenger') return '';
+  if (medium === 'messenger') return 'Chưa rõ';
   if (source === 'meta' && medium === 'paid_social') return 'Quảng cáo Meta';
   if (isConsult) return 'Chưa rõ';
   return SOURCE_BY_HEARD[clean_(data.biet_qua)] || 'Chưa rõ';
@@ -83,9 +84,11 @@ function fillLeadTabs_(isConsult, data, when) {
   if (fees && !isConsult && lead.pkg) addFeeRow_(fees, lead);
 }
 
-// The first row from 2 whose column A is empty; a full tab grows by one row copied from the last.
-function freeRow_(sheet, columnA) {
-  for (var i = 0; i < columnA.length; i++) if (columnA[i][0] === '' || columnA[i][0] === null) return i + 2;
+// The first row from 2 whose A, B and C are empty (getLastRow() counts the pre-filled checkboxes and
+// formulas); a full tab grows by one row copied from the last.
+function freeRow_(sheet, cols) {
+  var blank = function (v) { return v === '' || v === null; };
+  for (var i = 0; i < cols.length; i++) if (blank(cols[i][0]) && blank(cols[i][1]) && blank(cols[i][2])) return i + 2;
   var last = sheet.getMaxRows();
   sheet.insertRowsAfter(last, 1);
   sheet.getRange(last, 1, 1, sheet.getLastColumn()).copyTo(sheet.getRange(last + 1, 1));
@@ -112,7 +115,7 @@ function upsertTrackRow_(track, lead, data) {
   track.getRange(row, 3).setNumberFormat('@');
   track.getRange(row, 1, 1, 3).setValues([[lead.stamp, textCell_(lead.name), textCell_(lead.phone)]]);
   track.getRange(row, 6, 1, 8).setValues([[
-    leadChannel_(lead.isConsult, data), source, source === 'Quảng cáo Meta' ? leadGroup_(data.utm_content) : '', textCell_(data.utm_content),
+    leadChannel_(lead.isConsult), source, source === 'Quảng cáo Meta' ? leadGroup_(data.utm_content) : '', textCell_(data.utm_content),
     leadInterest_(lead.isConsult, data), format, 'Chờ kiểm', lead.isConsult ? 'Mới' : 'Đã đăng ký'
   ]]);
   if (lead.pkg) track.getRange(row, 18).setValue(lead.pkg);
