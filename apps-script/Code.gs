@@ -44,6 +44,8 @@ function doPost(e) {
   }
   // Chat waits seconds on the model, so it must not hold the registration lock (Chat.gs).
   if (data.action === 'chat') return handleChat_(data);
+  // The short consult form for the ads has its own tab and lock (Leads.gs).
+  if (data.form_type === 'tu_van') return handleConsult_(data);
   // Every other action is the bot's read-only API (BotApi.gs); it skips the lock, and registration payloads carry no action.
   if (data.action) return handleBotApi_(data);
 
@@ -99,6 +101,8 @@ function doPost(e) {
     sheet.getRange(next, 1, 1, row.length).setNumberFormat('@').setValues([row]);
 
     cache.put(key, '1', 600);
+    // Ad attribution is a copy for marketing: losing it must not fail a saved registration.
+    try { logRegistrationLead_(data); } catch (ignore) {}
 
     // The row is saved and cached: a mail or journal failure must not become an error the learner retries.
     var note = function (c, event, detail) { try { journal_(c, event, detail); } catch (ignore) {} };
