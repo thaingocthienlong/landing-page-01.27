@@ -12,6 +12,7 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 | `Ledger.gs` | The learner ledger: the extra `Đăng ký` columns, the `Đợt học`, `Gói` and `Nhật ký` tabs, the `Trạng thái` trigger and the **Sổ học viên** menu actions. See "Sổ học viên". |
 | `LedgerMail.gs` | The learner emails: the confirmation after registering and the transfer details (with a VietQR code) when staff choose `Chờ CK`. |
 | `Leads.gs` | The short "Đăng ký tư vấn" form the Meta ads use (`form_type` `tu_van`): one row per lead in the `Lead web` tab with its UTM fields and an email to tuyensinh@, vanphong@ and quantrihethong@. A full registration also adds a `Lead web` row (type `Đăng ký`) with its UTM fields; the `Đăng ký` tab is unchanged. |
+| `LeadTabs.gs` | Copies each submission into the staff tabs `Theo dõi lead` and (registrations) `Học viên - Học phí`: input columns only, dropdown values only, next row = first empty column A, one row per phone number (later submissions add a note). `backfillFromRegistrations` (run once by hand) adds the registrations made before it existed. |
 | `BotApi.gs` | The `feed` action the chat bot polls for new registrations and payments, guarded by the `BOT_KEY` property. |
 | `Sync.gs` | The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
 

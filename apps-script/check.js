@@ -58,7 +58,8 @@ function fakeSheet(name) {
       setBackground(color) { put('background', color); return self; },
       getBackground: () => mark('background', row, col, '#ffffff'),
       setDataValidation(rule) { put('validation', rule); return self; },
-      getDataValidation: () => mark('validation', row, col, null)
+      getDataValidation: () => mark('validation', row, col, null),
+      copyTo(dest) { const top = dest.getRow(); const left = dest.getColumn(); each((r, c) => write(top + r - row, left + c - col, (data[r - 1] || [])[c - 1] ?? '')); return self; }
     };
     ['setFontWeight', 'setFontColor', 'setNumberFormat', 'setWrap', 'setHorizontalAlignment', 'setVerticalAlignment']
       .forEach((m) => { self[m] = () => self; });
@@ -190,7 +191,7 @@ const ctx = vm.createContext({
       new Intl.DateTimeFormat('en-GB', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
         .formatToParts(date).forEach((x) => { p[x.type] = x.value; });
       if (fmt === 'H') return String(Number(p.hour));
-      return fmt.replace('dd', p.day).replace('MM', p.month).replace('yyyy', p.year).replace('HH', p.hour).replace('mm', p.minute).replace('ss', p.second);
+      return fmt.replace('dd', p.day).replace('MM', p.month).replace('yyyy', p.year).replace('yy', p.year.slice(2)).replace('HH', p.hour).replace('mm', p.minute).replace('ss', p.second);
     }
   },
   Logger: { log() {} },
@@ -198,7 +199,7 @@ const ctx = vm.createContext({
   handleChat_: () => textOutput('{"ok":true,"chat":true}')
 });
 
-for (const file of ['Code.gs', 'Ledger.gs', 'LedgerMail.gs', 'BotApi.gs', 'Leads.gs']) {
+for (const file of ['Code.gs', 'Ledger.gs', 'LedgerMail.gs', 'BotApi.gs', 'Leads.gs', 'LeadTabs.gs']) {
   const full = path.join(__dirname, file);
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, 'utf8'), ctx, { filename: full });
 }
@@ -1139,6 +1140,127 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual([reg['Loại form'], reg['Họ và tên'], reg['Số điện thoại'], reg['Hướng quan tâm'], reg.utm_content],
     ['Đăng ký', 'Nguyễn Văn An', '0909123456', 'Gói 1', 'k201']);
   assert.strictEqual(sheets['Đăng ký'].data.length, 2);
+}
+
+// LeadTabs.gs: the staff tabs "Theo dõi lead" and "Học viên - Học phí" get the input columns only.
+{
+  const TRACK = 'Theo dõi lead';
+  const FEES = 'Học viên - Học phí';
+  // Like the real tabs: every row already has formulas (D, E, Q, T) and an unticked checkbox (N), so getLastRow() is useless.
+  const prefillTrack = (rows = 20) => {
+    const t = fakeSheet(TRACK);
+    t.data.push(['Thời gian nhận', 'Họ và tên', 'Số điện thoại', 'SĐT chuẩn', 'Trùng', 'Kênh', 'Nguồn', 'Mã nhóm', 'Mã QC', 'Hướng quan tâm', 'Hình thức học', 'Hợp lệ', 'Trạng thái', 'Đã từng', 'Phụ trách', 'Liên hệ', 'Phút', 'Gói', 'Ghi chú', 'Số']);
+    for (let i = 0; i < rows; i++) t.data.push(['', '', '', '=D', '=E', '', '', '', '', '', '', '', '', 'FALSE', '', '', '=Q', '', '', '=T']);
+    return t;
+  };
+  const prefillFees = (rows = 20) => {
+    const t = fakeSheet(FEES);
+    t.data.push(['Mã đăng ký', 'Số điện thoại', 'Họ và tên', 'Gói', 'Mã nhóm', 'Ưu đãi', 'G', 'H', 'I', 'Đã thu', 'Ngày đủ', 'Đã xác minh', 'M', 'N', 'Ghi chú', 'P']);
+    for (let i = 0; i < rows; i++) t.data.push(['', '', '', '', '', '', '=G', '=H', '=I', '', '', 'FALSE', '=M', '=N', '', '=P']);
+    return t;
+  };
+  const META = { utm_source: 'meta', utm_medium: 'paid_social', utm_campaign: 'ptdlr_012027', utm_content: 'k1k301', utm_term: '', fbclid: '' };
+  const LEAD = { form_type: 'tu_van', ho_ten: 'TEST QA', so_dien_thoai: '0912 114 511', huong_quan_tam: 'Khóa 1 + Khóa 3', hinh_thuc_hoc: 'Trực tiếp tại Viện',
+    agreement: true, page: 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/', elapsed: 12, ...META };
+  const row = (tab, n) => sheets[tab].data[n - 1];
+
+  // The mappings.
+  assert.deepStrictEqual(['+84 912 114 511', '912114511', '0912-114-511', ''].map((v) => ctx.normalizePhone_(v)), ['0912114511', '0912114511', '0912114511', '']);
+  assert.deepStrictEqual(['k1k301', 'K201', 'gen02', 'k1', ''].map((v) => ctx.leadGroup_(v)), ['K1K3', 'K2', 'GEN', '', '']);
+  assert.strictEqual(ctx.leadSource_(true, META), 'Quảng cáo Meta');
+  assert.strictEqual(ctx.leadSource_(false, { utm_source: 'meta', utm_medium: 'messenger' }), '');
+  assert.strictEqual(ctx.leadChannel_(false, { utm_medium: 'messenger' }), 'Messenger');
+  assert.strictEqual(ctx.leadSource_(true, {}), 'Chưa rõ');
+  assert.deepStrictEqual(['Email', 'Zalo', 'Hội nhóm Facebook', 'Website Viện Phương Nam', 'Người quen giới thiệu', 'Khác', ''].map((biet_qua) => ctx.leadSource_(false, { biet_qua })),
+    ['Email/Zalo của Viện', 'Email/Zalo của Viện', 'Facebook tự nhiên', 'Website', 'Người quen giới thiệu', 'Khác', 'Chưa rõ']);
+  assert.deepStrictEqual(['Gói 1', 'Gói 2', 'Gói 3', 'Gói 5', 'Gói 6'].map((package_id) => ctx.leadInterest_(false, { package_id })),
+    ['Cả 3 khóa', '', 'Khóa 1 + Khóa 3', 'Khóa 2: Phân tích chi phí - hiệu quả trong y tế', '']);
+  assert.strictEqual(ctx.leadInterest_(true, { huong_quan_tam: 'Khóa 2: Phân tích chi phí – hiệu quả trong y tế' }), 'Khóa 2: Phân tích chi phí - hiệu quả trong y tế', 'an en dash still maps');
+  assert.strictEqual(ctx.leadInterest_(true, { huong_quan_tam: 'Gì đó' }), '');
+
+  // A consult lead fills one row around the formulas and the checkbox, below a row staff already used.
+  reset();
+  prefillTrack();
+  prefillFees();
+  row(TRACK, 2)[0] = '01/11/2026 09:00:00';
+  row(TRACK, 2)[2] = '0909000000';
+  assert.deepStrictEqual(post(LEAD), { ok: true });
+  assert.deepStrictEqual(plain(row(TRACK, 3)).slice(0, 20), [
+    row(TRACK, 3)[0], 'TEST QA', '0912 114 511', '=D', '=E', 'Web - form tư vấn', 'Quảng cáo Meta', 'K1K3', 'k1k301', 'Khóa 1 + Khóa 3', 'Trực tiếp tại Viện',
+    'Chờ kiểm', 'Mới', 'FALSE', '', '', '=Q', '', '', '=T']);
+  assert.match(row(TRACK, 3)[0], /^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/);
+  assert.strictEqual(row(FEES, 2)[0], '', 'a consult lead adds no fee row');
+
+  // The same number registers later: no second lead row, a note, Đã đăng ký, the package, and one fee row.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '84912114511', package_id: 'Gói 1', form_type: 'dang_ky', ...META }), { ok: true });
+  assert.strictEqual(row(TRACK, 4)[0], '', 'no duplicate lead row');
+  assert.match(row(TRACK, 3)[18], /^\d{2}\/\d{2} \d{2}:\d{2}: gửi thêm form đăng ký Gói 1$/);
+  assert.deepStrictEqual([row(TRACK, 3)[12], row(TRACK, 3)[17]], ['Đã đăng ký', 'Gói 1']);
+  const fee = plain(row(FEES, 2));
+  assert.match(fee[0], /^DK-\d{6}-\d{6}$/);
+  assert.deepStrictEqual(fee.slice(1, 14), ['84912114511', 'Nguyễn Văn An', 'Gói 1', '', '', '=G', '=H', '=I', '', '', 'FALSE', '=M', '=N']);
+  assert.match(fee[14], /^Tự thêm từ form đăng ký \d{2}\/\d{2} \d{2}:\d{2}$/);
+  assert.strictEqual(fee[15], '=P');
+
+  // A repeat registration of the same package adds a note only; a paid lead keeps Đã thanh toán.
+  cache.clear();
+  row(TRACK, 3)[12] = 'Đã thanh toán';
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0912114511', package_id: 'Gói 1', form_type: 'dang_ky' }), { ok: true });
+  assert.strictEqual(row(FEES, 3)[0], '', 'same phone and package: no second fee row');
+  assert.strictEqual(row(TRACK, 3)[12], 'Đã thanh toán');
+  assert.strictEqual(row(TRACK, 3)[18].split('\n').length, 2);
+
+  // Someone new registers without UTM: source from "Biết đến qua", no group, interest from the package.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'b@example.com', phoneregister: '0988777666', package_id: 'Gói 3', biet_qua: 'Website Viện Phương Nam', page: 'https://x/' }), { ok: true });
+  assert.deepStrictEqual(plain(row(TRACK, 4)).slice(5, 13), ['Web - form đăng ký', 'Website', '', '', 'Khóa 1 + Khóa 3', '', 'Chờ kiểm', 'Đã đăng ký']);
+  assert.strictEqual(row(FEES, 3)[3], 'Gói 3');
+
+  // Messenger: channel set, source left for the adviser.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
+  assert.deepStrictEqual(plain(row(TRACK, 5)).slice(5, 8), ['Messenger', '', '']);
+
+  // A full tab grows by one row copied from the last, and the copy's inputs are overwritten.
+  reset();
+  const full = prefillTrack(999);
+  full.data.slice(1).forEach((r) => { r[0] = '01/11/2026 09:00:00'; r[2] = '0900000000'; });
+  assert.deepStrictEqual(post(LEAD), { ok: true });
+  assert.strictEqual(full.getMaxRows(), 1001);
+  assert.deepStrictEqual([row(TRACK, 1001)[1], row(TRACK, 1001)[3], row(TRACK, 1001)[19]], ['TEST QA', '=D', '=T']);
+
+  // A broken staff tab never costs the lead or the registration.
+  reset();
+  const broken = prefillTrack();
+  broken.getMaxRows = () => { throw new Error('boom'); };
+  assert.deepStrictEqual(post(LEAD), { ok: true });
+  assert.strictEqual(sheets['Lead web'].data.length, 2);
+  assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
+  assert.strictEqual(sheets['Đăng ký'].data.length, 2);
+
+  // The one-off backfill takes the two named registrations, skips the test row, and is safe to run twice.
+  reset();
+  prefillTrack();
+  prefillFees();
+  ctx.setup();
+  const reg = (stamp, pkg, ho, ten, phone, heard, page) => ctx.HEADERS.map((h) => ({ 'Thời gian': stamp, 'Mã gói': pkg, 'Họ và chữ lót': ho, 'Tên': ten,
+    'Số điện thoại': phone, 'Biết đến qua': heard, 'Trang gửi': page })[h] ?? '');
+  sheets['Đăng ký'].data.push(
+    reg('07/11/2026 11:20:44', 'Gói 3', 'DANG THI', 'MY DUNG', '0917106920', 'Zalo', 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/'),
+    reg('10/11/2026 08:39:05', 'Gói 1', 'ĐINH NGUYỄN THIÊN', 'KIM', '0903610025', 'Website Viện Phương Nam', 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/'),
+    reg('12/11/2026 19:49:12', 'Gói 1', 'Thiên', 'Long', '0396291932', 'Email', 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/?utm_source=meta&utm_medium=messenger'));
+  assert.deepStrictEqual(plain(ctx.backfillFromRegistrations()), ['07/11/2026 11:20:44', '10/11/2026 08:39:05']);
+  const pick = (n) => [0, 1, 6, 9, 12].map((i) => row(TRACK, n)[i]);
+  assert.deepStrictEqual([pick(2), pick(3), pick(4)], [
+    ['07/11/2026 11:20:44', 'DANG THI MY DUNG', 'Email/Zalo của Viện', 'Khóa 1 + Khóa 3', 'Đã đăng ký'],
+    ['10/11/2026 08:39:05', 'ĐINH NGUYỄN THIÊN KIM', 'Website', 'Cả 3 khóa', 'Đã đăng ký'],
+    ['', '', '', '', '']]);
+  assert.deepStrictEqual([row(FEES, 2)[0], row(FEES, 2)[3], row(FEES, 3)[0], row(FEES, 3)[3], row(FEES, 4)[0]], ['DK-261107-112044', 'Gói 3', 'DK-261110-083905', 'Gói 1', '']);
+  assert.match(row(FEES, 2)[14], /07\/11 11:20$/);
+  ctx.backfillFromRegistrations();
+  assert.strictEqual(row(TRACK, 4)[0], '', 'running it twice adds no lead rows');
+  assert.strictEqual(row(FEES, 4)[0], '', 'running it twice adds no fee rows');
 }
 
 console.log('apps-script check: all passed');

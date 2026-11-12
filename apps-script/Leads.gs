@@ -34,6 +34,8 @@ function handleConsult_(data) {
 
     var saved = appendLead_('Tư vấn', data.ho_ten, data.so_dien_thoai, data.huong_quan_tam, data.hinh_thuc_hoc, data);
     cache.put(key, '1', 600);
+    // The staff tabs are a convenience copy: a failure there must not cost the lead (LeadTabs.gs).
+    try { fillLeadTabs_(true, data, new Date()); } catch (ignore) {}
     // The row is saved: a mail failure must not become an error the learner retries, so it is marked on the row instead.
     try {
       notifyConsult_(saved.row);
@@ -51,6 +53,7 @@ function handleConsult_(data) {
 // Called by doPost after a registration row is saved, inside its lock.
 function logRegistrationLead_(data) {
   appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, '', data);
+  try { fillLeadTabs_(false, data, new Date()); } catch (ignore) {}
 }
 
 function appendLead_(kind, name, phone, interest, format, data) {
