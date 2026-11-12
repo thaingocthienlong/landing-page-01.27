@@ -19,6 +19,12 @@ var SOURCE_BY_HEARD = {
   'Website Viện Phương Nam': 'Website', 'Người quen giới thiệu': 'Người quen giới thiệu', 'Khác': 'Khác'
 };
 
+// Visitor text lands in staff cells that are not text-formatted: a leading = + - @ would make it a formula.
+function textCell_(value) {
+  var text = clean_(value);
+  return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
 // Same rule as the tabs' "SĐT chuẩn" formula.
 function normalizePhone_(value) {
   var digits = String(value === undefined || value === null ? '' : value).replace(/\D/g, '');
@@ -104,9 +110,9 @@ function upsertTrackRow_(track, lead, data) {
   var format = FORMATS.indexOf(clean_(data.hinh_thuc_hoc)) >= 0 ? clean_(data.hinh_thuc_hoc) : '';
   // D, E, N, Q and T hold formulas or the checkbox: write around them.
   track.getRange(row, 3).setNumberFormat('@');
-  track.getRange(row, 1, 1, 3).setValues([[lead.stamp, lead.name, lead.phone]]);
+  track.getRange(row, 1, 1, 3).setValues([[lead.stamp, textCell_(lead.name), textCell_(lead.phone)]]);
   track.getRange(row, 6, 1, 8).setValues([[
-    leadChannel_(lead.isConsult, data), source, source === 'Quảng cáo Meta' ? leadGroup_(data.utm_content) : '', clean_(data.utm_content),
+    leadChannel_(lead.isConsult, data), source, source === 'Quảng cáo Meta' ? leadGroup_(data.utm_content) : '', textCell_(data.utm_content),
     leadInterest_(lead.isConsult, data), format, 'Chờ kiểm', lead.isConsult ? 'Mới' : 'Đã đăng ký'
   ]]);
   if (lead.pkg) track.getRange(row, 18).setValue(lead.pkg);
@@ -125,7 +131,7 @@ function addFeeRow_(fees, lead) {
   var row = freeRow_(fees, cols);
   // Only A to D and O: the rest are formulas, checkboxes or for the accountant.
   fees.getRange(row, 2).setNumberFormat('@');
-  fees.getRange(row, 1, 1, 4).setValues([[code, lead.phone, lead.name, lead.pkg]]);
+  fees.getRange(row, 1, 1, 4).setValues([[code, textCell_(lead.phone), textCell_(lead.name), lead.pkg]]);
   fees.getRange(row, 15).setValue('Tự thêm từ form đăng ký ' + lead.short);
 }
 
