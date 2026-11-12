@@ -11,14 +11,37 @@
     if (fb && typeof window.fbq === "function") window.fbq("track", fb.name, fb.params || {});
   };
 
+  // The ads optimise for Lead from the short consult form; a full registration reports CompleteRegistration so the two never mix.
   const trackLead = (payload) => {
+    track("generate_lead", { form_id: "lead-form", interest: payload.huong_quan_tam }, { name: "Lead", params: { content_name: payload.huong_quan_tam } });
+  };
+
+  const trackRegistration = (payload) => {
     const value = Number(((payload.package.match(/(\d{1,3}(?:\.\d{3})+)/) || [])[1] || "0").replace(/\./g, ""));
-    track("generate_lead", { currency: "VND", value, package: payload.package_id }, { name: "Lead", params: { currency: "VND", value, content_name: payload.package_id } });
+    track("registration_complete", { currency: "VND", value, package: payload.package_id }, { name: "CompleteRegistration", params: { currency: "VND", value, content_name: payload.package_id } });
     const t = window.VPN_TRACKING || {};
     if (t.adsId && t.adsLeadLabel && typeof window.gtag === "function") {
       window.gtag("event", "conversion", { send_to: `${t.adsId}/${t.adsLeadLabel}`, currency: "VND", value });
     }
   };
+
+  /* ---------- ad attribution: the first UTM set seen in this tab session, sent with both forms ---------- */
+
+  const ATTRIBUTION_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
+  const attribution = (() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = {};
+    ATTRIBUTION_KEYS.forEach((key) => { const value = params.get(key); if (value) fromUrl[key] = value.slice(0, 200); });
+    try {
+      const saved = JSON.parse(window.sessionStorage.getItem("vpn_attribution") || "null");
+      if (saved) return saved;
+      if (Object.keys(fromUrl).length) window.sessionStorage.setItem("vpn_attribution", JSON.stringify(fromUrl));
+    } catch {
+      // storage blocked (private mode): fall back to this URL's parameters
+    }
+    return fromUrl;
+  })();
+  const withAttribution = (formType, payload) => ({ ...payload, form_type: formType, ...Object.fromEntries(ATTRIBUTION_KEYS.map((key) => [key, attribution[key] || ""])) });
 
   const setupTracking = () => {
     document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
@@ -1068,11 +1091,11 @@
       submitButton.disabled = true;
       form.setAttribute("aria-busy", "true");
       try {
-        const payload = collect();
+        const payload = withAttribution("dang_ky", collect());
         const response = await fetch(form.dataset.endpoint.trim(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!result.ok) throw new Error(result.error || "rejected");
-        trackLead(payload);
+        trackRegistration(payload);
         form.reset();
         syncSourceOther();
         show(0);
@@ -1105,6 +1128,76 @@
 
     syncSourceOther();
     show(0);
+  };
+
+  /* ---------- short consult form for the ads: name, phone, interest, format ---------- */
+
+  const setupLeadForm = () => {
+    const form = document.querySelector("#lead-form");
+    const error = document.querySelector("#lead-error");
+    const status = document.querySelector("#lead-status");
+    const endpoint = (form?.dataset.endpoint || "").trim();
+    if (!form || !error || !status || !endpoint) return;
+    const submit = form.querySelector('button[type="submit"]');
+    const phone = form.elements.namedItem("so_dien_thoai");
+    const openedAt = Date.now();
+
+    const clearFeedback = () => {
+      error.hidden = true;
+      status.hidden = true;
+      form.querySelectorAll(".is-invalid").forEach((item) => { item.classList.remove("is-invalid"); item.removeAttribute("aria-invalid"); });
+    };
+    const fail = (control, text) => {
+      const mark = control.type === "radio" ? control.closest(".choice-group") : control;
+      mark?.classList.add("is-invalid");
+      if (control.type !== "radio") control.setAttribute("aria-invalid", "true");
+      error.textContent = text;
+      error.hidden = false;
+      control.focus();
+    };
+    const label = (control) => (control.closest("fieldset.choice-group")?.querySelector("legend") || form.querySelector(`label[for="${control.id}"]`))
+      .textContent.replace(/\*/g, "").trim();
+
+    form.addEventListener("input", clearFeedback);
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearFeedback();
+      const digits = phone.value.replace(/[\s-]/g, "");
+      phone.setCustomValidity(!phone.value || (/^\d{9,11}$/.test(digits) && /^[\d\s-]+$/.test(phone.value.trim())) ? "" : "x");
+      const bad = [...form.querySelectorAll("input:not([name=website])")].find((control) => !control.checkValidity());
+      if (bad) {
+        if (bad.type === "checkbox") fail(bad, "Vui lòng xác nhận đã đọc và đồng ý với Chính sách bảo mật thông tin của Viện Phương Nam.");
+        else if (bad === phone && phone.value) fail(bad, "Số điện thoại chỉ gồm 9 đến 11 chữ số, có thể cách nhau bằng khoảng trắng hoặc dấu gạch nối.");
+        else fail(bad, `Vui lòng ${bad.type === "radio" ? "chọn" : "nhập"} “${label(bad)}”.`);
+        return;
+      }
+      const data = new FormData(form);
+      const get = (name) => String(data.get(name) || "").trim();
+      const payload = withAttribution("tu_van", {
+        ho_ten: get("ho_ten"), so_dien_thoai: get("so_dien_thoai"), huong_quan_tam: get("huong_quan_tam"), hinh_thuc_hoc: get("hinh_thuc_hoc"),
+        agreement: form.agreement.checked, page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"),
+      });
+      submit.disabled = true;
+      form.setAttribute("aria-busy", "true");
+      try {
+        const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || "rejected");
+        trackLead(payload);
+        form.reset();
+        const paragraph = document.createElement("p");
+        paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để gửi đề cương và tư vấn gói học. Cần gấp, vui lòng gọi (028) 2242 6789.";
+        status.replaceChildren(paragraph);
+        status.hidden = false;
+        status.focus({ preventScroll: true });
+      } catch {
+        error.textContent = "Chưa gửi được thông tin. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
+        error.hidden = false;
+      } finally {
+        submit.disabled = false;
+        form.removeAttribute("aria-busy");
+      }
+    });
   };
 
   /* ---------- tuition packages accordion ---------- */
@@ -1636,6 +1729,7 @@
   setupSideNav();
   setupMobileNav();
   setupForm();
+  setupLeadForm();
   setupCopy();
   setupChat();
   setupTracking();

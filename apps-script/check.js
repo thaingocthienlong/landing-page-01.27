@@ -198,7 +198,7 @@ const ctx = vm.createContext({
   handleChat_: () => textOutput('{"ok":true,"chat":true}')
 });
 
-for (const file of ['Code.gs', 'Ledger.gs', 'LedgerMail.gs', 'BotApi.gs']) {
+for (const file of ['Code.gs', 'Ledger.gs', 'LedgerMail.gs', 'BotApi.gs', 'Leads.gs']) {
   const full = path.join(__dirname, file);
   if (fs.existsSync(full)) vm.runInContext(fs.readFileSync(full, 'utf8'), ctx, { filename: full });
 }
@@ -1100,6 +1100,44 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(ctx.assignMissingCodes(), 3);
   assert.deepStrictEqual([cellAt(4, 'Kênh'), cellAt(5, 'Kênh'), cellAt(6, 'Kênh')], ['trực tiếp', '', 'zalo']);
   assert.deepStrictEqual(lastCodes(3), ['R27-003', 'R27-004', 'R27-005'], 'the row without a page still gets its code');
+}
+
+// The short consult form (Leads.gs): its own tab, a mail to the people on duty, and the ad fields on every form.
+{
+  reset();
+  const UTM = { utm_source: 'meta', utm_medium: 'paid_social', utm_campaign: 'ptdlr_012027', utm_content: 'k201', utm_term: '', fbclid: 'fb.1' };
+  const LEAD = { form_type: 'tu_van', ho_ten: 'TEST QA', so_dien_thoai: '0909 123 456', huong_quan_tam: 'Khóa 2', hinh_thuc_hoc: 'Trực tuyến qua Zoom',
+    agreement: true, page: 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/?utm_content=k201', elapsed: 12, ...UTM };
+  assert.deepStrictEqual(post({ ...LEAD, elapsed: 1 }), { ok: false, error: 'too-fast' });
+  assert.deepStrictEqual(post({ ...LEAD, agreement: false }), { ok: false, error: 'no-consent' });
+  assert.deepStrictEqual(post({ ...LEAD, hinh_thuc_hoc: '' }), { ok: false, error: 'missing-hinh_thuc_hoc' });
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '12345' }), { ok: false, error: 'bad-phone' });
+  assert.deepStrictEqual(post({ ...LEAD, website: 'spam' }), { ok: true });
+  assert.ok(!sheets['Lead web'], 'rejected and honeypot posts write nothing');
+  assert.deepStrictEqual(post(LEAD), { ok: true });
+  assert.deepStrictEqual(post(LEAD), { ok: true, duplicate: true });
+  const tab = sheets['Lead web'].data;
+  assert.deepStrictEqual(plain(tab[0]), plain(ctx.LEAD_HEADERS));
+  const row = Object.fromEntries(ctx.LEAD_HEADERS.map((h, i) => [h, tab[1][i]]));
+  assert.deepStrictEqual([tab.length, row['Loại form'], row['Họ và tên'], row['Hình thức học'], row.utm_content, row.fbclid, row['Trạng thái']],
+    [2, 'Tư vấn', 'TEST QA', 'Trực tuyến qua Zoom', 'k201', 'fb.1', 'Mới']);
+  assert.ok(!sheets['Đăng ký'], 'the consult form never writes the registration tab');
+  assert.strictEqual(mail.calls.length, 1);
+  assert.strictEqual(mail.calls[0].to, 'tuyensinh@vienphuongnam.com.vn,vanphong@vienphuongnam.com.vn,quantrihethong@vienphuongnam.com.vn');
+  assert.match(mail.calls[0].subject, /TEST QA – 0909 123 456 \(k201\)/);
+
+  // A failed mail keeps the row and says so on it, and the learner still gets ok.
+  mail.failFor.add(mail.calls[0].to);
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0909000111' }), { ok: true });
+  assert.strictEqual(sheets['Lead web'].data[2][ctx.LEAD_HEADERS.length - 1], 'Mới (chưa gửi được email báo)');
+
+  // The full registration adds its own Lead web row with the ad fields; the Đăng ký row is written as before.
+  reset();
+  assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky', ...UTM }), { ok: true });
+  const reg = Object.fromEntries(ctx.LEAD_HEADERS.map((h, i) => [h, sheets['Lead web'].data[1][i]]));
+  assert.deepStrictEqual([reg['Loại form'], reg['Họ và tên'], reg['Số điện thoại'], reg['Hướng quan tâm'], reg.utm_content],
+    ['Đăng ký', 'Nguyễn Văn An', '0909123456', 'Gói 1', 'k201']);
+  assert.strictEqual(sheets['Đăng ký'].data.length, 2);
 }
 
 console.log('apps-script check: all passed');

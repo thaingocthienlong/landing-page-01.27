@@ -606,7 +606,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .strip { font-size: 0.8125rem; }
   .strip-inner { min-height: 0; padding-block: 5px; }
   .bg-canvas { opacity: 0.48; }
-  .hero-actions .button-primary { display: none; }
+  .hero-actions .hero-register { display: none; }
   .f-tick, .hero-plate .f-tick { font-size: 21px; }
   .f-label, .hero-plate .f-label { font-size: 19px; }
   .f-note, .hero-plate .f-note { font-size: 20px; stroke-width: 6px; }
