@@ -729,4 +729,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 @media (max-width: 359px) {
   .js .mobile-bar { gap: 6px; }
   .js .mobile-bar .button { padding-inline: 8px; }
+  /* "Đăng ký tư vấn" (ads visitors) needs two lines at 320px. */
+  .js .mobile-bar .button:first-child { white-space: normal; line-height: 1.15; text-align: center; }
 }

@@ -1,5 +1,5 @@
 /**
- * The short "Nhận đề cương và tư vấn" form the Meta ads point to (form_type 'tu_van'), and the
+ * The short "Đăng ký tư vấn" form the Meta ads point to (form_type 'tu_van'), and the
  * ad attribution of every form on the page. Each submission of either form gets one row in the
  * "Lead web" tab with its UTM fields, so leads can be counted per ad (utm_content). The full
  * registration still writes its own row in "Đăng ký" as before; this file never touches that tab.
@@ -85,7 +85,7 @@ function notifyConsult_(row) {
   MailApp.sendEmail({
     to: LEAD_NOTIFY_EMAILS.join(','),
     subject: 'Lead tư vấn mới: ' + row[2] + ' – ' + row[3] + (ad ? ' (' + ad + ')' : ''),
-    htmlBody: '<p style="font-family:Arial,sans-serif;font-size:14px">Người này để lại số điện thoại để nhận đề cương và tư vấn. Vui lòng gọi lại trong giờ làm việc.</p>'
+    htmlBody: '<p style="font-family:Arial,sans-serif;font-size:14px">Người này để lại số điện thoại để được tư vấn. Vui lòng gọi lại trong giờ làm việc.</p>'
       + '<table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px">' + rows + '</table>'
   });
 }
