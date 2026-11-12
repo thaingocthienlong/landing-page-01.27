@@ -1095,7 +1095,8 @@
         const response = await fetch(form.dataset.endpoint.trim(), { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!result.ok) throw new Error(result.error || "rejected");
-        trackRegistration(payload);
+        // A repeat within ten minutes is answered ok but was already counted.
+        if (!result.duplicate) trackRegistration(payload);
         form.reset();
         syncSourceOther();
         show(0);
@@ -1139,6 +1140,12 @@
     const endpoint = (form?.dataset.endpoint || "").trim();
     if (!form || !error || !status || !endpoint) return;
     const submit = form.querySelector('button[type="submit"]');
+    // Visitors from the Meta ads get the short form from the phone bar too.
+    const barLink = document.querySelector('.mobile-bar a[href="#registration"]');
+    if (attribution.utm_source === "meta" && barLink) {
+      barLink.href = "#tu-van";
+      barLink.firstChild.textContent = "Nhận tư vấn ";
+    }
     const phone = form.elements.namedItem("so_dien_thoai");
     const openedAt = Date.now();
 
@@ -1183,7 +1190,7 @@
         const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
         const result = await response.json();
         if (!result.ok) throw new Error(result.error || "rejected");
-        trackLead(payload);
+        if (!result.duplicate) trackLead(payload);
         form.reset();
         const paragraph = document.createElement("p");
         paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để gửi đề cương và tư vấn gói học. Cần gấp, vui lòng gọi (028) 2242 6789.";

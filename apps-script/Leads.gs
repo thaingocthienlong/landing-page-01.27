@@ -27,7 +27,8 @@ function handleConsult_(data) {
 
     var cache = CacheService.getScriptCache();
     var key = 'l_' + Utilities.base64EncodeWebSafe(
-      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [data.so_dien_thoai, data.huong_quan_tam].join('|'))
+      // Same number however it is spaced: "0912 114 511" and "0912114511" are one lead.
+      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [String(data.so_dien_thoai).replace(/[\s-]/g, ''), data.huong_quan_tam].join('|'))
     );
     if (cache.get(key)) return json_({ ok: true, duplicate: true });
 
