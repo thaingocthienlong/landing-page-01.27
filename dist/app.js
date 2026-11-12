@@ -1144,7 +1144,7 @@
     const barLink = document.querySelector('.mobile-bar a[href="#registration"]');
     if (attribution.utm_source === "meta" && barLink) {
       barLink.href = "#tu-van";
-      barLink.firstChild.textContent = "Nhận tư vấn ";
+      barLink.firstChild.textContent = "Đăng ký tư vấn ";
     }
     const phone = form.elements.namedItem("so_dien_thoai");
     const openedAt = Date.now();
@@ -1193,7 +1193,7 @@
         if (!result.duplicate) trackLead(payload);
         form.reset();
         const paragraph = document.createElement("p");
-        paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để gửi đề cương và tư vấn gói học. Cần gấp, vui lòng gọi (028) 2242 6789.";
+        paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để tư vấn chọn gói học. Cần gấp, vui lòng gọi (028) 2242 6789.";
         status.replaceChildren(paragraph);
         status.hidden = false;
         status.focus({ preventScroll: true });
