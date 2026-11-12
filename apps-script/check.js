@@ -1217,10 +1217,17 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(plain(row(TRACK, 4)).slice(5, 13), ['Web - form đăng ký', 'Website', '', '', 'Khóa 1 + Khóa 3', '', 'Chờ kiểm', 'Đã đăng ký']);
   assert.strictEqual(row(FEES, 3)[3], 'Gói 3');
 
+  // Visitor text that looks like a formula stays text.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...LEAD, ho_ten: '=IMPORTXML("https://x","//a")', so_dien_thoai: '0966555444', utm_content: '+k201' }), { ok: true });
+  const evil = sheets[TRACK].data.find((r) => r[2] === '0966555444');
+  assert.deepStrictEqual([evil[1], evil[8]], ["'=IMPORTXML(\"https://x\",\"//a\")", "'+k201"]);
+  assert.strictEqual(ctx.textCell_('An'), 'An');
+
   // Messenger: channel set, source left for the adviser.
   cache.clear();
   assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
-  assert.deepStrictEqual(plain(row(TRACK, 5)).slice(5, 8), ['Messenger', '', '']);
+  assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Messenger', '', '']);
 
   // A full tab grows by one row copied from the last, and the copy's inputs are overwritten.
   reset();
