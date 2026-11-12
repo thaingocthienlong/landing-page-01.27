@@ -1116,6 +1116,7 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.ok(!sheets['Lead web'], 'rejected and honeypot posts write nothing');
   assert.deepStrictEqual(post(LEAD), { ok: true });
   assert.deepStrictEqual(post(LEAD), { ok: true, duplicate: true });
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0909-123456' }), { ok: true, duplicate: true }, 'the same number spaced differently is one lead');
   const tab = sheets['Lead web'].data;
   assert.deepStrictEqual(plain(tab[0]), plain(ctx.LEAD_HEADERS));
   const row = Object.fromEntries(ctx.LEAD_HEADERS.map((h, i) => [h, tab[1][i]]));
