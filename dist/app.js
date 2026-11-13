@@ -1100,7 +1100,7 @@
         form.reset();
         syncSourceOther();
         show(0);
-        showMessage("Đã gửi đăng ký thành công. Viện Phương Nam sẽ liên hệ qua điện thoại hoặc email để xác nhận chỗ, gói học và thông tin thanh toán. Cần gấp, vui lòng gọi (028) 2242 6789.");
+        showMessage("Đã gửi đăng ký thành công. Viện Phương Nam sẽ liên hệ qua điện thoại hoặc email để xác nhận chỗ, gói học và thông tin thanh toán.");
       } catch {
         error.textContent = "Chưa gửi được thông tin đăng ký. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
         error.hidden = false;
@@ -1193,7 +1193,7 @@
         if (!result.duplicate) trackLead(payload);
         form.reset();
         const paragraph = document.createElement("p");
-        paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để tư vấn chọn gói học. Cần gấp, vui lòng gọi (028) 2242 6789.";
+        paragraph.textContent = "Viện Phương Nam đã nhận thông tin. Viện sẽ liên hệ trong giờ làm việc để tư vấn chọn gói học.";
         status.replaceChildren(paragraph);
         status.hidden = false;
         status.focus({ preventScroll: true });
