@@ -1270,4 +1270,35 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(row(FEES, 4)[0], '', 'running it twice adds no fee rows');
 }
 
+// The learner's receipt (Leads.gs): sent while the ledger is not deployed, never twice, and a failure is marked on the Lead web row.
+{
+  const ledger = ctx.ledgerIntake_;
+  reset();
+  ctx.ledgerIntake_ = undefined; // the live project has no Ledger.gs
+  try {
+    assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky', package: 'Gói 3 · Khóa 1 + Khóa 3 (06 ngày · 7.500.000 đồng)' }), { ok: true });
+    const receipt = mail.calls.find((m) => m.to === FORM.emailcontact);
+    assert.ok(receipt, 'the learner gets a receipt');
+    assert.strictEqual(receipt.replyTo, 'vanphong@vienphuongnam.com.vn');
+    assert.match(receipt.htmlBody, /Kính chào anh\/chị Nguyễn Văn An,/);
+    assert.match(receipt.htmlBody, /Gói đã chọn: Gói 3 · Khóa 1 \+ Khóa 3</);
+    assert.doesNotMatch(receipt.htmlBody, /7\.500\.000|2242 6789 –|Số tài khoản/, 'no price or bank details');
+    assert.strictEqual(sheets['Lead web'].data[1][ctx.LEAD_HEADERS.length - 1], 'Mới');
+
+    // A bounced address: the registration still succeeds and the Lead web row says so.
+    cache.clear();
+    mail.failFor.add('bad@example.com');
+    assert.deepStrictEqual(post({ ...FORM, emailcontact: 'bad@example.com', form_type: 'dang_ky' }), { ok: true });
+    assert.strictEqual(sheets['Lead web'].data[2][ctx.LEAD_HEADERS.length - 1], 'Mới (chưa gửi được email xác nhận)');
+    assert.strictEqual(sheets['Đăng ký'].data.length, 3);
+  } finally {
+    ctx.ledgerIntake_ = ledger;
+  }
+
+  // With the ledger deployed it sends its own receipt, so Leads.gs sends none.
+  reset();
+  assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
+  assert.ok(!mail.calls.some((m) => m.to === FORM.emailcontact && /phiếu đăng ký – Phân tích định lượng với R/.test(m.subject)));
+}
+
 console.log('apps-script check: all passed');
