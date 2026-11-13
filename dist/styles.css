@@ -652,6 +652,13 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .reg-form[aria-busy="true"] { opacity: 0.7; pointer-events: none; }
+/* Sending: the button names the wait and spins only while the request is open; reduced motion leaves a still ring. */
+.button.is-sending { cursor: progress; }
+.button.is-sending .i { display: none; }
+.button.is-sending::before { content: ""; width: 1em; height: 1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: send-spin 0.7s linear infinite; }
+@keyframes send-spin { to { transform: rotate(360deg); } }
+/* The reply eases in so the eye lands on it. */
+.feedback-status:not([hidden]) { animation: swap 0.28s var(--ease) both; }
 
 /* learner-care chat: corner launcher and panel from 901px, full-screen sheet and a bottom-bar button below */
 .chat-launcher { display: none; }
