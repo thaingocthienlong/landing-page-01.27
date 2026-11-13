@@ -43,6 +43,19 @@
   })();
   const withAttribution = (formType, payload) => ({ ...payload, form_type: formType, ...Object.fromEntries(ATTRIBUTION_KEYS.map((key) => [key, attribution[key] || ""])) });
 
+  // While a form waits on the server its button says so and shows a small spinner; the label comes back after.
+  const setSending = (button, on) => {
+    const label = button.firstChild;
+    if (on) {
+      button.dataset.label = label.textContent;
+      label.textContent = "Đang gửi ";
+    } else if (button.dataset.label) {
+      label.textContent = button.dataset.label;
+    }
+    button.disabled = on;
+    button.classList.toggle("is-sending", on);
+  };
+
   const setupTracking = () => {
     document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
       link.addEventListener("click", () => track("phone_click", { phone_number: link.getAttribute("href").slice(4) }, { name: "Contact" }));
@@ -1088,7 +1101,7 @@
     };
 
     const send = async () => {
-      submitButton.disabled = true;
+      setSending(submitButton, true);
       form.setAttribute("aria-busy", "true");
       try {
         const payload = withAttribution("dang_ky", collect());
@@ -1105,7 +1118,7 @@
         error.textContent = "Chưa gửi được thông tin đăng ký. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
         error.hidden = false;
       } finally {
-        submitButton.disabled = false;
+        setSending(submitButton, false);
         form.removeAttribute("aria-busy");
       }
     };
@@ -1184,7 +1197,7 @@
         ho_ten: get("ho_ten"), so_dien_thoai: get("so_dien_thoai"), huong_quan_tam: get("huong_quan_tam"), hinh_thuc_hoc: get("hinh_thuc_hoc"),
         agreement: form.agreement.checked, page: window.location.href.split("#")[0], elapsed: Math.round((Date.now() - openedAt) / 1000), website: get("website"),
       });
-      submit.disabled = true;
+      setSending(submit, true);
       form.setAttribute("aria-busy", "true");
       try {
         const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
@@ -1201,7 +1214,7 @@
         error.textContent = "Chưa gửi được thông tin. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
         error.hidden = false;
       } finally {
-        submit.disabled = false;
+        setSending(submit, false);
         form.removeAttribute("aria-busy");
       }
     });
