@@ -606,7 +606,6 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .strip { font-size: 0.8125rem; }
   .strip-inner { min-height: 0; padding-block: 5px; }
   .bg-canvas { opacity: 0.48; }
-  .hero-actions .hero-register { display: none; }
   .f-tick, .hero-plate .f-tick { font-size: 21px; }
   .f-label, .hero-plate .f-label { font-size: 19px; }
   .f-note, .hero-plate .f-note { font-size: 20px; stroke-width: 6px; }
@@ -734,8 +733,8 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   /* a round chat button floats above the bar's right end */
   .js .chat-launcher { position: fixed; z-index: 55; right: var(--gut); bottom: calc(84px + env(safe-area-inset-bottom)); display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border-radius: 50%; }
   .js .chat-launcher .i { width: 26px; height: 26px; }
-  /* it calls attention three times on arrival, then rests (rings from the button's center) */
-  .chat-launcher::before, .chat-launcher::after { content: ""; position: absolute; inset: 0; border: 2px solid var(--cobalt); border-radius: 50%; opacity: 0; pointer-events: none; animation: ripple 1.6s cubic-bezier(0.33, 1, 0.68, 1) 0.6s 3; }
+  /* rings keep spreading from the button's center while the page is open */
+  .chat-launcher::before, .chat-launcher::after { content: ""; position: absolute; inset: 0; border: 2px solid var(--cobalt); border-radius: 50%; opacity: 0; pointer-events: none; animation: ripple 1.6s cubic-bezier(0.33, 1, 0.68, 1) 0.6s infinite; }
   .chat-launcher::after { animation-delay: 1s; }
   .chat-launcher-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
