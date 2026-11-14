@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Upload dist/ to the FTP account home (httpdocs/cnv/phan-tich-du-lieu-voi-r)
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@3a9c65ae0fc12ac924ccef8afc26941cc43aad0b # v4.4.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
