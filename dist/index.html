@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600;1,8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20261114-chat" />
+    <link rel="stylesheet" href="./styles.css?v=20261114-form" />
     <script>document.documentElement.classList.add("js");</script>
     <script type="application/ld+json">
 {
@@ -302,8 +302,7 @@
               <div class="is-wide is-deadline"><dt>Hạn chót</dt><dd>Đăng ký và hoàn tất học phí trước ngày 28/12/2026</dd></div>
             </dl>
             <div class="hero-actions">
-              <a class="button button-primary" href="#tu-van">Đăng ký tư vấn <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
-              <a class="button button-ghost hero-register" href="#registration">Đăng ký</a>
+              <a class="button button-primary" href="#registration">Đăng ký <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></a>
               <a class="button button-ghost" href="#programs">Giới thiệu chung</a>
             </div>
           </div>
@@ -319,6 +318,7 @@
       <section class="registration section-plate" id="registration" aria-labelledby="registration-title">
         <span id="consultation" class="hash-anchor" aria-hidden="true"></span>
         <span id="lp-form" class="hash-anchor" aria-hidden="true"></span>
+        <span id="tu-van" class="hash-anchor" aria-hidden="true"></span>
         <div class="shell">
           <div class="section-head">
             <h2 id="registration-title">Đăng ký khóa học</h2>
@@ -404,40 +404,6 @@
           </div>
         </div>
         <noscript><p class="form-noscript shell">JavaScript đang tắt. Vui lòng gọi (028) 2242 6789 hoặc 0949 761 636 để đăng ký.</p></noscript>
-      </section>
-
-      <section class="lead" id="tu-van" aria-labelledby="lead-title">
-        <div class="shell registration-grid">
-          <div class="section-head">
-            <h2 id="lead-title">Đăng ký tư vấn</h2>
-            <p id="lead-note">Để lại họ tên và số điện thoại. Viện Phương Nam sẽ liên hệ trong giờ làm việc để tư vấn chọn gói học phù hợp. <a href="#outline">Xem đề cương 3 khóa</a></p>
-          </div>
-
-          <form id="lead-form" class="reg-form" data-endpoint="https://script.google.com/macros/s/AKfycbxRin0oSmu7fJkn72dHSI9_Dee8zJvNcraqm9M-SekGBjNpNKxHgPtz-JqHpXvlEmF7-w/exec" novalidate aria-describedby="lead-note">
-            <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
-            <div class="form-grid">
-              <div class="field"><label for="lead-name">Họ và tên <span class="req" aria-hidden="true">*</span></label><input id="lead-name" name="ho_ten" type="text" autocomplete="name" maxlength="150" required /></div>
-              <div class="field"><label for="lead-phone">Số điện thoại <span class="req" aria-hidden="true">*</span></label><input id="lead-phone" name="so_dien_thoai" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required /></div>
-              <fieldset class="field field-wide choice-group">
-                <legend>Hướng quan tâm <span class="req" aria-hidden="true">*</span></legend>
-                <div class="radio-grid"><label><input type="radio" name="huong_quan_tam" value="Cả 3 khóa" required /> Cả 3 khóa</label><label><input type="radio" name="huong_quan_tam" value="Khóa 2: Phân tích chi phí - hiệu quả trong y tế" /> Khóa 2: Phân tích chi phí - hiệu quả trong y tế</label><label><input type="radio" name="huong_quan_tam" value="Khóa 1 + Khóa 3" /> Khóa 1 + Khóa 3</label><label><input type="radio" name="huong_quan_tam" value="Chưa rõ, cần tư vấn" /> Chưa rõ, cần tư vấn</label></div>
-              </fieldset>
-              <fieldset class="field field-wide choice-group">
-                <legend>Hình thức học <span class="req" aria-hidden="true">*</span></legend>
-                <div class="radio-grid"><label><input type="radio" name="hinh_thuc_hoc" value="Trực tiếp tại Viện" required /> Trực tiếp tại Viện</label><label><input type="radio" name="hinh_thuc_hoc" value="Trực tuyến qua Zoom" /> Trực tuyến qua Zoom</label><label><input type="radio" name="hinh_thuc_hoc" value="Chưa quyết định" /> Chưa quyết định</label></div>
-              </fieldset>
-              <label class="consent-row field-wide" for="lead-agreement"><input id="lead-agreement" name="agreement" type="checkbox" required /><span>Tôi đã đọc và đồng ý với <a href="https://vienphuongnam.com.vn/chinh-sach-bao-mat.php" target="_blank" rel="noreferrer">Chính sách bảo mật thông tin</a> của Viện Phương Nam. <span class="req" aria-hidden="true">*</span></span></label>
-            </div>
-
-            <p id="lead-error" class="feedback feedback-error" role="alert" aria-live="assertive" hidden></p>
-            <div id="lead-status" class="feedback feedback-status" role="status" aria-live="polite" tabindex="-1" hidden></div>
-
-            <div class="form-actions">
-              <button class="button button-primary" type="submit">Đăng ký tư vấn <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></button>
-              <a class="form-call" href="tel:0912114511">Gọi Hotline</a>
-            </div>
-          </form>
-        </div>
       </section>
 
       <section class="programs" id="programs" aria-labelledby="programs-title">
@@ -1313,6 +1279,6 @@
       <a class="button button-quiet" href="tel:0912114511"><svg class="i" aria-hidden="true"><use href="#i-phone" /></svg> Gọi Hotline</a>
     </div>
 
-    <script src="./app.js?v=20261114-chat" defer></script>
+    <script src="./app.js?v=20261114-form" defer></script>
   </body>
 </html>
