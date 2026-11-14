@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600;1,8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20261114-form" />
+    <link rel="stylesheet" href="./styles.css?v=20261114-contact" />
     <script>document.documentElement.classList.add("js");</script>
     <script type="application/ld+json">
 {
@@ -237,6 +237,8 @@
       <symbol id="i-check" viewBox="0 0 20 20"><path d="m4.5 10.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></symbol>
       <symbol id="i-copy" viewBox="0 0 20 20"><rect x="7" y="7" width="9" height="9" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M13 7V5.2A1.2 1.2 0 0 0 11.8 4H5.2A1.2 1.2 0 0 0 4 5.2v6.6A1.2 1.2 0 0 0 5.2 13H7" fill="none" stroke="currentColor" stroke-width="1.6" /></symbol>
       <symbol id="i-chat" viewBox="0 0 20 20"><path d="M3.5 4.5h13v9h-7l-3.5 3v-3H3.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="M7 8.2h6M7 10.8h3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-messenger" viewBox="0 0 24 24"><path d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.44 3.14 7.17.16.14.26.35.27.57l.05 1.78a.8.8 0 0 0 1.12.71l1.98-.87a.8.8 0 0 1 .53-.04c.91.25 1.87.38 2.91.38 5.64 0 10-4.13 10-9.7S17.64 2 12 2Z" fill="#0866ff" /><path d="m6 14.5 2.94-4.66a1.5 1.5 0 0 1 2.17-.4l2.34 1.75a.6.6 0 0 0 .72 0l3.16-2.4c.42-.32.97.18.69.63l-2.94 4.66a1.5 1.5 0 0 1-2.17.4l-2.34-1.75a.6.6 0 0 0-.72 0l-3.16 2.4c-.42.32-.97-.18-.69-.63Z" fill="#fff" /></symbol>
+      <symbol id="i-zalo" viewBox="0 0 24 24"><rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="#0068ff" /><text x="12" y="15.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8.4" font-weight="700" fill="#fff">Zalo</text></symbol>
       <symbol id="i-close" viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" /></symbol>
     </svg>
 
@@ -1236,7 +1238,15 @@
       <div class="shell footer-bottom"><span>© Viện phát triển nguồn lực xã hội Phương Nam</span><span>Chuỗi khóa học Phân tích định lượng với R – Từ cơ bản đến chuyên sâu · 01/2027</span></div>
     </footer>
 
-    <button type="button" class="button button-primary chat-launcher" data-chat-open aria-controls="chat-panel" aria-expanded="false"><svg class="i" aria-hidden="true"><use href="#i-chat" /></svg> <span class="chat-launcher-text">Hỏi đáp về khóa học</span></button>
+    <button type="button" class="button button-primary chat-launcher" data-chat-open aria-controls="chat-panel" aria-expanded="false"><img class="chat-bot" src="./chatbot.png" alt="" width="28" height="28" /> <span class="chat-launcher-text">Hỏi đáp về khóa học</span></button>
+
+    <div class="contact-fab" data-contact>
+      <ul class="contact-menu" id="contact-menu" hidden>
+        <li><a href="https://www.facebook.com/messages/t/239831932547339" target="_blank" rel="noreferrer" data-contact-link="Messenger"><svg class="contact-logo" aria-hidden="true"><use href="#i-messenger" /></svg> Nhắn tin Messenger</a></li>
+        <li><a href="https://zalo.me/0912114511" target="_blank" rel="noreferrer" data-contact-link="Zalo"><svg class="contact-logo" aria-hidden="true"><use href="#i-zalo" /></svg> Nhắn tin Zalo</a></li>
+      </ul>
+      <button type="button" class="contact-toggle" aria-expanded="false" aria-controls="contact-menu" aria-label="Nhắn tin cho Viện qua Messenger hoặc Zalo"><span class="contact-marks" aria-hidden="true"><svg class="contact-logo"><use href="#i-messenger" /></svg><svg class="contact-logo"><use href="#i-zalo" /></svg></span><svg class="i contact-shut" aria-hidden="true"><use href="#i-close" /></svg></button>
+    </div>
 
     <div class="chat" id="chat-panel" role="dialog" aria-labelledby="chat-title" data-endpoint="https://script.google.com/macros/s/AKfycbxRin0oSmu7fJkn72dHSI9_Dee8zJvNcraqm9M-SekGBjNpNKxHgPtz-JqHpXvlEmF7-w/exec" hidden>
       <header class="chat-head">
@@ -1279,6 +1289,6 @@
       <a class="button button-quiet" href="tel:0912114511"><svg class="i" aria-hidden="true"><use href="#i-phone" /></svg> Gọi Hotline</a>
     </div>
 
-    <script src="./app.js?v=20261114-form" defer></script>
+    <script src="./app.js?v=20261114-contact" defer></script>
   </body>
 </html>

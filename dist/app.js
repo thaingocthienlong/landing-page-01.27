@@ -59,6 +59,33 @@
     });
   };
 
+  /* ---------- Messenger and Zalo: a round button opens the two links ---------- */
+
+  const setupContact = () => {
+    const root = document.querySelector("[data-contact]");
+    const toggle = root?.querySelector(".contact-toggle");
+    const menu = root?.querySelector(".contact-menu");
+    if (!toggle || !menu) return;
+    const setOpen = (open) => {
+      menu.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+    toggle.addEventListener("click", () => setOpen(menu.hidden));
+    root.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || menu.hidden) return;
+      setOpen(false);
+      toggle.focus();
+    });
+    document.addEventListener("click", (event) => { if (!menu.hidden && !root.contains(event.target)) setOpen(false); });
+    menu.querySelectorAll("[data-contact-link]").forEach((link) => {
+      link.addEventListener("click", () => {
+        const method = link.dataset.contactLink;
+        track("contact_click", { method }, { name: "Contact", params: { content_name: method } });
+        setOpen(false);
+      });
+    });
+  };
+
   /* ---------- figures: seeded synthetic data, drawn as SVG ---------- */
 
   const NS = "http://www.w3.org/2000/svg";
@@ -1711,5 +1738,6 @@
   setupForm();
   setupCopy();
   setupChat();
+  setupContact();
   setupTracking();
 })();
