@@ -1548,6 +1548,32 @@
       return item;
     };
 
+    // An answer is written out in word groups (at most ~3s in all) so the eye follows where it grows; returns when it ends.
+    const stream = (item) => {
+      const walker = document.createTreeWalker(item, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) if (!walker.currentNode.parentElement.closest(".sr-only")) nodes.push(walker.currentNode);
+      const words = nodes.reduce((sum, node) => sum + (node.data.match(/\S+/g) || []).length, 0);
+      const size = Math.max(1, Math.ceil(words / 14));
+      const chunk = new RegExp(`\\s*\\S+(?:\\s+\\S+){0,${size - 1}}\\s*`, "g");
+      let count = 0;
+      const spans = nodes.map((node) => {
+        const parts = node.data.match(chunk) || [];
+        const group = parts.map((part) => {
+          const span = document.createElement("span");
+          span.className = "chat-token";
+          span.textContent = part;
+          span.dataset.at = count++;
+          return span;
+        });
+        if (group.length) node.replaceWith(...group);
+        return group;
+      }).flat();
+      const step = Math.min(0.18, 3 / Math.max(count, 1));
+      spans.forEach((span) => { span.style.animationDelay = `${(span.dataset.at * step).toFixed(2)}s`; delete span.dataset.at; });
+      return count * step + 0.26;
+    };
+
     const toBottom = () => { log.scrollTop = log.scrollHeight; };
     // a long answer opens at its first line rather than its last
     const toStart = (item) => { log.scrollTop = Math.max(0, item.offsetTop - 12); };
@@ -1609,6 +1635,7 @@
         state.messages.push({ role: "assistant", content: reply });
         save();
         const item = addMessage("bot", reply);
+        const end = stream(item);
         // the closest FAQ questions, when the assistant could not tell which one was meant
         if (options.length) {
           const list = document.createElement("ul");
@@ -1622,6 +1649,7 @@
             li.append(button);
             list.append(li);
           });
+          list.style.animation = `swap 0.28s var(--ease) ${end.toFixed(2)}s both`;
           item.append(list);
         }
         toStart(item);
@@ -1679,7 +1707,8 @@
       fit();
     };
 
-    const setOpen = (open, trigger) => {
+    const CLOSED = "vpn-chat-closed";
+    const setOpen = (open, trigger, quiet) => {
       if (open === !panel.hidden) return;
       panel.hidden = !open;
       openers.forEach((button) => button.setAttribute("aria-expanded", String(open)));
@@ -1687,7 +1716,10 @@
       document.documentElement.classList.toggle("chat-open", open);
       syncInert();
       if (!open) {
+        try { window.sessionStorage.setItem(CLOSED, "1"); } catch { /* storage blocked: it opens again on the next page view */ }
+        const inside = panel.contains(document.activeElement) || document.activeElement === document.body;
         if (opener && opener.isConnected && opener.getClientRects().length) opener.focus();
+        else if (inside && launcher) launcher.focus();
         opener = null;
         return;
       }
@@ -1700,6 +1732,8 @@
       // a fresh chat opens on the greeting and suggestions, a running one on its latest turn
       if (state.messages.length) toBottom();
       else log.scrollTop = 0;
+      // opened by the page itself: the visitor keeps their place and focus
+      if (quiet) return;
       // on phones, focusing the field would raise the keyboard over the suggestions
       (compact.matches ? title : input).focus({ preventScroll: true });
       track("chat_open");
@@ -1735,6 +1769,11 @@
     compact.addEventListener("change", syncInert);
     window.visualViewport?.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("scroll", fit);
+
+    // Wide screens open on the chat; phones get the floating button, since the panel there covers the page.
+    let closedBefore = false;
+    try { closedBefore = window.sessionStorage.getItem(CLOSED) === "1"; } catch { closedBefore = false; }
+    if (!compact.matches && !closedBefore) setOpen(true, null, true);
   };
 
   setupBackdrop();

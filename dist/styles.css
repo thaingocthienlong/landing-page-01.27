@@ -686,10 +686,18 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-msg-error { padding: 12px 14px; border: 1px solid var(--hair); background: var(--plate); color: var(--ink-2); }
 .chat-msg-error .link-button { margin-left: -4px; }
 .chat-typing { color: var(--ink-3); }
+/* Waiting: the dots hop in turn while the request is open; they leave with the answer or the error. */
 .chat-typing span { display: inline-block; width: 5px; height: 5px; margin-left: 4px; border-radius: 50%; background: currentColor; vertical-align: middle; animation: chat-dot 1.2s ease-in-out infinite; }
-.chat-typing span:nth-child(2) { animation-delay: 0.2s; }
-.chat-typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes chat-dot { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes chat-dot { 0%, 75%, 100% { opacity: 0.4; transform: none; } 37.5% { opacity: 1; transform: translateY(-4px); } }
+/* The panel and each question ease in; an answer is written out in word groups so the eye follows it. */
+.chat:not([hidden]), .chat-msg-user { animation: swap 0.28s var(--ease) both; }
+@media (prefers-reduced-motion: no-preference) {
+  .chat-token { opacity: 0; animation: token-in 0.26s linear forwards; }
+}
+@keyframes token-in { from { opacity: 0.22; } to { opacity: 1; } }
+@keyframes ripple { from { opacity: 0.6; transform: scale(1); } to { opacity: 0; transform: scale(1.6); } }
 .chat-suggest { flex: none; }
 .chat-suggest h3 { padding-bottom: 8px; border-bottom: 2px solid var(--ink); font: 700 0.8125rem/1.3 var(--sans); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); }
 .chat-suggest button, .chat-options button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 48px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--hair); background: none; color: var(--ink); font: 500 1rem/1.4 var(--sans); text-align: left; cursor: pointer; }
@@ -721,10 +729,15 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .chat-head { padding-top: calc(12px + env(safe-area-inset-top)); }
   .chat-people { padding-bottom: env(safe-area-inset-bottom); }
   .chat-open body { overflow: hidden; }
-  .js .mobile-bar { grid-template-columns: minmax(0, 1fr) auto auto; }
   .js .mobile-bar .button { gap: 6px; padding-inline: 10px; white-space: nowrap; }
   .mobile-bar [data-chat-open] { display: none; }
-  .js .mobile-bar [data-chat-open] { display: inline-flex; }
+  /* a round chat button floats above the bar's right end */
+  .js .chat-launcher { position: fixed; z-index: 55; right: var(--gut); bottom: calc(84px + env(safe-area-inset-bottom)); display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border-radius: 50%; }
+  .js .chat-launcher .i { width: 26px; height: 26px; }
+  /* it calls attention three times on arrival, then rests (rings from the button's center) */
+  .chat-launcher::before, .chat-launcher::after { content: ""; position: absolute; inset: 0; border: 2px solid var(--cobalt); border-radius: 50%; opacity: 0; pointer-events: none; animation: ripple 1.6s cubic-bezier(0.33, 1, 0.68, 1) 0.6s 3; }
+  .chat-launcher::after { animation-delay: 1s; }
+  .chat-launcher-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 
 /* "Gọi Hotline" needs the icon room below 400px */
