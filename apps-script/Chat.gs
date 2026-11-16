@@ -2,26 +2,35 @@
  * Learner-care chat for the landing page. Each message is first looked up in the staff-kept FAQ
  * tab (Faq.gs). The AI then talks the learner through it, a few short messages a turn, from the
  * prompt in Knowledge.gs (with the facts of the 'Thông tin thêm' tab) and the closest FAQ rows:
- * a chain of models, Google Gemini by default, then optional OpenAI-compatible hosts such as
- * Cloudflare Workers AI or the office PC. An AI answer with a figure the Institute's text does
- * not support is dropped. When no model gives a usable answer, a message that asks something
+ * a chain of models: Claude (Anthropic) when its key is set, then Google Gemini, then optional
+ * OpenAI-compatible hosts such as Cloudflare Workers AI or the office PC. An AI answer with a
+ * figure the Institute's text does not support is dropped. When no model gives a usable answer, a message that asks something
  * and clearly matches a row gets that row's approved wording, as every clear match does while
  * no AI is set up. Every exchange is logged to the 'Hỏi đáp' sheet. doPost in Code.gs routes
  * requests with action 'chat' here.
  *
  * Setup (full steps in README.md): add the .gs files to the Apps Script project that holds
- * Code.gs, run setupFaq once, set the CHAT_API_KEY script property to a Google AI Studio key,
- * run chatSelfTest, then deploy a new version of the existing web app so the /exec URL in
- * dist/index.html keeps working.
+ * Code.gs, run setupFaq once, set the CLAUDE_API_KEY script property to an Anthropic API key
+ * and/or CHAT_API_KEY to a Google AI Studio key, run chatSelfTest, then deploy a new version of
+ * the existing web app so the /exec URL in dist/index.html keeps working.
  */
 
 var CHAT_SHEET_NAME = 'Hỏi đáp';
 var CHAT_HEADERS = ['Thời gian', 'Phiên', 'Câu hỏi', 'Trả lời', 'Trạng thái', 'Trang'];
 // Model providers, tried in this order. Each reads <prefix>PROVIDER, API_KEY, MODELS, BASE_URL,
 // EXTRA_BODY and HEADERS from the script properties; a provider without a key is skipped.
-var CHAT_GROUPS = ['CHAT_', 'CHAT2_', 'CHAT3_'];
-// Default models of the first provider; each Gemini model has its own free daily quota.
+var CHAT_GROUPS = ['CLAUDE_', 'CHAT_', 'CHAT2_', 'CHAT3_'];
+// Provider of each prefix when its PROVIDER property is empty; any other prefix is 'openai'.
+var CHAT_GROUP_PROVIDERS = { CLAUDE_: 'anthropic', CHAT_: 'gemini' };
+// Default models of CHAT_ when it is Gemini; each Gemini model has its own free daily quota.
 var CHAT_GEMINI_MODELS = 'gemini-3.5-flash-lite,gemini-3.1-flash-lite';
+// Default model of an Anthropic provider, and Anthropic's Messages API.
+var CHAT_CLAUDE_MODELS = 'claude-opus-5-5';
+var CHAT_CLAUDE_URL = 'https://api.anthropic.com/v1';
+var CHAT_CLAUDE_VERSION = '2026-10-21';
+// Current Claude models always think, and the thinking counts toward max_tokens; the replies
+// themselves stay short (the prompt sets their length).
+var CHAT_CLAUDE_MAX_TOKENS = 16000;
 var CHAT_DEFAULT_MAX_PER_HOUR = 100;
 // A consultation is many short turns (a tapped quick reply is one), so a visitor gets room.
 var CHAT_MAX_PER_SESSION = 60;
@@ -58,7 +67,7 @@ function chatSelfTest() {
   Logger.log('FAQ: ' + (faq.answer ? 'faq:' + faq.answer.id : 'no confident match') + ' (' + faqRowsCount_() + ' rows)');
   var config = chatConfig_();
   if (!config.groups.length) {
-    Logger.log('No AI provider configured: the chat answers from the FAQ only. Check CHAT_API_KEY, and CHAT_MODELS (required when CHAT_PROVIDER is openai), CHAT_BASE_URL, CHAT_EXTRA_BODY and CHAT_HEADERS if set (see README.md).');
+    Logger.log('No AI provider configured: the chat answers from the FAQ only. Check CLAUDE_API_KEY or CHAT_API_KEY, and the MODELS (required when PROVIDER is openai), BASE_URL, EXTRA_BODY and HEADERS properties if set (see README.md).');
     return;
   }
   config.groups.forEach(function (group) {
@@ -350,9 +359,10 @@ function chatConfig_() {
   var props = PropertiesService.getScriptProperties();
   var get = function (name) { return String(props.getProperty(name) || '').trim(); };
   var groups = [];
-  CHAT_GROUPS.forEach(function (prefix, i) {
-    var provider = (get(prefix + 'PROVIDER') || (i === 0 ? 'gemini' : 'openai')).toLowerCase();
-    var models = (get(prefix + 'MODELS') || (i === 0 && provider === 'gemini' ? CHAT_GEMINI_MODELS : ''))
+  CHAT_GROUPS.forEach(function (prefix) {
+    var provider = (get(prefix + 'PROVIDER') || CHAT_GROUP_PROVIDERS[prefix] || 'openai').toLowerCase();
+    var fallback = provider === 'anthropic' ? CHAT_CLAUDE_MODELS : prefix === 'CHAT_' && provider === 'gemini' ? CHAT_GEMINI_MODELS : '';
+    var models = (get(prefix + 'MODELS') || fallback)
       .split(',')
       .map(function (model) { return model.trim(); })
       .filter(Boolean);
@@ -366,7 +376,7 @@ function chatConfig_() {
       headers: chatJson_(get(prefix + 'HEADERS'))
     };
     if (!group.apiKey || !models.length || group.extra === undefined || group.headers === undefined) return;
-    if (provider === 'openai' ? !group.baseUrl : provider !== 'gemini') return;
+    if (provider === 'openai' ? !group.baseUrl : provider !== 'gemini' && provider !== 'anthropic') return;
     groups.push(group);
   });
   var cap = get('CHAT_MAX_PER_HOUR') === '' ? NaN : Number(get('CHAT_MAX_PER_HOUR'));
@@ -466,9 +476,9 @@ function askModel_(config, messages, references) {
     }
     // Later attempts keep about 5 s each, so a hung first model cannot use up the whole budget.
     var timeout = Math.max(5, Math.min(CHAT_CALL_MAX, left - 5 * (queue.length - i - 1)));
-    last = entry.group.provider === 'gemini'
-      ? askGemini_(entry.group, entry.model, sent, timeout, system)
-      : askOpenAI_(entry.group, entry.model, sent, timeout, system);
+    last = entry.group.provider === 'gemini' ? askGemini_(entry.group, entry.model, sent, timeout, system)
+      : entry.group.provider === 'anthropic' ? askAnthropic_(entry.group, entry.model, sent, timeout, system)
+        : askOpenAI_(entry.group, entry.model, sent, timeout, system);
     tried.push(last.status + ' ' + entry.model);
     if (last.reply) return { status: tried.join('; '), reply: last.reply };
     if (last.transient) permanent = false;
@@ -548,6 +558,41 @@ function geminiThinking_(model) {
   if (!match) return null;
   if (Number(match[1]) < 3) return { thinkingBudget: 0 };
   return { thinkingLevel: /flash-lite/.test(model) ? 'MINIMAL' : 'LOW' };
+}
+
+// Anthropic's Messages API. Current Claude models always think: low effort keeps a chat turn quick
+// (raise it with <prefix>EXTRA_BODY, {"output_config":{"effort":"medium"}}). The long prompt is
+// cached, so the later turns of a conversation read it at a fraction of the price. On a safety
+// decline, "fallbacks" lets the API re-run the turn on a model Anthropic picks for that case
+// (Claude Opus, Sonnet and Fable models; Claude Haiku has no such fallback and refuses it).
+function askAnthropic_(group, model, messages, timeout, references) {
+  var body = mergeExtra_({
+    model: model,
+    max_tokens: CHAT_CLAUDE_MAX_TOKENS,
+    // The date note and FAQ rows come after the cached prompt, so they never invalidate it.
+    system: [
+      { type: 'text', text: chatSystemPrompt_(), cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: chatDateNote_() + references }
+    ],
+    messages: messages.map(function (turn) { return { role: turn.role, content: turn.content }; }),
+    output_config: { effort: 'low' },
+    fallbacks: 'default'
+  }, group.extra);
+  var headers = mergeExtra_({ 'anthropic-version': CHAT_CLAUDE_VERSION, 'anthropic-beta': 'server-side-fallback-2026-07-01' }, group.headers);
+  headers['x-api-key'] = group.apiKey;
+  var res = postJson_((group.baseUrl || CHAT_CLAUDE_URL) + '/messages', headers, body, timeout);
+  if (res.code !== 200) return failure_(res);
+  if (!res.json) return { status: 'error-parse', transient: true };
+  var stop = res.json.stop_reason;
+  if (stop === 'refusal') return refusal_('blocked-refusal');
+  // Thinking blocks come back empty and are skipped; only the text blocks are the reply.
+  var reply = (res.json.content || [])
+    .filter(function (block) { return block.type === 'text' && block.text; })
+    .map(function (block) { return block.text; })
+    .join('')
+    .trim();
+  if (!reply) return { status: stop === 'max_tokens' ? 'error-thinking-length' : 'error-empty', transient: true };
+  return { status: stop === 'max_tokens' ? 'ok-truncated' : 'ok', reply: reply };
 }
 
 // Any host with an OpenAI-style /chat/completions endpoint (Cloudflare Workers AI, the office PC

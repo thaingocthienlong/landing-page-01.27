@@ -23,7 +23,7 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 The chat works as an adviser, not a lookup desk: it answers in a few short messages, asks one question back when the answer would change its advice, and recommends one package.
 
 1. **FAQ tab.** Every message is looked up in the tab (see "FAQ matching"). Staff maintain it; their guide is `docs/huong-dan-faq.md` (Vietnamese).
-2. **AI.** While a provider is configured, every message goes to the providers in order: `CHAT_` (Gemini free tier by default), then `CHAT2_` (Cloudflare Workers AI), then `CHAT3_` (the office PC, optional). The model reads the conversation (the last 30 exchanges, 60 messages) and gets the matched row first, then the closest rows, three in all, as its source; it is told not to copy them. Its turn is one to three short messages with a blank line between them, which the page shows one after another, and may end with a line of up to three quick replies, `[[Chưa từng | Đã dùng cơ bản]]`, which the page shows as buttons. No row is answered word for word ahead of the model, payment and contact rows included: the table reads one message with no memory of the conversation, so a short answer to the assistant's own question ("rồi", "em làm về điều trị") would get whichever row shares its words.
+2. **AI.** While a provider is configured, every message goes to the providers in order: `CLAUDE_` (Claude, through the Institute's Anthropic API credit), then `CHAT_` (Gemini free tier by default), then `CHAT2_` (Cloudflare Workers AI), then `CHAT3_` (the office PC, optional). A provider without a key is skipped, so with only Gemini set up the chain starts there. The model reads the conversation (the last 30 exchanges, 60 messages) and gets the matched row first, then the closest rows, three in all, as its source; it is told not to copy them. Its turn is one to three short messages with a blank line between them, which the page shows one after another, and may end with a line of up to three quick replies, `[[Chưa từng | Đã dùng cơ bản]]`, which the page shows as buttons. No row is answered word for word ahead of the model, payment and contact rows included: the table reads one message with no memory of the conversation, so a short answer to the assistant's own question ("rồi", "em làm về điều trị") would get whichever row shares its words.
 3. **Figure check.** `chatUnknownFigure_` in `Chat.gs` drops an AI answer (status `guard-number` and the figure) when it states:
    - an amount, a date, a clock time, or a phone or account number that is in neither the prompt (its example conversation does not count), the date note, the rows sent along nor the conversation;
    - a percentage, in a sentence about money, that is in none of those;
@@ -39,10 +39,11 @@ With no AI configured at all (or `CHAT_MAX_PER_HOUR` = 0), every clear match is 
 
 1. Open the Sheet > Extensions > Apps Script. Create script files named `Chat`, `Faq`, `FaqSeed`, `Knowledge` and `Sync` and paste the matching `.gs` files. Replace `Code` with `Code.gs`. Reload the Sheet: a **Trợ lý AI** menu appears (see "Keeping the data current").
 2. Choose `setupFaq` in the function list and Run. It creates the `FAQ` tab with the starter rows (it never overwrites a tab that has rows).
-3. Get a free Gemini key: sign in to aistudio.google.com with the institute's Google account and accept the terms. AI Studio creates a Cloud project and an API key for new users; otherwise use API keys > Create API key. No credit card is needed. Make sure the key sits in a project **with no billing account**: a key inherits its project's billing, and a billed project is charged for every question. If the account already has Google Cloud projects with billing (for Maps, for example), choose to create a new project in the dialog, then check that AI Studio shows the project on the Free tier. On the API keys page, choose Add restrictions > Restrict to Gemini API only. (On a Google Workspace account, an admin can switch AI Studio off; ask them if it is blocked.)
-4. Project Settings (gear icon) > Script properties: set `CHAT_API_KEY` to that key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there.
-5. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider, which should start with `ok` and quote 8.800.000 đồng. `error-400` from Gemini usually means the key was pasted wrong. Then run `chatTalkTest` to read a four-turn consultation with the configured models in the log: a scripted learner, the same checks as the page.
-6. Deploy > Manage deployments > pencil icon on the existing web app > Version: **New version** > Deploy. This keeps the `/exec` URL, so `dist/index.html` needs no change. (Deploy > New deployment would create a different URL.)
+3. Claude, the first provider when the Institute has Anthropic API credit: in the Claude Console, open API keys (https://platform.claude.com/settings/keys) in the workspace that holds the credit and create a key. It is shown once; copy it straight into step 5.
+4. Gemini, the free fallback: get a free Gemini key: sign in to aistudio.google.com with the institute's Google account and accept the terms. AI Studio creates a Cloud project and an API key for new users; otherwise use API keys > Create API key. No credit card is needed. Make sure the key sits in a project **with no billing account**: a key inherits its project's billing, and a billed project is charged for every question. If the account already has Google Cloud projects with billing (for Maps, for example), choose to create a new project in the dialog, then check that AI Studio shows the project on the Free tier. On the API keys page, choose Add restrictions > Restrict to Gemini API only. (On a Google Workspace account, an admin can switch AI Studio off; ask them if it is blocked.)
+5. Project Settings (gear icon) > Script properties: set `CLAUDE_API_KEY` to the Anthropic key and `CHAT_API_KEY` to the Gemini key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there (nothing reads it any more).
+6. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider (`CLAUDE`, `CHAT`, ...), which should start with `ok` and quote 8.800.000 đồng. `error-401` from Claude or `error-400` from Gemini usually means the key was pasted wrong. Then run `chatTalkTest` to read a four-turn consultation with the configured models in the log: a scripted learner, the same checks as the page.
+7. Deploy > Manage deployments > pencil icon on the existing web app > Version: **New version** > Deploy. This keeps the `/exec` URL, so `dist/index.html` needs no change. (Deploy > New deployment would create a different URL.)
 
 ### Upgrading an existing deployment
 
@@ -56,13 +57,13 @@ When new code arrives (not needed for data changes):
 
 Each provider reads a group of properties with its own prefix. A provider without a key, without models, or with a malformed JSON value is skipped.
 
-| Property (prefix `CHAT_`, `CHAT2_` or `CHAT3_`) | Meaning |
+| Property (prefix `CLAUDE_`, `CHAT_`, `CHAT2_` or `CHAT3_`) | Meaning |
 |---|---|
-| `…PROVIDER` | `gemini` or `openai` (any OpenAI-compatible host). Default: `gemini` for `CHAT_`, `openai` for the others. |
+| `…PROVIDER` | `anthropic`, `gemini` or `openai` (any OpenAI-compatible host). Default: `anthropic` for `CLAUDE_`, `gemini` for `CHAT_`, `openai` for the others. |
 | `…API_KEY` | That provider's key. Required. |
-| `…MODELS` | Models tried in order, comma-separated. Required except for Gemini under `CHAT_`, which defaults to `gemini-3.5-flash-lite,gemini-3.1-flash-lite`. |
-| `…BASE_URL` | OpenAI-compatible hosts only, up to `/v1`. |
-| `…EXTRA_BODY` | JSON merged into the top level of every request (host switches such as turning reasoning off). For Gemini, a `generationConfig` here replaces the default one entirely. |
+| `…MODELS` | Models tried in order, comma-separated. Required except for Anthropic, which defaults to `claude-opus-5-5` (another Opus, Sonnet or Fable model works too; Claude Haiku does not take the server-side fallback the chat asks for), and Gemini under `CHAT_`, which defaults to `gemini-3.5-flash-lite,gemini-3.1-flash-lite`. |
+| `…BASE_URL` | Required for OpenAI-compatible hosts, up to `/v1`. Optional for Anthropic (default `https://api.anthropic.com/v1`). |
+| `…EXTRA_BODY` | JSON merged into the top level of every request (host switches such as turning reasoning off). For Gemini, a `generationConfig` here replaces the default one entirely. For Claude, `{"output_config":{"effort":"medium"}}` lets it think longer than the default `low`, at some cost in speed. |
 | `…HEADERS` | JSON of extra HTTP headers (for example a tunnel's access token). |
 | `CHAT_MAX_PER_HOUR` | AI calls allowed per clock hour across all visitors, default `100`. `0` pauses the AI; the FAQ keeps answering. |
 | `ASSISTANT_DATA_URL` | Optional. Where the update menu reads the data file; default `https://thaingocthienlong.github.io/landing-page-01.27/assistant-data.json`. |
@@ -71,23 +72,25 @@ Recommended setup:
 
 | Group | Provider | Values |
 |---|---|---|
+| `CLAUDE_` | Claude (Anthropic API credit) | `CLAUDE_API_KEY` = Claude Console key. Nothing else needed: `claude-opus-5-5` at low effort. |
 | `CHAT_` | Gemini free tier | `CHAT_API_KEY` = AI Studio key. Optional `CHAT_MODELS` = `gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemma-4-26b-a4b-it`. |
 | `CHAT2_` | Cloudflare Workers AI | `CHAT2_BASE_URL` = `https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1`, `CHAT2_MODELS` = `@cf/google/gemma-4-26b-a4b-it`, `CHAT2_API_KEY` = an API token with Workers AI Read and Edit, `CHAT2_EXTRA_BODY` = `{"chat_template_kwargs":{"enable_thinking":false},"options":{"rejectIfBusy":true}}` |
 | `CHAT3_` | Office PC (optional) | see "The office PC" |
 
 Cloudflare: create a free account (no card), copy the Account ID from the dashboard, and create an API token under My Profile > API Tokens with the Workers AI template. Run `chatSelfTest` after adding it: the `CHAT2` line must start with `ok` and show a real answer. An empty answer would mean the `enable_thinking` switch was ignored.
 
-## What the free tiers give and cost
+## What the AI tiers give and cost
 
-- **Price: nothing,** as long as the Gemini key's project has no billing account and Cloudflare stays on the Workers Free plan.
+- **Claude (`CLAUDE_`): paid from the Institute's Anthropic API credit.** Claude Opus 5.5 costs US$4 per million input tokens and US$20 per million output tokens, and US$0.20 per million for the cached prompt. The prompt (instructions and course facts, roughly 10,000 to 20,000 tokens) is cached for 5 minutes, so the first message of a conversation pays to write it (1.25 times the input price) and the next ones, while the learner keeps replying, read it for a twentieth of the price. Rough estimate: US$0.15 to 0.30 for a six-message conversation, so about US$20 to 40 a month at 2 to 4 conversations a day. Check the Console's usage page after the first week. When the credit runs out, Claude answers 402 and the chain moves on to Gemini. Current Claude models always think before answering; the chat asks for low effort, which keeps a turn to a few seconds. On a safety decline, the request names `fallbacks: "default"`, so Anthropic re-runs the turn on a model it picks for that case; the turn is refused only when that model declines too.
+- **Gemini and Cloudflare: nothing,** as long as the Gemini key's project has no billing account and Cloudflare stays on the Workers Free plan.
 - **Quotas.**
   - Gemini: Google no longer publishes fixed free limits; see your project's rate limits in AI Studio. Unofficial reports put Flash-Lite models at about 500 requests a day each; Gemma 4 reportedly allows about 16,000 tokens a minute, roughly 2 questions a minute at this prompt size. Daily quotas reset at midnight Pacific time: 15:00 in Vietnam while the US is on standard time (first Sunday of November to second Sunday of March), 14:00 the rest of the year.
   - Cloudflare: 10,000 neurons a day for the whole account, about 130 to 150 questions at this prompt size, resetting at 07:00 Vietnam time. Over the quota it answers 429 with code 3036, which the chat reads as "out for the day".
   - Every message is one AI call while a provider is configured, a tapped quick reply included. At a few visitors a day that stays far inside the free quotas.
-- **Data.** On the Gemini free tier Google may use questions and answers to improve its products, and human reviewers may read them; Google's terms ask developers not to send personal information. Cloudflare does not train on or keep prompts. So:
+- **Data.** With `CLAUDE_` set, questions go to Anthropic first, under the terms of the Institute's API account, and to Google only when Claude fails. On the Gemini free tier Google may use questions and answers to improve its products, and human reviewers may read them; Google's terms ask developers not to send personal information. Cloudflare does not train on or keep prompts. So:
   - While a provider is configured, every message goes to the model (in the FAQ-first version, a question the table answered never left Apps Script), and the adviser asks about the learner's field, topic and data (never the name, phone, email or workplace). So more of what learners say about themselves reaches the provider than before.
   - Before any AI call, `Chat.gs` replaces a learner's own phone numbers (0909 123 456, 0909.123.456, (028) 3829 5555, +84 909 123 456, (+84) 909…, 84909123456), email addresses and ID numbers (9 or 12 digits, unbroken or in groups of 3 or 4) with `[số điện thoại]`, `[email]` and `[số giấy tờ]`. The institute's own numbers pass through. Names, addresses and workplaces cannot be detected and are not masked. A 9-digit amount typed without dots (105600000) is also hidden, the accepted cost of catching old ID numbers. The `Hỏi đáp` sheet keeps the original text.
-  - Vietnam's Personal Data Protection Law (Law 91/2025/QH15) has applied since 1 January 2026, including to personal data sent to services abroad. Masking reduces but does not remove personal data in learners' questions, so ask whoever handles legal matters at the Institute whether the Gemini and Cloudflare tiers need a transfer impact assessment. The office PC, even placed first, does not make the chain in-house: questions still pass through Google (Apps Script, the Sheet) and through Cloudflare's tunnel, and go on to Gemini whenever the PC is slow or off. Include those flows in the question.
+  - Vietnam's Personal Data Protection Law (Law 91/2025/QH15) has applied since 1 January 2026, including to personal data sent to services abroad. Masking reduces but does not remove personal data in learners' questions, so ask whoever handles legal matters at the Institute whether the Anthropic, Gemini and Cloudflare tiers need a transfer impact assessment. The office PC, even placed first, does not make the chain in-house: questions still pass through Google (Apps Script, the Sheet) and through Cloudflare's tunnel, and go on to Gemini whenever the PC is slow or off. Include those flows in the question.
   - The chat panel no longer shows a privacy note (removed at the Institute's request). The greeting still says it is an AI that can be wrong. If the Institute wants learners told that questions may reach an outside AI service, the privacy policy page is the place for it.
 - **Terms.** You must be 18 or older to use the Gemini API, and it may not power a site aimed at or likely to be used by under-18s; this audience (researchers, postgraduates, clinicians) is adult. It may not give medical advice; the prompt and the `tu-van-y-khoa` FAQ row decline clinical questions. Re-read https://ai.google.dev/gemini-api/terms before launch.
 
@@ -106,7 +109,7 @@ Cloudflare: create a free account (no card), copy the Account ID from the dashbo
 
 **Wait for data before setting this up.** The PC (Core i5-14400F, 16 GB RAM, RTX 2060 12 GB) is on only in office hours and shared with other work, and the FAQ tab plus two free cloud tiers should cover most questions. Its clearest use is drafting FAQ rows from the Facebook conversations without sending them to a cloud service (`docs/huong-dan-faq.md`). Add it to the chat only if, after 2 to 4 weeks, the `Hỏi đáp` sheet shows office-hours rows with `error-429-daily` (a Gemini or Cloudflare daily quota used up), `over-hour-cap` or `faq-suggest`. Plain `error-429` is a per-minute limit that the chain gets past on its own.
 
-- **What it adds:** answers when both free tiers are used up during office hours, and, if placed first in the chain, fewer questions sent to AI providers that may use them to improve their products (they still pass through Cloudflare's tunnel and Google).
+- **What it adds:** answers when every tier before it (Claude, Gemini, Cloudflare) is used up or down during office hours, and, if placed first in the chain, fewer questions sent to AI providers that may use them to improve their products (they still pass through Cloudflare's tunnel and Google).
 - **What it costs:** about half a day of setup; 4 to 5 GB of the 12 GB GPU memory held for 15 minutes after each question; about 10 seconds of full GPU load per answer, which can stutter video playback or slow an export.
 - **Model: Gemma 4 E4B, 4-bit.** Not the 12B: about 19 to 24 seconds per answer on this card, plus reload time, against a 25 second limit per call. Not the 26B: it does not fit, and Cloudflare already runs it for free.
 
@@ -184,7 +187,7 @@ Estimates from published benchmarks of similar cards, not measured on this PC: 3
 
 - **Slow answers.** A call that runs out of time is logged as `error-timeout` and the PC sits out 1 minute instead of 3: a model that was still loading keeps loading and is ready for the next visitor, and a PC that stays slow (GPU busy with other work) does not hold up every question. If `error-timeout` keeps appearing for `CHAT3`, raise `ttl` so the model stays loaded through the hours when the log shows overflow (3600 keeps it for an hour after each question, at the cost of holding the memory longer). The slowest load is the first one after a restart or an NVIDIA driver update.
 - **Prompt reuse.** The FAQ references change with every question and sit in the system message, so llama-server processes the whole prompt (about 6,400 tokens, 3 to 4 seconds on this card) each time. Adding `--swa-full` to the command lets it reuse the unchanged part, at the cost of about 1.2 GB more GPU memory.
-- **Order.** As `CHAT3_` the PC answers only when both free tiers fail. To send fewer questions to AI providers that may use them during office hours, put it first instead (questions still pass through Cloudflare and Google, see "Data" above): its values under `CHAT_` (with `CHAT_PROVIDER` = `openai`), Gemini under `CHAT2_` (with `CHAT2_PROVIDER` = `gemini` and `CHAT2_MODELS` set, since only `CHAT_` has default models) and Cloudflare under `CHAT3_`. Outside office hours the chat then spends one fast 530 every 3 minutes before moving on.
+- **Order.** As `CHAT3_` the PC answers only when every tier before it fails. To send fewer questions to AI providers that may use them during office hours, put it first instead (questions still pass through Cloudflare and Google, see "Data" above): its values under `CHAT_` (with `CHAT_PROVIDER` = `openai`), Gemini under `CHAT2_` (with `CHAT2_PROVIDER` = `gemini` and `CHAT2_MODELS` set, since only `CHAT_` has default models) and Cloudflare under `CHAT3_`. Outside office hours the chat then spends one fast 530 every 3 minutes before moving on.
 
 ## FAQ matching
 
@@ -267,20 +270,20 @@ For AI answers the status lists each model tried, for example `error-429-daily g
 | `…; faq-suggest` | no model answered; the learner was offered the closest FAQ questions |
 | `no-ai` | no AI configured (or `CHAT_MAX_PER_HOUR` = 0) and no FAQ row close enough |
 | `over-hour-cap` | the shared hourly AI cap was reached |
-| `blocked-...` | a content filter stopped the question or answer (SAFETY, PROHIBITED_CONTENT, BLOCKLIST, SPII, RECITATION, content_filter); the visitor got the call/Zalo message |
+| `blocked-...` | a content filter stopped the question or answer (SAFETY, PROHIBITED_CONTENT, BLOCKLIST, SPII, RECITATION, content_filter; `refusal` for Claude, after its fallback model declined too); the matched FAQ row, or else the call/Zalo message, followed |
 | `error-finish-...` | the model stopped for another reason (OTHER, MALFORMED_RESPONSE...); the next model is tried |
 | `error-429` | per-minute rate limit; the next model is tried |
 | `error-429-daily` | that model's daily free quota is used up until the reset |
 | `error-404` | the model is not available to this key; update `…MODELS` |
 | `error-400` | wrong key (Gemini reports a bad key this way, and that provider is skipped) or a setting the model rejects |
 | `error-401`, `error-403` | the key is not allowed to use this API; that provider is skipped |
-| `error-402` | prepaid credit used up; that provider is skipped |
-| `error-500`, `error-503` | the provider was busy |
+| `error-402` | prepaid credit used up, or (Claude) a billing problem; that provider is skipped |
+| `error-500`, `error-503`, `error-529` | the provider was busy (529: Anthropic overloaded); the next model is tried |
 | `error-502`, `error-530`, `error-network` | the host could not be reached (for the office PC: switched off, or llama-swap stopped); an OpenAI-compatible host is then skipped for 3 minutes |
 | `error-timeout` | the host answered too slowly (for the office PC: the model still loading, or the GPU busy); an OpenAI-compatible host is then skipped for 1 minute, unless earlier attempts had left it less than 15 seconds |
 | `skipped-down` | not tried: that host was unreachable within the last 3 minutes, or timed out within the last minute |
 | `skipped-time` | not tried: the 45 seconds were used up by earlier attempts |
-| `error-parse`, `error-empty`, `error-thinking-length` | no usable reply (the last: a reasoning model used the whole length on thinking) |
+| `error-parse`, `error-empty`, `error-thinking-length` | no usable reply (the last: a reasoning model, Claude included, used the whole length on thinking) |
 
 Read it weekly (the staff guide shows how): AI answers to common questions should become FAQ rows, and `faq-suggest` rows show phrasings to add.
 
@@ -292,7 +295,7 @@ Read it weekly (the staff guide shows how): AI answers to common questions shoul
 
 ## Limits
 
-60 messages per visitor session per clock hour (FAQ answers and tapped quick replies included); `CHAT_MAX_PER_HOUR` AI calls across everyone (default 100) per clock hour; 1,000 characters per message; the last 30 exchanges (60 messages) of history, and more than 80 messages in one request refused; 2,048 output tokens per answer; 45 seconds for all model attempts on one question, at most 25 for one attempt (the page stops waiting at 60). A visitor over their own limit is told to try again next hour; when the shared cap is reached, the fallback of "How a question is answered" applies (a matched row, else the closest FAQ questions), or visitors are told the assistant is busy, without blaming them.
+60 messages per visitor session per clock hour (FAQ answers and tapped quick replies included); `CHAT_MAX_PER_HOUR` AI calls across everyone (default 100) per clock hour; 1,000 characters per message; the last 30 exchanges (60 messages) of history, and more than 80 messages in one request refused; 2,048 output tokens per answer (16,000 for Claude, whose thinking counts toward it); 45 seconds for all model attempts on one question, at most 25 for one attempt (the page stops waiting at 60). A visitor over their own limit is told to try again next hour; when the shared cap is reached, the fallback of "How a question is answered" applies (a matched row, else the closest FAQ questions), or visitors are told the assistant is busy, without blaming them.
 
 `node apps-script/chat-check.js` runs the chat against a fake sheet and a fake model (routing, the figure check, quick replies, limits), and fails when two `.gs` files define a function of the same name: Apps Script runs all files in one scope and silently keeps one of them. The `Check Apps Script` workflow runs it on every pull request that touches `apps-script/`.
 

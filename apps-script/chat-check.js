@@ -27,6 +27,8 @@ const cache = new Map();
 const logs = [];
 // What the fake model answers, in order: the reply text, { code } for an HTTP failure,
 // { finish } for a stop reason such as SAFETY, or { finish: 'MAX_TOKENS', text } for a cut-off answer.
+// Anthropic's API (any URL on api.anthropic.com) answers in its own shape: { stop } is its
+// stop_reason ('refusal', 'max_tokens'), { error } the error type of a failure.
 const model = { replies: [], calls: [] };
 const clock = { day: '16/11/2026' };
 
@@ -71,8 +73,14 @@ const ctx = vm.createContext({
   UrlFetchApp: {
     fetch(url, options) {
       const next = model.replies.length ? model.replies.shift() : 'Dạ, em chào anh/chị.';
-      model.calls.push({ url, body: JSON.parse(options.payload) });
+      model.calls.push({ url, body: JSON.parse(options.payload), headers: options.headers });
       const text = typeof next === 'string' ? next : next.text;
+      if (url.startsWith('https://api.anthropic.com/')) {
+        const message = { type: 'message', role: 'assistant', model: JSON.parse(options.payload).model, stop_reason: next.stop || 'end_turn',
+          content: [{ type: 'thinking', thinking: '', signature: 'sig' }].concat(text ? [{ type: 'text', text }] : []) };
+        const failure = { type: 'error', error: { type: next.error || 'api_error', message: 'failed' } };
+        return { getResponseCode: () => next.code || 200, getContentText: () => JSON.stringify(next.code ? failure : message) };
+      }
       const candidate = { finishReason: next.finish || 'STOP' };
       if (text) candidate.content = { parts: [{ text }] };
       return { getResponseCode: () => next.code || 200, getContentText: () => JSON.stringify(next.code ? {} : { candidates: [candidate] }) };
@@ -478,6 +486,87 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   assert.deepStrictEqual(ask(...Array.from({ length: 81 }, (_, i) => (i % 2 ? 'Dạ.' : 'Câu ' + i))), { ok: false, error: 'bad-request' });
   for (let i = 0; i < 60; i++) assert.ok(ctx.handleChat_(request(['Bitcoin tăng giá'], 'one-visitor')).ok, 'message ' + (i + 1));
   assert.deepStrictEqual(ctx.handleChat_(request(['Bitcoin tăng giá'], 'one-visitor')), { ok: false, error: 'rate-limited' });
+}
+
+// Claude (CLAUDE_ properties) comes first when its key is set: Anthropic's Messages API, the long
+// prompt cached, low effort, server-side fallbacks on a safety decline. Gemini stays behind it.
+{
+  reset();
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push('Dạ, em chào anh/chị. Học phí tính theo gói, từ 3.500.000 đến 8.800.000 đồng ạ.\n\nAnh/chị đã dùng R chưa ạ?\n[[Chưa từng | Đã dùng]]');
+  const res = ask(FEE);
+  assert.deepStrictEqual(res, { ok: true, reply: 'Dạ, em chào anh/chị. Học phí tính theo gói, từ 3.500.000 đến 8.800.000 đồng ạ.\n\nAnh/chị đã dùng R chưa ạ?', suggestions: ['Chưa từng', 'Đã dùng'] });
+  assert.strictEqual(model.calls.length, 1);
+  const call = model.calls[0];
+  assert.strictEqual(call.url, 'https://api.anthropic.com/v1/messages');
+  assert.deepStrictEqual(plain(call.headers), { 'anthropic-version': '2026-10-21', 'anthropic-beta': 'server-side-fallback-2026-07-01', 'x-api-key': 'claude-key' });
+  assert.strictEqual(call.body.model, 'claude-opus-5-5');
+  assert.strictEqual(call.body.max_tokens, 16000);
+  assert.deepStrictEqual(call.body.output_config, { effort: 'low' });
+  assert.strictEqual(call.body.fallbacks, 'default');
+  assert.ok(!('thinking' in call.body) && !('temperature' in call.body), 'thinking left to the model, no sampling settings');
+  assert.strictEqual(call.body.system.length, 2);
+  assert.deepStrictEqual(call.body.system[0], { type: 'text', text: ctx.chatSystemPrompt_(), cache_control: { type: 'ephemeral' } });
+  assert.ok(call.body.system[1].text.startsWith('\n\n# Ngày hôm nay') && call.body.system[1].text.includes('Hỏi: ' + rowOf('goi-hoc-phi').question));
+  assert.ok(!('cache_control' in call.body.system[1]), 'what changes per message stays after the cached prompt');
+  assert.deepStrictEqual(call.body.messages, [{ role: 'user', content: FEE }]);
+  assert.strictEqual(logged()[4], "'ok claude-opus-5-5");
+
+  // The conversation goes as user and assistant turns; a learner's phone number is masked.
+  model.replies.push('Dạ, vậy Gói 3 hợp với anh/chị nhất ạ.');
+  ask(FEE, ASKED, 'chưa, số em 0909 123 456');
+  assert.deepStrictEqual(plain(model.calls[1].body.messages), [{ role: 'user', content: FEE }, { role: 'assistant', content: ASKED }, { role: 'user', content: 'chưa, số em [số điện thoại]' }]);
+
+  // Model, effort and headers can be changed in the properties.
+  props.CLAUDE_MODELS = 'claude-sonnet-5-5';
+  props.CLAUDE_EXTRA_BODY = '{"output_config":{"effort":"medium"}}';
+  ask(FEE);
+  assert.strictEqual(model.calls[2].body.model, 'claude-sonnet-5-5');
+  assert.deepStrictEqual(model.calls[2].body.output_config, { effort: 'medium' });
+}
+{
+  // Claude busy (529) or rate-limited: Gemini answers.
+  reset();
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push({ code: 529, error: 'overloaded_error' }, 'Dạ, Gói 3 học phí 7.500.000 đồng ạ.');
+  assert.strictEqual(ask(FEE).reply, 'Dạ, Gói 3 học phí 7.500.000 đồng ạ.');
+  assert.strictEqual(logged()[4], "'error-529 claude-opus-5-5; ok gemini-3.5-flash-lite");
+  assert.ok(model.calls[1].url.includes('generativelanguage.googleapis.com'));
+  // A bad key or used-up credit skips Claude for the rest of the question.
+  for (const failure of [{ code: 401, error: 'authentication_error' }, { code: 402, error: 'billing_error' }]) {
+    reset();
+    props.CLAUDE_API_KEY = 'claude-key';
+    props.CLAUDE_MODELS = 'claude-opus-5-5,claude-sonnet-5-5';
+    model.replies.push(failure, 'Dạ.');
+    ask(FEE);
+    assert.strictEqual(logged()[4], "'error-" + failure.code + " claude-opus-5-5; ok gemini-3.5-flash-lite", failure.error);
+  }
+  // Claude alone: one retry after a transient failure.
+  reset({ ai: false });
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push({ code: 529, error: 'overloaded_error' }, 'Dạ.');
+  ask(FEE);
+  assert.strictEqual(logged()[4], "'error-529 claude-opus-5-5; ok claude-opus-5-5");
+  // A safety decline, after the fallbacks too, never replaces an approved row; a cut-off answer neither.
+  reset({ ai: false });
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push({ stop: 'refusal' }, { stop: 'max_tokens', text: 'Dạ, Gói 3 học phí' });
+  assert.strictEqual(ask(FEE).reply, FEE_ROW());
+  assert.strictEqual(logged()[4], "'blocked-refusal claude-opus-5-5; faq:goi-hoc-phi");
+  assert.strictEqual(ask(FEE).reply, FEE_ROW());
+  assert.strictEqual(logged()[4], "'ok-truncated claude-opus-5-5; faq:goi-hoc-phi");
+  // Thinking that used up max_tokens with no text: the next model is tried.
+  reset();
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push({ stop: 'max_tokens' }, 'Dạ.');
+  ask(FEE);
+  assert.strictEqual(logged()[4], "'error-thinking-length claude-opus-5-5; ok gemini-3.5-flash-lite");
+  // chatSelfTest names the provider.
+  reset({ ai: false });
+  props.CLAUDE_API_KEY = 'claude-key';
+  model.replies.push('Dạ, Gói 1 học phí 8.800.000 đồng ạ.');
+  ctx.chatSelfTest();
+  assert.ok(logs.some((line) => line.startsWith('CLAUDE: ok claude-opus-5-5')), JSON.stringify(logs));
 }
 
 // chatTalkTest plays its scripted learner through the same path and logs each turn.
