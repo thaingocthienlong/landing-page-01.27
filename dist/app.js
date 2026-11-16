@@ -1762,10 +1762,6 @@
       document.documentElement.classList.toggle("chat-open", open);
       syncInert();
       if (!open) {
-        // an answer is written out once: a hidden panel shown again restarts its animations, so they come off here
-        log.querySelectorAll(".chat-token").forEach((span) => span.replaceWith(span.textContent));
-        log.normalize();
-        log.querySelectorAll(".chat-options").forEach((list) => { list.style.animation = ""; });
         try { window.sessionStorage.setItem(CLOSED, "1"); } catch { /* storage blocked: it opens again on the next page view */ }
         const inside = panel.contains(document.activeElement) || document.activeElement === document.body;
         if (opener && opener.isConnected && opener.getClientRects().length) opener.focus();
@@ -1774,6 +1770,10 @@
         return;
       }
       opener = trigger || null;
+      // opening the panel writes nothing out: the browser would start every animation in it over, also for messages that came while it was closed
+      log.querySelectorAll(".chat-token").forEach((span) => span.replaceWith(span.textContent));
+      log.normalize();
+      log.querySelectorAll(".chat-options").forEach((list) => { list.style.animation = ""; });
       if (!rendered) {
         rendered = true;
         state.messages.forEach((turn) => {
