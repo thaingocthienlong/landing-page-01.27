@@ -444,8 +444,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(r['Kênh'], 'facebook');
   assert.strictEqual(r['Trạng thái'], 'Mới');
   const learnerMail = mail.calls.find((m) => m.to === 'an@example.com');
-  assert.ok(learnerMail.subject.includes('R27-001'));
-  assert.ok(learnerMail.htmlBody.includes('28/12/2026'));
+  assert.strictEqual(learnerMail.subject, 'Phiếu xác nhận đăng ký khóa học Phân tích định lượng với R');
+  assert.ok(!learnerMail.htmlBody.includes('R27-001'), 'the learner code stays in the sheet');
   assert.ok(!learnerMail.htmlBody.includes('img.vietqr.io'), 'no QR before staff confirm the amount');
   assert.strictEqual(learnerMail.replyTo, 'vanphong@vienphuongnam.com.vn');
   assert.deepStrictEqual(journalEvents().slice(-2), ['đăng ký', 'email xác nhận']);
@@ -469,23 +469,34 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
 {
   reset();
   ctx.setupLedger();
-  assert.deepStrictEqual(post({ ...FORM, ho_lot: 'Lê <b>Văn</b>', ten: 'Tâm & Co' }), { ok: true });
+  assert.deepStrictEqual(post({ ...FORM, ho_lot: 'Lê <b>Văn</b>', ten: 'Tâm & Co', biet_qua: 'Khác', biet_qua_other: 'Đồng nghiệp' }), { ok: true });
   const m = mail.calls.find((x) => x.to === 'an@example.com');
-  assert.strictEqual(m.subject, 'Viện Phương Nam đã nhận phiếu đăng ký – R27-001');
+  assert.strictEqual(m.subject, 'Phiếu xác nhận đăng ký khóa học Phân tích định lượng với R');
   assert.strictEqual(m.name, 'Viện Phương Nam');
   const html = m.htmlBody;
-  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
-    'xác nhận số tiền', 'chưa giữ chỗ', 'trước ngày ' + ctx.mailDeadline_('28/12/2026'), '(028) 2242 6789', 'Ms. Vy (SĐT/Zalo)', '0949 761 636',
-    'Ms. Thảo (SĐT/Zalo)', '0912 114 511', 'href="tel:0949761636"', 'vanphong@vienphuongnam.com.vn']
+  assert.match(html, /<h1[^>]*>Phiếu xác nhận đăng ký thông tin tư vấn\/tham gia khóa học<\/h1>/);
+  // Every answer on the form, in the form's order, escaped.
+  const facts = [...html.matchAll(/<th[^>]*>([^<]*)<\/th><td[^>]*>([^<]*)<\/td>/g)].map((f) => [f[1], f[2]]);
+  assert.deepStrictEqual(facts, [
+    ['Khóa học', 'Phân tích định lượng với R'], ['Gói đăng ký', 'Gói 1'], ['Họ và tên', 'Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co'],
+    ['Email', 'an@example.com'], ['Số điện thoại', '0909123456'], ['Giới tính', 'Nam'], ['Ngày sinh', '01/01/1990'],
+    ['Tỉnh/Thành phố', 'TP. Hồ Chí Minh'], ['Vị trí công tác', 'Bác sĩ'], ['Đơn vị công tác', 'Bệnh viện A'], ['Biết đến qua', 'Khác (Đồng nghiệp)']
+  ]);
+  ['Kính chào anh/chị Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co,',
+    'Viện Phương Nam (Ms. Vy/Ms. Thảo) sẽ liên hệ anh/chị qua Zalo/điện thoại để tư vấn các thông tin về khóa học và hướng dẫn các bước tiếp theo.',
+    'Viện Phương Nam cam kết bảo mật tuyệt đối thông tin cá nhân của quý anh/chị và chỉ sử dụng thông tin nhận được để phục vụ cho việc quản lý khoá học.',
+    'Văn phòng Viện Phương Nam', 'anh/chị liên hệ Viện Phương Nam</p>', 'văn phòng Viện Phương Nam.', '(028) 2242 6789', 'Ms. Vy (SĐT/Zalo)',
+    '0949 761 636', 'Ms. Thảo (SĐT/Zalo)', '0912 114 511', 'href="tel:0949761636"', 'vanphong@vienphuongnam.com.vn']
     .forEach((s) => assert.ok(html.includes(s), 'receipt mentions ' + s));
-  assert.match(html, /Gói đã chọn<\/th><td[^>]*>Gói 1<\/td>/);
-  assert.match(html, /Mã học viên<\/th><td[^>]*><strong>R27-001<\/strong>/);
+  assert.strictEqual((html.match(/Bước tiếp theo/g) || []).length, 1, 'one next step, no numbered list');
   assert.ok(!html.includes('<b>Văn'), 'learner-typed values are escaped');
-  ['vietqr', 'STK', 'GOI1', 'Số tài khoản', 'đồng', '8.800.000'].forEach((s) => assert.ok(!html.includes(s), 'no payment details: ' + s));
+  ['R27-001', 'Mã học viên', 'vietqr', 'Số tài khoản', 'đồng', '8.800.000', 'trước ngày', 'chưa giữ chỗ', 'của Viện.', 'liên hệ Viện</p>', '—']
+    .forEach((s) => assert.ok(!html.includes(s), 'not in the receipt: ' + s));
 
-  sheets['Đợt học'].data[1][4] = '';
+  // An answer left empty (Ghi rõ when Biết đến qua is not Khác) leaves no empty row.
   post({ ...FORM, emailcontact: 'e@example.com' });
-  assert.ok(!mail.calls.find((x) => x.to === 'e@example.com').htmlBody.includes('trước ngày'), 'blank deadline leaves no dangling date');
+  const plainHtml = mail.calls.find((x) => x.to === 'e@example.com').htmlBody;
+  assert.match(plainHtml, /Biết đến qua<\/th><td[^>]*>Zalo<\/td>/);
 }
 
 // Registration: a ledger problem never costs the learner the registration they already sent.
@@ -1198,8 +1209,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
     assert.ok(receipt, 'the learner gets a receipt');
     assert.strictEqual(receipt.replyTo, 'vanphong@vienphuongnam.com.vn');
     assert.match(receipt.htmlBody, /Kính chào anh\/chị Nguyễn Văn An,/);
-    assert.match(receipt.htmlBody, /Gói đã chọn<\/th><td[^>]*>Gói 3 · Khóa 1 \+ Khóa 3<\/td>/);
-    assert.ok(receipt.htmlBody.includes('trước ngày ' + ctx.mailDeadline_('28/12/2026')));
+    assert.match(receipt.htmlBody, /Gói đăng ký<\/th><td[^>]*>Gói 3 · Khóa 1 \+ Khóa 3<\/td>/);
+    assert.match(receipt.htmlBody, /Đơn vị công tác<\/th><td[^>]*>Bệnh viện A<\/td>/, 'the same full receipt as the ledger sends');
     assert.ok(!receipt.htmlBody.includes('Mã học viên'), 'no learner code without the ledger');
     assert.doesNotMatch(receipt.htmlBody, /7\.500\.000|2242 6789 –|Số tài khoản/, 'no price or bank details');
     assert.strictEqual(sheets['Lead web'].data[1][ctx.LEAD_HEADERS.length - 1], 'Mới');
@@ -1218,14 +1229,14 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   reset();
   assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
   assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
-    ['Viện Phương Nam đã nhận phiếu đăng ký – Phân tích định lượng với R'], 'one receipt before setupLedger');
+    ['Phiếu xác nhận đăng ký khóa học Phân tích định lượng với R'], 'one receipt before setupLedger');
 
-  // Once set up, the ledger sends its own receipt with the code, so Leads.gs sends none.
+  // Once set up, the ledger sends the receipt (journaled as email xác nhận), so Leads.gs sends none.
   reset();
   ctx.setupLedger();
   assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
-  assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
-    ['Viện Phương Nam đã nhận phiếu đăng ký – R27-001'], 'only the ledger receipt after setupLedger');
+  assert.strictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).length, 1, 'one receipt after setupLedger');
+  assert.deepStrictEqual(sheets['Nhật ký'].data.slice(1).map((j) => j[3]), ['đăng ký', 'email xác nhận'], 'and it is the ledger that sent it');
 }
 
 // The ledger setup adds Ledger.gs and LedgerMail.gs but not Leads.gs: its emails must build from Code.gs alone.

@@ -60,8 +60,8 @@ function handleConsult_(data) {
   }
 }
 
-// Called by doPost after a registration row is saved, inside its lock.
-function logRegistrationLead_(data) {
+// Called by doPost after a registration row is saved, inside its lock; row is that row, in HEADERS order.
+function logRegistrationLead_(data, row) {
   var saved = appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, '', data);
   try { fillLeadTabs_(false, data, new Date()); } catch (ignore) {}
   // Once setupLedger has filled its intake tab, the ledger (Ledger.gs) sends its own receipt with the learner code.
@@ -69,23 +69,12 @@ function logRegistrationLead_(data) {
   var intakes = typeof ledgerIntake_ === 'function' && SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEDGER_INTAKES.name);
   if (intakes && intakes.getLastRow() > 1) return;
   try {
-    sendReceipt_(data);
+    var r = {};
+    HEADERS.forEach(function (header, i) { r[header] = row[i]; });
+    sendReceipt_(r, 'Phân tích định lượng với R');
   } catch (err) {
     saved.sheet.getRange(saved.index, LEAD_HEADERS.length).setValue('Mới (chưa gửi được email xác nhận)');
   }
-}
-
-// The learner's receipt when the ledger is not deployed: the ledger's receipt minus the learner code.
-function sendReceipt_(data) {
-  var pack = clean_(data.package).replace(/\s*\(.*$/, '') || clean_(data.package_id);
-  MailApp.sendEmail({
-    to: clean_(data.emailcontact),
-    replyTo: 'vanphong@vienphuongnam.com.vn',
-    name: 'Viện Phương Nam',
-    subject: 'Viện Phương Nam đã nhận phiếu đăng ký – Phân tích định lượng với R',
-    htmlBody: receiptHtml_(clean_(data.ho_lot) + ' ' + clean_(data.ten),
-      'Phân tích định lượng với R – Từ cơ bản đến chuyên sâu (01/2027)', pack, '', '28/12/2026')
-  });
 }
 
 function appendLead_(kind, name, phone, interest, format, data) {
