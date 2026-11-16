@@ -38,7 +38,9 @@
     }
     return fromUrl;
   })();
-  const withAttribution = (formType, payload) => ({ ...payload, form_type: formType, ...Object.fromEntries(ATTRIBUTION_KEYS.map((key) => [key, attribution[key] || ""])) });
+  // Set by the chat: the id of the visitor's conversation with the assistant, "" before they have said anything.
+  let chatSession = () => "";
+  const withAttribution = (formType, payload) => ({ ...payload, form_type: formType, chat_session: chatSession(), ...Object.fromEntries(ATTRIBUTION_KEYS.map((key) => [key, attribution[key] || ""])) });
 
   // While a form waits on the server its button says so and shows a small spinner; the label comes back after.
   const setSending = (button, on) => {
@@ -1337,6 +1339,7 @@
     const form = panel.querySelector(".chat-form");
     const input = form.querySelector("textarea");
     const sendButton = form.querySelector('button[type="submit"]');
+    const restartButton = panel.querySelector("[data-chat-restart]");
     const title = document.getElementById("chat-title");
     const launcher = document.querySelector(".chat-launcher");
     const openers = [...document.querySelectorAll("[data-chat-open]")];
@@ -1355,17 +1358,22 @@
     const newSession = () => window.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
     const validTurn = (turn, i) => turn && turn.role === (i % 2 ? "assistant" : "user") && typeof turn.content === "string" && turn.content.length > 0;
 
+    // The conversation is kept on this device for 30 days after its last message, so a visitor who
+    // comes back another day picks it up where it stopped.
     let state = null;
-    try { state = JSON.parse(window.sessionStorage.getItem(STORE)); } catch { state = null; }
-    if (!state || !/^[A-Za-z0-9_-]{8,64}$/.test(state.session || "") || !Array.isArray(state.messages) || !state.messages.every(validTurn)) {
+    try { state = JSON.parse(window.localStorage.getItem(STORE)); } catch { state = null; }
+    if (!state || !(Date.now() - state.at < 30 * 86400000) || !/^[A-Za-z0-9_-]{8,64}$/.test(state.session || "") || !Array.isArray(state.messages) || !state.messages.every(validTurn)) {
       state = { session: newSession(), messages: [] };
     }
     // a question cut off by a reload has no answer, so it is not resent as history
     if (state.messages.length % 2) state.messages.pop();
+    // back after an hour or more: the conversation opens on a line of welcome
+    let away = state.messages.length > 0 && Date.now() - state.at > 3600000;
     const save = () => {
       // an open question keeps one turn more, so what is stored still starts on a question
-      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-(80 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
+      try { window.localStorage.setItem(STORE, JSON.stringify({ session: state.session, at: Date.now(), messages: state.messages.slice(-(80 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
     };
+    chatSession = () => (state.messages.length ? state.session : "");
 
     let opener = null;
     let pending = false;
@@ -1594,7 +1602,11 @@
         const button = document.createElement("button");
         button.type = "button";
         button.textContent = text.trim();
-        button.addEventListener("click", () => submitQuestion(button.textContent));
+        button.addEventListener("click", () => {
+          if (LEAD.test(button.textContent)) openLead();
+          else if (button.textContent === RESTART) restart();
+          else submitQuestion(button.textContent);
+        });
         li.append(button);
         list.append(li);
       });
@@ -1661,6 +1673,7 @@
     };
 
     const ask = async () => {
+      const asked = state;
       pending = true;
       sendButton.setAttribute("aria-disabled", "true");
       const typing = typingDots(false);
@@ -1687,6 +1700,8 @@
       } finally {
         window.clearTimeout(timer);
       }
+      // the visitor started a new conversation while this one waited: its answer has nowhere to go
+      if (asked !== state) return;
       typing.remove();
       pending = false;
       sendButton.removeAttribute("aria-disabled");
@@ -1708,21 +1723,127 @@
       input.style.height = `${Math.min(input.scrollHeight + 2, 132)}px`;
     };
 
+    // The control that was used is about to go; focus stays in the panel.
+    const keepFocus = (selector) => {
+      const used = document.activeElement?.closest?.(selector);
+      if (used && panel.contains(used)) (compact.matches ? log : input).focus({ preventScroll: true });
+    };
+
+    // "Để lại số điện thoại", offered by the assistant as a quick reply: a card in the conversation
+    // takes a name and a number and sends them to the Institute as a consult lead (Leads.gs), with
+    // what the visitor told the assistant. The conversation then records it, so the assistant does
+    // not offer again and a reload still shows it.
+    const LEAD = /^để lại số/i;
+    const LEAD_SENT = "Tôi đã để lại số điện thoại.";
+    const LEAD_DONE = "Dạ, Viện Phương Nam đã nhận thông tin ạ. Tư vấn viên sẽ gọi lại cho anh/chị trong giờ làm việc.\n\nCần gấp, anh/chị vui lòng gọi (028) 2242 6789.";
+    const RESTART = restartButton.textContent;
+    const openLead = () => {
+      settle?.();
+      let card = log.querySelector(".chat-lead");
+      if (!card) {
+        card = document.getElementById("chat-lead-template").content.firstElementChild.cloneNode(true);
+        const error = card.querySelector(".chat-lead-error");
+        const submit = card.querySelector('button[type="submit"]');
+        card.querySelector("[data-chat-lead-later]").addEventListener("click", () => {
+          keepFocus(".chat-lead");
+          card.remove();
+        });
+        card.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const { ho_ten: name, so_dien_thoai: phone, agreement, website } = card.elements;
+          card.querySelectorAll("[aria-invalid]").forEach((control) => control.removeAttribute("aria-invalid"));
+          const problem = !name.value.trim() ? [name, "Vui lòng nhập “Họ và tên”."]
+            : !phone.value.trim() ? [phone, "Vui lòng nhập “Số điện thoại”."]
+            : !/^\d{9,11}$/.test(phone.value.replace(/[\s-]/g, "")) ? [phone, "Số điện thoại chỉ gồm 9 đến 11 chữ số, có thể cách nhau bằng khoảng trắng hoặc dấu gạch nối."]
+            : !agreement.checked ? [agreement, "Vui lòng xác nhận đã đọc và đồng ý với Chính sách bảo mật thông tin của Viện Phương Nam."]
+            : null;
+          error.hidden = !problem;
+          if (problem) {
+            error.textContent = problem[1];
+            problem[0].setAttribute("aria-invalid", "true");
+            problem[0].focus();
+            return;
+          }
+          const asked = state;
+          setSending(submit, true);
+          try {
+            if (!endpoint) throw new Error("not-configured");
+            const said = state.messages.filter((turn) => turn.role === "user" && turn.content !== LEAD_SENT).map((turn) => turn.content.replace(/\s+/g, " "));
+            const payload = withAttribution("tu_van", {
+              ho_ten: name.value.trim(), so_dien_thoai: phone.value.trim(), huong_quan_tam: "Chưa rõ, cần tư vấn", hinh_thuc_hoc: "Chưa quyết định",
+              // the server refuses a form sent within 3 seconds; this one opens on a page already read
+              agreement: true, page: window.location.href.split("#")[0], elapsed: Math.round(performance.now() / 1000), website: website.value, chat_note: said.join(" / ").slice(0, 500),
+            });
+            const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+            const result = await response.json();
+            if (!result.ok) throw new Error(result.error || "rejected");
+            // A repeat within ten minutes is answered ok but was already counted.
+            if (!result.duplicate) track("generate_lead", { form_id: "chat-lead" }, { name: "Lead" });
+            if (asked !== state) return;
+            // the busy button dropped focus to the page; with the card gone it goes where the other buttons send it
+            if (document.activeElement === document.body || card.contains(document.activeElement)) (compact.matches ? log : input).focus({ preventScroll: true });
+            log.querySelectorAll(".chat-options, .chat-lead").forEach((node) => node.remove());
+            // the card only opens from a choice under a finished turn, so the turns still alternate
+            state.messages.push({ role: "user", content: LEAD_SENT }, { role: "assistant", content: LEAD_DONE });
+            save();
+            addMessage("user", LEAD_SENT);
+            messagesOf(LEAD_DONE).forEach((part, i) => addMessage("bot", part, i > 0));
+            toBottom();
+          } catch {
+            error.textContent = "Chưa gửi được thông tin. Dữ liệu anh/chị đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
+            error.hidden = false;
+          } finally {
+            setSending(submit, false);
+            if (card.isConnected && document.activeElement === document.body) submit.focus({ preventScroll: true });
+          }
+        });
+        log.append(card);
+      }
+      // the card opens at its title and first field, also where it is taller than the log
+      toStart(card);
+      card.elements.ho_ten.focus({ preventScroll: true });
+    };
+
+    // A new conversation: nothing of the old one stays on this device, and the assistant no longer has it.
+    const restart = () => {
+      settle?.();
+      keepFocus(".chat-log");
+      state = { session: newSession(), messages: [] };
+      try { window.localStorage.removeItem(STORE); } catch { /* storage blocked: nothing was kept */ }
+      pending = false;
+      sendButton.removeAttribute("aria-disabled");
+      while (restartButton.nextSibling) restartButton.nextSibling.remove();
+      restartButton.hidden = true;
+      suggest.hidden = false;
+      log.scrollTop = 0;
+    };
+
+    // What a visitor who comes back sees under their conversation: that it is still here, and how
+    // far the two dates of the notice are (08/12/2026 the discount, 28/12/2026 the deadline).
+    const welcomeBack = () => {
+      const { y, m, d } = vnToday();
+      const today = Date.UTC(y, m - 1, d);
+      const days = Math.round((Date.UTC(2026, 11, 8) - today) / 86400000);
+      const date = days > 0 ? `\n\nCòn ${days} ngày nữa là đến mốc ưu đãi 08/12/2026.` : today < Date.UTC(2026, 11, 28) ? "\n\nHạn chót đăng ký và hoàn tất học phí: trước ngày 28/12/2026." : "";
+      messagesOf(`Viện Phương Nam chào mừng anh/chị quay lại. Cuộc trò chuyện lần trước vẫn còn ở trên, anh/chị cứ hỏi tiếp.${date}`).forEach((part, i) => addMessage("bot", part, i > 0));
+      addOptions(["Cách đăng ký", ...(state.messages.some((turn) => turn.content === LEAD_SENT) ? [] : ["Để lại số điện thoại"]), RESTART], 0);
+    };
+
     const submitQuestion = (raw) => {
       const text = raw.trim().slice(0, 1000);
       if (!text || pending) return;
       // an answer still arriving is shown in full before the next question goes under it
       settle?.();
       // a suggestion button is about to be hidden; keep focus in the panel
-      const chosen = document.activeElement?.closest?.(".chat-suggest, .chat-options");
-      if (chosen && panel.contains(chosen)) (compact.matches ? log : input).focus({ preventScroll: true });
+      keepFocus(".chat-suggest, .chat-options");
       log.querySelector(".chat-msg-error")?.remove();
-      log.querySelectorAll(".chat-options").forEach((list) => list.remove());
+      log.querySelectorAll(".chat-options, .chat-lead").forEach((node) => node.remove());
       // an unanswered question is replaced by the new one so turns keep alternating
       if (state.messages.length % 2) state.messages.pop();
       state.messages.push({ role: "user", content: text });
       save();
       suggest.hidden = true;
+      restartButton.hidden = false;
       input.value = "";
       autosize();
       addMessage("user", text);
@@ -1743,7 +1864,10 @@
         panel.style.height = "";
         panel.style.top = "";
       }
-      if (atEnd) toBottom();
+      // the keyboard opened on a field of the phone-number card: that field stays in view
+      const field = log.querySelector(".chat-lead")?.contains(document.activeElement) ? document.activeElement : null;
+      if (field) field.scrollIntoView({ block: "nearest" });
+      else if (atEnd) toBottom();
     };
     const syncInert = () => {
       const on = !panel.hidden && compact.matches;
@@ -1780,7 +1904,12 @@
           if (turn.role === "user") addMessage("user", turn.content);
           else messagesOf(turn.content).forEach((part, i) => addMessage("bot", part, i > 0));
         });
-        if (state.messages.length) suggest.hidden = true;
+        if (state.messages.length) {
+          suggest.hidden = true;
+          restartButton.hidden = false;
+        }
+        if (away) welcomeBack();
+        away = false;
       }
       // a fresh chat opens on the greeting and suggestions, a running one on its latest turn
       if (state.messages.length) toBottom();
@@ -1799,6 +1928,7 @@
       if (event.key === "Escape" && !panel.hidden && (panel.contains(active) || active === document.body)) setOpen(false);
     });
     panel.querySelectorAll("[data-chat-question]").forEach((button) => button.addEventListener("click", () => submitQuestion(button.textContent)));
+    restartButton.addEventListener("click", restart);
     log.addEventListener("click", (event) => {
       const link = event.target.closest("a");
       if (!link) return;

@@ -90,6 +90,48 @@ function chatTalkTest() {
   });
 }
 
+// Menu "Trợ lý AI > Thống kê trợ lý": how many conversations there were, and how many of them
+// led to a phone number or a registration. A form sent by someone who talked to the assistant
+// carries the conversation's id, kept in the "Phiên trợ lý" column of "Lead web" (Leads.gs).
+function chatStats() {
+  var message = chatStats_();
+  try {
+    SpreadsheetApp.getUi().alert(message);
+  } catch (err) {
+    Logger.log(message);
+  }
+}
+
+function chatStats_() {
+  var book = SpreadsheetApp.getActiveSpreadsheet();
+  // A cell written as text may read back with its leading apostrophe.
+  var id = function (cell) { return String(cell === undefined || cell === null ? '' : cell).replace(/^'/, ''); };
+  var asked = {};
+  var log = book.getSheetByName(CHAT_SHEET_NAME);
+  (log ? log.getDataRange().getValues().slice(1) : []).forEach(function (row) {
+    if (id(row[1])) asked[id(row[1])] = (asked[id(row[1])] || 0) + 1;
+  });
+  var sessions = Object.keys(asked);
+  var long = sessions.filter(function (session) { return asked[session] >= 3; }).length;
+  var called = {};
+  var registered = {};
+  var leads = book.getSheetByName(LEAD_SHEET_NAME);
+  var rows = leads ? leads.getDataRange().getValues() : [];
+  // -1 on a tab from before the assistant's columns: no cell there, nothing counted
+  var at = rows.length ? rows[0].indexOf(LEAD_CHAT_HEADERS[0]) : -1;
+  rows.slice(1).forEach(function (row) {
+    if (id(row[at])) (id(row[1]) === 'Đăng ký' ? registered : called)[id(row[at])] = true;
+  });
+  return [
+    'Trợ lý AI, tính từ dòng đầu của tab "' + CHAT_SHEET_NAME + '":',
+    '- Cuộc trò chuyện: ' + sessions.length + ' (' + long + ' cuộc từ 3 câu hỏi trở lên)',
+    '- Để lại số điện thoại qua trợ lý: ' + Object.keys(called).length,
+    '- Gửi phiếu đăng ký sau khi trò chuyện: ' + Object.keys(registered).length,
+    '',
+    'Từng người nằm ở cột "' + LEAD_CHAT_HEADERS[0] + '" của tab "' + LEAD_SHEET_NAME + '". Để đọc một cuộc trò chuyện, lọc cột "Phiên" của tab "' + CHAT_SHEET_NAME + '" theo mã đó.'
+  ].join('\n');
+}
+
 function handleChat_(data) {
   var session = String(data.session || '');
   var messages = chatMessages_(data.messages);

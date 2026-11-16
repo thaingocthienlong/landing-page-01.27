@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600;1,8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20261116-chat" />
+    <link rel="stylesheet" href="./styles.css?v=20261116-lead" />
     <script>document.documentElement.classList.add("js");</script>
     <script type="application/ld+json">
 {
@@ -1258,19 +1258,41 @@
       </header>
       <div class="chat-log" role="log" aria-live="polite" aria-label="Nội dung hỏi đáp" tabindex="0">
         <div class="chat-msg chat-msg-bot">
-          <p>Viện Phương Nam cảm ơn anh/chị đã quan tâm đến chuỗi khóa học. Trợ lý AI của Viện trả lời câu hỏi về chọn gói, học phí và ưu đãi, lịch học, cách đăng ký, nội dung từng khóa.</p>
+          <p>Viện Phương Nam cảm ơn anh/chị đã quan tâm đến chuỗi khóa học.</p>
           <p>Trợ lý AI có thể nhầm. Anh/chị vui lòng xác nhận học phí với Viện trước khi chuyển khoản.</p>
         </div>
+        <div class="chat-msg chat-msg-bot chat-msg-next">
+          <p>Để gợi ý đúng gói, anh/chị đã dùng R bao giờ chưa?</p>
+        </div>
         <div class="chat-suggest">
-          <h3>Câu hỏi thường gặp</h3>
           <ul>
-            <li><button type="button" data-chat-question>Tôi chưa biết lập trình, nên chọn gói nào?</button></li>
-            <li><button type="button" data-chat-question>Học phí và ưu đãi nếu hoàn tất trước 08/12/2026?</button></li>
+            <li><button type="button" data-chat-question>Chưa từng dùng R</button></li>
+            <li><button type="button" data-chat-question>Đã dùng R cơ bản</button></li>
+            <li><button type="button" data-chat-question>Dùng R thường xuyên</button></li>
+          </ul>
+          <h3>Hoặc hỏi ngay</h3>
+          <ul>
+            <li><button type="button" data-chat-question>Học phí và ưu đãi các gói thế nào?</button></li>
             <li><button type="button" data-chat-question>Học online qua Zoom có khác học trực tiếp không?</button></li>
-            <li><button type="button" data-chat-question>Cần chuẩn bị gì trước ngày khai giảng?</button></li>
           </ul>
         </div>
+        <button type="button" class="link-button chat-restart" data-chat-restart hidden>Bắt đầu cuộc trò chuyện mới</button>
       </div>
+      <template id="chat-lead-template">
+        <form class="chat-lead" novalidate aria-labelledby="chat-lead-title">
+          <h3 id="chat-lead-title">Để lại số điện thoại</h3>
+          <p>Tư vấn viên của Viện Phương Nam sẽ gọi lại trong giờ làm việc để tư vấn gói học phù hợp.</p>
+          <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <div class="field"><label for="chat-lead-name">Họ và tên</label><input id="chat-lead-name" name="ho_ten" type="text" autocomplete="name" maxlength="100" required /></div>
+          <div class="field"><label for="chat-lead-phone">Số điện thoại</label><input id="chat-lead-phone" name="so_dien_thoai" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required /></div>
+          <label class="consent-row" for="chat-lead-agreement"><input id="chat-lead-agreement" name="agreement" type="checkbox" required /><span>Tôi đã đọc và đồng ý với <a href="https://vienphuongnam.com.vn/chinh-sach-bao-mat.php" target="_blank" rel="noreferrer">Chính sách bảo mật thông tin</a> của Viện Phương Nam. Tư vấn viên sẽ xem nội dung cuộc trò chuyện này để tư vấn.</span></label>
+          <p class="chat-lead-error" role="alert" hidden></p>
+          <div class="chat-lead-actions">
+            <button type="submit" class="button button-primary">Gửi <svg class="i" aria-hidden="true"><use href="#i-arrow" /></svg></button>
+            <button type="button" class="link-button" data-chat-lead-later>Để sau</button>
+          </div>
+        </form>
+      </template>
       <form class="chat-form" novalidate>
         <label class="sr-only" for="chat-input">Câu hỏi của anh/chị</label>
         <textarea id="chat-input" name="question" rows="1" maxlength="1000" placeholder="Nhập câu hỏi" enterkeyhint="send" required></textarea>
@@ -1289,6 +1311,6 @@
       <a class="button button-quiet" href="tel:0912114511"><svg class="i" aria-hidden="true"><use href="#i-phone" /></svg> Gọi Hotline</a>
     </div>
 
-    <script src="./app.js?v=20261116-chat" defer></script>
+    <script src="./app.js?v=20261116-lead" defer></script>
   </body>
 </html>

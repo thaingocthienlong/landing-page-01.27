@@ -711,6 +711,19 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-suggest button:hover, .chat-options button:hover { color: var(--cobalt); }
 .chat-suggest button:hover::after, .chat-options button:hover::after { transform: translateX(3px); }
 .chat-log > .chat-options { flex: none; margin-top: -6px; border-top: 1px solid var(--hair); overflow-wrap: anywhere; }
+/* The answers to the greeting's question sit under it like quick replies; two ready questions follow under their label. */
+.chat-suggest ul:first-child { margin-top: -6px; border-top: 1px solid var(--hair); }
+.chat-suggest ul + h3 { margin-top: 22px; }
+.chat-restart { flex: none; align-self: flex-start; margin: -8px 0 0 -4px; }
+/* The phone-number card: a small form in the conversation, drawn like the panel (ink border, flat, no red). */
+.chat-lead { flex: none; display: grid; gap: 14px; padding: 16px; border: 1px solid var(--ink); border-radius: 2px; background: #fff; }
+.chat-lead h3 { font: 600 1.125rem/1.3 var(--serif); }
+.chat-lead > p { font-size: 1rem; line-height: 1.5; color: var(--ink-2); }
+.chat-lead .consent-row { gap: 12px; padding: 12px; font-size: 0.9375rem; line-height: 1.5; }
+.chat-lead input[aria-invalid="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.chat-lead input[type="checkbox"][aria-invalid="true"] { box-shadow: none; outline: 2px solid var(--ink); outline-offset: 2px; }
+.chat-lead .chat-lead-error { font-size: 0.9375rem; font-weight: 600; line-height: 1.45; color: var(--ink); }
+.chat-lead-actions { display: flex; align-items: center; gap: 12px; }
 .chat-form { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--hair); }
 .chat-form textarea { flex: 1; min-width: 0; height: 50px; min-height: 50px; max-height: 132px; padding: 12px 14px; border: 1px solid var(--field); border-radius: 2px; background: #fff; color: var(--ink); font: 400 1.0625rem/1.5 var(--sans); resize: none; }
 .chat-form textarea:hover { border-color: var(--ink); }
