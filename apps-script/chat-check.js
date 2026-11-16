@@ -1,4 +1,4 @@
-// Runs the learner-care chat (Chat.gs with Faq.gs, FaqSeed.gs, Knowledge.gs and Sync.gs) against
+// Runs the learner-care chat (Chat.gs with Faq.gs, FaqSeed.gs, Knowledge.gs, Sync.gs and Leads.gs) against
 // a fake spreadsheet and a fake model:
 // node apps-script/chat-check.js
 const fs = require('fs');
@@ -89,7 +89,7 @@ const ctx = vm.createContext({
   ContentService: { MimeType: { JSON: 'JSON' }, createTextOutput: (text) => ({ setMimeType: () => JSON.parse(text) }) },
   Logger: { log: (text) => logs.push(String(text)) }
 });
-['Code.gs', 'Chat.gs', 'Knowledge.gs', 'Faq.gs', 'FaqSeed.gs', 'Sync.gs'].forEach((file) => {
+['Code.gs', 'Chat.gs', 'Knowledge.gs', 'Faq.gs', 'FaqSeed.gs', 'Sync.gs', 'Leads.gs'].forEach((file) => {
   vm.runInContext(read(file), ctx, { filename: path.join(__dirname, file) });
 });
 
@@ -436,7 +436,7 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   // So does every answer of the prompt's example conversation, whole, against the facts alone:
   // a slip in an example fails here instead of teaching the model a wrong figure.
   const examples = ctx.CHAT_SYSTEM_PROMPT.split(ctx.CHAT_EXAMPLES_HEADING)[1].split(/\nHỏi[^\n]*\nĐáp: /).slice(1);
-  assert.strictEqual(examples.length, 6);
+  assert.strictEqual(examples.length, 8);
   const amounts = examples.reduce((count, answer) => count + ctx.chatAmounts_(answer).amounts.length, 0);
   assert.strictEqual(amounts, 10, 'the fee examples are read in full');
   examples.forEach((answer) => {
@@ -585,6 +585,61 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   const message = 'Đã cập nhật từ trang web. ' + '=x'.repeat(400);
   ctx.syncLog_(book, '2026-11-16 abc1234', message);
   assert.deepStrictEqual(sheets['Lịch sử cập nhật'].data[1], ["'16/11/2026 10:00", "'2026-11-16 abc1234", "'" + message]);
+}
+
+// The greeting on the page asks about R with three buttons, and offers two questions. Each has an
+// approved row, so the table answers them when no model does.
+{
+  reset({ ai: false });
+  const first = { 'Chưa từng dùng R': 'can-biet-lap-trinh', 'Đã dùng R cơ bản': 'chon-goi', 'Dùng R thường xuyên': 'chon-goi',
+    'Học phí và ưu đãi các gói thế nào?': 'goi-hoc-phi', 'Học online qua Zoom có khác học trực tiếp không?': 'online-khac-offline' };
+  Object.keys(first).forEach((text) => {
+    assert.strictEqual(ask(text).reply, ctx.chatGreet_(rowOf(first[text]).answer), text);
+    assert.strictEqual(logged()[4], "'faq:" + first[text]);
+  });
+}
+
+// The instructions carry the one button the page turns into its phone-number card, word for word
+// (dist/app.js opens the card on that label), and the example that teaches it keeps it as a button.
+{
+  const prompt = ctx.CHAT_SYSTEM_PROMPT;
+  const LABEL = 'Để lại số điện thoại';
+  assert.ok(prompt.includes('đúng nguyên văn "' + LABEL + '"'));
+  const taught = prompt.split(ctx.CHAT_EXAMPLES_HEADING)[1].split(/\nHỏi[^\n]*\nĐáp: /).slice(1).map((answer) => plain(ctx.chatOptions_(answer.trim()).options));
+  assert.deepStrictEqual(taught.filter((options) => options.includes(LABEL)), [[LABEL, 'Lịch học']]);
+  assert.ok(!/gõ số điện thoại vào (khung|đây) (này )?(nhé|ạ)/.test(prompt), 'the assistant never asks for the number in the text box');
+}
+
+// "Thống kê trợ lý": conversations from the log, and the forms that carry a conversation's id.
+{
+  reset();
+  assert.match(ctx.chatStats_(), /Cuộc trò chuyện: 0 \(0 cuộc từ 3 câu hỏi trở lên\)\n- Để lại số điện thoại qua trợ lý: 0\n- Gửi phiếu đăng ký sau khi trò chuyện: 0/, 'no tab yet');
+  const talk = (session, times) => { for (let i = 0; i < times; i++) ctx.handleChat_(request([FEE], session)); };
+  talk('phien-mot-0001', 3);
+  talk('phien-hai-0002', 1);
+  talk('phien-ba-00003', 4);
+  sheets['Hỏi đáp'].data.push(['ghi chú của nhân viên', '', '', '', '', '']); // a row without a session is no conversation
+  const head = plain(ctx.LEAD_HEADERS);
+  const lead = (kind, session) => head.map((h, i) => (i === 1 ? kind : 'x')).concat(session === undefined ? [] : [session, '']);
+  // Staff put a column of their own before the assistant's two; a text cell may keep its apostrophe.
+  fakeSheet('Lead web', [
+    head.concat(['Người gọi', 'Phiên trợ lý', 'Ghi chú trợ lý']),
+    lead('Tư vấn').concat(['Vy']),
+    lead('Tư vấn').concat(['', 'phien-mot-0001', 'ghi chú']),
+    lead('Tư vấn').concat(['', "'phien-mot-0001", '']),   // the same person leaves the number twice
+    lead('Tư vấn').concat(['', 'phien-hai-0002', '']),
+    lead('Đăng ký').concat(['', 'phien-mot-0001', '']),
+    lead('Đăng ký').concat(['', '', ''])
+  ]);
+  const stats = ctx.chatStats_();
+  assert.match(stats, /^Trợ lý AI, tính từ dòng đầu của tab "Hỏi đáp":\n- Cuộc trò chuyện: 3 \(2 cuộc từ 3 câu hỏi trở lên\)\n- Để lại số điện thoại qua trợ lý: 2\n- Gửi phiếu đăng ký sau khi trò chuyện: 1\n/);
+  // A "Lead web" tab from before the assistant's columns counts nothing instead of failing.
+  fakeSheet('Lead web', [head, lead('Tư vấn')]);
+  assert.match(ctx.chatStats_(), /Cuộc trò chuyện: 3 .*\n- Để lại số điện thoại qua trợ lý: 0\n- Gửi phiếu đăng ký sau khi trò chuyện: 0/);
+  // The menu shows it; run from the editor, where there is no window, it goes to the log.
+  logs.length = 0;
+  ctx.chatStats();
+  assert.strictEqual(logs[0], ctx.chatStats_());
 }
 
 console.log('apps-script chat check: all passed');

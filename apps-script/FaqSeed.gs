@@ -563,6 +563,7 @@ var FAQ_SEED = [
     group: 'Đối tượng',
     question: 'Chưa biết lập trình có học được không?',
     variants: [
+      'Chưa từng dùng R',
       'khong biet code co hoc duoc khong',
       'chua biet R co theo kip khong',
       'co can biet lap trinh truoc khong',
@@ -657,6 +658,8 @@ var FAQ_SEED = [
     group: 'Chọn gói',
     question: 'Nên chọn gói nào cho phù hợp?',
     variants: [
+      'Đã dùng R cơ bản',
+      'Dùng R thường xuyên',
       'Tôi chưa biết lập trình, nên chọn gói nào?',
       'nen dang ky goi nao',
       'tu van chon goi giup em',
@@ -680,6 +683,7 @@ var FAQ_SEED = [
     group: 'Học phí',
     question: 'Học phí các gói là bao nhiêu?',
     variants: [
+      'Học phí và ưu đãi các gói thế nào?',
       'học phí',
       'hoc phi bao nhieu',
       'hp bn vay a',

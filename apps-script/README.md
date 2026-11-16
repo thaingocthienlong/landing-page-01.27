@@ -11,10 +11,10 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 | `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
 | `Ledger.gs` | The learner ledger: the extra `Đăng ký` columns, the `Đợt học`, `Gói` and `Nhật ký` tabs, the `Trạng thái` trigger and the **Sổ học viên** menu actions. See "Sổ học viên". |
 | `LedgerMail.gs` | The learner emails: the confirmation after registering and the transfer details (with a VietQR code) when staff choose `Chờ CK`. |
-| `Leads.gs` | The short "Đăng ký tư vấn" form the Meta ads use (`form_type` `tu_van`): one row per lead in the `Lead web` tab with its UTM fields and an email to tuyensinh@, vanphong@ and quantrihethong@. A full registration also adds a `Lead web` row (type `Đăng ký`) with its UTM fields; the `Đăng ký` tab is unchanged. |
+| `Leads.gs` | The consult lead (`form_type` `tu_van`), today sent by the assistant's "Để lại số điện thoại" card: one row per lead in the `Lead web` tab with its UTM fields and an email to tuyensinh@, vanphong@ and quantrihethong@. A full registration also adds a `Lead web` row (type `Đăng ký`) with its UTM fields; the `Đăng ký` tab is unchanged. A form sent by someone who talked to the assistant carries the conversation's id (`chat_session`): it goes to the `Phiên trợ lý` column (and what the learner told the assistant to `Ghi chú trợ lý`), two columns added after the tab's last column the first time they are needed and found by their headers afterwards, so staff may move them. `LeadTabs.gs` copies the note to `Ghi chú` of `Theo dõi lead`. |
 | `LeadTabs.gs` | Copies each submission into the staff tabs `Theo dõi lead` and (registrations) `Học viên - Học phí`: input columns only, dropdown values only, next row = first empty column A, one row per phone number (later submissions add a note). `backfillFromRegistrations` (run once by hand) adds the registrations made before it existed. |
 | `BotApi.gs` | The `feed` action the chat bot polls for new registrations and payments, guarded by the `BOT_KEY` property. |
-| `Sync.gs` | The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
+| `Sync.gs` | The **Trợ lý AI > Thống kê trợ lý** menu (`chatStats` in `Chat.gs`): conversations in `Hỏi đáp`, how many reached three questions, how many left a phone number and how many sent the registration form. The **Trợ lý AI > Cập nhật dữ liệu từ trang web** menu: merges `assistant-data.json` (built by `tools/build-assistant-data.js` on deploy) into the `FAQ` and `Thông tin thêm` tabs, and reads the facts tab for the prompt. |
 
 `doPost` in `Code.gs` sends any request with `"action": "chat"` to `Chat.gs`, and any other `action` to `BotApi.gs`, before taking the registration lock, so a slow model reply never holds up a registration.
 
@@ -49,7 +49,7 @@ With no AI configured at all (or `CHAT_MAX_PER_HOUR` = 0), every clear match is 
 
 When new code arrives (not needed for data changes):
 
-1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`). Files that changed together go in together: the adviser version changes `Chat.gs`, `Knowledge.gs` and `Sync.gs` (`Sync.gs` now calls `chatCell_`, which only the new `Chat.gs` has).
+1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`). Files that changed together go in together: the adviser version changes `Chat.gs`, `Knowledge.gs` and `Sync.gs` (`Sync.gs` now calls `chatCell_`, which only the new `Chat.gs` has); the phone-number card and the statistics change `Chat.gs`, `Knowledge.gs`, `Leads.gs`, `LeadTabs.gs`, `Sync.gs` and `FaqSeed.gs` (`Chat.gs` and `LeadTabs.gs` call functions only the new `Leads.gs` has). After that deploy, run **Trợ lý AI > Cập nhật dữ liệu từ trang web** once so the FAQ tab gets the phrasings of the greeting's buttons.
 2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
 3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
@@ -257,6 +257,8 @@ A tab that is missing or has no rows left is rebuilt from the repository, as if 
 ## The `Hỏi đáp` sheet
 
 Created on the first question. One row per question: time (Vietnam), anonymous session id, question, answer, status, page URL. Values are stored as text, so nothing a visitor types runs as a formula.
+
+The session id (column `Phiên`) is the same for every question of one conversation, and stays the same when the learner returns within 30 days on the same device. A lead or a registration sent by that learner carries it in the `Phiên trợ lý` column of `Lead web`: filter `Phiên` by that id to read the conversation. **Trợ lý AI > Thống kê trợ lý** counts conversations, those with three questions or more, and the distinct conversations that led to a phone number or a registration form. It counts forms, not payments, and only learners who used the same browser for the chat and the form. A row "Tôi đã để lại số điện thoại." is never logged: the page writes that line itself after the card is sent.
 
 For AI answers the status lists each model tried, for example `error-429-daily gemini-3.5-flash-lite; ok gemini-3.1-flash-lite`.
 

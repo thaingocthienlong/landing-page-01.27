@@ -137,6 +137,20 @@ Mục tiêu: biết học viên thật hỏi gì và hỏi bằng lời nào, r�
 
 Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 
+## Học viên để lại số điện thoại qua trợ lý
+
+Khi học viên đã rõ gói, còn phân vân, muốn được gọi lại, hoặc hỏi điều trợ lý chưa có thông tin, trợ lý mời bấm nút **Để lại số điện thoại**. Học viên điền họ tên và số điện thoại ngay trong khung hỏi đáp.
+
+- Viện nhận một email "Lead tư vấn mới", giống form tư vấn trước đây, có thêm hai dòng: **Phiên trợ lý** (mã cuộc trò chuyện) và **Ghi chú trợ lý** (những câu học viên đã nhắn cho trợ lý).
+- Tab **Lead web** có thêm hai cột cùng tên ở cuối. Có thể kéo hai cột này sang chỗ khác, nhưng đừng đổi tên tiêu đề.
+- Tab **Theo dõi lead**: cột Ghi chú ghi "Để lại số qua trợ lý AI: ..." kèm những câu học viên đã nhắn, để tư vấn viên đọc trước khi gọi.
+- Muốn đọc cả cuộc trò chuyện: mở tab **Hỏi đáp**, lọc cột **Phiên** theo mã ở cột **Phiên trợ lý**.
+- Học viên trò chuyện với trợ lý rồi gửi phiếu đăng ký (trên cùng trình duyệt) thì dòng "Đăng ký" trong tab Lead web cũng có mã phiên, và cột Ghi chú của Theo dõi lead ghi "Đã trò chuyện với trợ lý AI".
+
+Menu **Trợ lý AI > Thống kê trợ lý** cho biết: có bao nhiêu cuộc trò chuyện, bao nhiêu cuộc từ 3 câu hỏi trở lên, bao nhiêu người để lại số điện thoại qua trợ lý, bao nhiêu người gửi phiếu đăng ký sau khi trò chuyện. Con số này đếm phiếu gửi, không đếm học phí đã thu.
+
+Trợ lý không tự nhắn tin hay gọi cho học viên. Người để lại số cần được tư vấn viên gọi lại trong giờ làm việc, như trợ lý đã hứa.
+
 ## Thử một câu hỏi ngay trong Sheet
 
 Ở một ô trống bất kỳ (ví dụ tab mới tên "Thử"), gõ:

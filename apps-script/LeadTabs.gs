@@ -66,6 +66,15 @@ function leadInterest_(isConsult, data) {
   return '';
 }
 
+// For the "Ghi chú" of "Theo dõi lead": that the assistant was part of it, and for a number left
+// through it, what the learner told the assistant, so the adviser who calls back knows.
+function leadChatNote_(isConsult, data) {
+  if (!leadChatSession_(data)) return '';
+  if (!isConsult) return 'Đã trò chuyện với trợ lý AI';
+  var said = clean_(data.chat_note);
+  return 'Để lại số qua trợ lý AI' + (said ? ': ' + said : '');
+}
+
 function fillLeadTabs_(isConsult, data, when) {
   var book = SpreadsheetApp.getActiveSpreadsheet();
   var lead = {
@@ -75,7 +84,8 @@ function fillLeadTabs_(isConsult, data, when) {
     pkg: PACKAGES.indexOf(clean_(data.package_id)) >= 0 ? clean_(data.package_id) : '',
     stamp: Utilities.formatDate(when, LEAD_TZ, 'dd/MM/yyyy HH:mm:ss'),
     short: Utilities.formatDate(when, LEAD_TZ, 'dd/MM HH:mm'),
-    code: 'DK-' + Utilities.formatDate(when, LEAD_TZ, 'yyMMdd-HHmmss')
+    code: 'DK-' + Utilities.formatDate(when, LEAD_TZ, 'yyMMdd-HHmmss'),
+    chat: leadChatNote_(isConsult, data)
   };
   lead.key = normalizePhone_(lead.phone);
   var track = book.getSheetByName(TRACK_SHEET);
@@ -102,7 +112,7 @@ function upsertTrackRow_(track, lead, data) {
     if (normalizePhone_(cols[i][2]) !== lead.key) continue;
     var at = i + 2;
     var note = track.getRange(at, 19);
-    var line = lead.short + ': gửi thêm ' + (lead.isConsult ? 'form tư vấn' : 'form đăng ký ' + lead.pkg).trim();
+    var line = lead.short + ': gửi thêm ' + (lead.isConsult ? 'form tư vấn' : 'form đăng ký ' + lead.pkg).trim() + (lead.chat ? '. ' + lead.chat : '');
     note.setValue(note.getValue() ? note.getValue() + '\n' + line : line);
     if (!lead.isConsult && track.getRange(at, 13).getValue() !== 'Đã thanh toán') track.getRange(at, 13).setValue('Đã đăng ký');
     if (lead.pkg && !track.getRange(at, 18).getValue()) track.getRange(at, 18).setValue(lead.pkg);
@@ -119,6 +129,7 @@ function upsertTrackRow_(track, lead, data) {
     leadInterest_(lead.isConsult, data), format, 'Chờ kiểm', lead.isConsult ? 'Mới' : 'Đã đăng ký'
   ]]);
   if (lead.pkg) track.getRange(row, 18).setValue(lead.pkg);
+  if (lead.chat) track.getRange(row, 19).setValue(textCell_(lead.chat));
 }
 
 function addFeeRow_(fees, lead) {

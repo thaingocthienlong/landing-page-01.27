@@ -35,7 +35,7 @@ var SYNC_FACTS_HEADER_WORDS = ['ma', 'noi dung', 'bat'];
 
 function onOpen() {
   try {
-    SpreadsheetApp.getUi().createMenu('Trợ lý AI').addItem(SYNC_MENU_ITEM, 'syncAssistantData').addToUi();
+    SpreadsheetApp.getUi().createMenu('Trợ lý AI').addItem(SYNC_MENU_ITEM, 'syncAssistantData').addItem('Thống kê trợ lý', 'chatStats').addToUi();
     ledgerMenu_(SpreadsheetApp.getUi());
   } catch (err) {
     // Opened without a user interface: no menu to add.

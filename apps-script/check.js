@@ -28,9 +28,10 @@ function fakeSheet(name) {
   const write = (r, c, v) => { data[r - 1] = data[r - 1] || []; data[r - 1][c - 1] = v; };
   // Like a real grid: a new tab has 1000 rows and a range past the last row throws until insertRowsAfter adds rows.
   let gridRows = 1000;
+  let gridCols = 26;
 
   const range = (row, col, rows = 1, cols = 1) => {
-    if (row < 1 || row + rows - 1 > sheet.getMaxRows()) throw new Error('The coordinates of the range are outside the dimensions of the sheet.');
+    if (row < 1 || row + rows - 1 > sheet.getMaxRows() || col + cols - 1 > sheet.getMaxColumns()) throw new Error('The coordinates of the range are outside the dimensions of the sheet.');
     const each = (fn) => { for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) fn(row + i, col + j); };
     const grid = (fn) => Array.from({ length: rows }, (_, i) => Array.from({ length: cols }, (_, j) => fn(row + i, col + j)));
     const put = (kind, value) => each((r, c) => { if (value == null) delete marks[kind][r + ',' + c]; else marks[kind][r + ',' + c] = value; });
@@ -75,6 +76,9 @@ function fakeSheet(name) {
     getLastColumn: lastCol,
     getMaxRows: () => Math.max(gridRows, data.length),
     insertRowsAfter(after, count) { gridRows = Math.max(gridRows, data.length) + count; return sheet; },
+    getMaxColumns: () => Math.max(gridCols, lastCol()),
+    insertColumnsAfter(after, count) { gridCols = sheet.getMaxColumns() + count; return sheet; },
+    deleteColumns(from, count) { gridCols = sheet.getMaxColumns() - count; return sheet; },
     getRange: range,
     getDataRange: () => range(1, 1, Math.max(1, lastRow()), Math.max(1, lastCol())),
     appendRow(values) { data[lastRow()] = values.slice(); return sheet; },
@@ -1239,6 +1243,72 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(post(LEAD), { ok: true });
   assert.strictEqual(full.getMaxRows(), 1001);
   assert.deepStrictEqual([row(TRACK, 1001)[1], row(TRACK, 1001)[3], row(TRACK, 1001)[19]], ['TEST QA', '=D', '=T']);
+
+  // The assistant's part (Leads.gs, LeadTabs.gs). A number left in the chat carries the
+  // conversation's id and what the learner told the assistant: two columns after the tab's own,
+  // the same two lines in the mail, and a note for the adviser who calls back.
+  reset();
+  prefillTrack();
+  prefillFees();
+  const CHAT = { chat_session: 'k3f9a2c1-8d4e', chat_note: 'Bác sĩ, muốn dự báo số ca bệnh theo tháng / Thứ 6 mình trực thì sao em' };
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT }), { ok: true });
+  const web = sheets['Lead web'];
+  const width = ctx.LEAD_HEADERS.length;
+  assert.deepStrictEqual(plain(web.data[0]), plain(ctx.LEAD_HEADERS).concat(['Phiên trợ lý', 'Ghi chú trợ lý']));
+  assert.deepStrictEqual(plain(web.data[1]).slice(width - 1), ['Mới', CHAT.chat_session, CHAT.chat_note]);
+  assert.strictEqual(row(TRACK, 2)[18], 'Để lại số qua trợ lý AI: ' + CHAT.chat_note);
+  const told = mail.calls[mail.calls.length - 1].htmlBody;
+  assert.ok(told.includes('trong khung hỏi đáp với trợ lý AI') && told.includes('>Phiên trợ lý</th>') && told.includes(CHAT.chat_session) && told.includes('Thứ 6 mình trực'), told);
+
+  // The same person registers after talking again: the registration row carries the id too, and
+  // the note on their lead row says so. A lead that never used the assistant leaves both cells empty.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0912114511', package_id: 'Gói 3', form_type: 'dang_ky', chat_session: CHAT.chat_session, chat_note: 'bỏ qua' }), { ok: true });
+  assert.deepStrictEqual(plain(web.data[2]).slice(1, 2).concat(plain(web.data[2]).slice(width)), ['Đăng ký', CHAT.chat_session, 'bỏ qua']);
+  assert.match(row(TRACK, 2)[18], /\n\d{2}\/\d{2} \d{2}:\d{2}: gửi thêm form đăng ký Gói 3\. Đã trò chuyện với trợ lý AI$/);
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'c@example.com', phoneregister: '0933222111', form_type: 'dang_ky', chat_session: 'm7q2x9b4-1a2b' }), { ok: true });
+  assert.strictEqual(sheets[TRACK].data.find((r) => r[2] === '0933222111')[18], 'Đã trò chuyện với trợ lý AI');
+  cache.clear();
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0944333222' }), { ok: true });
+  assert.strictEqual(web.data[4].length, width, 'no assistant, nothing past the status');
+  assert.strictEqual(sheets[TRACK].data.find((r) => r[2] === '0944333222')[18], '');
+  assert.ok(!mail.calls[mail.calls.length - 1].htmlBody.includes('trợ lý AI'));
+
+  // An id that is not the chat's own shape is dropped with its note; a note that looks like a formula stays text.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0955444333', chat_session: '=1+1', chat_note: 'x' }), { ok: true });
+  assert.strictEqual(web.data[5].length, width);
+  assert.deepStrictEqual(['short', 'has space 12345', 'a'.repeat(65), null, undefined, 12345678].map((chat_session) => ctx.leadChatSession_({ chat_session })), ['', '', '', '', '', '12345678']);
+  assert.strictEqual(ctx.leadChatNote_(true, { chat_session: 'abcdefgh' }), 'Để lại số qua trợ lý AI');
+  assert.strictEqual(ctx.leadChatNote_(true, { chat_note: 'không có mã thì không ghi' }), '');
+
+  // The two columns sit where their headers are: after a column staff added, and still there once
+  // staff move them. A tab too narrow for them grows.
+  reset();
+  ctx.leadSheet_().getRange(1, width + 1).setValue('Người gọi');
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT }), { ok: true });
+  const moved = sheets['Lead web'];
+  assert.deepStrictEqual(plain(moved.data[0]).slice(width), ['Người gọi', 'Phiên trợ lý', 'Ghi chú trợ lý']);
+  assert.deepStrictEqual(plain(moved.data[1]).slice(width), [null, CHAT.chat_session, CHAT.chat_note]);
+  cache.clear();
+  assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0966111000', ...CHAT }), { ok: true });
+  assert.strictEqual(moved.data[0].length, width + 3, 'the headers are written once');
+  assert.strictEqual(moved.data[2][width + 1], CHAT.chat_session);
+  reset();
+  const narrow = ctx.leadSheet_();
+  narrow.deleteColumns(width + 1, 26 - width);
+  assert.strictEqual(narrow.getMaxColumns(), width);
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT }), { ok: true });
+  assert.deepStrictEqual([narrow.getMaxColumns(), narrow.data[1][width]], [width + 2, CHAT.chat_session]);
+
+  // Losing the assistant's columns never costs the lead.
+  reset();
+  const stuck = ctx.leadSheet_();
+  stuck.deleteColumns(width + 1, 26 - width);
+  stuck.insertColumnsAfter = () => { throw new Error('boom'); };
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT }), { ok: true });
+  assert.deepStrictEqual([stuck.data.length, stuck.data[1][3], mail.calls.length], [2, '0912 114 511', 1]);
 
   // A broken staff tab never costs the lead or the registration.
   reset();
