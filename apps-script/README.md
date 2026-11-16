@@ -55,13 +55,13 @@ When new code arrives (not needed for data changes):
 
 ### Pushing with clasp instead of pasting
 
-`tools/gas-push.js` sends the `.gs` files to the project with Google's `clasp`, so nothing is pasted by hand. It runs on your own computer (Node 18 or later), never in CI: it needs your Google login.
+`tools/gas-push.js` sends the `.gs` files to the project with Google's `clasp`, so nothing is pasted by hand. It runs on your own computer (Node 18 or later), and from GitHub on every change to main (see "Deploying from GitHub" below).
 
 One-time setup:
 
 1. `npx @google/clasp@3.4.1 login`, with the Google account that owns the project.
 2. Turn on the Apps Script API at https://script.google.com/home/usersettings.
-3. `node tools/gas-push.js --dry`. This only reads. The first time it copies the project's `appsscript.json` (time zone, permissions, who the web app runs as) into `apps-script/`: commit that file. It then lists what a push would change.
+3. `node tools/gas-push.js --dry`. This only reads, and lists what a push would change. `apps-script/appsscript.json` (time zone, permissions, who the web app runs as) is the project's own, copied on 16/11/2026; if it is ever missing, the tool copies it again: commit it.
 
 For each update, after `git pull`:
 
@@ -76,10 +76,20 @@ A push takes effect in the editor at once: the Sheet's menus run the new code im
 What the tool guards against, because a clasp push replaces the whole project:
 
 - **Deleting.** A file that exists in the project but is not pushed from here would be deleted. The tool stops and names it. Bring the file into `apps-script/` and `.claspignore` first.
-- **Adding.** A file pushed from here that the project does not have (for example `Ledger.gs` before the ledger is set up) would be added. The tool stops unless you pass `--add`; to keep it out, remove its line from `.claspignore`.
+- **Adding.** A file pushed from here that the project does not have (for example `Ledger.gs` before the ledger is set up) would be added. The tool stops unless you pass `--add`. Keeping `Ledger.gs` and `BotApi.gs` out is not an option while `Code.gs` calls them: a registration would fail on `channelFromPage_`.
 - **Settings.** If `appsscript.json` differs between the two, the tool stops: someone changed a permission in the editor, or the file was edited here.
 
 `.claspignore` is the list of what is pushed: everything is ignored, then each file is let through by name. It must stay next to `.clasp.json` at the repository root (clasp 3 does not read it from `apps-script/`), its names are relative to `apps-script/`, and it cannot hold comments. Without it clasp would push `check.js` and `chat-check.js` as server code and break the web app, which is why the tool pins clasp's version. A new `.gs` file needs a new line there. The attendance script (`apps-script/attendance/`) is a separate project and is not pushed.
+
+### Deploying from GitHub
+
+`.github/workflows/deploy-apps-script.yml` runs the harnesses and then `node tools/gas-push.js --deploy` whenever a merge to main changes `apps-script/*.gs`, `appsscript.json`, the clasp files or the tool. It stops, pushing nothing, in the same cases as on your computer; the run's log names the file. Files the project does not have yet (the ledger's first push) go up only from Actions > Deploy Apps Script > Run workflow, with "Add new files" ticked.
+
+It logs in with your clasp login, kept as the repository secret `CLASPRC_JSON`. Once, on the computer where `clasp login` was done:
+
+    gh secret set CLASPRC_JSON < ~/.clasprc.json
+
+(PowerShell: `Get-Content "$HOME\.clasprc.json" -Raw | gh secret set CLASPRC_JSON`.) The secret can do with the project, and with the account's Drive files that clasp touched, whatever you can, so only a merge to main or a manual run uses it, never a pull request. When Google ends the login (an `invalid_grant` or `invalid_rapt` error in the run, after a password change or the Workspace re-authentication period), run `clasp login` again and set the secret again.
 
 ## Script properties
 

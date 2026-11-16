@@ -1,0 +1,66 @@
+name: Deploy Apps Script
+
+# Pushes apps-script/ to the Institute's Apps Script project and points the web app at a new
+# version whenever main changes it, with tools/gas-push.js: it stops, and pushes nothing, when
+# the project holds a file the repository would delete, or the push would add one (run it by
+# hand with "Add new files" for that), or appsscript.json differs.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps-script/*.gs
+      - apps-script/appsscript.json
+      - .clasp.json
+      - .claspignore
+      - tools/gas-push.js
+      - .github/workflows/deploy-apps-script.yml
+  workflow_dispatch:
+    inputs:
+      add:
+        description: Add new files the project does not have yet (gas-push.js --add)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apps-script
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check the backend before it goes live
+        run: |
+          node apps-script/check.js
+          node apps-script/chat-check.js
+          node tools/gas-push.js --self-test
+
+      - name: Push and deploy a new version
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+          ADD: ${{ inputs.add }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "::error::Secret CLASPRC_JSON is missing. See apps-script/README.md, \"Deploying from GitHub\"."
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          if [ "$ADD" = "true" ]; then
+            node tools/gas-push.js --deploy --add
+          else
+            node tools/gas-push.js --deploy
+          fi
