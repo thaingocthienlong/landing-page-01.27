@@ -16,3 +16,6 @@ __pycache__/
 
 # built by the deploy workflow (tools/build-assistant-data.js)
 dist/assistant-data.json
+
+# clasp's Google login, if it is ever kept next to the project (tools/gas-push.js)
+.clasprc.json

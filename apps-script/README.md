@@ -53,6 +53,34 @@ When new code arrives (not needed for data changes):
 2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
 3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
+### Pushing with clasp instead of pasting
+
+`tools/gas-push.js` sends the `.gs` files to the project with Google's `clasp`, so nothing is pasted by hand. It runs on your own computer (Node 18 or later), never in CI: it needs your Google login.
+
+One-time setup:
+
+1. `npx @google/clasp@3.4.1 login`, with the Google account that owns the project.
+2. Turn on the Apps Script API at https://script.google.com/home/usersettings.
+3. `node tools/gas-push.js --dry`. This only reads. The first time it copies the project's `appsscript.json` (time zone, permissions, who the web app runs as) into `apps-script/`: commit that file. It then lists what a push would change.
+
+For each update, after `git pull`:
+
+| Command | What it does |
+|---|---|
+| `node tools/gas-push.js --dry` | compares the project with the repository and changes nothing |
+| `node tools/gas-push.js` | compares, pushes, then reads the project back and checks it equals the repository |
+| `node tools/gas-push.js --deploy` | the same, then points the web app's existing deployment at a new version (the `/exec` URL stays) and checks that it answers |
+
+A push takes effect in the editor at once: the Sheet's menus run the new code immediately, the web app only after a new version is deployed.
+
+What the tool guards against, because a clasp push replaces the whole project:
+
+- **Deleting.** A file that exists in the project but is not pushed from here would be deleted. The tool stops and names it. Bring the file into `apps-script/` and `.claspignore` first.
+- **Adding.** A file pushed from here that the project does not have (for example `Ledger.gs` before the ledger is set up) would be added. The tool stops unless you pass `--add`; to keep it out, remove its line from `.claspignore`.
+- **Settings.** If `appsscript.json` differs between the two, the tool stops: someone changed a permission in the editor, or the file was edited here.
+
+`.claspignore` is the list of what is pushed: everything is ignored, then each file is let through by name. It must stay next to `.clasp.json` at the repository root (clasp 3 does not read it from `apps-script/`), its names are relative to `apps-script/`, and it cannot hold comments. Without it clasp would push `check.js` and `chat-check.js` as server code and break the web app, which is why the tool pins clasp's version. A new `.gs` file needs a new line there. The attendance script (`apps-script/attendance/`) is a separate project and is not pushed.
+
 ## Script properties
 
 Each provider reads a group of properties with its own prefix. A provider without a key, without models, or with a malformed JSON value is skipped.
