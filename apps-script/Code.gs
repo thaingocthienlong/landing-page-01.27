@@ -102,7 +102,7 @@ function doPost(e) {
 
     cache.put(key, '1', 600);
     // Ad attribution is a copy for marketing: losing it must not fail a saved registration.
-    try { logRegistrationLead_(data); } catch (ignore) {}
+    try { logRegistrationLead_(data, row); } catch (ignore) {}
 
     // The row is saved and cached: a mail or journal failure must not become an error the learner retries.
     var note = function (c, event, detail) { try { journal_(c, event, detail); } catch (ignore) {} };
@@ -171,31 +171,54 @@ function json_(object) {
   return ContentService.createTextOutput(JSON.stringify(object)).setMimeType(ContentService.MimeType.JSON);
 }
 
-// The learner emails' layout and receipt live here, not in Leads.gs or LedgerMail.gs: both send them, and only Code.gs is
-// in every install (the ledger setup does not add Leads.gs).
-// No bank details in the receipt: staff confirm the amount first, so a wrong figure never reaches the learner.
-function receiptHtml_(name, course, pack, code, deadline) {
-  return learnerMailHtml_('Viện đã nhận phiếu đăng ký của anh/chị',
-    'Chưa cần chuyển khoản. Chuyên viên sẽ liên hệ anh/chị qua Zalo để xác nhận số tiền.', [
-      mailText_('Kính chào anh/chị ' + esc_(clean_(name)) + ','),
-      mailText_('Cảm ơn anh/chị đã đăng ký. Thông tin trên phiếu:'),
-      mailFacts_([
-        ['Chuỗi khóa học', esc_(course)],
-        ['Gói đã chọn', esc_(pack)],
-        code && ['Mã học viên', '<strong>' + esc_(code) + '</strong>']
-      ]),
-      mailSteps_('Các bước tiếp theo', [
-        'Ms. Vy hoặc Ms. Thảo sẽ liên hệ anh/chị qua Zalo trong khoảng 1 ngày làm việc. Nếu không tìm thấy Zalo của anh/chị, Viện sẽ gửi email.',
-        'Anh/chị vui lòng chờ chuyên viên xác nhận số tiền, rồi mới chuyển khoản.',
-        'Hoàn tất học phí' + (deadline ? ' trước ngày ' + mailDeadline_(deadline) : '') + ' để có tên trong danh sách lớp. Phiếu đăng ký này chưa giữ chỗ.'
-      ])
+// The learner's receipt and the email layout live here, not in Leads.gs or LedgerMail.gs: both send the receipt, and only
+// Code.gs is in every install (the ledger setup does not add Leads.gs). r is the registration keyed by the Đăng ký headers.
+// Throws when the send fails.
+function sendReceipt_(r, course) {
+  MailApp.sendEmail({
+    to: clean_(r['Email']),
+    replyTo: 'vanphong@vienphuongnam.com.vn',
+    name: 'Viện Phương Nam',
+    subject: 'Phiếu xác nhận đăng ký khóa học ' + course,
+    htmlBody: receiptHtml_(r, course)
+  });
+}
+
+// Everything the learner filled in, so they can check it. No price, bank details or learner code: the advisers confirm
+// the amount with the learner on Zalo.
+function receiptHtml_(r, course) {
+  var text = function (header) { return esc_(clean_(r[header])); };
+  var name = esc_([clean_(r['Họ và chữ lót']), clean_(r['Tên'])].filter(Boolean).join(' '));
+  var other = clean_(r['Ghi rõ (Khác)']);
+  var facts = [
+    ['Khóa học', esc_(course)],
+    // The label ends in the list price and the confirmed amount can differ, so show the package name only.
+    ['Gói đăng ký', esc_(clean_(r['Gói đăng ký quan tâm'] || r['Mã gói']).replace(/\s*\(.*$/, ''))],
+    ['Họ và tên', name],
+    ['Email', text('Email')],
+    ['Số điện thoại', text('Số điện thoại')],
+    ['Giới tính', text('Giới tính')],
+    ['Ngày sinh', text('Ngày sinh')],
+    ['Tỉnh/Thành phố', text('Tỉnh/Thành phố')],
+    ['Vị trí công tác', text('Vị trí công tác')],
+    ['Đơn vị công tác', text('Đơn vị công tác')],
+    ['Biết đến qua', text('Biết đến qua') + (other ? ' (' + esc_(other) + ')' : '')]
+  ].filter(function (f) { return f[1]; });
+  return learnerMailHtml_('Phiếu xác nhận đăng ký thông tin tư vấn/tham gia khóa học',
+    'Viện Phương Nam (Ms. Vy/Ms. Thảo) sẽ liên hệ anh/chị qua Zalo/điện thoại.', [
+      mailText_('Kính chào anh/chị ' + name + ','),
+      mailText_('Cảm ơn anh/chị đã đăng ký. Thông tin anh/chị đã điền:'),
+      mailFacts_(facts),
+      '<p style="margin:0 0 8px;' + MAIL_SERIF + 'font-size:19px;font-weight:600">Bước tiếp theo</p>' +
+        mailText_('Viện Phương Nam (Ms. Vy/Ms. Thảo) sẽ liên hệ anh/chị qua Zalo/điện thoại để tư vấn các thông tin về khóa học và hướng dẫn các bước tiếp theo.'),
+      mailText_('Viện Phương Nam cam kết bảo mật tuyệt đối thông tin cá nhân của quý anh/chị và chỉ sử dụng thông tin nhận được để phục vụ cho việc quản lý khoá học.')
     ]);
 }
 
 var COURSE_URL = 'https://vienphuongnam.com.vn/phan-tich-du-lieu-voi-r/';
 // [label, shown text, link] in the contact band of every learner email.
 var LEARNER_CONTACTS = [
-  ['Văn phòng Viện', '(028) 2242 6789', 'tel:02822426789'],
+  ['Văn phòng Viện Phương Nam', '(028) 2242 6789', 'tel:02822426789'],
   ['Ms. Vy (SĐT/Zalo)', '0949 761 636', 'tel:0949761636'],
   ['Ms. Thảo (SĐT/Zalo)', '0912 114 511', 'tel:0912114511'],
   ['Email', 'vanphong@vienphuongnam.com.vn', 'mailto:vanphong@vienphuongnam.com.vn']
@@ -226,12 +249,12 @@ function learnerMailHtml_(title, preview, blocks) {
     '<tr><td style="padding:24px 24px 4px"><h1 style="margin:0;' + MAIL_SERIF + 'font-size:26px;line-height:1.2;font-weight:600">' + title + '</h1></td></tr>' +
     '<tr><td style="padding:12px 24px 0">' + blocks.join('') + mailText_('Trân trọng,<br>Viện Phương Nam') + '</td></tr>' +
     '<tr><td style="padding:12px 24px 16px;background:#0a3d91;color:#ffffff">' +
-      '<p style="margin:12px 0 4px;' + MAIL_SERIF + 'font-size:19px;font-weight:600">Cần hỏi thêm, anh/chị liên hệ Viện</p>' +
+      '<p style="margin:12px 0 4px;' + MAIL_SERIF + 'font-size:19px;font-weight:600">Cần hỏi thêm, anh/chị liên hệ Viện Phương Nam</p>' +
       '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + contacts + '</table></td></tr>' +
     '</table>' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px"><tr>' +
       "<td style=\"padding:16px 24px;font-family:'Source Sans 3','Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.5;color:#566780\">" +
-      'Thư gửi tự động từ <a href="' + COURSE_URL + '" style="color:#0a3d91">trang khóa học</a> của Viện. Trả lời thư này để liên hệ văn phòng Viện.</td></tr></table>' +
+      'Thư gửi tự động từ <a href="' + COURSE_URL + '" style="color:#0a3d91">trang khóa học</a> của Viện Phương Nam. Trả lời thư này để liên hệ văn phòng Viện Phương Nam.</td></tr></table>' +
     '</td></tr></table>';
 }
 
@@ -249,20 +272,4 @@ function mailFacts_(rows) {
         'font-size:13px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#566780">' + r[0] + '</th>' +
         '<td style="padding:10px 0;vertical-align:top;' + line + '">' + r[1] + '</td></tr>';
     }).join('') + '</table>';
-}
-
-function mailSteps_(heading, steps) {
-  return '<p style="margin:0 0 12px;' + MAIL_SERIF + 'font-size:19px;font-weight:600">' + heading + '</p>' +
-    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px">' +
-    steps.map(function (html, i) {
-      return '<tr><td width="40" style="vertical-align:top;padding:0 0 14px">' +
-        '<div style="width:28px;height:28px;line-height:28px;border-radius:50%;background:#0a3d91;color:#ffffff;text-align:center;' +
-        MAIL_SERIF + 'font-size:15px;font-weight:600">' + (i + 1) + '</div></td>' +
-        '<td style="vertical-align:top;padding:1px 0 14px">' + html + '</td></tr>';
-    }).join('') + '</table>';
-}
-
-// Signal red marks only the deadline, as on the course page.
-function mailDeadline_(date) {
-  return '<strong style="color:#c4231a">' + esc_(date) + '</strong>';
 }

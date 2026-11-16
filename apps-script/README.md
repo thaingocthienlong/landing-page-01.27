@@ -10,7 +10,7 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 | `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
 | `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
 | `Ledger.gs` | The learner ledger: the extra `Đăng ký` columns, the `Đợt học`, `Gói` and `Nhật ký` tabs, the `Trạng thái` trigger and the **Sổ học viên** menu actions. See "Sổ học viên". |
-| `LedgerMail.gs` | The ledger's one learner email: the confirmation with the learner code after registering. Payment details come from the advisers on Zalo, never from the system. |
+| `LedgerMail.gs` | The ledger's one learner email: the receipt (built in `Code.gs`) after registering, listing what the learner filled in, without a learner code. Payment details come from the advisers on Zalo, never from the system. |
 | `Leads.gs` | The consult lead (`form_type` `tu_van`), today sent by the assistant's "Để lại số điện thoại" card: one row per lead in the `Lead web` tab with its UTM fields and an email to tuyensinh@, vanphong@ and quantrihethong@. A full registration also adds a `Lead web` row (type `Đăng ký`) with its UTM fields; the `Đăng ký` tab is unchanged. A form sent by someone who talked to the assistant carries the conversation's id (`chat_session`): it goes to the `Phiên trợ lý` column (and what the learner told the assistant to `Ghi chú trợ lý`), two columns added after the tab's last column the first time they are needed and found by their headers afterwards, so staff may move them. `LeadTabs.gs` copies the note to `Ghi chú` of `Theo dõi lead`. |
 | `LeadTabs.gs` | Copies each submission into the staff tabs `Theo dõi lead` and (registrations) `Học viên - Học phí`: input columns only, dropdown values only, next row = first empty column A, one row per phone number (later submissions add a note). `backfillFromRegistrations` (run once by hand) adds the registrations made before it existed. |
 | `BotApi.gs` | The `feed` action the chat bot polls for new registrations and payments, guarded by the `BOT_KEY` property. |
@@ -353,7 +353,7 @@ The `Đăng ký` tab is also the learner ledger. Each registration gets a learne
 6. Deploy: Run workflow again without the tick (or `node tools/gas-push.js --deploy`). This keeps the `/exec` URL.
 7. Menu **Sổ học viên > Cấp mã cho dòng chưa có mã** gives the rows registered before the ledger their codes.
 
-Until `setupLedger` has run, registrations still work and the learner still gets the receipt from `Leads.gs`, without a learner code.
+Until `setupLedger` has run, registrations still work and the learner still gets the same receipt, sent by `Leads.gs` instead.
 
 ### How staff use `Trạng thái`
 
