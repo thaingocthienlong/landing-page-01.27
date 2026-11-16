@@ -60,7 +60,8 @@ jobs:
             exit 1
           fi
           umask 077
-          printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
+          # A secret piped in from PowerShell can start with a byte-order mark, which JSON.parse rejects.
+          printf '%s' "$CLASPRC_JSON" | sed '1s/^\xEF\xBB\xBF//' > ~/.clasprc.json
           if [ "$ADD" = "true" ]; then
             node tools/gas-push.js --add
           else
