@@ -1537,6 +1537,8 @@
         retry.className = "link-button";
         retry.textContent = "Thử lại";
         retry.addEventListener("click", () => {
+          // the button goes with the message; keep focus in the panel, as for the suggestion buttons
+          if (item.contains(document.activeElement)) (compact.matches ? log : input).focus({ preventScroll: true });
           item.remove();
           ask();
         });
@@ -1664,6 +1666,10 @@
       document.documentElement.classList.toggle("chat-open", open);
       syncInert();
       if (!open) {
+        // an answer is written out once: a hidden panel shown again restarts its animations, so they come off here
+        log.querySelectorAll(".chat-token").forEach((span) => span.replaceWith(span.textContent));
+        log.normalize();
+        log.querySelectorAll(".chat-options").forEach((list) => { list.style.animation = ""; });
         try { window.sessionStorage.setItem(CLOSED, "1"); } catch { /* storage blocked: it opens again on the next page view */ }
         const inside = panel.contains(document.activeElement) || document.activeElement === document.body;
         if (opener && opener.isConnected && opener.getClientRects().length) opener.focus();
