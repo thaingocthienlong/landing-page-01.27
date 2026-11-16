@@ -5,7 +5,7 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 | File | What it does |
 |---|---|
 | `Code.gs` | Registration form: appends to the `Đăng ký` sheet, assigns the learner code, emails the team and the learner. Also routes requests. |
-| `Chat.gs` | Learner-care chat: answers from the FAQ tab when it can, otherwise asks a chain of low-cost AI models, and logs every exchange to the `Hỏi đáp` sheet. |
+| `Chat.gs` | Learner-care chat: looks each message up in the FAQ tab, lets a chain of AI models talk the learner through it in a few short messages, falls back to the FAQ wording, and logs every exchange to the `Hỏi đáp` sheet. |
 | `Faq.gs` | The FAQ lookup: reads the staff-edited `FAQ` tab and finds the row a question matches. |
 | `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
 | `Knowledge.gs` | The AI's instructions and everything it knows about the course series (from the v4 notice and the three outlines), the confirmed practices (`KNOWLEDGE_EXTRA`, used until the `Thông tin thêm` tab exists), plus the daily date note. |
@@ -20,11 +20,20 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 
 ## How a question is answered
 
-1. **FAQ tab.** A question that clearly matches a row (see "FAQ matching") gets that row's answer word for word, in about a second, and never leaves Apps Script. Staff maintain the tab; their guide is `docs/huong-dan-faq.md` (Vietnamese).
-2. **AI chain.** Other questions go to the configured providers in order: `CHAT_` (Gemini free tier by default), then `CHAT2_` (Cloudflare Workers AI), then `CHAT3_` (the office PC, optional). The three closest FAQ rows travel with the question as reference, so the model reuses the staff's wording.
-3. **Fallback.** If no model answers, the learner is offered the closest FAQ questions to tap, or, with none close, a plain "no answer yet" with the phone and Zalo numbers.
+The chat works as an adviser, not a lookup desk: it answers in a few short messages, asks one question back when the answer would change its advice, and recommends one package.
 
-With no AI configured at all, steps 1 and 3 still work: the chat runs as a FAQ bot.
+1. **FAQ tab.** Every message is looked up in the tab (see "FAQ matching"). Staff maintain it; their guide is `docs/huong-dan-faq.md` (Vietnamese).
+2. **AI.** While a provider is configured, every message goes to the providers in order: `CHAT_` (Gemini free tier by default), then `CHAT2_` (Cloudflare Workers AI), then `CHAT3_` (the office PC, optional). The model reads the conversation (the last 30 exchanges, 60 messages) and gets the matched row first, then the closest rows, three in all, as its source; it is told not to copy them. Its turn is one to three short messages with a blank line between them, which the page shows one after another, and may end with a line of up to three quick replies, `[[Chưa từng | Đã dùng cơ bản]]`, which the page shows as buttons. No row is answered word for word ahead of the model, payment and contact rows included: the table reads one message with no memory of the conversation, so a short answer to the assistant's own question ("rồi", "em làm về điều trị") would get whichever row shares its words.
+3. **Figure check.** `chatUnknownFigure_` in `Chat.gs` drops an AI answer (status `guard-number` and the figure) when it states:
+   - an amount, a date, a clock time, or a phone or account number that is in neither the prompt (its example conversation does not count), the date note, the rows sent along nor the conversation;
+   - a percentage, in a sentence about money, that is in none of those;
+   - an amount that is not one of a package's own amounts in the fee tables, in a sentence that names that one package or in the sentences that carry on about it (an amount the learner gave may be said back beside the package's own, never in its place);
+   - another course's class day, in a sentence that names one course.
+
+   So a sum the model worked out itself, a neighbouring row of the fee table or another course's dates never reaches the learner. The check reads figures, not meaning: a real date given for the wrong thing ("hạn chót 08/01/2027"), or a real percentage tied to the wrong condition, passes.
+4. **Fallback.** No usable AI answer means every provider failed, the hourly cap is reached, the check dropped the answer, a content filter refused, or the answer was cut off at the length cap. A clearly matched row is then answered word for word, provided the message asks something: it opens the conversation, or the turn before it did not end on a question, or it has a question mark or a question word. A short answer to the assistant's question never gets the table; the visitor is asked to try again. With no matched row, the learner is offered the closest FAQ questions to tap, or asked to try again.
+
+With no AI configured at all (or `CHAT_MAX_PER_HOUR` = 0), every clear match is answered word for word, a near match gets the closest questions to tap, and anything else gets a plain "no answer yet" with the phone and Zalo numbers: the chat runs as a FAQ bot.
 
 ## Setting it up
 
@@ -32,14 +41,14 @@ With no AI configured at all, steps 1 and 3 still work: the chat runs as a FAQ b
 2. Choose `setupFaq` in the function list and Run. It creates the `FAQ` tab with the starter rows (it never overwrites a tab that has rows).
 3. Get a free Gemini key: sign in to aistudio.google.com with the institute's Google account and accept the terms. AI Studio creates a Cloud project and an API key for new users; otherwise use API keys > Create API key. No credit card is needed. Make sure the key sits in a project **with no billing account**: a key inherits its project's billing, and a billed project is charged for every question. If the account already has Google Cloud projects with billing (for Maps, for example), choose to create a new project in the dialog, then check that AI Studio shows the project on the Free tier. On the API keys page, choose Add restrictions > Restrict to Gemini API only. (On a Google Workspace account, an admin can switch AI Studio off; ask them if it is blocked.)
 4. Project Settings (gear icon) > Script properties: set `CHAT_API_KEY` to that key. Add Cloudflare (`CHAT2_...`, below) the same way. Delete `ANTHROPIC_API_KEY` if an earlier version left it there.
-5. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider, which should start with `ok` and quote 8.800.000 đồng. `error-400` from Gemini usually means the key was pasted wrong.
+5. Run `chatSelfTest`. Accept the new permission ("Connect to an external service"): the web app runs as you, so it can only reach the AI services after you grant this. The log shows the FAQ row count and a line per provider, which should start with `ok` and quote 8.800.000 đồng. `error-400` from Gemini usually means the key was pasted wrong. Then run `chatTalkTest` to read a four-turn consultation with the configured models in the log: a scripted learner, the same checks as the page.
 6. Deploy > Manage deployments > pencil icon on the existing web app > Version: **New version** > Deploy. This keeps the `/exec` URL, so `dist/index.html` needs no change. (Deploy > New deployment would create a different URL.)
 
 ### Upgrading an existing deployment
 
 When new code arrives (not needed for data changes):
 
-1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`).
+1. Paste every changed `.gs` file, and create any new one (for example `Sync.gs`). Files that changed together go in together: the adviser version changes `Chat.gs`, `Knowledge.gs` and `Sync.gs` (`Sync.gs` now calls `chatCell_`, which only the new `Chat.gs` has).
 2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
 3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
@@ -74,11 +83,11 @@ Cloudflare: create a free account (no card), copy the Account ID from the dashbo
 - **Quotas.**
   - Gemini: Google no longer publishes fixed free limits; see your project's rate limits in AI Studio. Unofficial reports put Flash-Lite models at about 500 requests a day each; Gemma 4 reportedly allows about 16,000 tokens a minute, roughly 2 questions a minute at this prompt size. Daily quotas reset at midnight Pacific time: 15:00 in Vietnam while the US is on standard time (first Sunday of November to second Sunday of March), 14:00 the rest of the year.
   - Cloudflare: 10,000 neurons a day for the whole account, about 130 to 150 questions at this prompt size, resetting at 07:00 Vietnam time. Over the quota it answers 429 with code 3036, which the chat reads as "out for the day".
-  - Every question the FAQ answers costs no quota at all.
+  - Every message is one AI call while a provider is configured, a tapped quick reply included. At a few visitors a day that stays far inside the free quotas.
 - **Data.** On the Gemini free tier Google may use questions and answers to improve its products, and human reviewers may read them; Google's terms ask developers not to send personal information. Cloudflare does not train on or keep prompts. So:
-  - FAQ answers never leave Apps Script.
+  - While a provider is configured, every message goes to the model (in the FAQ-first version, a question the table answered never left Apps Script), and the adviser asks about the learner's field, topic and data (never the name, phone, email or workplace). So more of what learners say about themselves reaches the provider than before.
   - Before any AI call, `Chat.gs` replaces a learner's own phone numbers (0909 123 456, 0909.123.456, (028) 3829 5555, +84 909 123 456, (+84) 909…, 84909123456), email addresses and ID numbers (9 or 12 digits, unbroken or in groups of 3 or 4) with `[số điện thoại]`, `[email]` and `[số giấy tờ]`. The institute's own numbers pass through. Names, addresses and workplaces cannot be detected and are not masked. A 9-digit amount typed without dots (105600000) is also hidden, the accepted cost of catching old ID numbers. The `Hỏi đáp` sheet keeps the original text.
-  - Vietnam's Personal Data Protection Law (Law 91/2025/QH15) has applied since 1 January 2026, including to personal data sent to services abroad. Masking reduces but does not remove personal data in learners' questions, so ask whoever handles legal matters at the Institute whether the Gemini and Cloudflare tiers need a transfer impact assessment. FAQ answers never leave Apps Script. The office PC, even placed first, does not make the chain in-house: questions still pass through Google (Apps Script, the Sheet) and through Cloudflare's tunnel, and go on to Gemini whenever the PC is slow or off. Include those flows in the question.
+  - Vietnam's Personal Data Protection Law (Law 91/2025/QH15) has applied since 1 January 2026, including to personal data sent to services abroad. Masking reduces but does not remove personal data in learners' questions, so ask whoever handles legal matters at the Institute whether the Gemini and Cloudflare tiers need a transfer impact assessment. The office PC, even placed first, does not make the chain in-house: questions still pass through Google (Apps Script, the Sheet) and through Cloudflare's tunnel, and go on to Gemini whenever the PC is slow or off. Include those flows in the question.
   - The chat panel no longer shows a privacy note (removed at the Institute's request). The greeting still says it is an AI that can be wrong. If the Institute wants learners told that questions may reach an outside AI service, the privacy policy page is the place for it.
 - **Terms.** You must be 18 or older to use the Gemini API, and it may not power a site aimed at or likely to be used by under-18s; this audience (researchers, postgraduates, clinicians) is adult. It may not give medical advice; the prompt and the `tu-van-y-khoa` FAQ row decline clinical questions. Re-read https://ai.google.dev/gemini-api/terms before launch.
 
@@ -181,6 +190,8 @@ Estimates from published benchmarks of similar cards, not measured on this PC: 3
 
 `Faq.gs` scores every phrasing of every row (the question plus each line of "Cách hỏi khác") with BM25. Words are compared without accents, so "hoc phi" finds "học phí", and also with accents when the learner typed them, so "cô" and "có" stay apart. Common shorthand is expanded (hp, đk, sdt, stk, ck, gv, ko, bn, onl, k1/k2/k3…), greetings, particles and acknowledgements ("ok", "ừ") are ignored, neighbouring word pairs add weight, and a number after "gói" or "khóa" is read together with it, so "gói 2" never matches "khóa 2". A row answers only when its score, its coverage of the question and its lead over the next row all pass the thresholds at the top of `Faq.gs`, when it shares at least a third of the question's words, and when the row (in any phrasing) contains the question's rarest word of three letters or more (package and course numbers and common function words such as "cho", "rồi" and "nữa" do not count). A question whose words, read the same way, are exactly those of one phrasing of one active row is answered by that row without the thresholds: staff add learners' real messages as phrasings, and many are too short to score ("Hỏi giá" leaves one word). A phrasing that two active rows share never takes this shortcut. A row whose phrasings name a different package or course than the question (the Khóa 1 schedule for "khóa 2") cannot answer, and a thank-you with no question word is never matched. `=FAQ_KHOP` shows which rule stopped a question. Coverage weighs each word by how rare it is in the table, and a word the table never uses counts in full, so "khóa học có dùng Python không" is not answered by a row that shares only "khóa học có dùng … không". Rows with "Bật" = `Không` are ignored. Rows outside their "Từ ngày / Đến ngày" window never answer, and when one of them matches better than every active row, the question goes to the AI instead (on 15/12, "đóng trước 8/12 giảm bao nhiêu" must not get a neighbouring row's answer). The three closest active rows that share at least a third of the question's words go to the AI as reference.
 
+Since the chat became an adviser, a clear match leads the model's references instead of being the answer. The figures below still say how often the matcher picks the right row, which is now what the model speaks from and what the learner gets when no model answers.
+
 The thresholds were tuned on half of two sets and measured on the other half:
 
 - 110 learner-style questions written separately from the starter rows (abbreviations, no accents, long messages with greetings, plus off-topic, medical and multi-step questions);
@@ -206,6 +217,7 @@ The thresholds favour sending a question to the AI over a wrong canned answer. T
 ## What the chat does and does not do
 
 - Answers from the FAQ tab and `Knowledge.gs` only. Besides the notice, `Knowledge.gs` holds practices the Institute confirmed on 03/10/2026: class hours; online learners joining live with the hall, seeing the lecturer's screen and getting help with code errors; teaching in Vietnamese; materials and the signed book; the completion certificate (course names, no CME, no final test, passport name order on request, a sample via Zalo); the replay link (from day one to about two days after the course); the Zalo contact within about one working day, confirming the amount before paying, the receipt and the VAT invoice; the class Zalo group 3–4 days before the start and support there after the course. Deferring or withdrawing a fee goes to the advisers. When something is in neither (seats left, class size, attendance needed for the certificate, trial sessions, office hours) it says so and gives (028) 2242 6789, Ms. Vy 0949 761 636 and Ms. Thảo 0912 114 511.
+- Talks like an adviser. A turn is one to three short messages on one topic; it asks at most one question back (R experience; field, topic or kind of data; in person or online and any clashing dates; alone, in a group or a former learner when fees come up), then recommends one package for the learner's own reasons, naming the lessons that teach what they need. It invites the next step once (the form, or Zalo to Ms. Vy or Ms. Thảo) and never presses: no "only today", no "seats running out". It does not ask for a name, phone number, email or workplace.
 - Never registers, holds a seat, confirms a payment or grants a discount. It points to the form on the page, the phone numbers, or in-person registration at 45 Đinh Tiên Hoàng.
 - Discounted amounts are labelled as estimates (tạm tính); the Institute confirms the final amount. It says the notice does not settle whether the early-payment and group discounts stack.
 - Declines medical questions and anything outside the course series.
@@ -247,9 +259,11 @@ For AI answers the status lists each model tried, for example `error-429-daily g
 
 | Status | Meaning |
 |---|---|
-| `faq:<id>` | answered from that FAQ row |
+| `faq:<id>` | answered word for word from that FAQ row. Alone: no AI is configured. After other statuses (`error-500 …; faq:<id>`): no model gave a usable answer, so the matched row was used |
+| `…; guard-number <figure>` | the model's answer stated a figure the Institute's text does not support and was dropped. The status names it: `7900000` (an amount found nowhere), `Gói 3: 6700000` (another package's fee), `20%`, `15/12`, `Khóa 2: 15/1` (another course's day), `19:00`, a phone number. The matched row, the closest questions or a retry followed |
+| `…; guard-empty` | the model sent quick replies without a message; handled the same way |
 | `ok` | an AI model answered |
-| `ok-truncated` | the answer hit the length cap; usually a sign the question needs a person |
+| `ok-truncated` | the answer hit the length cap; it is shown only when no row matched, without quick replies. Usually a sign the question needs a person |
 | `…; faq-suggest` | no model answered; the learner was offered the closest FAQ questions |
 | `no-ai` | no AI configured (or `CHAT_MAX_PER_HOUR` = 0) and no FAQ row close enough |
 | `over-hour-cap` | the shared hourly AI cap was reached |
@@ -272,13 +286,15 @@ Read it weekly (the staff guide shows how): AI answers to common questions shoul
 
 ## Updating what the chat knows
 
-- Rules and notice facts (`CHAT_PROMPT_TEMPLATE` in `Knowledge.gs`): edit the file, paste it, run `chatSelfTest` if you want a quick check, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
+- How it talks, rules and notice facts (`CHAT_PROMPT_TEMPLATE` in `Knowledge.gs`: "Cách trò chuyện", "Quy tắc về thông tin", the facts, then an example conversation, which a small model imitates closely): edit the file, paste it, run `chatTalkTest` to read a consultation in the log, then deploy a new version. Keep the text identical between deployments so the provider can reuse its cached copy. The notice is the source of truth; nothing goes in that the notice or the outlines do not say.
 - Confirmed practices: edit the `Thông tin thêm` tab, or change `KNOWLEDGE_EXTRA` in the repository and use the update menu (see "Keeping the data current"). Once the tab exists, pasting `Knowledge.gs` does not change them.
 - FAQ answers: edit the `FAQ` tab, or change `FaqSeed.gs` in the repository and use the update menu; no deployment needed.
 
 ## Limits
 
-30 questions per visitor session per clock hour (FAQ answers included); `CHAT_MAX_PER_HOUR` AI calls across everyone (default 100) per clock hour; 1,000 characters per question; the last 12 turns of history; 1,024 output tokens per answer; 45 seconds for all model attempts on one question, at most 25 for one attempt (the page stops waiting at 60). A visitor over their own limit is told to try again next hour; when the shared cap is reached, the closest FAQ questions are offered, or visitors are told the assistant is busy, without blaming them.
+60 messages per visitor session per clock hour (FAQ answers and tapped quick replies included); `CHAT_MAX_PER_HOUR` AI calls across everyone (default 100) per clock hour; 1,000 characters per message; the last 30 exchanges (60 messages) of history, and more than 80 messages in one request refused; 2,048 output tokens per answer; 45 seconds for all model attempts on one question, at most 25 for one attempt (the page stops waiting at 60). A visitor over their own limit is told to try again next hour; when the shared cap is reached, the fallback of "How a question is answered" applies (a matched row, else the closest FAQ questions), or visitors are told the assistant is busy, without blaming them.
+
+`node apps-script/chat-check.js` runs the chat against a fake sheet and a fake model (routing, the figure check, quick replies, limits), and fails when two `.gs` files define a function of the same name: Apps Script runs all files in one scope and silently keeps one of them. The `Check Apps Script` workflow runs it on every pull request that touches `apps-script/`.
 
 ## Sổ học viên
 

@@ -682,11 +682,18 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-msg a { color: var(--cobalt); font-weight: 600; text-decoration: underline; }
 .chat-msg a:hover { color: var(--cobalt-deep); }
 .chat-msg-user { align-self: flex-end; max-width: 85%; padding: 10px 14px; border-radius: 2px; background: var(--cobalt-wash); white-space: pre-wrap; }
+/* The assistant's turn is a few short messages, each on its own plate on the left; the later ones sit closer than the 16px between turns. */
+.chat-msg-bot { align-self: flex-start; max-width: 92%; padding: 10px 14px; border-radius: 2px; background: var(--plate); }
+.chat-msg-next { margin-top: -10px; }
+/* the screen-reader prefix that opens a turn's first message takes no room, so the text after it needs no gap */
+.chat-msg > .sr-only + * { margin-top: 0; }
 .chat-msg-error { padding: 12px 14px; border: 1px solid var(--hair); background: var(--plate); color: var(--ink-2); }
 .chat-msg-error .link-button { margin-left: -4px; }
 .chat-typing { color: var(--ink-3); }
 /* Waiting: the dots hop in turn while the request is open; they leave with the answer or the error. */
 .chat-typing span { display: inline-block; width: 5px; height: 5px; margin-left: 4px; border-radius: 50%; background: currentColor; vertical-align: middle; animation: chat-dot 1.2s ease-in-out infinite; }
+/* the dots alone, between two messages of a turn, sit centred on their plate */
+.chat-typing.chat-msg-next span:first-child { margin-left: 0; }
 .chat-typing span:nth-child(2) { animation-delay: 0.15s; }
 .chat-typing span:nth-child(3) { animation-delay: 0.3s; }
 @keyframes chat-dot { 0%, 75%, 100% { opacity: 0.4; transform: none; } 37.5% { opacity: 1; transform: translateY(-4px); } }
@@ -703,7 +710,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-suggest button::after, .chat-options button::after { content: "\2192"; flex: none; color: var(--cobalt); font-weight: 600; transition: transform 0.25s var(--ease); }
 .chat-suggest button:hover, .chat-options button:hover { color: var(--cobalt); }
 .chat-suggest button:hover::after, .chat-options button:hover::after { transform: translateX(3px); }
-.chat-msg .chat-options { margin-top: 10px; padding-left: 0; list-style: none; border-top: 1px solid var(--hair); }
+.chat-log > .chat-options { flex: none; margin-top: -6px; border-top: 1px solid var(--hair); overflow-wrap: anywhere; }
 .chat-form { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--hair); }
 .chat-form textarea { flex: 1; min-width: 0; height: 50px; min-height: 50px; max-height: 132px; padding: 12px 14px; border: 1px solid var(--field); border-radius: 2px; background: #fff; color: var(--ink); font: 400 1.0625rem/1.5 var(--sans); resize: none; }
 .chat-form textarea:hover { border-color: var(--ink); }

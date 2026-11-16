@@ -1,6 +1,6 @@
 name: Check Apps Script
 
-# Runs both Apps Script harnesses on every pull request that touches apps-script/, so a backend
+# Runs the Apps Script harnesses on every pull request that touches apps-script/, so a backend
 # regression is caught before the code is pasted into the sheet.
 on:
   pull_request:
@@ -25,6 +25,9 @@ jobs:
 
       - name: Check the registration backend
         run: node apps-script/check.js
+
+      - name: Check the learner-care chat
+        run: node apps-script/chat-check.js
 
       - name: Check the attendance script
         run: node apps-script/attendance/check.js

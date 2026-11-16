@@ -1363,7 +1363,8 @@
     // a question cut off by a reload has no answer, so it is not resent as history
     if (state.messages.length % 2) state.messages.pop();
     const save = () => {
-      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-24) })); } catch { /* storage blocked: the chat still works for this page view */ }
+      // an open question keeps one turn more, so what is stored still starts on a question
+      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-(80 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
     };
 
     let opener = null;
@@ -1433,6 +1434,7 @@
       return out;
     };
 
+    const LIST = /^(?:[-*•]|(\d+)[.)])\s+(.*)$/;
     // the model writes short paragraphs and "- " lists; everything is set as text, never as HTML
     const renderText = (container, text) => {
       let list = null;
@@ -1444,7 +1446,7 @@
           paragraph = null;
           return;
         }
-        const item = line.match(/^(?:[-*•]|(\d+)[.)])\s+(.*)$/);
+        const item = line.match(LIST);
         if (item) {
           const ordered = Boolean(item[1]);
           if (!list || (list.tagName === "OL") !== ordered) {
@@ -1478,9 +1480,10 @@
       });
     };
 
-    const addMessage = (role, text) => {
+    // follows: a later message of the same turn, set closer to the one before it
+    const addMessage = (role, text, follows) => {
       const item = document.createElement("div");
-      item.className = `chat-msg chat-msg-${role}`;
+      item.className = `chat-msg chat-msg-${role}${follows ? " chat-msg-next" : ""}`;
       const who = document.createElement("span");
       who.className = "sr-only";
       who.textContent = role === "user" ? "Anh/chị hỏi: " : "Trợ lý trả lời: ";
@@ -1489,15 +1492,36 @@
         paragraph.append(who, text);
         item.append(paragraph);
       } else {
-        item.append(who);
+        // a screen reader hears who is speaking once a turn, not before every message
+        if (!follows) item.append(who);
         renderText(item, text);
       }
       log.append(item);
       return item;
     };
 
-    // An answer is written out in word groups (at most ~3s in all) so the eye follows where it grows; returns when it ends.
-    const stream = (item) => {
+    // The assistant writes one turn as a few short messages with a blank line between them. When a
+    // model does not, the page still never shows one block: lines that are each a sentence become
+    // messages of their own, and a long line is cut the way renderText cuts a long paragraph. A
+    // list (also one with blank lines between its items) and lines under a label stay whole. Past
+    // four, the rest joins the fourth, so a long approved answer does not arrive in many pieces.
+    const messagesOf = (text) => {
+      const parts = [];
+      let listed = false;
+      text.replace(/\r/g, "").split(/\n\s*\n/).forEach((block) => {
+        const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+        if (!lines.length) return;
+        const list = lines.every((line) => LIST.test(line));
+        if (list && listed) parts[parts.length - 1] += `\n${lines.join("\n")}`;
+        else if (lines.every((line) => !LIST.test(line) && /[.!?…]["”)*]*$/.test(line))) parts.push(...lines.flatMap(chunks));
+        else parts.push(lines.join("\n"));
+        listed = list;
+      });
+      return parts.length > 4 ? [...parts.slice(0, 3), parts.slice(3).join("\n\n")] : parts;
+    };
+
+    // A message is written out in word groups (at most `limit` seconds in all) so the eye follows where it grows; returns when it ends.
+    const stream = (item, limit) => {
       const walker = document.createTreeWalker(item, NodeFilter.SHOW_TEXT);
       const nodes = [];
       while (walker.nextNode()) if (!walker.currentNode.parentElement.closest(".sr-only")) nodes.push(walker.currentNode);
@@ -1517,7 +1541,7 @@
         if (group.length) node.replaceWith(...group);
         return group;
       }).flat();
-      const step = Math.min(0.18, 3 / Math.max(count, 1));
+      const step = Math.min(0.18, limit / Math.max(count, 1));
       spans.forEach((span) => { span.style.animationDelay = `${(span.dataset.at * step).toFixed(2)}s`; delete span.dataset.at; });
       return count * step + 0.26;
     };
@@ -1546,14 +1570,98 @@
       toBottom();
     };
 
+    // quiet: the dots alone, between two messages of a turn, and not read out again
+    const typingDots = (quiet) => {
+      const typing = document.createElement("div");
+      typing.className = `chat-msg chat-msg-bot chat-typing${quiet ? " chat-msg-next" : ""}`;
+      typing.innerHTML = `${quiet ? "" : "Đang soạn câu trả lời"}<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>`;
+      if (quiet) typing.setAttribute("aria-hidden", "true");
+      log.append(typing);
+      if (!quiet) toBottom();
+      return typing;
+    };
+
+    // The quick replies the assistant offers, or the closest FAQ questions when it could not tell
+    // which one was meant: a list under the turn's last message, drawn in once that is written out.
+    const addOptions = (options, end) => {
+      if (!options.length) return;
+      const list = document.createElement("ul");
+      list.className = "chat-options";
+      options.forEach((text) => {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = text.trim();
+        button.addEventListener("click", () => submitQuestion(button.textContent));
+        li.append(button);
+        list.append(li);
+      });
+      list.style.animation = `swap 0.28s var(--ease) ${end.toFixed(2)}s both`;
+      log.append(list);
+    };
+
+    // The messages of a turn arrive one after another, each after a short pause on the typing
+    // dots, the way a person sends a few short messages. `settle` shows what is left at once:
+    // when the visitor sends the next question, and from the start under reduced motion.
+    let settle = null;
+    const deliver = (parts, options) => {
+      let index = 0;
+      let timer = 0;
+      let dots = null;
+      let first = null;
+      let at = null;
+      // The log follows the turn until its first line reaches the top, then stays: a long turn
+      // opens at its first line rather than its last. Once the visitor moves the log, it is theirs.
+      const follow = () => {
+        if (panel.hidden) at = null;
+        else if (at === null || Math.abs(log.scrollTop - at) <= 1) {
+          toStart(first);
+          at = log.scrollTop;
+        }
+      };
+      const add = (written) => {
+        const item = addMessage("bot", parts[index], index > 0);
+        first = first || item;
+        index += 1;
+        return written ? stream(item, parts.length > 1 ? 1.2 : 3) : 0;
+      };
+      const finish = (end) => {
+        settle = null;
+        addOptions(options, end);
+        follow();
+      };
+      settle = () => {
+        window.clearTimeout(timer);
+        dots?.remove();
+        while (index < parts.length) add(false);
+        finish(0);
+      };
+      if (reducedMotion.matches) {
+        settle();
+        return;
+      }
+      const next = () => {
+        dots?.remove();
+        const end = add(true);
+        if (index === parts.length) {
+          finish(end);
+          return;
+        }
+        follow();
+        // the dots come once the message is written out, and stay about as long as the next one would take to type
+        timer = window.setTimeout(() => {
+          dots = typingDots(true);
+          follow();
+          timer = window.setTimeout(next, Math.min(1500, Math.max(600, parts[index].length * 20)));
+        }, end * 1000 + 250);
+      };
+      next();
+    };
+
     const ask = async () => {
       pending = true;
       sendButton.setAttribute("aria-disabled", "true");
-      const typing = document.createElement("div");
-      typing.className = "chat-msg chat-msg-bot chat-typing";
-      typing.innerHTML = 'Đang soạn câu trả lời<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>';
-      log.append(typing);
-      toBottom();
+      const typing = typingDots(false);
       let reply = "";
       let error = "";
       let options = [];
@@ -1564,7 +1672,8 @@
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "chat", session: state.session, messages: state.messages.slice(-12), page: window.location.href.split("#")[0] }),
+          // the last 30 exchanges; the server refuses more than 80 messages
+          body: JSON.stringify({ action: "chat", session: state.session, messages: state.messages.slice(-60), page: window.location.href.split("#")[0] }),
           signal: controller.signal,
         });
         const result = await response.json();
@@ -1582,25 +1691,7 @@
       if (reply) {
         state.messages.push({ role: "assistant", content: reply });
         save();
-        const item = addMessage("bot", reply);
-        const end = stream(item);
-        // the closest FAQ questions, when the assistant could not tell which one was meant
-        if (options.length) {
-          const list = document.createElement("ul");
-          list.className = "chat-options";
-          options.forEach((text) => {
-            const li = document.createElement("li");
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = text.trim();
-            button.addEventListener("click", () => submitQuestion(button.textContent));
-            li.append(button);
-            list.append(li);
-          });
-          list.style.animation = `swap 0.28s var(--ease) ${end.toFixed(2)}s both`;
-          item.append(list);
-        }
-        toStart(item);
+        deliver(messagesOf(reply), options);
         return;
       }
       // the server refused the history as sent; keep only the open question so a retry can pass
@@ -1618,6 +1709,8 @@
     const submitQuestion = (raw) => {
       const text = raw.trim().slice(0, 1000);
       if (!text || pending) return;
+      // an answer still arriving is shown in full before the next question goes under it
+      settle?.();
       // a suggestion button is about to be hidden; keep focus in the panel
       const chosen = document.activeElement?.closest?.(".chat-suggest, .chat-options");
       if (chosen && panel.contains(chosen)) (compact.matches ? log : input).focus({ preventScroll: true });
@@ -1639,6 +1732,8 @@
     // full screen below 900px: the page behind is inert and follows the on-screen keyboard
     const fit = () => {
       const view = window.visualViewport;
+      // when the keyboard takes half the panel, a conversation that was at its end stays there
+      const atEnd = state.messages.length > 0 && log.scrollHeight - log.scrollTop - log.clientHeight < 2;
       if (!panel.hidden && compact.matches && view) {
         panel.style.height = `${view.height}px`;
         panel.style.top = `${view.offsetTop}px`;
@@ -1646,6 +1741,7 @@
         panel.style.height = "";
         panel.style.top = "";
       }
+      if (atEnd) toBottom();
     };
     const syncInert = () => {
       const on = !panel.hidden && compact.matches;
@@ -1674,7 +1770,10 @@
       opener = trigger || null;
       if (!rendered) {
         rendered = true;
-        state.messages.forEach((turn) => addMessage(turn.role === "user" ? "user" : "bot", turn.content));
+        state.messages.forEach((turn) => {
+          if (turn.role === "user") addMessage("user", turn.content);
+          else messagesOf(turn.content).forEach((part, i) => addMessage("bot", part, i > 0));
+        });
         if (state.messages.length) suggest.hidden = true;
       }
       // a fresh chat opens on the greeting and suggestions, a running one on its latest turn
