@@ -119,17 +119,6 @@ function channelFromPage_(page) {
   return value.trim().toLowerCase().slice(0, 50) || 'trực tiếp';
 }
 
-function transferNote_(code, packageId) {
-  var digits = String(packageId || '').replace(/\D/g, '');
-  return digits ? code + ' GOI' + digits : code;
-}
-
-// Staff type 6.700.000, 6,700,000 or 6.700.000 đ; a 1-2 digit decimal tail is dropped, and under 1000 or over 100 million (a phone number) is invalid.
-function parseAmount_(value) {
-  var n = Number(clean_(value).replace(/[.,]\d{1,2}(?!\d)\D*$/, '').replace(/\D/g, ''));
-  return n < 1000 || n > 1e8 ? 0 : n;
-}
-
 // The caller holds the script lock, so reading the last Id and appending cannot race.
 function journal_(code, event, detail) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEDGER_JOURNAL.name);
@@ -158,7 +147,6 @@ function ledgerCol_(header) {
 }
 
 var LEDGER_FLAG = '#f8d7da';
-var LEDGER_EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 function ledgerNow_(format) {
   return Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', format);
@@ -189,7 +177,7 @@ function ledgerFlag_(sheet, rowIndex, header, text) {
   else if (cell.getBackground() === LEDGER_FLAG) cell.setBackground(null).clearNote();
 }
 
-// The simple onEdit in Faq.gs cannot send mail, so this one is an installable trigger. It never throws at whoever is editing.
+// Faq.gs owns the simple onEdit, so this one is an installable trigger. It never throws at whoever is editing.
 function onLedgerEdit(e) {
   try {
     var range = e && e.range;
@@ -221,7 +209,7 @@ function ledgerOnRow_(sheet, rowIndex, work) {
   } catch (err) {
     // No journal here: the Id is only safe to read while holding the lock.
     try {
-      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý dòng này vì bảng đang bận. Đổi Trạng thái sang giá trị khác rồi chọn lại, hoặc với Chờ CK dùng menu Sổ học viên > Gửi lại email CK.');
+      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý dòng này vì bảng đang bận. Đổi Trạng thái sang giá trị khác rồi chọn lại.');
     } catch (ignore) {}
     return 'busy';
   }
@@ -234,9 +222,9 @@ function ledgerOnRow_(sheet, rowIndex, work) {
     // The flag is what staff see, so it comes first and its own failure is not allowed to hide the journal entry.
     var why = ledgerWhy_(err);
     try {
-      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý xong dòng này: ' + why + ' Kiểm tra cột Email CK đã gửi trước khi dùng menu Sổ học viên > Gửi lại email CK.');
+      ledgerFlag_(sheet, rowIndex, 'Trạng thái', 'Chưa xử lý xong dòng này: ' + why + ' Đổi Trạng thái sang giá trị khác rồi chọn lại.');
     } catch (ignore) {}
-    ledgerNote_(r ? clean_(r['Mã học viên']) : '', 'lỗi email', 'email CK: ' + why);
+    ledgerNote_(r ? clean_(r['Mã học viên']) : '', 'lỗi trạng thái', why);
     return 'failed';
   } finally {
     try { lock.releaseLock(); } catch (ignore) {}
@@ -251,55 +239,21 @@ function ledgerStatusChanged_(sheet, rowIndex, r) {
     if (clean_(r['Ngày đóng'])) return;
     ledgerPut_(sheet, rowIndex, 'Ngày đóng', ledgerNow_('dd/MM/yyyy'));
   }
+  // Payment details stay with the advisers (Zalo): Chờ CK is recorded like any other status and sends nothing.
   ledgerNote_(clean_(r['Mã học viên']), 'đổi trạng thái', status);
-  if (status === 'Chờ CK' && !clean_(r['Email CK đã gửi'])) ledgerSendPayment_(sheet, rowIndex, r);
-}
-
-// Returns true when the email went out. Bad data and a failed send are flagged on the row and journaled, never thrown.
-function ledgerSendPayment_(sheet, rowIndex, r) {
-  var code = clean_(r['Mã học viên']);
-  var amount = parseAmount_(r['Số tiền phải đóng']);
-  var checks = [
-    ['Mã học viên', code, 'Thiếu Mã học viên. Dùng menu Sổ học viên > Cấp mã cho dòng chưa có mã, rồi Gửi lại email CK.'],
-    ['Email', LEDGER_EMAIL.test(clean_(r['Email'])), 'Email không hợp lệ. Sửa xong, dùng menu Sổ học viên > Gửi lại email CK.'],
-    ['Số tiền phải đóng', amount, 'Thiếu hoặc sai Số tiền phải đóng (ví dụ 6.700.000). Sửa xong, dùng menu Sổ học viên > Gửi lại email CK.']
-  ];
-  var ready = true;
-  checks.forEach(function (check) {
-    ledgerFlag_(sheet, rowIndex, check[0], check[1] ? '' : check[2]);
-    if (!check[1]) ready = false;
-  });
-  if (!ready) return false;
-  try {
-    sendPaymentEmail_(r, ledgerIntake_(clean_(r['Đợt'])) || {});
-  } catch (err) {
-    var why = ledgerWhy_(err);
-    ledgerNote_(code, 'lỗi email', 'email CK: ' + why);
-    ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', 'Chưa gửi được email: ' + why + ' Dùng menu Sổ học viên > Gửi lại email CK để thử lại.');
-    return false;
-  }
-  // First write after the send, so a later failure cannot leave an email out and unstamped.
-  try {
-    ledgerPut_(sheet, rowIndex, 'Email CK đã gửi', ledgerNow_('dd/MM/yyyy HH:mm:ss'));
-  } catch (err) {
-    throw new Error('Email đã gửi nhưng chưa ghi được ngày gửi: ' + ledgerWhy_(err));
-  }
-  ledgerNote_(code, 'email CK', amount);
-  try { ledgerFlag_(sheet, rowIndex, 'Email CK đã gửi', ''); } catch (ignore) {}
-  return true;
 }
 
 function installLedgerTrigger() {
-  // A trigger mails as its creator and getProjectTriggers lists only the caller's, so an editor would add a second one; no readable owner (shared drive) proceeds.
+  // getProjectTriggers lists only the caller's triggers, so an editor would add a second one; no readable owner (shared drive) proceeds.
   var owner = '';
   try { owner = SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail(); } catch (err) {}
   if (owner && owner !== Session.getEffectiveUser().getEmail()) {
-    ledgerTell_('Chỉ chủ Sheet bật được gửi email tự động.');
+    ledgerTell_('Chỉ chủ Sheet bật được ghi Trạng thái tự động.');
     return;
   }
   var have = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'onLedgerEdit'; });
   if (!have) ScriptApp.newTrigger('onLedgerEdit').forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet()).onEdit().create();
-  ledgerTell_(have ? 'Gửi email tự động đã bật từ trước.' : 'Đã bật. Từ giờ chọn Chờ CK ở cột Trạng thái là học viên nhận email chuyển khoản.');
+  ledgerTell_(have ? 'Ghi Trạng thái tự động đã bật từ trước.' : 'Đã bật. Từ giờ mỗi lần đổi Trạng thái được ghi vào Nhật ký; chọn Đã đóng thì điền Ngày đóng.');
 }
 
 // Never journals: rows typed before the ledger existed must not look like new registrations to the staff feed.
@@ -351,41 +305,10 @@ function assignMissingCodes() {
   return done;
 }
 
-// Rows outside Chờ CK are skipped: no payment detail may reach a learner before staff move the row there.
-function ledgerResend_(sheet, rowIndex, r) {
-  if (clean_(r['Trạng thái']) !== 'Chờ CK') return 'skipped';
-  return ledgerSendPayment_(sheet, rowIndex, r) ? 'sent' : 'failed';
-}
-
-function resendPaymentEmail() {
-  var app = SpreadsheetApp.getUi();
-  var range = SpreadsheetApp.getActiveRange();
-  var sheet = range && range.getSheet();
-  var first = range ? Math.max(range.getRow(), 2) : 0;
-  var last = range ? Math.min(range.getRow() + range.getNumRows() - 1, sheet.getLastRow()) : 0;
-  if (!sheet || sheet.getName() !== SHEET_NAME || last < first) {
-    app.alert('Chọn các dòng học viên trong tab "' + SHEET_NAME + '" rồi chạy lại.');
-    return;
-  }
-  var ask = 'Gửi lại email chuyển khoản cho ' + (last - first + 1) + ' dòng đang chọn? Học viên sẽ nhận email lần nữa.';
-  if (app.alert(ask, app.ButtonSet.YES_NO) !== app.Button.YES) return;
-  var sent = 0;
-  var skipped = 0;
-  for (var row = first; row <= last; row++) {
-    var result = ledgerOnRow_(sheet, row, function (r) { return ledgerResend_(sheet, row, r); });
-    if (result === 'sent') sent++;
-    else if (result === 'skipped') skipped++;
-  }
-  var failed = last - first + 1 - sent - skipped;
-  app.alert('Đã gửi ' + sent + ' email.' + (skipped ? ' Bỏ qua ' + skipped + ' dòng không ở trạng thái Chờ CK.' : '') +
-    (failed ? ' ' + failed + ' dòng chưa gửi được, xem ô tô đỏ.' : ''));
-}
-
 function ledgerMenu_(ui) {
   ui.createMenu('Sổ học viên')
     .addItem('Cấp mã cho dòng chưa có mã', 'assignMissingCodes')
-    .addItem('Gửi lại email CK (dòng đang chọn)', 'resendPaymentEmail')
-    .addItem('Bật gửi email tự động', 'installLedgerTrigger')
+    .addItem('Bật ghi Trạng thái tự động', 'installLedgerTrigger')
     .addItem('Cài đặt Sổ học viên', 'setupLedger')
     .addToUi();
 }

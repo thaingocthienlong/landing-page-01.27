@@ -18,7 +18,7 @@ var HEADERS = [
   'Thời gian', 'Mã gói', 'Gói đăng ký quan tâm', 'Họ và chữ lót', 'Tên', 'Email', 'Số điện thoại',
   'Giới tính', 'Ngày sinh', 'Tỉnh/Thành phố', 'Vị trí công tác', 'Đơn vị công tác',
   'Biết đến qua', 'Ghi rõ (Khác)', 'Đồng ý', 'Trang gửi', 'Trạng thái',
-  'Mã học viên', 'Đợt', 'Kênh', 'Hình thức', 'Số tiền phải đóng', 'Email CK đã gửi', 'Ngày đóng', 'Phụ trách', 'Ghi chú'
+  'Mã học viên', 'Đợt', 'Kênh', 'Hình thức', 'Số tiền phải đóng', 'Ngày đóng', 'Phụ trách', 'Ghi chú'
 ];
 
 function setup() {
@@ -92,7 +92,7 @@ function doPost(e) {
       new Date(), data.package_id, data.package, data.ho_lot, data.ten, data.emailcontact, data.phoneregister,
       data.gioi_tinh, data.ngay_sinh, data.tinh_thanh, data.vi_tri, data.don_vi,
       data.biet_qua, data.biet_qua_other || '', 'Có', data.page, 'Mới',
-      code, intake ? intake.dot : '', channelFromPage_(data.page), '', '', '', '', '', ''
+      code, intake ? intake.dot : '', channelFromPage_(data.page), '', '', '', '', ''
     ].map(clean_);
     row[0] = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
 
