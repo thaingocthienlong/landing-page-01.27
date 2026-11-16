@@ -1364,7 +1364,7 @@
     if (state.messages.length % 2) state.messages.pop();
     const save = () => {
       // an open question keeps one turn more, so what is stored still starts on a question
-      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-(40 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
+      try { window.sessionStorage.setItem(STORE, JSON.stringify({ session: state.session, messages: state.messages.slice(-(80 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
     };
 
     let opener = null;
@@ -1672,7 +1672,8 @@
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "chat", session: state.session, messages: state.messages.slice(-30), page: window.location.href.split("#")[0] }),
+          // the last 30 exchanges; the server refuses more than 80 messages
+          body: JSON.stringify({ action: "chat", session: state.session, messages: state.messages.slice(-60), page: window.location.href.split("#")[0] }),
           signal: controller.signal,
         });
         const result = await response.json();

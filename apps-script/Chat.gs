@@ -25,8 +25,10 @@ var CHAT_GEMINI_MODELS = 'gemini-3.5-flash-lite,gemini-3.1-flash-lite';
 var CHAT_DEFAULT_MAX_PER_HOUR = 100;
 // A consultation is many short turns (a tapped quick reply is one), so a visitor gets room.
 var CHAT_MAX_PER_SESSION = 60;
-// Turns the model reads, so what the learner said about themselves early on is still there.
-var CHAT_HISTORY = 30;
+// Messages the model reads (30 exchanges), so what the learner said about themselves early on
+// is still there. More than CHAT_MAX_SENT messages in one request is refused.
+var CHAT_HISTORY = 60;
+var CHAT_MAX_SENT = 80;
 var CHAT_MAX_QUESTION = 1000;
 var CHAT_MAX_ANSWER = 6000;
 // Room for a model that thinks before it answers; the answers themselves are short.
@@ -132,12 +134,17 @@ function chatSources_(faq) {
 }
 
 // False for what is probably an answer to the assistant's own question: the turn before ended on
-// a question and this message asks nothing itself.
+// a question and this message asks nothing itself. "Không" and "chưa" ask at the end of a
+// sentence ("được không", "có lịch chưa") and answer at its start ("Không ạ", "Chưa từng").
 function chatAsks_(messages) {
   var last = messages[messages.length - 1].content;
   var before = messages.length > 1 ? messages[messages.length - 2].content : '';
   if (!/\?\s*$/.test(before)) return true;
-  return last.indexOf('?') !== -1 || faqTerms_(last).words.some(function (word) { return FAQ_ASKING[word]; });
+  if (last.indexOf('?') !== -1) return true;
+  var words = faqTerms_(last).words;
+  return words.some(function (word, i) {
+    return FAQ_ASKING[word] && ((word !== 'khong' && word !== 'chua') || (i > 0 && i === words.length - 1));
+  });
 }
 
 // The model's turn with its quick replies taken out of the text. An answer with a figure the
@@ -186,8 +193,10 @@ function chatOptions_(reply) {
 }
 
 // Amounts of money in a text as whole đồng: "7.500.000", "7,500,000", "7 500 000", "7500000",
-// "7,5 triệu", "7 triệu rưỡi", "500k". An amount in words ("bảy triệu") is kept as its words, which
-// only the same words match. rest is the text without the amounts, for the checks that follow.
+// "7,5 triệu", "7 triệu rưỡi", "6 triệu 7" and "6tr7" (6.700.000: the digits after the unit are
+// its next places), "500k". An amount in words ("bảy triệu", "sáu triệu rưỡi") is kept as its
+// words, which only the same words match. rest is the text without the amounts, for the checks
+// that follow.
 function chatAmounts_(text) {
   var amounts = [];
   var rest = text
@@ -197,12 +206,13 @@ function chatAmounts_(text) {
       amounts.push(String(Number(found.replace(/\D/g, ''))));
       return ' ';
     })
-    .replace(/(\d+(?:[.,]\d+)?)\s*(triệu|tr|củ|nghìn|ngàn|k)(?![\p{L}\p{N}])(\s*rưỡi)?/giu, function (found, number, unit, half) {
+    .replace(/(\d+(?:[.,]\d+)?)\s*(triệu|tr|củ|nghìn|ngàn|k)(?:(\s*rưỡi)|\s?(\d{1,3})(?!\d|[.,]\d|[\/:]|\s*(?:ngày|buổi|bài|khóa|người|tháng|năm|giờ|gói|học viên|%)))?(?![\p{L}\p{N}])/giu, function (found, number, unit, half, places) {
       var each = /^[nk]/i.test(unit) ? 1000 : 1000000;
-      amounts.push(String(Math.round((Number(number.replace(',', '.')) + (half ? 0.5 : 0)) * each)));
+      var whole = Number(number.replace(',', '.')) * each + (half ? each / 2 : 0) + (places ? Number(places) * each / Math.pow(10, places.length) : 0);
+      amounts.push(String(Math.round(whole)));
       return ' ';
     })
-    .replace(/(?:một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|chục|trăm|vài|mấy)\s+(?:triệu|nghìn|ngàn)/giu, function (found) {
+    .replace(/(?:một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|chục|trăm|vài|mấy)\s+(?:triệu|nghìn|ngàn)(?:\s+(?:rưỡi|mốt|lăm|tư|một|hai|ba|bốn|năm|sáu|bảy|tám|chín)(?![\p{L}\p{N}])(?:\s+trăm)?)?/giu, function (found) {
       amounts.push(found.toLowerCase().replace(/\s+/g, ' '));
       return ' ';
     })
@@ -247,7 +257,8 @@ function chatNamed_(sentence, word) {
 //   - an amount, a day, a clock time and a phone or account number must be in `official` (the
 //     prompt without its example conversation, today's note, the FAQ rows sent along) or in
 //     `said` (the conversation);
-//   - a percentage likewise, in a sentence about money ("khoảng tin cậy 95%" is not one);
+//   - a percentage likewise, in a sentence about money or a discount, or that names a package
+//     ("khoảng tin cậy 95%" is none of these);
 //   - an amount in a sentence that names one package, or that follows such a sentence, must be
 //     one of that package's amounts in the fee tables. An amount the learner gave (`learner`:
 //     their messages) may stand beside it, never in its place;
@@ -309,11 +320,11 @@ function chatUnknownFigure_(reply, official, said, learner) {
   var sentences = reply.split(/\n|(?<=[.!?;…])\s+/);
   for (var i = 0; i < sentences.length; i++) {
     var sentence = sentences[i];
-    if (/giảm|ưu đãi|chiết khấu|khuyến mãi|học phí|hoàn tiền|hoàn lại|hoàn trả|đặt cọc|thanh toán|đóng tiền|discount|tuition|fee|refund/i.test(sentence)) {
+    var pack = chatNamed_(sentence, 'Gói|Package|Pack');
+    if (pack !== '' || /giảm|ưu đãi|chiết khấu|khuyến mãi|học phí|học bổng|hoàn tiền|hoàn lại|hoàn trả|đặt cọc|thanh toán|đóng tiền|tặng|bớt|rẻ|voucher|(?:thêm|được) \d|discount|tuition|fee|refund|bonus|\boff\b|\bsale\b/i.test(sentence)) {
       var percent = (sentence.match(/\d+(?:[.,]\d+)?\s?%/g) || []).filter(function (found) { return !have['%' + found.replace(/\s/g, '').replace('.', ',')]; })[0];
       if (percent) return percent;
     }
-    var pack = chatNamed_(sentence, 'Gói|Package|Pack');
     // Several packages, fees in general or another choice: the package named before no longer holds.
     if (pack === null || /các gói|mỗi gói|tùy gói|tuỳ gói|gói khác|6 gói|sáu gói|chỉ học|chỉ cần|hoặc|hay là|cả (?:ba|3|03) khóa|từ [\d.,]+ (?:đồng )?đến/i.test(sentence)) current = '';
     if (pack) current = pack;
@@ -375,7 +386,7 @@ function chatJson_(text) {
 
 // Keeps the latest turns, which must alternate user/assistant and end on the user's question.
 function chatMessages_(raw) {
-  if (!Array.isArray(raw) || !raw.length || raw.length > 40) return null;
+  if (!Array.isArray(raw) || !raw.length || raw.length > CHAT_MAX_SENT) return null;
   var list = raw.slice(-CHAT_HISTORY);
   if (list[0] && list[0].role === 'assistant') list = list.slice(1);
   var out = [];

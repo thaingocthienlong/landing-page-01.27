@@ -196,6 +196,15 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   assert.strictEqual(ask(FEE, TOLD, 'Online').reply, rowOf('hinh-thuc').answer);
   const asks = (before, last) => ctx.chatAsks_([{ role: 'user', content: 'x' }, { role: 'assistant', content: before }, { role: 'user', content: last }]);
   assert.deepStrictEqual([asks(ASKED, 'rồi'), asks(ASKED, 'Học phí'), asks(ASKED, 'stk là gì em'), asks(ASKED, 'được chứ?'), asks(TOLD, 'rồi')], [false, false, true, true, true]);
+  // "Không" and "chưa" ask at the end of a sentence and answer at its start, as a quick reply does.
+  const table = { 'Chưa từng': false, 'chưa ạ': false, 'Không': false, 'Không vướng': false, 'không, em chưa học R bao giờ': false,
+    'được không ạ': true, 'có giảm giá không em': true, 'em đăng ký được chưa': true, 'lịch học thế nào': true, 'học phí bao nhiêu': true };
+  Object.keys(table).forEach((said) => assert.strictEqual(asks(ASKED, said), table[said], said));
+  // So a tapped "Chưa từng" with no model to answer is asked to try again, not offered unrelated questions.
+  reset();
+  model.replies.push(...DOWN);
+  assert.ok(ctx.faqLookup_('Chưa từng').candidates.length > 0, 'the table alone would offer questions');
+  assert.deepStrictEqual(ask(FEE, ASKED, 'Chưa từng'), { ok: false, error: 'busy' });
   assert.strictEqual(ctx.chatAsks_([{ role: 'user', content: 'rồi' }]), true, 'a first message stands alone');
 }
 
@@ -334,6 +343,13 @@ const DOWN = [{ code: 500 }, { code: 500 }];
     'Dạ, Gói 3, 6 ngày học, học phí 7.500.000 đồng ạ.',
     'Dạ, vậy Gói 3 hợp với chị nhất ạ.\n\nNếu chị chỉ học Khóa 3 thì là 4.500.000 đồng.',
     'Dạ, Gói 3 học phí 7,5 triệu ạ.',
+    'Dạ, Gói 2 học phí 6 triệu 7 ạ.',
+    'Dạ, Gói 3 học phí 7tr5 ạ.',
+    'Dạ, Gói 3 hoàn tất trước 08/12/2026 tạm tính còn 6 triệu 750 nghìn ạ.',
+    'Dạ, Gói 1 cả 03 khóa, 8,8 triệu 8 ngày học ạ.',
+    'Gói 1 đến Gói 4 hoàn tất trước 08/12/2026 được giảm 10% ạ.',
+    'Gói 1: 8,8 triệu 08/12/2026 là hạn ưu đãi.',
+    'CEAC cho biết xác suất một can thiệp cost-effective, ví dụ 80% ở một ngưỡng chi trả.',
     'Hello. Package 3 costs 7.500.000 VND; classes run 8:30 am to 11:30 am and 1:30 pm to 5 pm.',
     'Khóa 2 học ngày 12/01/2027 và 13/01/2027, thứ Ba và thứ Tư.',
     'Khóa 1 học 3 ngày: thứ Sáu 08/01, thứ Bảy 09/01 và Chủ nhật 10/01/2027 ạ.',
@@ -368,6 +384,16 @@ const DOWN = [{ code: 500 }, { code: 500 }];
     'Gói 3 (9 900 000 đồng) gồm Khóa 1 và Khóa 3 ạ.': '9900000',
     'Evening classes start at 7 pm.': '7 pm',
     'Gói 3 học phí chín triệu đồng ạ.': 'chín triệu',
+    'Dạ, Gói 3 học phí 6tr7 ạ.': 'Gói 3: 6700000',
+    'Gói 3 học phí 7 triệu 9 ạ.': '7900000',
+    'Gói 3 đăng ký sớm được tặng thêm 20%.': '20%',
+    'Đăng ký sớm được tặng 20% ạ.': '20%',
+    'Nhóm 3 người được 25% ạ.': '25%',
+    'Học viên cũ được bớt 30% ạ.': '30%',
+    'Package 3 is 20% off for early registration.': '20%',
+    'Gói 3 hoàn tất trước 08/12/2026 chỉ còn 80% ạ.': '80%',                      // a package named, no money word
+    'Early registration gets 20% off.': '20%',
+    'There is a 20% sale for groups.': '20%',
     'Hello. Package 3 (Course 1 + Course 3) costs 6.700.000 VND per learner.': 'Gói 3: 6700000',
     'Hello. Package 3 costs VND 9,900,000 and evening classes start at 7 pm.': '9900000',
     'Gói 6 (Khóa 3): 4.900.000 đồng': '4900000',
@@ -390,6 +416,9 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   assert.strictEqual(unknown('Dạ đúng ạ, Gói 3 là 7.000.000 đồng.', 'Gói 3 giá 7.000.000 phải không em'), 'Gói 3: 7000000');
   assert.strictEqual(unknown('Dạ đúng ạ, Gói 3 là 1.000.000 đồng.', '- Gói 3: 1.000.000 đồng'), 'Gói 3: 1000000');
   assert.strictEqual(unknown('Dạ, 7.000.000 đồng thì chưa đủ ạ.'), '7000000');
+  assert.strictEqual(unknown('Dạ, Gói 2 hợp với chị ạ. Học phí sáu triệu rưỡi đồng.', 'Mình có sáu triệu thôi'), 'sáu triệu rưỡi');
+  assert.strictEqual(unknown('Dạ, Gói 3 hợp với chị ạ. Học phí 6 triệu 7 ạ.', 'em có 6 triệu'), 'Gói 3: 6700000');
+  assert.strictEqual(unknown('Dạ, với sáu triệu rưỡi thì Gói 6 vừa ạ: Gói 6 học phí 4.500.000 đồng.', 'chị có sáu triệu rưỡi'), '');
 
   // Every approved answer of the table passes with its own row sent along.
   SEED.forEach((row) => {
@@ -438,14 +467,15 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   cases.forEach(([reply, text, buttons]) => assert.deepStrictEqual(options(reply), { reply: text, options: buttons }, reply));
 }
 
-// Limits: the model reads up to 30 turns, more than 40 sent at once is refused, and a visitor
-// gets 60 messages an hour.
+// Limits: the model reads the last 30 exchanges (60 messages), more than 80 messages sent at once
+// is refused, and a visitor gets 60 messages an hour.
 {
   reset();
-  const said = Array.from({ length: 35 }, (_, i) => (i % 2 ? 'Dạ.' : 'Câu ' + i));
+  const said = Array.from({ length: 79 }, (_, i) => (i % 2 ? 'Dạ.' : 'Câu ' + i));
   assert.ok(ask(...said).ok);
-  assert.strictEqual(model.calls[0].body.contents.length, 29, 'the last 30, less a leading assistant turn');
-  assert.deepStrictEqual(ask(...Array.from({ length: 41 }, (_, i) => (i % 2 ? 'Dạ.' : 'Câu ' + i))), { ok: false, error: 'bad-request' });
+  assert.strictEqual(model.calls[0].body.contents.length, 59, 'the last 60 messages, less a leading assistant turn');
+  assert.strictEqual(model.calls[0].body.contents[0].parts[0].text, 'Câu 20');
+  assert.deepStrictEqual(ask(...Array.from({ length: 81 }, (_, i) => (i % 2 ? 'Dạ.' : 'Câu ' + i))), { ok: false, error: 'bad-request' });
   for (let i = 0; i < 60; i++) assert.ok(ctx.handleChat_(request(['Bitcoin tăng giá'], 'one-visitor')).ok, 'message ' + (i + 1));
   assert.deepStrictEqual(ctx.handleChat_(request(['Bitcoin tăng giá'], 'one-visitor')), { ok: false, error: 'rate-limited' });
 }
