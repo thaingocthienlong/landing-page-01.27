@@ -53,6 +53,44 @@ When new code arrives (not needed for data changes):
 2. Run `chatSelfTest` once from the editor, as the owner of the deployment, and accept any new permission Google asks for (the update menu shows dialogs in the Sheet). Skipping this can leave the web app answering every request with Google's authorization page.
 3. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy, and open the `/exec` URL: it should show `{"ok":true,"service":"registration"}`.
 
+### Pushing with clasp instead of pasting
+
+`tools/gas-push.js` sends the `.gs` files to the project with Google's `clasp`, so nothing is pasted by hand. It runs on your own computer (Node 18 or later), and from GitHub on every change to main (see "Deploying from GitHub" below).
+
+One-time setup:
+
+1. `npx @google/clasp@3.4.1 login`, with the Google account that owns the project.
+2. Turn on the Apps Script API at https://script.google.com/home/usersettings.
+3. `node tools/gas-push.js --dry`. This only reads, and lists what a push would change. `apps-script/appsscript.json` (time zone, permissions, who the web app runs as) is the project's own, copied on 16/11/2026; if it is ever missing, the tool copies it again: commit it.
+
+For each update, after `git pull`:
+
+| Command | What it does |
+|---|---|
+| `node tools/gas-push.js --dry` | compares the project with the repository and changes nothing |
+| `node tools/gas-push.js` | compares, pushes, then reads the project back and checks it equals the repository |
+| `node tools/gas-push.js --deploy` | the same, then points the web app's existing deployment at a new version (the `/exec` URL stays) and checks that it answers |
+
+A push takes effect in the editor at once: the Sheet's menus run the new code immediately, the web app only after a new version is deployed.
+
+What the tool guards against, because a clasp push replaces the whole project:
+
+- **Deleting.** A file that exists in the project but is not pushed from here would be deleted. The tool stops and names it. Bring the file into `apps-script/` and `.claspignore` first.
+- **Adding.** A file pushed from here that the project does not have (for example `Ledger.gs` before the ledger is set up) would be added. The tool stops unless you pass `--add`. Keeping `Ledger.gs` and `BotApi.gs` out is not an option while `Code.gs` calls them: a registration would fail on `channelFromPage_`.
+- **Settings.** If `appsscript.json` differs between the two, the tool stops: someone changed a permission in the editor, or the file was edited here.
+
+`.claspignore` is the list of what is pushed: everything is ignored, then each file is let through by name. It must stay next to `.clasp.json` at the repository root (clasp 3 does not read it from `apps-script/`), its names are relative to `apps-script/`, and it cannot hold comments. Without it clasp would push `check.js` and `chat-check.js` as server code and break the web app, which is why the tool pins clasp's version. A new `.gs` file needs a new line there. The attendance script (`apps-script/attendance/`) is a separate project and is not pushed.
+
+### Deploying from GitHub
+
+`.github/workflows/deploy-apps-script.yml` runs the harnesses and then `node tools/gas-push.js --deploy` whenever a merge to main changes `apps-script/*.gs`, `appsscript.json`, the clasp files or the tool. It stops, pushing nothing, in the same cases as on your computer; the run's log names the file. Files the project does not have yet (the ledger's first push) go up only from Actions > Deploy Apps Script > Run workflow, with "Add new files" ticked. That run pushes without deploying: do their setup in the Sheet (for the ledger, steps 2 to 5 of "Sổ học viên > Setting it up"), then Run workflow again without the tick to deploy.
+
+It logs in with your clasp login, kept as the repository secret `CLASPRC_JSON`. Once, on the computer where `clasp login` was done:
+
+    gh secret set CLASPRC_JSON < ~/.clasprc.json
+
+(PowerShell: `Get-Content "$HOME\.clasprc.json" -Raw | gh secret set CLASPRC_JSON`.) The secret can do with the project, and with the account's Drive files that clasp touched, whatever you can, so only a merge to main or a manual run uses it, never a pull request. When Google ends the login (an `invalid_grant` or `invalid_rapt` error in the run, after a password change or the Workspace re-authentication period), run `clasp login` again and set the secret again.
+
 ## Script properties
 
 Each provider reads a group of properties with its own prefix. A provider without a key, without models, or with a malformed JSON value is skipped.
@@ -258,7 +296,7 @@ A tab that is missing or has no rows left is rebuilt from the repository, as if 
 
 Created on the first question. One row per question: time (Vietnam), anonymous session id, question, answer, status, page URL. Values are stored as text, so nothing a visitor types runs as a formula.
 
-The session id (column `Phiên`) is the same for every question of one conversation, and stays the same when the learner returns within 30 days on the same device. A lead or a registration sent by that learner carries it in the `Phiên trợ lý` column of `Lead web`: filter `Phiên` by that id to read the conversation. **Trợ lý AI > Thống kê trợ lý** counts conversations, those with three questions or more, and the distinct conversations that led to a phone number or a registration form. It counts forms, not payments, and only learners who used the same browser for the chat and the form. A row "Tôi đã để lại số điện thoại." is never logged: the page writes that line itself after the card is sent.
+The session id (column `Phiên`) is the same for every question of one conversation, and stays the same when the learner returns within 30 days on the same device. A lead or a registration sent by that learner carries it in the `Phiên trợ lý` column of `Lead web`: filter `Phiên` by that id to read the conversation. **Trợ lý AI > Thống kê trợ lý** counts conversations, those with three different questions or more (a question sent again counts once), and the distinct conversations that led to a phone number or a registration form. It counts forms, not payments, and only learners who used the same browser for the chat and the form. A row "Tôi đã để lại số điện thoại." is never logged: the page writes that line itself after the card is sent.
 
 For AI answers the status lists each model tried, for example `error-429-daily gemini-3.5-flash-lite; ok gemini-3.1-flash-lite`.
 
@@ -307,14 +345,15 @@ The `Đăng ký` tab is also the learner ledger. Each registration gets a learne
 
 ### Setting it up
 
-1. Paste the changed `Code.gs` and `Sync.gs`, and create script files `Ledger`, `LedgerMail` and `BotApi` with the matching `.gs` files.
+1. Push the files without deploying: Actions > Deploy Apps Script > Run workflow with "Add new files" (or `node tools/gas-push.js --add`). The web app keeps running the previous version until step 6, so `setupLedger` and the new permissions come first.
 2. Check the `Đăng ký` tab first. It needs at least 26 columns (A to Z, the Sheets default; insert columns if staff removed any), and columns R to Z must be empty or already hold the headers `setupLedger` writes (`Mã học viên`, `Đợt`, `Kênh`, `Hình thức`, `Số tiền phải đóng`, `Email CK đã gửi`, `Ngày đóng`, `Phụ trách`, `Ghi chú`). Any other header there makes `setupLedger` stop before it writes anything.
 3. Choose `setupLedger` in the function list and Run, and accept the permissions Google asks for. It adds the columns, the `Trạng thái` and `Hình thức` dropdowns, and the `Đợt học`, `Gói` and `Nhật ký` tabs (filled for the R27 intake and its six packages; a tab that already has rows is left alone). Reload the Sheet: a **Sổ học viên** menu appears.
 4. Signed in as the Sheet's owner account, menu **Sổ học viên > Bật gửi email tự động**, and authorize. The trigger sends every email as the account that creates it, so the menu refuses anyone else. It installs the trigger that reacts to the `Trạng thái` column. Without it, choosing a status sends no email and writes nothing to `Nhật ký`, so the bot never sees a payment.
 5. Project Settings > Script properties: add `BOT_KEY`, a long random value. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` and give the bot the same value in its environment. Never commit it. While `BOT_KEY` is missing or empty, `feed` refuses every request.
-6. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy. This keeps the `/exec` URL.
+6. Deploy: Run workflow again without the tick (or `node tools/gas-push.js --deploy`). This keeps the `/exec` URL.
+7. Menu **Sổ học viên > Cấp mã cho dòng chưa có mã** gives the rows registered before the ledger their codes.
 
-Until `setupLedger` has run, registrations still work, but they get no learner code and no emails.
+Until `setupLedger` has run, registrations still work and the learner still gets the receipt from `Leads.gs`, without a learner code.
 
 ### How staff use `Trạng thái`
 

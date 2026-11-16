@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - apps-script/**
+      - tools/gas-push.js
       - .github/workflows/check-apps-script.yml
 
 permissions:
@@ -31,3 +32,6 @@ jobs:
 
       - name: Check the attendance script
         run: node apps-script/attendance/check.js
+
+      - name: Check the push tool's comparison
+        run: node tools/gas-push.js --self-test

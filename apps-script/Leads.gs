@@ -35,8 +35,10 @@ function handleConsult_(data) {
 
     var cache = CacheService.getScriptCache();
     var key = 'l_' + Utilities.base64EncodeWebSafe(
-      // Same number however it is spaced: "0912 114 511" and "0912114511" are one lead.
-      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [String(data.so_dien_thoai).replace(/[\s-]/g, ''), data.huong_quan_tam].join('|'))
+      // Same number however it is spaced: "0912 114 511" and "0912114511" are one lead. The same
+      // number left again from another conversation with the assistant is a lead of its own:
+      // dropped as a repeat, that conversation's id and note would never reach the adviser.
+      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [String(data.so_dien_thoai).replace(/[\s-]/g, ''), data.huong_quan_tam, leadChatSession_(data)].join('|'))
     );
     if (cache.get(key)) return json_({ ok: true, duplicate: true });
 
@@ -62,8 +64,10 @@ function handleConsult_(data) {
 function logRegistrationLead_(data) {
   var saved = appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, '', data);
   try { fillLeadTabs_(false, data, new Date()); } catch (ignore) {}
-  // The ledger (Ledger.gs), once deployed, sends its own receipt with the learner code.
-  if (typeof ledgerIntake_ === 'function') return;
+  // Once setupLedger has filled its intake tab, the ledger (Ledger.gs) sends its own receipt with the learner code.
+  // Until then it sends nothing, even with Ledger.gs pushed, so this receipt is the learner's only email.
+  var intakes = typeof ledgerIntake_ === 'function' && SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEDGER_INTAKES.name);
+  if (intakes && intakes.getLastRow() > 1) return;
   try {
     sendReceipt_(data);
   } catch (err) {

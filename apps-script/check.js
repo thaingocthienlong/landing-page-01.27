@@ -506,7 +506,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(old.getLastRow(), 2);
   assert.strictEqual(old.data[1].length, ctx.HEADERS.length, 'a full-width row even without ledger tabs');
   assert.deepStrictEqual(plain(old.data[1].slice(17, 20)), ['', '', 'facebook']);
-  assert.deepStrictEqual(mail.calls.map((m) => m.to), [OWNER + ',vanphong@vienphuongnam.com.vn'], 'unmigrated sheet: staff mail only, no learner mail');
+  assert.deepStrictEqual(mail.calls.map((m) => m.to), ['an@example.com', OWNER + ',vanphong@vienphuongnam.com.vn'],
+    'unmigrated sheet: the learner gets the receipt without a code (Leads.gs), staff get their mail');
 
   reset();
   ctx.setupLedger();
@@ -1260,6 +1261,16 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   const told = mail.calls[mail.calls.length - 1].htmlBody;
   assert.ok(told.includes('trong khung hỏi đáp với trợ lý AI') && told.includes('>Phiên trợ lý</th>') && told.includes(CHAT.chat_session) && told.includes('Thứ 6 mình trực'), told);
 
+  // Sent again from the same conversation it is a repeat; from another conversation it is a lead
+  // of its own, with that conversation's id and note.
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT, chat_note: 'nhắn thêm' }), { ok: true, duplicate: true });
+  assert.deepStrictEqual(post({ ...LEAD, chat_session: 'm7q2x9b4-1a2b', chat_note: 'cuộc trò chuyện khác' }), { ok: true });
+  assert.deepStrictEqual([web.data.length, plain(web.data[2]).slice(width)], [3, ['m7q2x9b4-1a2b', 'cuộc trò chuyện khác']]);
+  assert.match(row(TRACK, 2)[18], /\n\d{2}\/\d{2} \d{2}:\d{2}: gửi thêm form tư vấn\. Để lại số qua trợ lý AI: cuộc trò chuyện khác$/);
+  assert.strictEqual(row(TRACK, 3)[0], '', 'still one row for the number in the staff tab');
+  web.data.splice(2, 1);
+  row(TRACK, 2)[18] = row(TRACK, 2)[18].split('\n')[0];
+
   // The same person registers after talking again: the registration row carries the id too, and
   // the note on their lead row says so. A lead that never used the assistant leaves both cells empty.
   cache.clear();
@@ -1370,10 +1381,18 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
     ctx.ledgerIntake_ = ledger;
   }
 
-  // With the ledger deployed it sends its own receipt, so Leads.gs sends none.
+  // Ledger.gs pushed but setupLedger not run yet: the ledger sends nothing, so Leads.gs still sends the receipt.
   reset();
   assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
-  assert.ok(!mail.calls.some((m) => m.to === FORM.emailcontact && /phiếu đăng ký – Phân tích định lượng với R/.test(m.subject)));
+  assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
+    ['Viện Phương Nam đã nhận phiếu đăng ký – Phân tích định lượng với R'], 'one receipt before setupLedger');
+
+  // Once set up, the ledger sends its own receipt with the code, so Leads.gs sends none.
+  reset();
+  ctx.setupLedger();
+  assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
+  assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
+    ['Viện Phương Nam đã nhận phiếu đăng ký – R27-001'], 'only the ledger receipt after setupLedger');
 }
 
 // The ledger setup adds Ledger.gs and LedgerMail.gs but not Leads.gs: its emails must build from Code.gs alone.
