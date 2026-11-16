@@ -480,9 +480,12 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(m.subject, 'Viện Phương Nam đã nhận phiếu đăng ký – R27-001');
   assert.strictEqual(m.name, 'Viện Phương Nam');
   const html = m.htmlBody;
-  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Gói đã chọn: Gói 1</p>', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
-    'xác nhận số tiền', 'chưa giữ chỗ', 'trước ngày 28/12/2026', '(028) 2242 6789', '0949 761 636 (Ms. Vy)', '0912 114 511 (Ms. Thảo)', 'vanphong@vienphuongnam.com.vn']
+  ['Lê &lt;b&gt;Văn&lt;/b&gt; Tâm &amp; Co', 'Phân tích định lượng với R', 'R27-001', 'Ms. Vy hoặc Ms. Thảo', 'Zalo', 'email',
+    'xác nhận số tiền', 'chưa giữ chỗ', 'trước ngày ' + ctx.mailDeadline_('28/12/2026'), '(028) 2242 6789', 'Ms. Vy (SĐT/Zalo)', '0949 761 636',
+    'Ms. Thảo (SĐT/Zalo)', '0912 114 511', 'href="tel:0949761636"', 'vanphong@vienphuongnam.com.vn']
     .forEach((s) => assert.ok(html.includes(s), 'receipt mentions ' + s));
+  assert.match(html, /Gói đã chọn<\/th><td[^>]*>Gói 1<\/td>/);
+  assert.match(html, /Mã học viên<\/th><td[^>]*><strong>R27-001<\/strong>/);
   assert.ok(!html.includes('<b>Văn'), 'learner-typed values are escaped');
   ['vietqr', 'STK', 'GOI1', 'Số tài khoản', 'đồng', '8.800.000'].forEach((s) => assert.ok(!html.includes(s), 'no payment details: ' + s));
 
@@ -572,7 +575,7 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual([m.to, m.replyTo, m.name], ['an@example.com', 'vanphong@vienphuongnam.com.vn', 'Viện Phương Nam']);
   assert.strictEqual(m.subject, 'Hướng dẫn chuyển khoản học phí – R27-001');
   ['Nguyễn Văn An', 'Gói 1', '6.700.000 đồng', 'VIEN PHAT TRIEN NGUON LUC XA HOI PHUONG NAM', 'Ngân hàng Phương Đông (OCB), chi nhánh Tân Thuận',
-    'trước ngày 28/12/2026', 'phiếu thu', 'Zalo', '(028) 2242 6789', '0949 761 636 (Ms. Vy)', '0912 114 511 (Ms. Thảo)', 'vanphong@vienphuongnam.com.vn']
+    'trước ngày ' + ctx.mailDeadline_('28/12/2026'), 'phiếu thu', 'Zalo', '(028) 2242 6789', '0949 761 636', '0912 114 511', 'vanphong@vienphuongnam.com.vn']
     .forEach((s) => assert.ok(m.htmlBody.includes(s), 'payment email mentions ' + s));
   assert.match(m.htmlBody, /quét bằng ứng dụng ngân hàng để điền sẵn số tiền và nội dung/i);
   assert.ok(!m.htmlBody.includes('Hình thức'), 'no format line when the cell is empty');
@@ -1281,7 +1284,9 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
     assert.ok(receipt, 'the learner gets a receipt');
     assert.strictEqual(receipt.replyTo, 'vanphong@vienphuongnam.com.vn');
     assert.match(receipt.htmlBody, /Kính chào anh\/chị Nguyễn Văn An,/);
-    assert.match(receipt.htmlBody, /Gói đã chọn: Gói 3 · Khóa 1 \+ Khóa 3</);
+    assert.match(receipt.htmlBody, /Gói đã chọn<\/th><td[^>]*>Gói 3 · Khóa 1 \+ Khóa 3<\/td>/);
+    assert.ok(receipt.htmlBody.includes('trước ngày ' + ctx.mailDeadline_('28/12/2026')));
+    assert.ok(!receipt.htmlBody.includes('Mã học viên'), 'no learner code without the ledger');
     assert.doesNotMatch(receipt.htmlBody, /7\.500\.000|2242 6789 –|Số tài khoản/, 'no price or bank details');
     assert.strictEqual(sheets['Lead web'].data[1][ctx.LEAD_HEADERS.length - 1], 'Mới');
 
