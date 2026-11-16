@@ -1782,9 +1782,8 @@
             if (asked !== state) return;
             // the busy button dropped focus to the page; with the card gone it goes where the other buttons send it
             if (document.activeElement === document.body || card.contains(document.activeElement)) (compact.matches ? log : input).focus({ preventScroll: true });
-            log.querySelector(".chat-msg-error")?.remove();
             log.querySelectorAll(".chat-options, .chat-lead").forEach((node) => node.remove());
-            if (state.messages.length % 2) state.messages.pop();
+            // the card only opens from a choice under a finished turn, so the turns still alternate
             state.messages.push({ role: "user", content: LEAD_SENT }, { role: "assistant", content: LEAD_DONE });
             save();
             addMessage("user", LEAD_SENT);
