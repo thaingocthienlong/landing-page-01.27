@@ -109,10 +109,11 @@ function chatStats_() {
   var asked = {};
   var log = book.getSheetByName(CHAT_SHEET_NAME);
   (log ? log.getDataRange().getValues().slice(1) : []).forEach(function (row) {
-    if (id(row[1])) asked[id(row[1])] = (asked[id(row[1])] || 0) + 1;
+    // A question sent again (the page's "Thử lại", or an answer lost on its way) is one question.
+    if (id(row[1])) (asked[id(row[1])] = asked[id(row[1])] || {})[id(row[2])] = true;
   });
   var sessions = Object.keys(asked);
-  var long = sessions.filter(function (session) { return asked[session] >= 3; }).length;
+  var long = sessions.filter(function (session) { return Object.keys(asked[session]).length >= 3; }).length;
   var called = {};
   var registered = {};
   var leads = book.getSheetByName(LEAD_SHEET_NAME);

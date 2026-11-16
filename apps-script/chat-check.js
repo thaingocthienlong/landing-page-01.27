@@ -614,10 +614,13 @@ const DOWN = [{ code: 500 }, { code: 500 }];
 {
   reset();
   assert.match(ctx.chatStats_(), /Cuộc trò chuyện: 0 \(0 cuộc từ 3 câu hỏi trở lên\)\n- Để lại số điện thoại qua trợ lý: 0\n- Gửi phiếu đăng ký sau khi trò chuyện: 0/, 'no tab yet');
-  const talk = (session, times) => { for (let i = 0; i < times; i++) ctx.handleChat_(request([FEE], session)); };
-  talk('phien-mot-0001', 3);
-  talk('phien-hai-0002', 1);
-  talk('phien-ba-00003', 4);
+  const QUESTIONS = [FEE, 'Lịch học thế nào?', 'Đăng ký ra sao?', 'Học online được không?'];
+  const talk = (session, questions) => questions.forEach((i) => ctx.handleChat_(request([QUESTIONS[i]], session)));
+  talk('phien-mot-0001', [0, 1, 2]);
+  talk('phien-hai-0002', [0]);
+  talk('phien-ba-00003', [0, 1, 2, 3]);
+  // Two questions, one of them sent three times (a retry logs a row each time): not three questions.
+  talk('phien-bon-0004', [0, 1, 1, 1]);
   sheets['Hỏi đáp'].data.push(['ghi chú của nhân viên', '', '', '', '', '']); // a row without a session is no conversation
   const head = plain(ctx.LEAD_HEADERS);
   const lead = (kind, session) => head.map((h, i) => (i === 1 ? kind : 'x')).concat(session === undefined ? [] : [session, '']);
@@ -632,10 +635,10 @@ const DOWN = [{ code: 500 }, { code: 500 }];
     lead('Đăng ký').concat(['', '', ''])
   ]);
   const stats = ctx.chatStats_();
-  assert.match(stats, /^Trợ lý AI, tính từ dòng đầu của tab "Hỏi đáp":\n- Cuộc trò chuyện: 3 \(2 cuộc từ 3 câu hỏi trở lên\)\n- Để lại số điện thoại qua trợ lý: 2\n- Gửi phiếu đăng ký sau khi trò chuyện: 1\n/);
+  assert.match(stats, /^Trợ lý AI, tính từ dòng đầu của tab "Hỏi đáp":\n- Cuộc trò chuyện: 4 \(2 cuộc từ 3 câu hỏi trở lên\)\n- Để lại số điện thoại qua trợ lý: 2\n- Gửi phiếu đăng ký sau khi trò chuyện: 1\n/);
   // A "Lead web" tab from before the assistant's columns counts nothing instead of failing.
   fakeSheet('Lead web', [head, lead('Tư vấn')]);
-  assert.match(ctx.chatStats_(), /Cuộc trò chuyện: 3 .*\n- Để lại số điện thoại qua trợ lý: 0\n- Gửi phiếu đăng ký sau khi trò chuyện: 0/);
+  assert.match(ctx.chatStats_(), /Cuộc trò chuyện: 4 .*\n- Để lại số điện thoại qua trợ lý: 0\n- Gửi phiếu đăng ký sau khi trò chuyện: 0/);
   // The menu shows it; run from the editor, where there is no window, it goes to the log.
   logs.length = 0;
   ctx.chatStats();

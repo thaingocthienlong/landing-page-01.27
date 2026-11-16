@@ -1260,6 +1260,16 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   const told = mail.calls[mail.calls.length - 1].htmlBody;
   assert.ok(told.includes('trong khung hỏi đáp với trợ lý AI') && told.includes('>Phiên trợ lý</th>') && told.includes(CHAT.chat_session) && told.includes('Thứ 6 mình trực'), told);
 
+  // Sent again from the same conversation it is a repeat; from another conversation it is a lead
+  // of its own, with that conversation's id and note.
+  assert.deepStrictEqual(post({ ...LEAD, ...CHAT, chat_note: 'nhắn thêm' }), { ok: true, duplicate: true });
+  assert.deepStrictEqual(post({ ...LEAD, chat_session: 'm7q2x9b4-1a2b', chat_note: 'cuộc trò chuyện khác' }), { ok: true });
+  assert.deepStrictEqual([web.data.length, plain(web.data[2]).slice(width)], [3, ['m7q2x9b4-1a2b', 'cuộc trò chuyện khác']]);
+  assert.match(row(TRACK, 2)[18], /\n\d{2}\/\d{2} \d{2}:\d{2}: gửi thêm form tư vấn\. Để lại số qua trợ lý AI: cuộc trò chuyện khác$/);
+  assert.strictEqual(row(TRACK, 3)[0], '', 'still one row for the number in the staff tab');
+  web.data.splice(2, 1);
+  row(TRACK, 2)[18] = row(TRACK, 2)[18].split('\n')[0];
+
   // The same person registers after talking again: the registration row carries the id too, and
   // the note on their lead row says so. A lead that never used the assistant leaves both cells empty.
   cache.clear();

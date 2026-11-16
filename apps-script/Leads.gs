@@ -35,8 +35,10 @@ function handleConsult_(data) {
 
     var cache = CacheService.getScriptCache();
     var key = 'l_' + Utilities.base64EncodeWebSafe(
-      // Same number however it is spaced: "0912 114 511" and "0912114511" are one lead.
-      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [String(data.so_dien_thoai).replace(/[\s-]/g, ''), data.huong_quan_tam].join('|'))
+      // Same number however it is spaced: "0912 114 511" and "0912114511" are one lead. The same
+      // number left again from another conversation with the assistant is a lead of its own:
+      // dropped as a repeat, that conversation's id and note would never reach the adviser.
+      Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [String(data.so_dien_thoai).replace(/[\s-]/g, ''), data.huong_quan_tam, leadChatSession_(data)].join('|'))
     );
     if (cache.get(key)) return json_({ ok: true, duplicate: true });
 
