@@ -552,7 +552,7 @@ function syncLog_(book, version, message) {
       sheet.setFrozenRows(1);
     }
     var when = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm');
-    sheet.appendRow([when, version, message].map(textCell_));
+    sheet.appendRow([when, version, message].map(chatCell_));
   } catch (err) {
     // The log is a convenience; the result was already shown.
   }

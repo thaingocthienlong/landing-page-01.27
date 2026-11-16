@@ -1,10 +1,13 @@
 /**
- * Learner-care chat for the landing page. Each question is first looked up in the staff-kept FAQ
- * tab (Faq.gs); a clear match is answered with the approved wording. Other questions go to a
- * chain of low-cost models (Google Gemini by default, then optional OpenAI-compatible hosts such
- * as Cloudflare Workers AI or the office PC), grounded in the prompt from Knowledge.gs (with the
- * facts of the 'Thông tin thêm' tab) and the closest FAQ rows. Every exchange is logged to the
- * 'Hỏi đáp' sheet. doPost in Code.gs routes requests with action 'chat' here.
+ * Learner-care chat for the landing page. Each message is first looked up in the staff-kept FAQ
+ * tab (Faq.gs). The AI then talks the learner through it, a few short messages a turn, from the
+ * prompt in Knowledge.gs (with the facts of the 'Thông tin thêm' tab) and the closest FAQ rows:
+ * a chain of models, Google Gemini by default, then optional OpenAI-compatible hosts such as
+ * Cloudflare Workers AI or the office PC. An AI answer with a figure the Institute's text does
+ * not support is dropped. When no model gives a usable answer, a message that asks something
+ * and clearly matches a row gets that row's approved wording, as every clear match does while
+ * no AI is set up. Every exchange is logged to the 'Hỏi đáp' sheet. doPost in Code.gs routes
+ * requests with action 'chat' here.
  *
  * Setup (full steps in README.md): add the .gs files to the Apps Script project that holds
  * Code.gs, run setupFaq once, set the CHAT_API_KEY script property to a Google AI Studio key,
@@ -20,11 +23,16 @@ var CHAT_GROUPS = ['CHAT_', 'CHAT2_', 'CHAT3_'];
 // Default models of the first provider; each Gemini model has its own free daily quota.
 var CHAT_GEMINI_MODELS = 'gemini-3.5-flash-lite,gemini-3.1-flash-lite';
 var CHAT_DEFAULT_MAX_PER_HOUR = 100;
-var CHAT_MAX_PER_SESSION = 30;
-var CHAT_HISTORY = 12;
+// A consultation is many short turns (a tapped quick reply is one), so a visitor gets room.
+var CHAT_MAX_PER_SESSION = 60;
+// Turns the model reads, so what the learner said about themselves early on is still there.
+var CHAT_HISTORY = 30;
 var CHAT_MAX_QUESTION = 1000;
 var CHAT_MAX_ANSWER = 6000;
-var CHAT_MAX_OUTPUT = 1024;
+// Room for a model that thinks before it answers; the answers themselves are short.
+var CHAT_MAX_OUTPUT = 2048;
+var CHAT_MAX_OPTIONS = 3;
+var CHAT_MAX_OPTION_LENGTH = 40;
 // Seconds for all model attempts together; the page gives up waiting at 60.
 var CHAT_TIME_BUDGET = 45;
 var CHAT_CALL_MAX = 25;
@@ -58,40 +66,271 @@ function chatSelfTest() {
   });
 }
 
+// Run from the editor to read a whole consultation in the log: a scripted learner, the configured
+// models and the same checks as the page.
+function chatTalkTest() {
+  var messages = [];
+  ['Học phí khóa học thế nào?', 'chưa, mình là bác sĩ, có số ca bệnh theo tháng muốn dự báo', 'Học phí', 'thứ 6 mình trực thì sao em'].forEach(function (text) {
+    messages.push({ role: 'user', content: text });
+    var turn = chatTurn_(messages);
+    Logger.log('HỌC VIÊN: ' + text + '\nTRỢ LÝ [' + turn.status + ']:\n' + (turn.reply || 'lỗi: ' + turn.error) +
+      (turn.suggestions && turn.suggestions.length ? '\nNÚT: ' + turn.suggestions.join(' | ') : ''));
+    messages.push({ role: 'assistant', content: turn.reply || '(không có câu trả lời)' });
+  });
+}
+
 function handleChat_(data) {
   var session = String(data.session || '');
   var messages = chatMessages_(data.messages);
   if (!/^[A-Za-z0-9_-]{8,64}$/.test(session) || !messages) return json_({ ok: false, error: 'bad-request' });
   if (!chatSessionAllow_(session)) return json_({ ok: false, error: 'rate-limited' });
 
-  var question = messages[messages.length - 1].content;
-  var log = function (reply, status) { logChat_([session, question, reply, status, clean_(data.page)]); };
-  var faq = faqLookup_(question);
-  if (faq.answer) {
-    var reply = messages.length === 1 ? chatGreet_(faq.answer.answer) : faq.answer.answer;
-    log(reply, 'faq:' + faq.answer.id);
-    return json_({ ok: true, reply: reply });
-  }
+  var turn = chatTurn_(messages);
+  // A question nothing answered is logged with an empty answer, so staff can find it.
+  logChat_([session, messages[messages.length - 1].content, turn.error || turn.unanswered ? '' : turn.reply, turn.status, clean_(data.page)]);
+  if (turn.error) return json_({ ok: false, error: turn.error });
+  var out = { ok: true, reply: turn.reply };
+  if (turn.suggestions && turn.suggestions.length) out.suggestions = turn.suggestions;
+  return json_(out);
+}
 
+// One turn of the conversation: { reply, status, suggestions }, or { error, status } when there is
+// nothing to say. suggestions are buttons under the reply: the model's quick replies, or the
+// closest FAQ questions when no model answered.
+function chatTurn_(messages) {
+  var first = messages.length === 1;
+  var faq = faqLookup_(messages[messages.length - 1].content);
+  var row = faq.answer;
   // CHAT_MAX_PER_HOUR = 0 pauses the AI; the FAQ keeps answering.
   var config = chatConfig_();
+  var ai = config.groups.length > 0 && config.perHour > 0;
   var result = { status: 'no-ai' };
-  if (config.groups.length && config.perHour > 0) {
-    result = chatHourAllow_(config.perHour) ? askModel_(config, messages, faq.candidates) : { status: 'over-hour-cap', busy: 'overloaded' };
+  if (ai) {
+    result = chatHourAllow_(config.perHour) ? chatAdvise_(config, messages, chatSources_(faq)) : { status: 'over-hour-cap', busy: 'overloaded' };
   }
-  if (result.reply) {
-    log(result.reply, result.status);
-    return json_({ ok: true, reply: result.reply });
+  // The table reads one message with no memory of the conversation. That suits a message that
+  // asks something. A short answer to the assistant's own question ("rồi", "em làm về điều trị")
+  // matches rows by its words alone, so while the AI is on, such a message never gets the table.
+  var alone = !ai || chatAsks_(messages);
+  // A refusal or a cut-off answer is only the best there is when no approved row answers.
+  if (result.reply && !(result.weak && row && alone)) {
+    return { reply: result.reply, status: result.status, suggestions: result.options };
   }
-  // No model answered: offer the closest FAQ questions, or say plainly there is no answer.
-  var suggestions = faq.candidates.map(function (row) { return row.question; });
-  if (suggestions.length) {
-    log(CHAT_SUGGEST_REPLY, result.status + '; faq-suggest');
-    return json_({ ok: true, reply: CHAT_SUGGEST_REPLY, suggestions: suggestions });
+  if (row && alone) {
+    return { reply: first ? chatGreet_(row.answer) : row.answer, status: (ai ? result.status + '; ' : '') + 'faq:' + row.id };
   }
-  log('', result.status);
-  if (result.status === 'no-ai') return json_({ ok: true, reply: CHAT_NO_ANSWER_REPLY });
-  return json_({ ok: false, error: result.busy || (result.permanent ? 'unavailable' : 'busy') });
+  var suggestions = alone ? faq.candidates.map(function (other) { return other.question; }) : [];
+  if (suggestions.length) return { reply: CHAT_SUGGEST_REPLY, status: result.status + '; faq-suggest', suggestions: suggestions };
+  if (result.status === 'no-ai') return { reply: CHAT_NO_ANSWER_REPLY, status: result.status, unanswered: true };
+  return { error: result.busy || (result.permanent ? 'unavailable' : 'busy'), status: result.status };
+}
+
+// The rows the model speaks from: the matched one first, then the closest, three in all.
+function chatSources_(faq) {
+  var row = faq.answer;
+  return (row ? [row] : []).concat(faq.candidates.filter(function (other) { return !row || other.id !== row.id; })).slice(0, 3);
+}
+
+// False for what is probably an answer to the assistant's own question: the turn before ended on
+// a question and this message asks nothing itself.
+function chatAsks_(messages) {
+  var last = messages[messages.length - 1].content;
+  var before = messages.length > 1 ? messages[messages.length - 2].content : '';
+  if (!/\?\s*$/.test(before)) return true;
+  return last.indexOf('?') !== -1 || faqTerms_(last).words.some(function (word) { return FAQ_ASKING[word]; });
+}
+
+// The model's turn with its quick replies taken out of the text. An answer with a figure the
+// Institute's text does not support is dropped (status "guard-number" and the figure), so the
+// caller falls back to the FAQ wording. weak marks a content-filter refusal or an answer cut off
+// at the length cap: used only when nothing better is at hand.
+function chatAdvise_(config, messages, references) {
+  var result = askModel_(config, messages, references);
+  if (!result.reply) return result;
+  if (result.reply === CHAT_REFUSAL_REPLY) return { status: result.status, reply: result.reply, options: [], weak: true };
+  var cut = /(?:^|; )ok-truncated /.test(result.status);
+  var turn = chatOptions_(result.reply);
+  if (!turn.reply) return { status: result.status + '; guard-empty' };
+  // The example conversation in the prompt is not a source: a slip there must not vouch for itself.
+  var official = chatSystemPrompt_().split(CHAT_EXAMPLES_HEADING)[0] + chatDateNote_() + chatReferences_(references);
+  var said = messages.map(function (message) { return message.content; }).join('\n');
+  var learner = messages.filter(function (message) { return message.role === 'user'; })
+    .map(function (message) { return message.content; }).join('\n');
+  var unknown = chatUnknownFigure_(turn.reply, official, said, learner);
+  if (unknown) return { status: result.status + '; guard-number ' + unknown };
+  return { status: result.status, reply: turn.reply, options: cut ? [] : turn.options, weak: cut };
+}
+
+// The model may offer ready answers in double square brackets, "[[Chưa từng | Đã dùng cơ bản]]",
+// which the page shows as buttons. The brackets are taken out of the text wherever the model put
+// them: on a line of their own, after a sentence, one pair per answer, in bold, or cut off by the
+// length cap. Inside a sentence the answers stay as words. R code such as x[[1]] is left alone.
+function chatOptions_(reply) {
+  var options = [];
+  var text = reply.replace(/(^|[^\p{L}\p{N}_)\]])\*{0,2}\[\[([^\[\]]*)(?:\]\]\*{0,2}|$)/gu, function (all, before, inside, offset, whole) {
+    var found = inside.split(/\s*[|｜]\s*|\s+\/\s+/)
+      .map(function (item) { return item.replace(/^[\s"'“”*]+|[\s"'“”*.]+$/g, ''); })
+      .filter(function (item) { return item && item.length <= CHAT_MAX_OPTION_LENGTH; });
+    found.forEach(function (item) { if (options.indexOf(item) === -1) options.push(item); });
+    var rest = whole.slice(offset + all.length).split('\n')[0].replace(/\[\[[^\[\]]*\]\]/g, '');
+    return before + (/[\p{L}\p{N}]/u.test(rest) ? found.join(', ') : '');
+  });
+  // What a line that only held brackets leaves behind: a bullet, a full stop, bold marks.
+  var lines = text.split('\n').filter(function (line) { return !/^\s*(?:[-*•.]{1,4})\s*$/.test(line); });
+  // And a short label before them ("Lựa chọn:"), when it now ends the turn.
+  while (options.length && lines.length && /^\s*(?:[^.!?]{0,24}:)?\s*$/.test(lines[lines.length - 1])) lines.pop();
+  return {
+    reply: lines.join('\n').replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n').trim(),
+    options: options.slice(0, CHAT_MAX_OPTIONS)
+  };
+}
+
+// Amounts of money in a text as whole đồng: "7.500.000", "7,500,000", "7 500 000", "7500000",
+// "7,5 triệu", "7 triệu rưỡi", "500k". An amount in words ("bảy triệu") is kept as its words, which
+// only the same words match. rest is the text without the amounts, for the checks that follow.
+function chatAmounts_(text) {
+  var amounts = [];
+  var rest = text
+    // Dots or commas between the thousands, or spaces ("9 900 000", but not the groups of a phone
+    // number: "0949 761 636", "+84 949 761 636", "(+84) 949 761 636").
+    .replace(/(?<!\d|\d[.,])\d{1,3}(?:[.,]\d{3})+(?!\d|[.,]\d)|(?<!\d|\d[., ]|\)\s?)\d{1,3}(?: \d{3}){2}(?!\d|[., ]\d)/g, function (found) {
+      amounts.push(String(Number(found.replace(/\D/g, ''))));
+      return ' ';
+    })
+    .replace(/(\d+(?:[.,]\d+)?)\s*(triệu|tr|củ|nghìn|ngàn|k)(?![\p{L}\p{N}])(\s*rưỡi)?/giu, function (found, number, unit, half) {
+      var each = /^[nk]/i.test(unit) ? 1000 : 1000000;
+      amounts.push(String(Math.round((Number(number.replace(',', '.')) + (half ? 0.5 : 0)) * each)));
+      return ' ';
+    })
+    .replace(/(?:một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|chục|trăm|vài|mấy)\s+(?:triệu|nghìn|ngàn)/giu, function (found) {
+      amounts.push(found.toLowerCase().replace(/\s+/g, ' '));
+      return ' ';
+    })
+    .replace(/(?<!\d|\d[.,\/:])\d{6,7}(?!\d|[.,\/:]\d)/g, function (found) {
+      amounts.push(String(Number(found)));
+      return ' ';
+    });
+  return { amounts: amounts, rest: rest };
+}
+
+// Days in a text as { day, month, year } ("2/3" after Gói, Khóa or Bài is not a day). With
+// `inside`, a range such as "từ 08/01 đến 10/01/2027" also gives the days between its ends.
+function chatDates_(text, inside) {
+  var dates = [];
+  var match;
+  var one = /(?<![\d\/])(?<!(?:gói|khóa|bài|package|course)\s?)(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?(?![\d\/])/giu;
+  while ((match = one.exec(text))) dates.push({ day: Number(match[1]), month: Number(match[2]), year: match[3] || '' });
+  var range = /(\d{1,2})\/(\d{1,2})(?:\/\d{4})?\s*(?:đến|tới|–|-)\s*(?:ngày\s*)?(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/giu;
+  while (inside && (match = range.exec(text))) {
+    if (Number(match[2]) !== Number(match[4])) continue;
+    for (var day = Number(match[1]) + 1; day < Number(match[3]); day++) dates.push({ day: day, month: Number(match[2]), year: match[5] || '' });
+  }
+  return dates;
+}
+
+// The one package (or course) a sentence names: its number, '' when it names none, and null when
+// it names several ("Gói 2 và Gói 4", "Gói 4, 5 hoặc 6", "Gói 2/3"), which no figure is tied to.
+function chatNamed_(sentence, word) {
+  var numbers = {};
+  var match;
+  var one = new RegExp('(?:' + word + ')\\s*(\\d)(?!\\d)', 'gi');
+  while ((match = one.exec(sentence))) numbers[match[1]] = true;
+  var list = Object.keys(numbers);
+  if (!list.length) return '';
+  var several = new RegExp('(?:' + word + ')\\s*\\d\\s*(?:,|\\/|\\+|và|hoặc|hay|đến|or|and|-|–)\\s*(?:(?:' + word + ')\\s*)?\\d(?!\\s*(?:ngày|buổi|bài|khóa|người|tháng|giờ|năm)|[\\d.,:%\\/])', 'i');
+  return list.length > 1 || several.test(sentence) ? null : list[0];
+}
+
+// A model's usual slips with figures are a sum it worked out itself, a neighbouring row of the
+// fee table and another course's days. This returns the first figure in an AI answer that the
+// Institute's text does not support, or '' when every figure stands:
+//   - an amount, a day, a clock time and a phone or account number must be in `official` (the
+//     prompt without its example conversation, today's note, the FAQ rows sent along) or in
+//     `said` (the conversation);
+//   - a percentage likewise, in a sentence about money ("khoảng tin cậy 95%" is not one);
+//   - an amount in a sentence that names one package, or that follows such a sentence, must be
+//     one of that package's amounts in the fee tables. An amount the learner gave (`learner`:
+//     their messages) may stand beside it, never in its place;
+//   - a class day in a sentence that names one course must be one of that course's days.
+function chatUnknownFigure_(reply, official, said, learner) {
+  var figures = function (text, inside) {
+    var found = {};
+    var money = chatAmounts_(text);
+    money.amounts.forEach(function (amount) { found['đ' + amount] = amount; });
+    (text.match(/\d+(?:[.,]\d+)?\s?%/g) || []).forEach(function (percent) { found['%' + percent.replace(/\s/g, '').replace('.', ',')] = percent; });
+    // A day and month must be known; with a year, that month of that year must be known too
+    // (the notice writes "từ 08/01 đến 10/01/2027", so 08/01/2027 is right and 08/01/2026 is not).
+    chatDates_(text, inside).forEach(function (date) {
+      found['d' + date.day + '/' + date.month] = date.day + '/' + date.month;
+      if (date.year) found['m' + date.month + '/' + date.year] = date.day + '/' + date.month + '/' + date.year;
+    });
+    // Clock times: "1:30 pm", then "8:30", "8h30" and "17h".
+    var rest = money.rest.replace(/(?<!\d|\d[:.,\/])(\d{1,2})(?::(\d{2}))?\s?(am|pm)(?![\p{L}\p{N}])/giu, function (time, hour, minute, half) {
+      found['t' + (Number(hour) % 12 + (/pm/i.test(half) ? 12 : 0)) + ':' + (minute || '00')] = time;
+      return ' ';
+    }).replace(/(?<!\d|\d[:.,\/])(\d{1,2})(?:[:h](\d{2})(?!\d)|h(?![\p{L}\p{N}]))/gu, function (time, hour, minute) {
+      found['t' + Number(hour) + ':' + (minute || '00')] = time;
+      return ' ';
+    });
+    // Phone and account numbers: eight digits or more, in groups or unbroken, compared by their
+    // last nine digits, so "+84 949 761 636" is "0949 761 636" and "+84 28 2242 6789" is
+    // "(028) 2242 6789". Two years ("2025-2026") are not a number.
+    (rest.match(/(?<!\d|\d[.,\/:])\(?\+?\d{2,4}\)?(?:[ .\-]\d{2,8}){1,4}(?!\d|[\/:]\d)|(?<!\d|\d[.,\/:])\d{8,12}(?!\d|[.,\/:]\d)/g) || []).forEach(function (number) {
+      var digits = number.replace(/\D/g, '');
+      if (digits.length >= 8 && !/^(?:19|20)\d{2}\D+(?:19|20)\d{2}$/.test(number)) found['n' + digits.slice(-9)] = number;
+    });
+    return found;
+  };
+  var have = figures(official + '\n' + said, true);
+  var mine = figures(reply, false);
+  var unknown = Object.keys(mine).filter(function (key) { return key.charAt(0) !== '%' && !have[key]; })[0];
+  if (unknown) return mine[unknown];
+
+  // Package number -> its amounts, from the fee tables ("- Gói 3: ...", "- Gói 3 (7.500.000): ...").
+  // Course number -> its class days ("1. Khóa 1, ...: từ 08/01 đến 10/01/2027", "- Khóa 2: ngày 12/01 ...").
+  var fees = {};
+  var days = {};
+  var classDay = {};
+  official.split('\n').forEach(function (line) {
+    var pack = /^- Gói (\d)(?::| \()/.exec(line);
+    if (pack) chatAmounts_(line).amounts.forEach(function (amount) { (fees[pack[1]] = fees[pack[1]] || {})[amount] = true; });
+    var course = /^(?:\d\.|-) Khóa (\d)[,:]/.exec(line);
+    if (course) {
+      chatDates_(line, true).forEach(function (date) {
+        (days[course[1]] = days[course[1]] || {})[date.day + '/' + date.month] = true;
+        classDay[date.day + '/' + date.month] = true;
+      });
+    }
+  });
+  var echoed = {};
+  chatAmounts_(learner || '').amounts.forEach(function (amount) { echoed[amount] = true; });
+
+  var current = '';
+  var sentences = reply.split(/\n|(?<=[.!?;…])\s+/);
+  for (var i = 0; i < sentences.length; i++) {
+    var sentence = sentences[i];
+    if (/giảm|ưu đãi|chiết khấu|khuyến mãi|học phí|hoàn tiền|hoàn lại|hoàn trả|đặt cọc|thanh toán|đóng tiền|discount|tuition|fee|refund/i.test(sentence)) {
+      var percent = (sentence.match(/\d+(?:[.,]\d+)?\s?%/g) || []).filter(function (found) { return !have['%' + found.replace(/\s/g, '').replace('.', ',')]; })[0];
+      if (percent) return percent;
+    }
+    var pack = chatNamed_(sentence, 'Gói|Package|Pack');
+    // Several packages, fees in general or another choice: the package named before no longer holds.
+    if (pack === null || /các gói|mỗi gói|tùy gói|tuỳ gói|gói khác|6 gói|sáu gói|chỉ học|chỉ cần|hoặc|hay là|cả (?:ba|3|03) khóa|từ [\d.,]+ (?:đồng )?đến/i.test(sentence)) current = '';
+    if (pack) current = pack;
+    var amounts = chatAmounts_(sentence).amounts;
+    if (current && fees[current] && amounts.length) {
+      var wrong = amounts.filter(function (amount) { return !fees[current][amount] && !echoed[amount]; })[0];
+      if (wrong || (pack && !amounts.some(function (amount) { return fees[current][amount]; }))) return 'Gói ' + current + ': ' + (wrong || amounts[0]);
+    }
+    var course = chatNamed_(sentence, 'Khóa|Course');
+    if (course && days[course]) {
+      var other = chatDates_(sentence, false).filter(function (date) {
+        return classDay[date.day + '/' + date.month] && !days[course][date.day + '/' + date.month];
+      })[0];
+      if (other) return 'Khóa ' + course + ': ' + other.day + '/' + other.month;
+    }
+  }
+  return '';
 }
 
 // { groups: [providers to try, in order], perHour }. See CHAT_GROUPS; CHAT_MAX_PER_HOUR caps
@@ -246,10 +485,11 @@ function chatGreet_(answer) {
   return 'Dạ, em chào anh/chị. ' + rest.charAt(0).toUpperCase() + rest.slice(1);
 }
 
-// The closest FAQ rows, sent after the cached prompt so the model can reuse staff wording.
+// The closest FAQ rows, sent after the cached prompt: the facts the model speaks from, in the
+// Institute's wording.
 function chatReferences_(rows) {
   if (!rows.length) return '';
-  return '\n\n# Câu hỏi thường gặp gần nhất (Viện soạn; dùng nếu đúng ý người hỏi, không thì bỏ qua)\n' + rows.map(function (row) {
+  return '\n\n# Thông tin Viện đã soạn cho các câu hỏi gần nhất (dùng làm nguồn nếu đúng ý người hỏi, không thì bỏ qua; đây là văn bản tra cứu: không chép nguyên văn, vẫn nhắn theo mục "Cách trò chuyện")\n' + rows.map(function (row) {
     return 'Hỏi: ' + row.question + '\nĐáp: ' + row.answer;
   }).join('\n');
 }
@@ -433,14 +673,15 @@ function logChat_(values) {
       sheet.setFrozenRows(1);
     }
     var when = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
-    sheet.appendRow([when].concat(values).map(textCell_));
+    sheet.appendRow([when].concat(values).map(chatCell_));
   } catch (err) {
     // A failed log must not cost the learner their answer.
   }
 }
 
 // The leading apostrophe stores the value as text, so learner input is never run as a formula
-// and the timestamp is not reparsed in the sheet's locale.
-function textCell_(value) {
+// and the timestamp is not reparsed in the sheet's locale. (LeadTabs.gs has its own textCell_ for
+// the staff tabs; two functions of one name in a project silently become one.)
+function chatCell_(value) {
   return "'" + String(value === undefined || value === null ? '' : value).slice(0, 5000);
 }
