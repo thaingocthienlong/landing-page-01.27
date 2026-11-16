@@ -1,9 +1,9 @@
 /**
  * FAQ answers for the learner-care chat. Staff keep a 'FAQ' tab in this spreadsheet: one row per
- * question, with other ways learners ask it and the approved answer. A question that clearly
- * matches a row is answered with that row word for word, instantly and without leaving Apps
- * Script. Anything less certain goes to the AI model with the closest rows as reference, and
- * when no model can answer, the learner is offered the closest questions to pick from.
+ * question, with other ways learners ask it and the approved answer. The row a question clearly
+ * matches, and the closest rows, are what the AI model speaks from (Chat.gs). The matched row
+ * is the answer, word for word, while no AI is set up or when no model gives a usable answer;
+ * with no match then, the learner is offered the closest questions to pick from.
  *
  * Setup: run setupFaq once (it creates the tab with starter rows from FaqSeed.gs). Edits apply
  * within a few minutes. In any cell, =FAQ_KHOP("câu hỏi") shows which row a question matches.

@@ -1,12 +1,12 @@
 # Hướng dẫn soạn và cập nhật bảng hỏi đáp (FAQ) cho trợ lý trên trang
 
-Trợ lý trên trang trả lời theo ba tầng:
+Trợ lý trên trang trò chuyện như một tư vấn viên: mỗi lượt gửi vài tin nhắn ngắn, hỏi lại một câu khi cần biết thêm về học viên, rồi gợi ý gói phù hợp. Nó làm việc theo ba tầng:
 
-1. **Bảng FAQ** (tab `FAQ` trong Google Sheet đăng ký). Câu hỏi khớp rõ với một dòng thì trợ lý trả lời nguyên văn cột "Trả lời", ngay lập tức, không gửi đi đâu.
-2. **AI miễn phí** (Gemini, rồi Cloudflare) cho câu chưa khớp. AI được gửi kèm tối đa 3 dòng FAQ gần nhất để tham khảo cách Viện trả lời.
-3. **Số điện thoại và Zalo** khi không ai trả lời được. Nếu có dòng FAQ gần giống, học viên được chọn câu gần nhất.
+1. **Bảng FAQ** (tab `FAQ` trong Google Sheet đăng ký). Mọi tin nhắn của học viên đều được so với bảng. Dòng khớp là **nguồn thông tin** để AI nói lại bằng lời ngắn gọn, đúng với người đang hỏi.
+2. **AI** (Claude bằng tín dụng API Anthropic của Viện; khi Claude lỗi thì Gemini, rồi Cloudflare) soạn câu trả lời từ dòng khớp, tối đa 3 dòng gần nhất và thông báo chính thức. Mỗi câu AI soạn được kiểm tra tự động: số tiền, ngày, giờ, số điện thoại, số tài khoản và phần trăm ưu đãi phải có trong dữ liệu của Viện; số tiền nói về một gói phải đúng là của gói đó; ngày học nói về một khóa phải đúng là của khóa đó. Sai thì câu đó bị bỏ.
+3. **Khi AI không trả lời được** (hết lượt, lỗi mạng, hoặc câu của AI bị bỏ vì sai con số): tin nhắn là một câu hỏi và khớp rõ một dòng thì trợ lý trả lời nguyên văn cột "Trả lời" của dòng đó. Không có dòng khớp thì học viên được chọn câu gần nhất, hoặc được mời thử lại, gọi điện, nhắn Zalo. Tin nhắn chỉ là lời đáp ngắn cho câu trợ lý vừa hỏi (ví dụ "rồi", "online") thì không dùng bảng, vì bảng chỉ đọc từng tin, không biết hai bên đang nói tới đâu; học viên được mời thử lại.
 
-Bảng FAQ càng đầy đủ thì trợ lý càng nhanh, càng đúng, và càng ít câu hỏi của học viên phải gửi cho dịch vụ AI bên ngoài.
+Vì vậy cột "Trả lời" vẫn phải đầy đủ và đúng từng con số: AI chỉ nói lại những gì bảng và thông báo có, và học viên đọc nguyên văn cột này mỗi khi AI vắng mặt. Việc kiểm tra tự động chỉ soát con số, không hiểu nghĩa cả câu, nên vẫn cần người đọc lại nhật ký (mục "Rà soát hằng tuần"). Khi AI đang bật, mọi tin nhắn của học viên đều được gửi cho dịch vụ AI bên ngoài (số điện thoại, email, số giấy tờ được che trước khi gửi).
 
 Sửa trực tiếp tab `FAQ` hay tab `Thông tin thêm` thì trợ lý dùng bản mới gần như ngay (chậm nhất 10 phút), không cần đụng tới Apps Script.
 
@@ -53,7 +53,7 @@ Những điều Viện xác nhận thêm ngoài thông báo (giờ học, học 
 | Nhóm | Để dễ lọc: Học phí, Lịch học, Đăng ký... | Học phí |
 | Câu hỏi | Câu hỏi chuẩn, viết có dấu. Hiện cho học viên khi trợ lý gợi ý. | Học phí các gói là bao nhiêu? |
 | Cách hỏi khác | Mỗi dòng một cách hỏi (xuống dòng trong ô: Ctrl+Enter, hoặc Alt+Enter). Càng nhiều cách hỏi thật càng tốt. | hp goi 1 bao nhieu<br>giá khóa học<br>đóng bao nhiêu tiền |
-| Trả lời | Câu trả lời đã duyệt, hiện nguyên văn. | Dạ, Gói 1 là 8.800.000 đồng/học viên... |
+| Trả lời | Câu trả lời đã duyệt. AI nói lại theo ô này; ô này hiện nguyên văn khi AI không trả lời được. | Dạ, Gói 1 là 8.800.000 đồng/học viên... |
 | Từ ngày / Đến ngày | Để trống nếu luôn đúng. Ghi `dd/mm/yyyy` nếu câu trả lời chỉ đúng trong một khoảng. | Đến ngày `07/12/2026` |
 | Bật | `Có` để dùng, `Không` để tạm tắt dòng mà không xóa. | Có |
 
@@ -68,10 +68,12 @@ Học viên nhắn qua Zalo, Messenger trên điện thoại nên hay viết t�
 - Từ đồng nghĩa: giá / phí / tiền / chi phí; khai giảng / bắt đầu / học khi nào; ghi danh / đăng ký.
 - Câu ngắn kiểu tin nhắn: `lịch học?`, `học phí`.
 - Gói và khóa: nếu dòng chỉ nói về một gói hay một khóa (ví dụ lịch Khóa 1), ghi số đó trong cách hỏi ("khóa 1 học ngày nào"). Nếu dòng đúng cho mọi gói (ví dụ ưu đãi nhóm), đừng ghi số gói nào, hoặc ghi đủ các gói: dòng có ghi "gói 2" thì sẽ không trả lời câu hỏi về "gói 3".
-- Câu học viên gõ **giống hệt** một cách hỏi đã có (không tính dấu, chữ hoa và các từ như ạ, ơi, ad, cho em hỏi) luôn được trả lời bằng dòng đó, kể cả câu rất ngắn như `Hỏi giá`. Vì vậy chép nguyên văn tin nhắn thật của học viên là cách chắc nhất. Đừng ghi cùng một cách hỏi cho hai dòng cùng đang bật: khi đó trợ lý không biết chọn dòng nào. Hai dòng thay nhau theo ngày (ưu đãi sớm và ưu đãi đã hết) thì ghi giống nhau được.
+- Câu học viên gõ **giống hệt** một cách hỏi đã có (không tính dấu, chữ hoa và các từ như ạ, ơi, ad, cho em hỏi) luôn được nhận đúng dòng đó, kể cả câu rất ngắn như `Hỏi giá`. Vì vậy chép nguyên văn tin nhắn thật của học viên là cách chắc nhất. Đừng ghi cùng một cách hỏi cho hai dòng cùng đang bật: khi đó trợ lý không biết chọn dòng nào. Hai dòng thay nhau theo ngày (ưu đãi sớm và ưu đãi đã hết) thì ghi giống nhau được.
 - Không chép lời chào hay lời cảm ơn vào "Cách hỏi khác" ("chào ad", "cho em hỏi", "cảm ơn"): trợ lý tự bỏ qua phần lớn các từ này, còn chép vào thì dòng đó dễ bị chọn nhầm cho những câu chỉ có lời chào.
 
 ### Câu trả lời
+
+Ô "Trả lời" là văn bản tra cứu: AI đọc ô này rồi nhắn lại cho học viên thành vài tin ngắn. Vẫn viết theo các quy tắc dưới đây, vì ô này hiện nguyên văn mỗi khi AI không trả lời được.
 
 - Giọng như tư vấn viên của Viện: xưng "em", gọi "anh/chị", mở bằng "Dạ, ...", câu đầu trả lời thẳng điều được hỏi, thêm "ạ" khi tự nhiên. Có thể kết bằng một gợi ý ngắn ("anh/chị cần em gửi thêm lịch học không ạ?"), nhưng đừng dòng nào cũng hỏi lại. Không viết tắt, không dùng bảng, tiêu đề, biểu tượng cảm xúc.
 - Học viên đọc trên điện thoại, nên đừng viết thành một đoạn dài:
@@ -143,7 +145,7 @@ Lặp lại sau mỗi đợt khóa, chỉ xuất khoảng thời gian mới.
 =FAQ_KHOP("hp goi 1 bao nhieu")
 ```
 
-Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là trợ lý trả lời bằng bảng FAQ; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng trả lời (hoặc dòng gần nhất), điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do:
+Kết quả gồm 5 ô: cách xử lý (`trả lời` nghĩa là bảng nhận đúng dòng: AI nói theo dòng đó, và dòng đó được trả lời nguyên văn khi AI không trả lời được; `AI hoặc gợi ý` nghĩa là chưa đủ chắc), mã dòng trả lời (hoặc dòng gần nhất), điểm, độ phủ (phần câu hỏi dòng đó khớp, từ càng hiếm càng nặng), và lý do:
 
 | Lý do | Nghĩa | Việc cần làm |
 |---|---|---|
@@ -163,8 +165,11 @@ Mở tab `Hỏi đáp` (nhật ký trò chuyện), lọc cột "Trạng thái":
 
 | Trạng thái bắt đầu bằng | Nghĩa | Việc cần làm |
 |---|---|---|
-| `faq:` | Trả lời bằng bảng FAQ (mã dòng ở sau) | Thỉnh thoảng đọc lại xem có trả lời đúng ý không |
-| `ok` | AI trả lời | Nếu câu này hay gặp, thêm vào bảng FAQ để lần sau trả lời ngay, đúng lời Viện |
+| `faq:` | Trả lời nguyên văn bằng bảng FAQ (mã dòng ở sau); chỉ gặp khi chưa bật AI | Thỉnh thoảng đọc lại xem có trả lời đúng ý không |
+| `ok` | AI trả lời | Đọc xem AI nói có đúng và tự nhiên không. Câu hay gặp mà bảng chưa có dòng nào nói tới thì thêm dòng, để AI có nguồn đúng lời Viện |
+| `...; guard-number` rồi tới con số | AI nói một con số dữ liệu của Viện không có, hoặc gán nhầm chỗ (`Gói 3: 6700000` là học phí của gói khác, `Khóa 2: 15/1` là ngày học của khóa khác), nên câu đó bị bỏ; học viên nhận câu của bảng hoặc được mời thử lại | Nếu con số đó đúng và cần có, thêm vào dòng FAQ hoặc tab `Thông tin thêm` |
+| `...; guard-empty` | AI chỉ gửi nút bấm mà không có lời; xử lý như dòng trên | Không cần làm gì |
+| `...; faq:` (sau một trạng thái khác) | AI không trả lời được, bảng trả lời nguyên văn | Không cần làm gì, trừ khi lặp lại nhiều |
 | `...; faq-suggest` | Không ai trả lời được, học viên được gợi ý câu gần nhất | Thêm câu hỏi vào "Cách hỏi khác" của dòng đúng, hoặc tạo dòng mới |
 | `no-ai` | Chưa bật AI và bảng không có câu phù hợp | Tạo dòng mới nếu là câu hỏi về khóa học |
 | `error-...` | Dịch vụ AI lỗi hoặc hết lượt | Xem `apps-script/README.md`, mục bảng trạng thái |
