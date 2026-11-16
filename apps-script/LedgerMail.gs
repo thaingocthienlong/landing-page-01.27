@@ -19,7 +19,7 @@ function ledgerSend_(r, subject, html) {
   });
 }
 
-// The receipt and its layout live in Leads.gs (receiptHtml_). Throws when the send fails.
+// The receipt and its layout live in Code.gs (receiptHtml_). Throws when the send fails.
 function sendConfirmation_(r, intake) {
   ledgerSend_(r, 'Viện Phương Nam đã nhận phiếu đăng ký – ' + r['Mã học viên'],
     receiptHtml_(r['Họ và chữ lót'] + ' ' + r['Tên'], intake.name, ledgerPack_(r), r['Mã học viên'], intake.deadline));

@@ -1306,4 +1306,15 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.ok(!mail.calls.some((m) => m.to === FORM.emailcontact && /phiếu đăng ký – Phân tích định lượng với R/.test(m.subject)));
 }
 
+// The ledger setup adds Ledger.gs and LedgerMail.gs but not Leads.gs: its emails must build from Code.gs alone.
+{
+  const sent = [];
+  const bare = vm.createContext({ MailApp: { sendEmail: (o) => sent.push(o) } });
+  for (const file of ['Code.gs', 'Ledger.gs', 'LedgerMail.gs']) vm.runInContext(fs.readFileSync(path.join(__dirname, file), 'utf8'), bare);
+  const r = { 'Email': 'a@example.com', 'Họ và chữ lót': 'Nguyễn Văn', 'Tên': 'An', 'Mã học viên': 'R27-001', 'Mã gói': 'Gói 1', 'Số tiền phải đóng': '8800000' };
+  bare.sendConfirmation_(r, { name: 'Phân tích định lượng với R', deadline: '28/12/2026' });
+  bare.sendPaymentEmail_(r, { name: 'Phân tích định lượng với R', deadline: '28/12/2026' });
+  assert.strictEqual(sent.length, 2, 'confirmation and payment email sent without Leads.gs');
+}
+
 console.log('apps-script check: all passed');
