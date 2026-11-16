@@ -1139,7 +1139,8 @@
         form.reset();
         syncSourceOther();
         show(0);
-        showMessage("Đã gửi đăng ký thành công. Viện Phương Nam sẽ liên hệ qua điện thoại hoặc email để xác nhận chỗ, gói học và thông tin thanh toán.");
+        // Same promise as the confirmation email (receiptHtml_ in apps-script/Code.gs).
+        showMessage("Đã gửi đăng ký thành công. Viện Phương Nam (Ms. Vy/Ms. Thảo) sẽ liên hệ anh/chị qua Zalo/điện thoại để tư vấn các thông tin về khóa học và hướng dẫn các bước tiếp theo.");
       } catch {
         error.textContent = "Chưa gửi được thông tin đăng ký. Dữ liệu bạn đã nhập vẫn được giữ lại; vui lòng thử lại hoặc gọi (028) 2242 6789 / 0949 761 636.";
         error.hidden = false;
