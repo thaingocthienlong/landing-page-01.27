@@ -1039,7 +1039,7 @@ var FAQ_SEED = [
       'Đăng ký thế nào ạ',
       'Nhờ bạn đăng ký giúp tôi học khoá học này nhé!'
     ],
-    answer: 'Dạ, anh/chị đăng ký theo một trong ba cách ạ:\n- Điền phiếu ở mục Đăng ký khóa học trên trang này (chọn gói, điền thông tin cá nhân và đơn vị công tác).\n- Gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.\n- Đăng ký trực tiếp tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh.\n\nSau khi nhận phiếu, Ms. Vy hoặc Ms. Thảo liên hệ anh/chị qua Zalo trong khoảng 1 ngày làm việc (không tìm thấy Zalo thì gửi email) để xác nhận thông tin, gói học, hình thức học.\n\nĐiền phiếu chưa phải là đã giữ chỗ: anh/chị chỉ có tên trong danh sách chính thức của lớp khi đã hoàn tất học phí.',
+    answer: 'Dạ, anh/chị đăng ký theo một trong ba cách ạ:\n- Điền phiếu ở mục Đăng ký khóa học trên trang này (chọn gói, điền thông tin cá nhân và đơn vị công tác).\n- Gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.\n- Đăng ký trực tiếp tại Viện Phương Nam, số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh.\n\nSau khi nhận phiếu, Ms. Vy hoặc Ms. Thảo liên hệ anh/chị qua Zalo hoặc điện thoại trong khoảng 1 ngày làm việc để xác nhận thông tin, gói học, hình thức học.\n\nĐiền phiếu chưa phải là đã giữ chỗ: anh/chị chỉ có tên trong danh sách chính thức của lớp khi đã hoàn tất học phí.',
     from: '',
     to: ''
   },
@@ -1056,7 +1056,7 @@ var FAQ_SEED = [
       'gui phieu roi chua ai nhan tin',
       'A có đăng ký rồi nhưng chưa thấy ai kết nối bên zalo'
     ],
-    answer: 'Dạ, em xin lỗi đã để anh/chị chờ ạ.\n\nSau khi nhận phiếu, Ms. Vy hoặc Ms. Thảo liên hệ anh/chị qua Zalo trong khoảng **1 ngày làm việc**. Nếu không tìm thấy Zalo của anh/chị, chuyên viên gửi email; anh/chị xem giúp hộp thư đã điền trong phiếu.\n\nNếu đã quá 1 ngày làm việc mà chưa có ai liên hệ, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra.',
+    answer: 'Dạ, em xin lỗi đã để anh/chị chờ ạ.\n\nSau khi nhận phiếu, Ms. Vy hoặc Ms. Thảo liên hệ anh/chị qua Zalo hoặc điện thoại trong khoảng **1 ngày làm việc**.\n\nNếu đã quá 1 ngày làm việc mà chưa có ai liên hệ, anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511 để Viện kiểm tra.',
     from: '',
     to: ''
   },
