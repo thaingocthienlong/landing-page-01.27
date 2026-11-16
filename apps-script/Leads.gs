@@ -63,27 +63,16 @@ function logRegistrationLead_(data) {
   }
 }
 
-// The learner's receipt, worded like the ledger's (LedgerMail.gs) minus the learner code. No bank details:
-// staff confirm the amount first, so a wrong figure never reaches the learner.
+// The learner's receipt when the ledger is not deployed: the ledger's receipt minus the learner code.
 function sendReceipt_(data) {
   var pack = clean_(data.package).replace(/\s*\(.*$/, '') || clean_(data.package_id);
-  var lines = [
-    'Kính chào anh/chị ' + esc_(clean_(data.ho_lot) + ' ' + clean_(data.ten)) + ',',
-    'Viện Phương Nam đã nhận phiếu đăng ký của anh/chị cho chuỗi khóa học “Phân tích định lượng với R – Từ cơ bản đến chuyên sâu” (01/2027).',
-    'Gói đã chọn: ' + esc_(pack),
-    'Ms. Vy hoặc Ms. Thảo sẽ liên hệ anh/chị qua Zalo trong khoảng 1 ngày làm việc. Nếu không tìm thấy Zalo của anh/chị, Viện sẽ gửi email.',
-    'Anh/chị vui lòng chờ chuyên viên xác nhận số tiền, rồi mới chuyển khoản.',
-    'Phiếu đăng ký này chưa giữ chỗ. Tên anh/chị có trong danh sách lớp khi đã hoàn tất học phí trước ngày 28/12/2026.',
-    'Cần hỏi thêm, anh/chị liên hệ Viện: (028) 2242 6789; 0949 761 636 (Ms. Vy); 0912 114 511 (Ms. Thảo); vanphong@vienphuongnam.com.vn.',
-    'Trân trọng,<br>Viện Phương Nam'
-  ];
   MailApp.sendEmail({
     to: clean_(data.emailcontact),
     replyTo: 'vanphong@vienphuongnam.com.vn',
     name: 'Viện Phương Nam',
     subject: 'Viện Phương Nam đã nhận phiếu đăng ký – Phân tích định lượng với R',
-    htmlBody: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#222">' +
-      lines.map(function (html) { return '<p style="margin:0 0 12px">' + html + '</p>'; }).join('') + '</div>'
+    htmlBody: receiptHtml_(clean_(data.ho_lot) + ' ' + clean_(data.ten),
+      'Phân tích định lượng với R – Từ cơ bản đến chuyên sâu (01/2027)', pack, '', '28/12/2026')
   });
 }
 

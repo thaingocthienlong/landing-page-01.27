@@ -4,7 +4,7 @@ One Apps Script project, bound to the registration Google Sheet, serves registra
 
 | File | What it does |
 |---|---|
-| `Code.gs` | Registration form: appends to the `Đăng ký` sheet, assigns the learner code, emails the team and the learner. Also routes requests. |
+| `Code.gs` | Registration form: appends to the `Đăng ký` sheet, assigns the learner code, emails the team and the learner. Also routes requests, and holds the layout of every learner email (`learnerMailHtml_`, `receiptHtml_`), which `Leads.gs` and `LedgerMail.gs` both use. |
 | `Chat.gs` | Learner-care chat: looks each message up in the FAQ tab, lets a chain of AI models talk the learner through it in a few short messages, falls back to the FAQ wording, and logs every exchange to the `Hỏi đáp` sheet. |
 | `Faq.gs` | The FAQ lookup: reads the staff-edited `FAQ` tab and finds the row a question matches. |
 | `FaqSeed.gs` | The repository's copy of the FAQ rows: `setupFaq` fills an empty tab from it, and later changes reach the tab through the update menu (`Sync.gs`). |
