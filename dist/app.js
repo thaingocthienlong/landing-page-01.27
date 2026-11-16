@@ -1561,6 +1561,8 @@
         retry.className = "link-button";
         retry.textContent = "Thử lại";
         retry.addEventListener("click", () => {
+          // the button goes with the message; keep focus in the panel, as for the suggestion buttons
+          if (item.contains(document.activeElement)) (compact.matches ? log : input).focus({ preventScroll: true });
           item.remove();
           ask();
         });
@@ -1768,6 +1770,10 @@
         return;
       }
       opener = trigger || null;
+      // opening the panel writes nothing out: the browser would start every animation in it over, also for messages that came while it was closed
+      log.querySelectorAll(".chat-token").forEach((span) => span.replaceWith(span.textContent));
+      log.normalize();
+      log.querySelectorAll(".chat-options").forEach((list) => { list.style.animation = ""; });
       if (!rendered) {
         rendered = true;
         state.messages.forEach((turn) => {
