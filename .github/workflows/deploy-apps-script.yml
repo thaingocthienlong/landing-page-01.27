@@ -2,8 +2,10 @@ name: Deploy Apps Script
 
 # Pushes apps-script/ to the Institute's Apps Script project and points the web app at a new
 # version whenever main changes it, with tools/gas-push.js: it stops, and pushes nothing, when
-# the project holds a file the repository would delete, or the push would add one (run it by
-# hand with "Add new files" for that), or appsscript.json differs.
+# the project holds a file the repository would delete, or the push would add one, or
+# appsscript.json differs. A manual run with "Add new files" pushes them without deploying, so
+# their setup (setupLedger, new permissions) is done in the Sheet before the web app runs them;
+# the next run deploys.
 on:
   push:
     branches:
@@ -18,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       add:
-        description: Add new files the project does not have yet (gas-push.js --add)
+        description: Add new files the project does not have yet, and push only (no new version)
         type: boolean
         default: false
 
@@ -60,7 +62,7 @@ jobs:
           umask 077
           printf '%s' "$CLASPRC_JSON" > ~/.clasprc.json
           if [ "$ADD" = "true" ]; then
-            node tools/gas-push.js --deploy --add
+            node tools/gas-push.js --add
           else
             node tools/gas-push.js --deploy
           fi

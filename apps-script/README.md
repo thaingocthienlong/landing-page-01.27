@@ -83,7 +83,7 @@ What the tool guards against, because a clasp push replaces the whole project:
 
 ### Deploying from GitHub
 
-`.github/workflows/deploy-apps-script.yml` runs the harnesses and then `node tools/gas-push.js --deploy` whenever a merge to main changes `apps-script/*.gs`, `appsscript.json`, the clasp files or the tool. It stops, pushing nothing, in the same cases as on your computer; the run's log names the file. Files the project does not have yet (the ledger's first push) go up only from Actions > Deploy Apps Script > Run workflow, with "Add new files" ticked.
+`.github/workflows/deploy-apps-script.yml` runs the harnesses and then `node tools/gas-push.js --deploy` whenever a merge to main changes `apps-script/*.gs`, `appsscript.json`, the clasp files or the tool. It stops, pushing nothing, in the same cases as on your computer; the run's log names the file. Files the project does not have yet (the ledger's first push) go up only from Actions > Deploy Apps Script > Run workflow, with "Add new files" ticked. That run pushes without deploying: do their setup in the Sheet (for the ledger, steps 2 to 5 of "Sổ học viên > Setting it up"), then Run workflow again without the tick to deploy.
 
 It logs in with your clasp login, kept as the repository secret `CLASPRC_JSON`. Once, on the computer where `clasp login` was done:
 
@@ -345,14 +345,15 @@ The `Đăng ký` tab is also the learner ledger. Each registration gets a learne
 
 ### Setting it up
 
-1. Paste the changed `Code.gs` and `Sync.gs`, and create script files `Ledger`, `LedgerMail` and `BotApi` with the matching `.gs` files.
+1. Push the files without deploying: Actions > Deploy Apps Script > Run workflow with "Add new files" (or `node tools/gas-push.js --add`). The web app keeps running the previous version until step 6, so `setupLedger` and the new permissions come first.
 2. Check the `Đăng ký` tab first. It needs at least 26 columns (A to Z, the Sheets default; insert columns if staff removed any), and columns R to Z must be empty or already hold the headers `setupLedger` writes (`Mã học viên`, `Đợt`, `Kênh`, `Hình thức`, `Số tiền phải đóng`, `Email CK đã gửi`, `Ngày đóng`, `Phụ trách`, `Ghi chú`). Any other header there makes `setupLedger` stop before it writes anything.
 3. Choose `setupLedger` in the function list and Run, and accept the permissions Google asks for. It adds the columns, the `Trạng thái` and `Hình thức` dropdowns, and the `Đợt học`, `Gói` and `Nhật ký` tabs (filled for the R27 intake and its six packages; a tab that already has rows is left alone). Reload the Sheet: a **Sổ học viên** menu appears.
 4. Signed in as the Sheet's owner account, menu **Sổ học viên > Bật gửi email tự động**, and authorize. The trigger sends every email as the account that creates it, so the menu refuses anyone else. It installs the trigger that reacts to the `Trạng thái` column. Without it, choosing a status sends no email and writes nothing to `Nhật ký`, so the bot never sees a payment.
 5. Project Settings > Script properties: add `BOT_KEY`, a long random value. Generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` and give the bot the same value in its environment. Never commit it. While `BOT_KEY` is missing or empty, `feed` refuses every request.
-6. Deploy > Manage deployments > pencil icon > Version: **New version** > Deploy. This keeps the `/exec` URL.
+6. Deploy: Run workflow again without the tick (or `node tools/gas-push.js --deploy`). This keeps the `/exec` URL.
+7. Menu **Sổ học viên > Cấp mã cho dòng chưa có mã** gives the rows registered before the ledger their codes.
 
-Until `setupLedger` has run, registrations still work, but they get no learner code and no emails.
+Until `setupLedger` has run, registrations still work and the learner still gets the receipt from `Leads.gs`, without a learner code.
 
 ### How staff use `Trạng thái`
 

@@ -64,8 +64,10 @@ function handleConsult_(data) {
 function logRegistrationLead_(data) {
   var saved = appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, '', data);
   try { fillLeadTabs_(false, data, new Date()); } catch (ignore) {}
-  // The ledger (Ledger.gs), once deployed, sends its own receipt with the learner code.
-  if (typeof ledgerIntake_ === 'function') return;
+  // Once setupLedger has filled its intake tab, the ledger (Ledger.gs) sends its own receipt with the learner code.
+  // Until then it sends nothing, even with Ledger.gs pushed, so this receipt is the learner's only email.
+  var intakes = typeof ledgerIntake_ === 'function' && SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LEDGER_INTAKES.name);
+  if (intakes && intakes.getLastRow() > 1) return;
   try {
     sendReceipt_(data);
   } catch (err) {

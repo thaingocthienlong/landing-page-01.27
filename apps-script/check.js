@@ -506,7 +506,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(old.getLastRow(), 2);
   assert.strictEqual(old.data[1].length, ctx.HEADERS.length, 'a full-width row even without ledger tabs');
   assert.deepStrictEqual(plain(old.data[1].slice(17, 20)), ['', '', 'facebook']);
-  assert.deepStrictEqual(mail.calls.map((m) => m.to), [OWNER + ',vanphong@vienphuongnam.com.vn'], 'unmigrated sheet: staff mail only, no learner mail');
+  assert.deepStrictEqual(mail.calls.map((m) => m.to), ['an@example.com', OWNER + ',vanphong@vienphuongnam.com.vn'],
+    'unmigrated sheet: the learner gets the receipt without a code (Leads.gs), staff get their mail');
 
   reset();
   ctx.setupLedger();
@@ -1380,10 +1381,18 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
     ctx.ledgerIntake_ = ledger;
   }
 
-  // With the ledger deployed it sends its own receipt, so Leads.gs sends none.
+  // Ledger.gs pushed but setupLedger not run yet: the ledger sends nothing, so Leads.gs still sends the receipt.
   reset();
   assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
-  assert.ok(!mail.calls.some((m) => m.to === FORM.emailcontact && /phiếu đăng ký – Phân tích định lượng với R/.test(m.subject)));
+  assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
+    ['Viện Phương Nam đã nhận phiếu đăng ký – Phân tích định lượng với R'], 'one receipt before setupLedger');
+
+  // Once set up, the ledger sends its own receipt with the code, so Leads.gs sends none.
+  reset();
+  ctx.setupLedger();
+  assert.deepStrictEqual(post({ ...FORM, form_type: 'dang_ky' }), { ok: true });
+  assert.deepStrictEqual(mail.calls.filter((m) => m.to === FORM.emailcontact).map((m) => m.subject),
+    ['Viện Phương Nam đã nhận phiếu đăng ký – R27-001'], 'only the ledger receipt after setupLedger');
 }
 
 // The ledger setup adds Ledger.gs and LedgerMail.gs but not Leads.gs: its emails must build from Code.gs alone.
