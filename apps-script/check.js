@@ -70,7 +70,9 @@ function fakeSheet(name) {
   const sheet = {
     data,
     protections: [],
+    id: 0,
     getName: () => name,
+    getSheetId: () => sheet.id,
     setName(next) { delete sheets[name]; name = next; sheets[name] = sheet; return sheet; },
     getLastRow: lastRow,
     getLastColumn: lastCol,
@@ -1001,12 +1003,14 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   // Like the real tabs: every row already has formulas (D, E, Q, T) and an unticked checkbox (N), so getLastRow() is useless.
   const prefillTrack = (rows = 20) => {
     const t = fakeSheet(TRACK);
+    t.id = ctx.TRACK_SHEET_ID;
     t.data.push(['Thời gian nhận', 'Họ và tên', 'Số điện thoại', 'SĐT chuẩn', 'Trùng', 'Kênh', 'Nguồn', 'Mã nhóm', 'Mã QC', 'Hướng quan tâm', 'Hình thức học', 'Hợp lệ', 'Trạng thái', 'Đã từng', 'Phụ trách', 'Liên hệ', 'Phút', 'Gói', 'Ghi chú', 'Số']);
     for (let i = 0; i < rows; i++) t.data.push(['', '', '', '=D', '=E', '', '', '', '', '', '', '', '', 'FALSE', '', '', '=Q', '', '', '=T']);
     return t;
   };
   const prefillFees = (rows = 20) => {
     const t = fakeSheet(FEES);
+    t.id = ctx.FEES_SHEET_ID;
     t.data.push(['Mã đăng ký', 'Số điện thoại', 'Họ và tên', 'Gói', 'Mã nhóm', 'Ưu đãi', 'G', 'H', 'I', 'Đã thu', 'Ngày đủ', 'Đã xác minh', 'M', 'N', 'Ghi chú', 'P']);
     for (let i = 0; i < rows; i++) t.data.push(['', '', '', '', '', '', '=G', '=H', '=I', '', '', 'FALSE', '=M', '=N', '', '=P']);
     return t;
@@ -1080,6 +1084,14 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   cache.clear();
   assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
   assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Web - form tư vấn', 'Chưa rõ', '']);
+
+  // Staff renamed both tabs: they are found by id.
+  reset();
+  prefillTrack().setName('1. ' + TRACK);
+  prefillFees().setName('2. ' + FEES);
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0933222111', package_id: 'Gói 5', form_type: 'dang_ky' }), { ok: true });
+  assert.strictEqual(sheets['1. ' + TRACK].data[1][2], '0933222111');
+  assert.strictEqual(sheets['2. ' + FEES].data[1][3], 'Gói 5');
 
   // A full tab grows by one row copied from the last, and the copy's inputs are overwritten.
   reset();

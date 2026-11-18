@@ -4,11 +4,14 @@
  * every row already carries formulas, checkboxes and dropdowns, so only the input columns are
  * written, only with values from their dropdown lists, and the next free row is the first one
  * whose columns A, B and C are all empty (advisers may type a Messenger lead with no time).
- * Missing tabs are skipped.
+ * The tabs are found by id, so staff may rename them; missing tabs are skipped.
  */
 
 var TRACK_SHEET = 'Theo dõi lead';
 var FEES_SHEET = 'Học viên - Học phí';
+// Sheet ids (gid) of the two tabs in the registration file; staff renamed them with step numbers.
+var TRACK_SHEET_ID = 7102;
+var FEES_SHEET_ID = 7103;
 var LEAD_TZ = 'Asia/Ho_Chi_Minh';
 var INTERESTS = ['Cả 3 khóa', 'Khóa 2: Phân tích chi phí - hiệu quả trong y tế', 'Khóa 1 + Khóa 3', 'Chưa rõ, cần tư vấn'];
 var INTEREST_BY_PACKAGE = { 'Gói 1': INTERESTS[0], 'Gói 3': INTERESTS[2], 'Gói 5': INTERESTS[1] };
@@ -88,10 +91,17 @@ function fillLeadTabs_(isConsult, data, when) {
     chat: leadChatNote_(isConsult, data)
   };
   lead.key = normalizePhone_(lead.phone);
-  var track = book.getSheetByName(TRACK_SHEET);
+  var track = staffSheet_(book, TRACK_SHEET_ID, TRACK_SHEET);
   if (track) upsertTrackRow_(track, lead, data);
-  var fees = book.getSheetByName(FEES_SHEET);
+  var fees = staffSheet_(book, FEES_SHEET_ID, FEES_SHEET);
   if (fees && !isConsult && lead.pkg) addFeeRow_(fees, lead);
+}
+
+// The tab with this id, else the one with the old name.
+function staffSheet_(book, id, name) {
+  var sheets = book.getSheets();
+  for (var i = 0; i < sheets.length; i++) if (sheets[i].getSheetId() === id) return sheets[i];
+  return book.getSheetByName(name);
 }
 
 // The first row from 2 whose A, B and C are empty (getLastRow() counts the pre-filled checkboxes and
