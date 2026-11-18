@@ -1581,12 +1581,17 @@
       toBottom();
     };
 
+    // Not real progress: the answer is one request, so the label only moves on to show the wait is alive, and stays on the last.
+    const WAIT_LABELS = ["Đang phân tích", "Đang suy nghĩ", "Đang tìm kiếm", "Đang soạn câu trả lời"];
+    const WAIT_STEP_MS = 1800;
     // quiet: the dots alone, between two messages of a turn, and not read out again
     const typingDots = (quiet) => {
       const typing = document.createElement("div");
       typing.className = `chat-msg chat-msg-bot chat-typing${quiet ? " chat-msg-next" : ""}`;
-      typing.innerHTML = `${quiet ? "" : "Đang soạn câu trả lời"}<span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>`;
+      // The visible label steps through WAIT_LABELS while the one request is open; screen readers hear one stable line instead.
+      typing.innerHTML = `${quiet ? "" : `<span class="sr-only">Đang soạn câu trả lời</span><span aria-hidden="true">${WAIT_LABELS[0]}</span>`}<i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i>`;
       if (quiet) typing.setAttribute("aria-hidden", "true");
+      else WAIT_LABELS.slice(1).forEach((label, i) => window.setTimeout(() => { typing.children[1].textContent = label; }, (i + 1) * WAIT_STEP_MS));
       log.append(typing);
       if (!quiet) toBottom();
       return typing;
