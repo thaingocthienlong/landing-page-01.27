@@ -690,12 +690,14 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-msg-error { padding: 12px 14px; border: 1px solid var(--hair); background: var(--plate); color: var(--ink-2); }
 .chat-msg-error .link-button { margin-left: -4px; }
 .chat-typing { color: var(--ink-3); }
+/* .chat-msg > * + * spaces paragraphs 10px apart; on this one line it pushed the second and third dot below the first. */
+.chat-typing > * { margin-top: 0; }
 /* Waiting: the dots hop in turn while the request is open; they leave with the answer or the error. */
-.chat-typing span { display: inline-block; width: 5px; height: 5px; margin-left: 4px; border-radius: 50%; background: currentColor; vertical-align: middle; animation: chat-dot 1.2s ease-in-out infinite; }
+.chat-typing i { display: inline-block; width: 5px; height: 5px; margin-left: 4px; border-radius: 50%; background: currentColor; vertical-align: middle; animation: chat-dot 1.2s ease-in-out infinite; }
 /* the dots alone, between two messages of a turn, sit centred on their plate */
-.chat-typing.chat-msg-next span:first-child { margin-left: 0; }
-.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
-.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+.chat-typing.chat-msg-next i:first-child { margin-left: 0; }
+.chat-typing i:nth-of-type(2) { animation-delay: 0.15s; }
+.chat-typing i:nth-of-type(3) { animation-delay: 0.3s; }
 @keyframes chat-dot { 0%, 75%, 100% { opacity: 0.4; transform: none; } 37.5% { opacity: 1; transform: translateY(-4px); } }
 /* The panel and each question ease in; an answer is written out in word groups so the eye follows it. */
 .chat:not([hidden]), .chat-msg-user { animation: swap 0.28s var(--ease) both; }
