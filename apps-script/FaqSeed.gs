@@ -276,7 +276,7 @@ var FAQ_SEED = [
       'Online',
       'thầy về nhưng vẫn học online đúng k em? c ở Huế cơ'
     ],
-    answer: 'Dạ, anh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được ạ.\n- Lớp online diễn ra cùng lúc với lớp tại hội trường; anh/chị hỏi thầy qua mic hoặc khung chat.\n- Buổi nào bận không đến lớp được thì có thể vào online.\n\nAnh/chị báo hình thức muốn học khi chuyên viên liên hệ xác nhận sau khi nhận phiếu đăng ký.',
+    answer: 'Dạ, anh/chị học trực tiếp tại Viện Phương Nam hoặc online qua Zoom đều được ạ.\n- Lớp online diễn ra cùng lúc với lớp tại hội trường; anh/chị hỏi thầy qua mic hoặc khung chat.\n- Buổi nào bận không đến lớp được thì có thể vào online.\n\nAnh/chị chọn hình thức học ngay trên phiếu đăng ký; nếu chưa quyết định, anh/chị báo lại khi chuyên viên liên hệ xác nhận.',
     from: '',
     to: ''
   },

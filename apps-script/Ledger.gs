@@ -1,6 +1,13 @@
 var LEDGER_STATUSES = ['Mới', 'Đã liên hệ', 'Chờ CK', 'Đã đóng', 'Hủy'];
 var LEDGER_FORMATS = ['Trực tiếp', 'Online'];
 
+// The form's "Hình thức học" as the "Hình thức" dropdown spells it; '' for "Linh hoạt", "Chưa quyết định"
+// or anything else, because the dropdown refuses a value outside its list.
+function ledgerFormat_(value) {
+  var at = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom'].indexOf(clean_(value));
+  return at === -1 ? '' : LEDGER_FORMATS[at];
+}
+
 var LEDGER_INTAKES = {
   name: 'Đợt học',
   headers: ['Mã đợt', 'Tên chuỗi', 'Tiền tố mã', 'Hạn ưu đãi', 'Hạn chót', 'Ngày khai giảng', 'Mở đăng ký'],

@@ -15,7 +15,8 @@ var FEES_SHEET_ID = 7103;
 var LEAD_TZ = 'Asia/Ho_Chi_Minh';
 var INTERESTS = ['Cả 3 khóa', 'Khóa 2: Phân tích chi phí - hiệu quả trong y tế', 'Khóa 1 + Khóa 3', 'Chưa rõ, cần tư vấn'];
 var INTEREST_BY_PACKAGE = { 'Gói 1': INTERESTS[0], 'Gói 3': INTERESTS[2], 'Gói 5': INTERESTS[1] };
-var FORMATS = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định'];
+// The last one was added by staff to the tab's dropdown; the registration form sends it too.
+var FORMATS = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định', 'Linh hoạt (ONL + OFF)'];
 var PACKAGES = ['Gói 1', 'Gói 2', 'Gói 3', 'Gói 4', 'Gói 5', 'Gói 6'];
 var SOURCE_BY_HEARD = {
   'Email': 'Email/Zalo của Viện', 'Zalo': 'Email/Zalo của Viện',
@@ -116,6 +117,7 @@ function freeRow_(sheet, cols) {
 }
 
 function upsertTrackRow_(track, lead, data) {
+  var format = FORMATS.indexOf(clean_(data.hinh_thuc_hoc)) >= 0 ? clean_(data.hinh_thuc_hoc) : '';
   var rows = track.getMaxRows() - 1;
   var cols = rows > 0 ? track.getRange(2, 1, rows, 3).getValues() : [];
   for (var i = 0; lead.key && i < cols.length; i++) {
@@ -126,11 +128,11 @@ function upsertTrackRow_(track, lead, data) {
     note.setValue(note.getValue() ? note.getValue() + '\n' + line : line);
     if (!lead.isConsult && track.getRange(at, 13).getValue() !== 'Đã thanh toán') track.getRange(at, 13).setValue('Đã đăng ký');
     if (lead.pkg && !track.getRange(at, 18).getValue()) track.getRange(at, 18).setValue(lead.pkg);
+    if (format && !track.getRange(at, 11).getValue()) track.getRange(at, 11).setValue(format);
     return;
   }
   var row = freeRow_(track, cols);
   var source = leadSource_(lead.isConsult, data);
-  var format = FORMATS.indexOf(clean_(data.hinh_thuc_hoc)) >= 0 ? clean_(data.hinh_thuc_hoc) : '';
   // D, E, N, Q and T hold formulas or the checkbox: write around them.
   track.getRange(row, 3).setNumberFormat('@');
   track.getRange(row, 1, 1, 3).setValues([[lead.stamp, textCell_(lead.name), textCell_(lead.phone)]]);

@@ -748,6 +748,42 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.deepStrictEqual(seen, ['Trợ lý AI', 'ledger']);
 }
 
+// "Hình thức học" of the registration form: the ledger's dropdown value, the "Lead web" column and the learner's receipt.
+{
+  assert.deepStrictEqual(['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Linh hoạt (ONL + OFF)', 'Chưa quyết định', '', undefined, '=1+1', 'toString'].map((v) => ctx.ledgerFormat_(v)),
+    ['Trực tiếp', 'Online', '', '', '', '', '', '']);
+  reset();
+  ctx.setupLedger();
+  const formatOf = (n) => cellAt(n, 'Hình thức');
+  const leadFormat = (n) => sheets['Lead web'].data[n - 1][ctx.LEAD_HEADERS.indexOf('Hình thức học')];
+  assert.deepStrictEqual(post({ ...FORM, hinh_thuc_hoc: 'Trực tiếp tại Viện' }), { ok: true });
+  assert.deepStrictEqual([formatOf(2), leadFormat(2)], ['Trực tiếp', 'Trực tiếp tại Viện']);
+  assert.ok(mail.calls.find((m) => m.to === 'an@example.com').htmlBody.includes('Hình thức học'), 'the receipt repeats the choice');
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'z@example.com', hinh_thuc_hoc: 'Trực tuyến qua Zoom' }), { ok: true });
+  assert.deepStrictEqual([formatOf(3), leadFormat(3)], ['Online', 'Trực tuyến qua Zoom']);
+  // Undecided, or a page cached from before the field: the dropdown cell stays empty for staff to fill, and the receipt has no such line.
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'u@example.com', hinh_thuc_hoc: 'Chưa quyết định' }), { ok: true });
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'o@example.com' }), { ok: true });
+  assert.deepStrictEqual([formatOf(4), leadFormat(4), formatOf(5), leadFormat(5)], ['', 'Chưa quyết định', '', '']);
+  assert.ok(!mail.calls.find((m) => m.to === 'o@example.com').htmlBody.includes('Hình thức học'));
+
+  // Staff changed the dropdown and it now refuses the form's value: the registration is saved without that cell.
+  const main = sheets['Đăng ký'];
+  const realRange = main.getRange;
+  main.getRange = (...args) => {
+    const range = realRange(...args);
+    const write = range.setValues;
+    range.setValues = (values) => {
+      if (args[3] === ctx.HEADERS.length && values[0][ctx.HEADERS.indexOf('Hình thức')]) throw new Error('The data you entered violates the data validation rules.');
+      return write(values);
+    };
+    return range;
+  };
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'v@example.com', hinh_thuc_hoc: 'Trực tiếp tại Viện' }), { ok: true });
+  assert.deepStrictEqual([cellAt(6, 'Email'), formatOf(6), leadFormat(6)], ['v@example.com', '', 'Trực tiếp tại Viện']);
+  main.getRange = realRange;
+}
+
 // BotApi.gs: the keyed feed the chat bot polls for new registrations and payments.
 {
   reset();
@@ -1084,6 +1120,26 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   cache.clear();
   assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
   assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Web - form tư vấn', 'Chưa rõ', '']);
+
+  // The registration form's "Hình thức học" reaches the staff tab: on a new row, and on a known lead's row only while that cell is empty.
+  reset();
+  prefillTrack();
+  prefillFees();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000111', hinh_thuc_hoc: 'Trực tuyến qua Zoom' }), { ok: true });
+  assert.strictEqual(row(TRACK, 2)[10], 'Trực tuyến qua Zoom');
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000111', package_id: 'Gói 2', hinh_thuc_hoc: 'Trực tiếp tại Viện' }), { ok: true });
+  assert.strictEqual(row(TRACK, 2)[10], 'Trực tuyến qua Zoom', 'what the row already says is kept');
+  row(TRACK, 2)[10] = '';
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000111', package_id: 'Gói 3', hinh_thuc_hoc: 'Chưa quyết định' }), { ok: true });
+  assert.strictEqual(row(TRACK, 2)[10], 'Chưa quyết định');
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000222', hinh_thuc_hoc: '=1+1' }), { ok: true });
+  assert.strictEqual(row(TRACK, 3)[10], '', 'a value outside the dropdown list is not written');
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000333', hinh_thuc_hoc: 'Linh hoạt (ONL + OFF)' }), { ok: true });
+  assert.strictEqual(row(TRACK, 4)[10], 'Linh hoạt (ONL + OFF)', 'the option staff added to the dropdown');
 
   // Staff renamed both tabs: they are found by id.
   reset();
