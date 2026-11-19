@@ -1,4 +1,4 @@
-// Runs the learner-care chat (Chat.gs with Faq.gs, FaqSeed.gs, Knowledge.gs, Sync.gs and Leads.gs) against
+// Runs the learner-care chat (Chat.gs with Faq.gs, FaqSeed.gs, Knowledge.gs, Sync.gs, Leads.gs and LeadTabs.gs) against
 // a fake spreadsheet and a fake model:
 // node apps-script/chat-check.js
 const fs = require('fs');
@@ -31,6 +31,8 @@ const logs = [];
 // stop_reason ('refusal', 'max_tokens'), { error } the error type of a failure.
 const model = { replies: [], calls: [] };
 const clock = { day: '16/11/2026' };
+// The selected range and what the menus showed: alerts, and dialogs as [html, title].
+const ui = { open: false, range: null, alerts: [], dialogs: [] };
 
 function fakeSheet(name, rows) {
   const data = rows || [];
@@ -53,7 +55,16 @@ const book = {
   getSpreadsheetTimeZone: () => 'Asia/Ho_Chi_Minh'
 };
 const ctx = vm.createContext({
-  SpreadsheetApp: { getActiveSpreadsheet: () => book },
+  SpreadsheetApp: {
+    getActiveSpreadsheet: () => book,
+    getActiveRange: () => ui.range,
+    // Like a run from the editor, there is no window until a test opens the Sheet (ui.open).
+    getUi() {
+      if (!ui.open) throw new Error('Cannot call SpreadsheetApp.getUi() from this context.');
+      return { alert: (text) => { ui.alerts.push(text); }, showModalDialog: (output, title) => { ui.dialogs.push([output.html, title]); } };
+    }
+  },
+  HtmlService: { createHtmlOutput(html) { const out = { html, setWidth: () => out, setHeight: () => out }; return out; } },
   CacheService: {
     getScriptCache: () => ({
       get: (key) => cache.get(key) ?? null,
@@ -89,7 +100,7 @@ const ctx = vm.createContext({
   ContentService: { MimeType: { JSON: 'JSON' }, createTextOutput: (text) => ({ setMimeType: () => JSON.parse(text) }) },
   Logger: { log: (text) => logs.push(String(text)) }
 });
-['Code.gs', 'Chat.gs', 'Knowledge.gs', 'Faq.gs', 'FaqSeed.gs', 'Sync.gs', 'Leads.gs'].forEach((file) => {
+['Code.gs', 'Chat.gs', 'Knowledge.gs', 'Faq.gs', 'FaqSeed.gs', 'Sync.gs', 'Leads.gs', 'LeadTabs.gs'].forEach((file) => {
   vm.runInContext(read(file), ctx, { filename: path.join(__dirname, file) });
 });
 
@@ -643,6 +654,54 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   logs.length = 0;
   ctx.chatStats();
   assert.strictEqual(logs[0], ctx.chatStats_());
+}
+
+// "Xem hỏi đáp (dòng đang chọn)": the conversations of the person on the selected row, found by phone number through "Lead web".
+{
+  reset();
+  const head = plain(ctx.LEAD_HEADERS).concat(['Phiên trợ lý', 'Ghi chú trợ lý']);
+  const lead = (kind, name, phone, session) => head.map((h) => ({ 'Loại form': kind, 'Họ và tên': name, 'Số điện thoại': phone }[h] ?? '')).slice(0, -2).concat([session, '']);
+  fakeSheet('Lead web', [head,
+    lead('Tư vấn', 'Trần Bình', '0909 123 456', 'phien-binh-0001'),     // left the number in the chat
+    lead('Đăng ký', 'Trần Bình', '84909123456', "'phien-binh-0002"),   // registered later from another conversation
+    lead('Đăng ký', 'Lê Chi', '0912000111', ''),                       // never talked to the assistant
+    lead('Tư vấn', 'Người khác', '0988777666', 'phien-khac-0003')]);
+  const answer = 'Dạ, Gói 1 gồm 3 khóa.\n' + 'x'.repeat(700) + ' <script>';
+  fakeSheet('Hỏi đáp', [plain(ctx.CHAT_HEADERS),
+    ['16/11/2026 09:00:00', 'phien-binh-0001', 'Học phí gói 1?', answer, 'ok', ''],
+    ['16/11/2026 09:01:00', 'phien-khac-0003', 'Câu của người khác', 'Không hiện', 'ok', ''],
+    ['17/11/2026 20:00:00', "'phien-binh-0002", 'Còn ưu đãi không?', '', 'error-500', '']]);
+  const reg = fakeSheet('Đăng ký', [['Thời gian', 'Họ và chữ lót', 'Tên', 'Số điện thoại'], ['17/11/2026 20:05:00', 'Trần', 'Bình', '0909.123.456'], ['', 'Lê', 'Chi', '0912 000 111'], ['', '', '', '']]);
+  ui.open = true;
+  const select = (sheet, row) => { ui.range = { getSheet: () => sheet, getRow: () => row }; ctx.showChat(); };
+
+  select(reg, 2);
+  const [html, title] = ui.dialogs.pop();
+  assert.strictEqual(title, 'Hỏi đáp của Trần Bình');
+  assert.ok(html.indexOf('Học phí gói 1?') < html.indexOf('Còn ưu đãi không?'), 'both conversations of that number, in log order');
+  assert.ok(html.includes('Cuộc trò chuyện phien-binh-0001') && html.includes('Cuộc trò chuyện phien-binh-0002'));
+  assert.ok(html.includes('x'.repeat(700) + ' &lt;script&gt;'), 'the whole answer, escaped');
+  assert.ok(html.includes('(không có câu trả lời)'));
+  assert.ok(!html.includes('Câu của người khác'), 'other people are left out');
+
+  select(sheets['Lead web'], 2);
+  assert.strictEqual(ui.dialogs.pop()[1], 'Hỏi đáp của Trần Bình', 'the same from a "Lead web" row');
+  select(reg, 3);
+  assert.match(ui.alerts.pop(), /^Lê Chi \(0912000111\) không có mã ở cột "Phiên trợ lý"/);
+  select(reg, 4);
+  assert.strictEqual(ui.alerts.pop(), 'Dòng này chưa có số điện thoại.');
+  select(reg, 1);
+  assert.match(ui.alerts.pop(), /^Chọn một ô trên dòng/, 'the header row is no person');
+  select(sheets['Hỏi đáp'], 2);
+  assert.match(ui.alerts.pop(), /^Chọn một ô trên dòng/, 'a tab without "Số điện thoại"');
+  ui.range = null;
+  ctx.showChat();
+  assert.match(ui.alerts.pop(), /^Chọn một ô trên dòng/);
+  sheets['Hỏi đáp'].data.splice(1);
+  select(reg, 2);
+  assert.strictEqual(ui.alerts.pop(), 'Không thấy mã phien-binh-0001, phien-binh-0002 ở cột "Phiên" của tab "Hỏi đáp".');
+  assert.deepStrictEqual([ui.alerts.length, ui.dialogs.length], [0, 0]);
+  ui.open = false;
 }
 
 console.log('apps-script chat check: all passed');

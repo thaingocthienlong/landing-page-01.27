@@ -144,7 +144,7 @@ Khi học viên đã rõ gói, còn phân vân, muốn được gọi lại, ho�
 - Viện nhận một email "Lead tư vấn mới", giống form tư vấn trước đây, có thêm hai dòng: **Phiên trợ lý** (mã cuộc trò chuyện) và **Ghi chú trợ lý** (những câu học viên đã nhắn cho trợ lý).
 - Tab **Lead web** có thêm hai cột cùng tên ở cuối. Có thể kéo hai cột này sang chỗ khác, nhưng đừng đổi tên tiêu đề.
 - Tab **Theo dõi lead**: cột Ghi chú ghi "Để lại số qua trợ lý AI: ..." kèm những câu học viên đã nhắn, để tư vấn viên đọc trước khi gọi.
-- Muốn đọc cả cuộc trò chuyện: mở tab **Hỏi đáp**, lọc cột **Phiên** theo mã ở cột **Phiên trợ lý**.
+- Muốn đọc cả cuộc trò chuyện: bấm vào một ô trên dòng của người đó, ở tab **Đăng ký**, **Lead web** hoặc **Theo dõi lead**, rồi chọn menu **Trợ lý AI > Xem hỏi đáp (dòng đang chọn)**. Một cửa sổ hiện mọi câu người đó đã hỏi và câu trợ lý trả lời, tìm theo số điện thoại của dòng. Nếu không có, cửa sổ báo lý do: thường là người đó không trò chuyện với trợ lý, hoặc trò chuyện trên trình duyệt khác với lúc gửi phiếu. Cách tra bằng tay vẫn dùng được: mở tab **Hỏi đáp**, lọc cột **Phiên** theo mã ở cột **Phiên trợ lý**.
 - Học viên trò chuyện với trợ lý rồi gửi phiếu đăng ký (trên cùng trình duyệt) thì dòng "Đăng ký" trong tab Lead web cũng có mã phiên, và cột Ghi chú của Theo dõi lead ghi "Đã trò chuyện với trợ lý AI".
 
 Menu **Trợ lý AI > Thống kê trợ lý** cho biết: có bao nhiêu cuộc trò chuyện, bao nhiêu cuộc từ 3 câu hỏi trở lên, bao nhiêu người để lại số điện thoại qua trợ lý, bao nhiêu người gửi phiếu đăng ký sau khi trò chuyện. Con số này đếm phiếu gửi, không đếm học phí đã thu.

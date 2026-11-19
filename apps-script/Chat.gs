@@ -104,8 +104,7 @@ function chatStats() {
 
 function chatStats_() {
   var book = SpreadsheetApp.getActiveSpreadsheet();
-  // A cell written as text may read back with its leading apostrophe.
-  var id = function (cell) { return String(cell === undefined || cell === null ? '' : cell).replace(/^'/, ''); };
+  var id = chatId_;
   var asked = {};
   var log = book.getSheetByName(CHAT_SHEET_NAME);
   (log ? log.getDataRange().getValues().slice(1) : []).forEach(function (row) {
@@ -131,6 +130,66 @@ function chatStats_() {
     '',
     'Từng người nằm ở cột "' + LEAD_CHAT_HEADERS[0] + '" của tab "' + LEAD_SHEET_NAME + '". Để đọc một cuộc trò chuyện, lọc cột "Phiên" của tab "' + CHAT_SHEET_NAME + '" theo mã đó.'
   ].join('\n');
+}
+
+// A cell written as text may read back with its leading apostrophe.
+function chatId_(cell) {
+  return String(cell === undefined || cell === null ? '' : cell).replace(/^'/, '');
+}
+
+// Menu "Trợ lý AI > Xem hỏi đáp (dòng đang chọn)": every conversation of the person on the selected
+// row, in any tab with a "Số điện thoại" column. The conversation ids are the "Phiên trợ lý" of the
+// "Lead web" rows with the same number (Leads.gs), so a registration finds the chat that led to it.
+function showChat() {
+  var app = SpreadsheetApp.getUi();
+  var range = SpreadsheetApp.getActiveRange();
+  var found = chatOfRow_(range && range.getSheet(), range ? range.getRow() : 0);
+  if (found.message) app.alert(found.message);
+  else app.showModalDialog(HtmlService.createHtmlOutput(found.html).setWidth(760).setHeight(600), found.title);
+}
+
+// { title, html } of the conversations, or { message } saying why there are none.
+function chatOfRow_(sheet, rowIndex) {
+  var rows = sheet && rowIndex > 1 ? sheet.getDataRange().getValues() : [];
+  var head = rows[0] || [];
+  var row = rows[rowIndex - 1];
+  var phoneAt = head.indexOf('Số điện thoại');
+  if (!row || phoneAt === -1) {
+    return { message: 'Chọn một ô trên dòng của người cần xem, ở tab có cột "Số điện thoại" (Đăng ký, Lead web, Theo dõi lead), rồi chạy lại.' };
+  }
+  var phone = normalizePhone_(row[phoneAt]);
+  if (!phone) return { message: 'Dòng này chưa có số điện thoại.' };
+  var name = clean_(row[head.indexOf('Họ và tên')]) || clean_(clean_(row[head.indexOf('Họ và chữ lót')]) + ' ' + clean_(row[head.indexOf('Tên')])) || phone;
+
+  var book = SpreadsheetApp.getActiveSpreadsheet();
+  var leads = book.getSheetByName(LEAD_SHEET_NAME);
+  var leadRows = leads ? leads.getDataRange().getValues() : [];
+  var at = leadRows.length ? leadRows[0].indexOf(LEAD_CHAT_HEADERS[0]) : -1;
+  var leadPhoneAt = leadRows.length ? leadRows[0].indexOf('Số điện thoại') : -1;
+  var sessions = [];
+  leadRows.slice(1).forEach(function (r) {
+    var session = chatId_(r[at]);
+    if (session && normalizePhone_(r[leadPhoneAt]) === phone && sessions.indexOf(session) === -1) sessions.push(session);
+  });
+  if (!sessions.length) {
+    return { message: name + ' (' + phone + ') không có mã ở cột "' + LEAD_CHAT_HEADERS[0] + '" của tab "' + LEAD_SHEET_NAME +
+      '": người này chưa trò chuyện với trợ lý, hoặc trò chuyện trên trình duyệt khác với lúc gửi form.' };
+  }
+
+  var log = book.getSheetByName(CHAT_SHEET_NAME);
+  var turns = (log ? log.getDataRange().getValues().slice(1) : []).filter(function (r) { return sessions.indexOf(chatId_(r[1])) !== -1; });
+  if (!turns.length) return { message: 'Không thấy mã ' + sessions.join(', ') + ' ở cột "Phiên" của tab "' + CHAT_SHEET_NAME + '".' };
+  // Not clean_: it cuts at 500 characters, and an answer runs longer.
+  var text = function (value) { return esc_(chatId_(value).trim()); };
+  var html = '';
+  var last = '';
+  turns.forEach(function (r) {
+    if (chatId_(r[1]) !== last) html += '<h3 style="margin:20px 0 0;font-size:14px">Cuộc trò chuyện ' + text(r[1]) + '</h3>';
+    last = chatId_(r[1]);
+    html += '<p style="color:#666;margin:12px 0 2px">' + text(r[0]) + '</p><p style="margin:0 0 6px"><b>Hỏi:</b> ' + text(r[2]) +
+      '</p><p style="margin:0"><b>Trợ lý:</b> ' + (text(r[3]) || '(không có câu trả lời)') + '</p>';
+  });
+  return { title: 'Hỏi đáp của ' + name, html: '<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;white-space:pre-wrap">' + html + '</div>' };
 }
 
 function handleChat_(data) {
