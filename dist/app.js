@@ -633,53 +633,121 @@
 
   const scenarioKeys = Object.keys(scenarios);
 
-  // hero plays every course figure in turn, 4s each, starting on the linear regression
-  const setupHero = () => {
-    const svg = document.querySelector("#hero-figure");
-    const caption = document.querySelector("#hero-figure-caption");
-    const sheetEl = document.querySelector(".hero-plate");
-    if (!svg || !caption || !sheetEl) return;
-    const list = scenarioKeys.flatMap((key) => scenarios[key].figures);
-    let index = 0;
+  /* ---------- hero video: the course film from YouTube, in the hero frame ---------- */
 
-    const show = (next, { animate = true } = {}) => {
-      index = (next + list.length) % list.length;
-      const fig = list[index];
-      renderFigure(svg, fig.kind, fig.figure + fig.caption);
-      const strong = document.createElement("strong");
-      strong.textContent = fig.figure;
-      caption.replaceChildren(strong, document.createTextNode(fig.caption));
-      if (!animate) return;
-      sheetEl.classList.remove("is-swapping");
-      if (!reducedMotion.matches) {
-        void sheetEl.offsetWidth;
-        sheetEl.classList.add("is-swapping");
-      }
-      plot(svg);
-    };
+  // It plays by itself, without controls, while the frame is on screen. A click opens it over the
+  // whole screen with YouTube's controls. Browsers refuse sound until the visitor has touched the
+  // page: a start with sound that does not begin is tried again muted, and the click brings the sound.
+  const setupHeroVideo = () => {
+    const frame = document.querySelector("[data-hero-video]");
+    const slot = frame?.querySelector("[data-video-slot]");
+    const opener = frame?.querySelector("[data-video-open]");
+    const closer = frame?.querySelector("[data-video-close]");
+    if (!frame || !slot || !opener || !closer) return;
+    const id = frame.dataset.heroVideo;
+    const PLAYING = 1;
+    let player = null;
+    let ready = false;
+    let visible = false;
+    let expanded = false;
 
-    // reserve the tallest caption so the hero does not shift as figures change
-    const lockCaption = () => {
-      const current = caption.innerHTML;
-      caption.style.minHeight = "";
-      let tallest = 0;
-      list.forEach((fig) => {
-        caption.textContent = fig.figure + fig.caption;
-        tallest = Math.max(tallest, caption.offsetHeight);
+    const mayPlay = () => expanded || (visible && !document.hidden && !reducedMotion.matches);
+
+    // The player cannot switch its controls on or off, so each view gets its own, starting where the last one stopped.
+    const mount = (controls, start) => {
+      try { player?.destroy(); } catch { /* an iframe that never loaded has nothing to destroy */ }
+      ready = false;
+      const target = document.createElement("div");
+      slot.replaceChildren(target);
+      const mine = new window.YT.Player(target, {
+        host: "https://www.youtube-nocookie.com",
+        videoId: id,
+        width: "100%",
+        height: "100%",
+        playerVars: { autoplay: mayPlay() ? 1 : 0, controls: controls ? 1 : 0, disablekb: controls ? 0 : 1, fs: 0, playsinline: 1, rel: 0, loop: 1, playlist: id, start: Math.floor(start), hl: "vi" },
+        events: {
+          onReady: () => {
+            if (player !== mine) return;
+            ready = true;
+            const iframe = mine.getIframe();
+            iframe.title = "Video giới thiệu chuỗi khóa học Phân tích định lượng với R";
+            // without controls the link over the video is the way in; the iframe would be an empty tab stop
+            iframe.tabIndex = controls ? 0 : -1;
+            if (!mayPlay()) return;
+            // the player remembers a mute from an earlier visit, so sound is asked for each time
+            mine.unMute();
+            mine.playVideo();
+            window.setTimeout(() => {
+              if (player !== mine || !mayPlay() || mine.getPlayerState() === PLAYING) return;
+              mine.mute();
+              mine.playVideo();
+            }, 2000);
+          },
+        },
       });
-      caption.innerHTML = current;
-      caption.style.minHeight = `${tallest}px`;
+      player = mine;
     };
 
-    show(Math.max(0, list.findIndex((fig) => fig.kind === "r")), { animate: false });
-    lockCaption();
-    document.fonts?.ready.then(lockCaption);
-    let lockTimer = 0;
-    window.addEventListener("resize", () => {
-      window.clearTimeout(lockTimer);
-      lockTimer = window.setTimeout(lockCaption, 200);
-    }, { passive: true });
-    makeCycle(sheetEl, () => show(index + 1), 4000);
+    const sync = () => {
+      if (!ready || expanded) return;
+      if (mayPlay()) player.playVideo();
+      else player.pauseVideo();
+    };
+
+    const time = () => (ready ? player.getCurrentTime() : 0) || 0;
+
+    const collapse = () => {
+      if (!expanded) return;
+      const at = time();
+      expanded = false;
+      if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      frame.classList.remove("is-expanded");
+      document.documentElement.classList.remove("has-video-open");
+      closer.hidden = true;
+      opener.hidden = false;
+      mount(false, at);
+      opener.focus({ preventScroll: true });
+    };
+
+    const expand = () => {
+      const at = time();
+      expanded = true;
+      // phones without the Fullscreen API for elements (iPhone) get the same frame fixed over the page
+      frame.classList.add("is-expanded");
+      document.documentElement.classList.add("has-video-open");
+      closer.hidden = false;
+      opener.hidden = true;
+      const request = frame.requestFullscreen || frame.webkitRequestFullscreen;
+      try { request?.call(frame)?.catch?.(() => {}); } catch { /* refused: the fixed frame is enough */ }
+      mount(true, at);
+      closer.focus({ preventScroll: true });
+    };
+
+    // Until the player's script has loaded, the link opens the film on YouTube instead.
+    opener.addEventListener("click", (event) => {
+      if (!window.YT?.Player) return;
+      event.preventDefault();
+      expand();
+    });
+    closer.addEventListener("click", collapse);
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") collapse(); });
+    ["fullscreenchange", "webkitfullscreenchange"].forEach((name) => document.addEventListener(name, () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) collapse();
+    }));
+    document.addEventListener("visibilitychange", sync);
+
+    // The player (about 1 MB) is fetched when the frame first comes near the screen, and pauses whenever it leaves.
+    let asked = false;
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !asked) {
+        asked = true;
+        const earlier = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => { earlier?.(); mount(false, 0); };
+        document.head.append(Object.assign(document.createElement("script"), { src: "https://www.youtube.com/iframe_api" }));
+      }
+      sync();
+    }, { threshold: 0.25 }).observe(frame);
   };
 
   const setupTabs = () => {
@@ -1985,7 +2053,7 @@
 
   setupBackdrop();
   setupFigures();
-  setupHero();
+  setupHeroVideo();
   setupSparkle();
   setupTabs();
   setupPackages();

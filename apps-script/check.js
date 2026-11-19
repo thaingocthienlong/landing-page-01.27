@@ -750,8 +750,8 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
 
 // "Hình thức học" of the registration form: the ledger's dropdown value, the "Lead web" column and the learner's receipt.
 {
-  assert.deepStrictEqual(['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định', '', undefined, '=1+1', 'toString'].map((v) => ctx.ledgerFormat_(v)),
-    ['Trực tiếp', 'Online', '', '', '', '', '']);
+  assert.deepStrictEqual(['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Linh hoạt (ONL + OFF)', 'Chưa quyết định', '', undefined, '=1+1', 'toString'].map((v) => ctx.ledgerFormat_(v)),
+    ['Trực tiếp', 'Online', '', '', '', '', '', '']);
   reset();
   ctx.setupLedger();
   const formatOf = (n) => cellAt(n, 'Hình thức');
@@ -1137,6 +1137,9 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   cache.clear();
   assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000222', hinh_thuc_hoc: '=1+1' }), { ok: true });
   assert.strictEqual(row(TRACK, 3)[10], '', 'a value outside the dropdown list is not written');
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000333', hinh_thuc_hoc: 'Linh hoạt (ONL + OFF)' }), { ok: true });
+  assert.strictEqual(row(TRACK, 4)[10], 'Linh hoạt (ONL + OFF)', 'the option staff added to the dropdown');
 
   // Staff renamed both tabs: they are found by id.
   reset();

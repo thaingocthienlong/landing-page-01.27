@@ -15,7 +15,8 @@ var FEES_SHEET_ID = 7103;
 var LEAD_TZ = 'Asia/Ho_Chi_Minh';
 var INTERESTS = ['Cả 3 khóa', 'Khóa 2: Phân tích chi phí - hiệu quả trong y tế', 'Khóa 1 + Khóa 3', 'Chưa rõ, cần tư vấn'];
 var INTEREST_BY_PACKAGE = { 'Gói 1': INTERESTS[0], 'Gói 3': INTERESTS[2], 'Gói 5': INTERESTS[1] };
-var FORMATS = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định'];
+// The last one was added by staff to the tab's dropdown; the registration form sends it too.
+var FORMATS = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định', 'Linh hoạt (ONL + OFF)'];
 var PACKAGES = ['Gói 1', 'Gói 2', 'Gói 3', 'Gói 4', 'Gói 5', 'Gói 6'];
 var SOURCE_BY_HEARD = {
   'Email': 'Email/Zalo của Viện', 'Zalo': 'Email/Zalo của Viện',

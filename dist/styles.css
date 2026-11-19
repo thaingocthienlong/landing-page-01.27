@@ -230,11 +230,20 @@ section { padding-block: var(--section); }
 @keyframes f-wipe { to { clip-path: inset(0 0 0 0); } }
 .sheet.is-swapping .figure-svg, .sheet.is-swapping figcaption { animation: swap 0.38s var(--ease); }
 
-.hero-plate .f-tick { font-size: 16px; }
-.hero-plate .f-label { font-size: 17px; }
-.hero-plate .f-note { font-size: 17.5px; }
-.hero-plate .f-note-sub { font-size: 15.5px; }
-.hero-plate .f-cat { font-size: 15.5px; }
+/* hero video: a 16:9 frame in the hero sheet; expanded it covers the screen, with a bar for the close button above YouTube's own controls */
+.video-frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); overflow: hidden; }
+.video-slot, .video-slot > * { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-slot img { object-fit: cover; }
+.video-open { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
+.video-open:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
+.video-open[hidden], .video-close[hidden] { display: none; }
+.video-close { flex: none; align-self: flex-end; display: grid; place-items: center; width: 48px; height: 48px; margin: 6px; border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 2px; background: var(--ink); color: #fff; cursor: pointer; }
+.video-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.video-frame.is-expanded { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; aspect-ratio: auto; }
+.video-frame.is-expanded .video-slot { position: relative; inset: auto; flex: 1; min-height: 0; }
+/* without real fullscreen (iPhone) the fixed frame must rise above the header, the bottom bar and the chat */
+html.has-video-open { overflow: hidden; }
+html.has-video-open main { z-index: 200; }
 
 /* registration */
 .registration-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 40px); margin-top: clamp(32px, 4vw, 56px); align-items: start; }
@@ -611,11 +620,11 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .strip { font-size: 0.8125rem; }
   .strip-inner { min-height: 0; padding-block: 5px; }
   .bg-canvas { opacity: 0.48; }
-  .f-tick, .hero-plate .f-tick { font-size: 21px; }
-  .f-label, .hero-plate .f-label { font-size: 19px; }
-  .f-note, .hero-plate .f-note { font-size: 20px; stroke-width: 6px; }
-  .f-note-sub, .hero-plate .f-note-sub { font-size: 17px; stroke-width: 6px; }
-  .f-cat, .hero-plate .f-cat { font-size: 17px; }
+  .f-tick { font-size: 21px; }
+  .f-label { font-size: 19px; }
+  .f-note { font-size: 20px; stroke-width: 6px; }
+  .f-note-sub { font-size: 17px; stroke-width: 6px; }
+  .f-cat { font-size: 17px; }
   .f-cat.f-small { font-size: 15px; }
   .tabs { grid-template-columns: minmax(0, 1fr); border-bottom: 0; }
   .tab, .tab + .tab { padding: 14px 0; border-bottom: 1px solid var(--hair); box-shadow: inset 4px 0 0 transparent; padding-left: 14px; }

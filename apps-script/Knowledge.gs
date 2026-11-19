@@ -65,7 +65,7 @@ var CHAT_PROMPT_TEMPLATE = [
   '- Thời gian tổ chức: từ ngày 08/01/2027 đến ngày 17/01/2027. Ngày 11/01/2027 (thứ Hai) và ngày 14/01/2027 (thứ Năm) nghỉ.',
   '- Số lượng: 3 khóa học, theo lộ trình từ nền tảng đến chuyên sâu.',
   '- Hình thức tổ chức: học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom.',
-  '- Hai hình thức chung một lịch học, một đội ngũ giảng viên và một bảng học phí. Phiếu đăng ký trên trang có mục "Hình thức học": anh/chị chọn trực tiếp tại Viện, trực tuyến qua Zoom, hoặc "Chưa quyết định" rồi báo lại khi chuyên viên liên hệ xác nhận sau khi nhận phiếu.',
+  '- Hai hình thức chung một lịch học, một đội ngũ giảng viên và một bảng học phí. Phiếu đăng ký trên trang có mục "Hình thức học": anh/chị chọn trực tiếp tại Viện, trực tuyến qua Zoom, linh hoạt (kết hợp trực tiếp và trực tuyến), hoặc "Chưa quyết định" rồi báo lại khi chuyên viên liên hệ xác nhận sau khi nhận phiếu.',
   '- Địa điểm học trực tiếp: Viện Phương Nam, 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP. Hồ Chí Minh.',
   '- Phần mềm sử dụng: R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu.',
   '- Mỗi ngày gồm 2 buổi (khóa 3 ngày có 6 buổi, khóa 2 ngày có 4 buổi).',
