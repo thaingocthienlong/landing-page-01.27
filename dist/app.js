@@ -657,6 +657,7 @@
     const mount = (controls, start) => {
       try { player?.destroy(); } catch { /* an iframe that never loaded has nothing to destroy */ }
       ready = false;
+      frame.classList.remove("is-muted");
       const target = document.createElement("div");
       slot.replaceChildren(target);
       const mine = new window.YT.Player(target, {
@@ -681,7 +682,14 @@
               if (player !== mine || !mayPlay() || mine.getPlayerState() === PLAYING) return;
               mine.mute();
               mine.playVideo();
+              // shows the muted-speaker mark on the frame
+              frame.classList.add("is-muted");
             }, 2000);
+          },
+          // The film carries its own subtitles. YouTube turns its captions on by itself for a muted start,
+          // once their module has loaded, which is what this event reports.
+          onApiChange: () => {
+            if (player === mine) mine.setOption("captions", "track", {});
           },
         },
       });

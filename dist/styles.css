@@ -230,20 +230,32 @@ section { padding-block: var(--section); }
 @keyframes f-wipe { to { clip-path: inset(0 0 0 0); } }
 .sheet.is-swapping .figure-svg, .sheet.is-swapping figcaption { animation: swap 0.38s var(--ease); }
 
-/* hero video: a 16:9 frame in the hero sheet; expanded it covers the screen, with a bar for the close button above YouTube's own controls */
-.video-frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); overflow: hidden; }
+/* hero video: the film in a 16:9 frame with a 2px ink edge, on a cobalt plate set off to the lower right. From 901px it sits beside the title and stays in view down the hero. Expanded, the frame covers the screen with a bar for the close button above YouTube's own controls. */
+.hero-video { position: relative; align-self: start; padding: 0 16px 16px 0; }
+.hero-video::before { content: ""; position: absolute; inset: 16px 0 0 16px; background: var(--cobalt); }
+.video-frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); outline: 2px solid var(--ink); overflow: hidden; transition: transform 0.25s var(--ease); }
 .video-slot, .video-slot > * { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video-slot img { object-fit: cover; }
 .video-open { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
 .video-open:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
 .video-open[hidden], .video-close[hidden] { display: none; }
+/* a muted-speaker mark while the film plays without sound, in the corner its own subtitles and header leave free */
+.video-hint { position: absolute; right: 10px; bottom: 10px; z-index: 2; display: none; place-items: center; width: 36px; height: 36px; background: var(--ink); color: #fff; pointer-events: none; }
+.video-frame.is-muted:not(.is-expanded) .video-hint { display: grid; }
 .video-close { flex: none; align-self: flex-end; display: grid; place-items: center; width: 48px; height: 48px; margin: 6px; border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 2px; background: var(--ink); color: #fff; cursor: pointer; }
 .video-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.video-frame.is-expanded { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; aspect-ratio: auto; }
+.video-frame.is-expanded { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; aspect-ratio: auto; outline: 0; transform: none; }
 .video-frame.is-expanded .video-slot { position: relative; inset: auto; flex: 1; min-height: 0; }
+@media (min-width: 901px) {
+  .hero-video { position: sticky; top: 112px; }
+}
+/* the frame lifts off its plate under the pointer: it is one large link */
+@media (hover: hover) {
+  .video-frame:not(.is-expanded):hover { transform: translate(-4px, -4px); }
+}
 /* without real fullscreen (iPhone) the fixed frame must rise above the header, the bottom bar and the chat */
 html.has-video-open { overflow: hidden; }
-html.has-video-open main { z-index: 200; }
+html.has-video-open main, html.has-video-open .hero-video { z-index: 200; }
 
 /* registration */
 .registration-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 3vw, 40px); margin-top: clamp(32px, 4vw, 56px); align-items: start; }
