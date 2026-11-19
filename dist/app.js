@@ -1356,6 +1356,16 @@
       unavailable: "Trợ lý AI đang tạm ngừng. Anh/chị vui lòng gọi (028) 2242 6789, hoặc gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
       other: "Chưa nhận được câu trả lời. Anh/chị bấm Thử lại, hoặc gọi (028) 2242 6789, gọi/Zalo Ms. Vy 0949 761 636, Ms. Thảo 0912 114 511.",
     };
+    // The greeting's three buttons about R are answered here, without the server: link scanners of
+    // mail gateways and ad networks press the first button of every page they open, and each press
+    // used to cost a model call and a row in the log. Chat.gs logs the button with the next message.
+    const FIELD = "\n\nĐể em gợi ý đúng gói, anh/chị đang làm lĩnh vực nào, hay có đề tài, loại số liệu gì cần phân tích ạ?";
+    const FIELDS = ["Kinh tế y tế", "Dữ liệu theo thời gian", "Phân tích dữ liệu chung"];
+    const WELCOME = {
+      "Chưa từng dùng R": "Dạ, em chào anh/chị. Chưa dùng R thì anh/chị nên học từ Khóa 1, khóa này không cần biết lập trình ạ." + FIELD,
+      "Đã dùng R cơ bản": "Dạ, em chào anh/chị. Đã quen phân tích dữ liệu thì anh/chị vào thẳng Khóa 2 hoặc Khóa 3 được, chưa quen thì nên có Khóa 1 ạ." + FIELD,
+      "Dùng R thường xuyên": "Dạ, em chào anh/chị. Dùng R thường xuyên thì anh/chị có thể chọn Khóa 2, Khóa 3, tức Gói 4, 5 hoặc 6 ạ." + FIELD,
+    };
     const newSession = () => window.crypto?.randomUUID?.() || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
     const validTurn = (turn, i) => turn && turn.role === (i % 2 ? "assistant" : "user") && typeof turn.content === "string" && turn.content.length > 0;
 
@@ -1374,7 +1384,8 @@
       // an open question keeps one turn more, so what is stored still starts on a question
       try { window.localStorage.setItem(STORE, JSON.stringify({ session: state.session, at: Date.now(), messages: state.messages.slice(-(80 + (state.messages.length % 2))) })); } catch { /* storage blocked: the chat still works for this page view */ }
     };
-    chatSession = () => (state.messages.length ? state.session : "");
+    // only a conversation the server has seen: a greeting button answered here alone is not logged
+    chatSession = () => (state.messages.length > (WELCOME[state.messages[0]?.content] ? 2 : 0) ? state.session : "");
 
     let opener = null;
     let pending = false;
@@ -1855,7 +1866,14 @@
       addMessage("user", text);
       toBottom();
       track("chat_question", { question_number: Math.ceil(state.messages.length / 2) });
-      ask();
+      const ready = state.messages.length === 1 && WELCOME[text];
+      if (!ready) {
+        ask();
+        return;
+      }
+      state.messages.push({ role: "assistant", content: ready });
+      save();
+      deliver(messagesOf(ready), FIELDS);
     };
 
     // full screen below 900px: the page behind is inert and follows the on-screen keyboard

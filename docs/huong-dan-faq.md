@@ -187,5 +187,6 @@ Mở tab `Hỏi đáp` (nhật ký trò chuyện), lọc cột "Trạng thái":
 | `...; faq-suggest` | Không ai trả lời được, học viên được gợi ý câu gần nhất | Thêm câu hỏi vào "Cách hỏi khác" của dòng đúng, hoặc tạo dòng mới |
 | `no-ai` | Chưa bật AI và bảng không có câu phù hợp | Tạo dòng mới nếu là câu hỏi về khóa học |
 | `error-...` | Dịch vụ AI lỗi hoặc hết lượt | Xem `apps-script/README.md`, mục bảng trạng thái |
+| `page-welcome` | Học viên bấm một trong ba nút về R của lời chào; trang tự trả lời bằng câu soạn sẵn, không gọi AI. Dòng này chỉ được ghi khi học viên nhắn tiếp câu thứ hai | Không cần làm gì. Muốn đổi câu trả lời soạn sẵn thì sửa `WELCOME` trong `dist/app.js` |
 
 Mỗi câu học viên hỏi mà bảng chưa có là một dòng nên thêm.

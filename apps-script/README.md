@@ -310,6 +310,7 @@ For AI answers the status lists each model tried, for example `error-429-daily g
 | `…; faq-suggest` | no model answered; the learner was offered the closest FAQ questions |
 | `no-ai` | no AI configured (or `CHAT_MAX_PER_HOUR` = 0) and no FAQ row close enough |
 | `over-hour-cap` | the shared hourly AI cap was reached |
+| `page-welcome` | one of the greeting's buttons about R (`Chưa từng dùng R`, `Đã dùng R cơ bản`, `Dùng R thường xuyên`), answered by the page itself (`WELCOME` in `dist/app.js`) without a model call. It is logged only when the learner sends a second message, with that message's time: link scanners of mail gateways and ad networks press the first button of every page they open, and before this each press was a model call and a row |
 | `blocked-...` | a content filter stopped the question or answer (SAFETY, PROHIBITED_CONTENT, BLOCKLIST, SPII, RECITATION, content_filter; `refusal` for Claude, after its fallback model declined too); the matched FAQ row, or else the call/Zalo message, followed |
 | `error-finish-...` | the model stopped for another reason (OTHER, MALFORMED_RESPONSE...); the next model is tried |
 | `error-429` | per-minute rate limit; the next model is tried |
