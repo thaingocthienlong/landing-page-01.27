@@ -1110,7 +1110,7 @@
       const choice = form.querySelector('input[name="goi_dang_ky"]:checked')?.closest(".choice");
       const packageLabel = choice ? `${choice.querySelector("strong").textContent.trim()} (${choice.querySelector("small").textContent.trim()})` : "";
       return {
-        package_id: get("goi_dang_ky"), package: packageLabel, ho_lot: get("ho_lot"), ten: get("ten"), emailcontact: get("emailcontact"),
+        package_id: get("goi_dang_ky"), package: packageLabel, hinh_thuc_hoc: get("hinh_thuc_hoc"), ho_lot: get("ho_lot"), ten: get("ten"), emailcontact: get("emailcontact"),
         phoneregister: get("phoneregister"), gioi_tinh: get("gioi_tinh"), ngay_sinh: birthText(), tinh_thanh: get("tinh_thanh"),
         vi_tri: get("vi_tri"), don_vi: get("don_vi"),
         biet_qua: get("biet_qua"), biet_qua_other: get("biet_qua_other"), agreement: form.agreement.checked,

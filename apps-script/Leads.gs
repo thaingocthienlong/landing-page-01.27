@@ -62,7 +62,7 @@ function handleConsult_(data) {
 
 // Called by doPost after a registration row is saved, inside its lock; row is that row, in HEADERS order.
 function logRegistrationLead_(data, row) {
-  var saved = appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, '', data);
+  var saved = appendLead_('Đăng ký', clean_(data.ho_lot) + ' ' + clean_(data.ten), data.phoneregister, data.package_id, data.hinh_thuc_hoc, data);
   try { fillLeadTabs_(false, data, new Date()); } catch (ignore) {}
   // Once setupLedger has filled its intake tab, the ledger (Ledger.gs) sends its own receipt with the learner code.
   // Until then it sends nothing, even with Ledger.gs pushed, so this receipt is the learner's only email.

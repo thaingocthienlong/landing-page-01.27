@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600;1,8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="./styles.css?v=20261118-typing" />
+    <link rel="stylesheet" href="./styles.css?v=20261120-early" />
     <script>document.documentElement.classList.add("js");</script>
     <script type="application/ld+json">
 {
@@ -298,6 +298,7 @@
             <dl class="abstract">
               <div><dt>Thời gian tổ chức</dt><dd>Từ ngày 08/01/2027 đến ngày 17/01/2027, <a href="#schedule">chi tiết bên dưới</a></dd></div>
               <div class="is-count"><dt>Số lượng khóa học</dt><dd>03 khóa học</dd></div>
+              <div class="is-wide is-early" data-expires="2026-12-08"><dt>Ưu đãi học phí</dt><dd><strong>Giảm 10%</strong> khi hoàn tất học phí trước ngày 08/12/2026, <a href="#tuition">xem theo gói</a></dd></div>
               <div><dt>Hình thức tổ chức</dt><dd>Học trực tiếp (offline) tại Viện Phương Nam hoặc trực tuyến (online) qua nền tảng Zoom</dd></div>
               <div><dt>Địa điểm tổ chức</dt><dd>Viện Phương Nam – Số 45 Đinh Tiên Hoàng, Phường Sài Gòn, TP.&nbsp;Hồ&nbsp;Chí&nbsp;Minh</dd></div>
               <div class="is-wide"><dt>Phần mềm sử dụng</dt><dd>R, RStudio và các công cụ AI hỗ trợ phân tích dữ liệu</dd></div>
@@ -349,14 +350,19 @@
                 <div class="form-grid">
                   <fieldset class="field field-wide choice-group">
                     <legend>Gói đăng ký quan tâm <span class="req" aria-hidden="true">*</span></legend>
+                    <p class="field-hint is-early" data-expires="2026-12-08">Hoàn tất học phí trước 08/12/2026 được giảm 10%. Số tiền sau giảm là tạm tính, số tiền chính thức do Viện xác nhận.</p>
                     <div class="choice-grid">
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 1" required /><span><strong>Gói 1 · Cả 03 khóa</strong><small>08 ngày · 8.800.000 đồng</small></span></label>
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 2" /><span><strong>Gói 2 · Khóa 1 + Khóa 2</strong><small>05 ngày · 6.700.000 đồng</small></span></label>
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 3" /><span><strong>Gói 3 · Khóa 1 + Khóa 3</strong><small>06 ngày · 7.500.000 đồng</small></span></label>
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 4" /><span><strong>Gói 4 · Khóa 2 + Khóa 3</strong><small>05 ngày · 6.700.000 đồng</small></span></label>
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 5" /><span><strong>Gói 5 · Khóa 2</strong><small>02 ngày · 3.500.000 đồng</small></span></label>
-                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 6" /><span><strong>Gói 6 · Khóa 3</strong><small>03 ngày · 4.500.000 đồng</small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 1" required /><span><strong>Gói 1 · Cả 03 khóa</strong><small>08 ngày · 8.800.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>7.920.000 đồng</b></small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 2" /><span><strong>Gói 2 · Khóa 1 + Khóa 2</strong><small>05 ngày · 6.700.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>6.030.000 đồng</b></small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 3" /><span><strong>Gói 3 · Khóa 1 + Khóa 3</strong><small>06 ngày · 7.500.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>6.750.000 đồng</b></small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 4" /><span><strong>Gói 4 · Khóa 2 + Khóa 3</strong><small>05 ngày · 6.700.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>6.030.000 đồng</b></small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 5" /><span><strong>Gói 5 · Khóa 2</strong><small>02 ngày · 3.500.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>3.150.000 đồng</b></small></span></label>
+                    <label class="choice"><input type="radio" name="goi_dang_ky" value="Gói 6" /><span><strong>Gói 6 · Khóa 3</strong><small>03 ngày · 4.500.000 đồng</small><small class="is-early" data-expires="2026-12-08">Sau giảm 10%: <b>4.050.000 đồng</b></small></span></label>
                     </div>
+                  </fieldset>
+                  <fieldset class="field field-wide choice-group">
+                    <legend>Hình thức học <span class="req" aria-hidden="true">*</span></legend>
+                    <div class="radio-grid"><label><input type="radio" name="hinh_thuc_hoc" value="Trực tiếp tại Viện" required /> Trực tiếp tại Viện</label><label><input type="radio" name="hinh_thuc_hoc" value="Trực tuyến qua Zoom" /> Trực tuyến qua Zoom</label><label><input type="radio" name="hinh_thuc_hoc" value="Chưa quyết định" /> Chưa quyết định</label></div>
                   </fieldset>
                   <div class="field field-wide"><label for="consultation-email">Email <span class="req" aria-hidden="true">*</span></label><input id="consultation-email" name="emailcontact" type="email" autocomplete="email" maxlength="255" required /></div>
                   <div class="field"><label for="consultation-holot">Họ và chữ lót <span class="req" aria-hidden="true">*</span></label><input id="consultation-holot" name="ho_lot" type="text" autocomplete="additional-name" maxlength="100" placeholder="Ví dụ: Nguyễn Văn" aria-describedby="name-hint" required /></div>
@@ -1311,6 +1317,6 @@
       <a class="button button-quiet" href="tel:0912114511"><svg class="i" aria-hidden="true"><use href="#i-phone" /></svg> Gọi Hotline</a>
     </div>
 
-    <script src="./app.js?v=20261119-welcome" defer></script>
+    <script src="./app.js?v=20261120-early" defer></script>
   </body>
 </html>

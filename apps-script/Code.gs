@@ -92,13 +92,20 @@ function doPost(e) {
       new Date(), data.package_id, data.package, data.ho_lot, data.ten, data.emailcontact, data.phoneregister,
       data.gioi_tinh, data.ngay_sinh, data.tinh_thanh, data.vi_tri, data.don_vi,
       data.biet_qua, data.biet_qua_other || '', 'Có', data.page, 'Mới',
-      code, intake ? intake.dot : '', channelFromPage_(data.page), '', '', '', '', ''
+      code, intake ? intake.dot : '', channelFromPage_(data.page), ledgerFormat_(data.hinh_thuc_hoc), '', '', '', ''
     ].map(clean_);
     row[0] = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'dd/MM/yyyy HH:mm:ss');
 
     // A new tab has 1000 rows; writing past the grid throws.
     if (next > sheet.getMaxRows()) sheet.insertRowsAfter(sheet.getMaxRows(), 1);
-    sheet.getRange(next, 1, 1, row.length).setNumberFormat('@').setValues([row]);
+    var cells = sheet.getRange(next, 1, 1, row.length).setNumberFormat('@');
+    try {
+      cells.setValues([row]);
+    } catch (err) {
+      // A "Hình thức" dropdown that staff changed refuses the form's value: the registration matters more than that cell.
+      row[HEADERS.indexOf('Hình thức')] = '';
+      cells.setValues([row]);
+    }
 
     cache.put(key, '1', 600);
     // Ad attribution is a copy for marketing: losing it must not fail a saved registration.
@@ -194,6 +201,7 @@ function receiptHtml_(r, course) {
     ['Khóa học', esc_(course)],
     // The label ends in the list price and the confirmed amount can differ, so show the package name only.
     ['Gói đăng ký', esc_(clean_(r['Gói đăng ký quan tâm'] || r['Mã gói']).replace(/\s*\(.*$/, ''))],
+    ['Hình thức học', text('Hình thức')],
     ['Họ và tên', name],
     ['Email', text('Email')],
     ['Số điện thoại', text('Số điện thoại')],
