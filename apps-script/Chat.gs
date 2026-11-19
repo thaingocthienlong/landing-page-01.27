@@ -17,6 +17,8 @@
 
 var CHAT_SHEET_NAME = 'Hỏi đáp';
 var CHAT_HEADERS = ['Thời gian', 'Phiên', 'Câu hỏi', 'Trả lời', 'Trạng thái', 'Trang'];
+// The greeting's buttons about R, which the page answers without the server (dist/app.js).
+var CHAT_WELCOME_BUTTONS = ['Chưa từng dùng R', 'Đã dùng R cơ bản', 'Dùng R thường xuyên'];
 // Model providers, tried in this order. Each reads <prefix>PROVIDER, API_KEY, MODELS, BASE_URL,
 // EXTRA_BODY and HEADERS from the script properties; a provider without a key is skipped.
 var CHAT_GROUPS = ['CLAUDE_', 'CHAT_', 'CHAT2_', 'CHAT3_'];
@@ -199,6 +201,11 @@ function handleChat_(data) {
   if (!chatSessionAllow_(session)) return json_({ ok: false, error: 'rate-limited' });
 
   var turn = chatTurn_(messages);
+  // The page answers the greeting's buttons itself (WELCOME in dist/app.js), so the button and that
+  // answer reach the server with the next message and are logged then, at that time.
+  if (messages.length === 3 && CHAT_WELCOME_BUTTONS.indexOf(messages[0].content) !== -1) {
+    logChat_([session, messages[0].content, messages[1].content, 'page-welcome', clean_(data.page)]);
+  }
   // A question nothing answered is logged with an empty answer, so staff can find it.
   logChat_([session, messages[messages.length - 1].content, turn.error || turn.unanswered ? '' : turn.reply, turn.status, clean_(data.page)]);
   if (turn.error) return json_({ ok: false, error: turn.error });

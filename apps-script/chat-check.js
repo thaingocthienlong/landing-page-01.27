@@ -610,6 +610,31 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   });
 }
 
+// The page answers the greeting's buttons about R itself (WELCOME in dist/app.js), so a button and
+// that answer reach the server with the next message: logged then, once, before it, as page-welcome.
+{
+  const dist = (file) => fs.readFileSync(path.join(__dirname, '..', 'dist', file), 'utf8');
+  const welcome = dist('app.js').match(/const WELCOME = (\{[\s\S]*?\n {4}\});/)[1];
+  const buttons = Object.keys(vm.runInNewContext('(' + welcome + ')', { FIELD: '' }));
+  assert.deepStrictEqual(buttons, plain(ctx.CHAT_WELCOME_BUTTONS));
+  buttons.forEach((text) => assert.ok(dist('index.html').includes('data-chat-question>' + text + '</button>'), text));
+
+  reset();
+  model.replies.push('Dạ, vậy Gói 3 hợp với anh/chị nhất ạ.');
+  ctx.handleChat_(request(['Chưa từng dùng R', 'Dạ, em chào anh/chị. Anh/chị nên học từ Khóa 1 ạ.', 'Dữ liệu theo thời gian'], 'session-welcome'));
+  const rows = sheets['Hỏi đáp'].data.slice(1);
+  assert.deepStrictEqual(rows.map((row) => row.slice(1, 5)), [
+    ["'session-welcome", "'Chưa từng dùng R", "'Dạ, em chào anh/chị. Anh/chị nên học từ Khóa 1 ạ.", "'page-welcome"],
+    ["'session-welcome", "'Dữ liệu theo thời gian", "'Dạ, vậy Gói 3 hợp với anh/chị nhất ạ.", rows[1][4]]
+  ]);
+
+  // a typed first question was answered and logged by the server already
+  reset();
+  model.replies.push('Dạ, vậy Gói 3 hợp với anh/chị nhất ạ.');
+  ask(FEE, TOLD, 'Một mình');
+  assert.strictEqual(sheets['Hỏi đáp'].data.length, 2);
+}
+
 // The instructions carry the one button the page turns into its phone-number card, word for word
 // (dist/app.js opens the card on that label), and the example that teaches it keeps it as a button.
 {
