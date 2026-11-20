@@ -646,18 +646,39 @@
     if (!frame || !slot || !opener || !closer) return;
     const id = frame.dataset.heroVideo;
     const PLAYING = 1;
+    const PAUSED = 2;
+    const BUFFERING = 3;
     let player = null;
     let ready = false;
     let visible = false;
     let expanded = false;
+    let lift = 0;
+    let tried = false;
+    let askedAt = 0;
+    let refused = false;
 
     const mayPlay = () => expanded || (visible && !document.hidden && !reducedMotion.matches);
+
+    // In the page the film starts muted, which no browser refuses, and asks for sound once it runs.
+    // A browser that refuses sound stops the film at that moment: see the player's onStateChange.
+    const voice = (mine) => {
+      // the class shows the muted-speaker mark on the frame
+      if (refused) frame.classList.add("is-muted");
+      else if (!tried) {
+        tried = true;
+        askedAt = performance.now();
+        frame.classList.remove("is-muted");
+        mine.unMute();
+      }
+    };
 
     // The player cannot switch its controls on or off, so each view gets its own, starting where the last one stopped.
     const mount = (controls, start) => {
       try { player?.destroy(); } catch { /* an iframe that never loaded has nothing to destroy */ }
       ready = false;
-      frame.classList.remove("is-muted");
+      tried = false;
+      window.clearTimeout(lift);
+      frame.classList.remove("is-muted", "is-playing");
       const target = document.createElement("div");
       slot.replaceChildren(target);
       const mine = new window.YT.Player(target, {
@@ -665,7 +686,7 @@
         videoId: id,
         width: "100%",
         height: "100%",
-        playerVars: { autoplay: mayPlay() ? 1 : 0, controls: controls ? 1 : 0, disablekb: controls ? 0 : 1, fs: 0, playsinline: 1, rel: 0, loop: 1, playlist: id, start: Math.floor(start), hl: "vi" },
+        playerVars: { controls: controls ? 1 : 0, disablekb: controls ? 0 : 1, fs: 0, playsinline: 1, rel: 0, loop: 1, playlist: id, start: Math.floor(start), hl: "vi" },
         events: {
           onReady: () => {
             if (player !== mine) return;
@@ -674,17 +695,27 @@
             iframe.title = "Video giới thiệu chuỗi khóa học Phân tích định lượng với R";
             // without controls the link over the video is the way in; the iframe would be an empty tab stop
             iframe.tabIndex = controls ? 0 : -1;
-            if (!mayPlay()) return;
-            // the player remembers a mute from an earlier visit, so sound is asked for each time
-            mine.unMute();
-            mine.playVideo();
-            window.setTimeout(() => {
-              if (player !== mine || !mayPlay() || mine.getPlayerState() === PLAYING) return;
+            // the player remembers a mute from an earlier visit, so each view sets its own
+            if (controls) mine.unMute();
+            else mine.mute();
+            if (mayPlay()) mine.playVideo();
+          },
+          // YouTube lays its title and buttons over the film for about 4 s each time it starts, with or without
+          // controls. The poster stays over the frame until they have gone, and returns when the film stops.
+          onStateChange: ({ data }) => {
+            if (player !== mine || data === BUFFERING) return;
+            window.clearTimeout(lift);
+            if (data !== PLAYING) frame.classList.remove("is-playing");
+            else if (!frame.classList.contains("is-playing")) lift = window.setTimeout(() => frame.classList.add("is-playing"), 4500);
+            if (controls) return;
+            if (data === PLAYING) voice(mine);
+            else if (data === PAUSED && performance.now() - askedAt < 500) {
+              // stopped by the browser for the sound just asked for: on without it
+              refused = true;
               mine.mute();
-              mine.playVideo();
-              // shows the muted-speaker mark on the frame
               frame.classList.add("is-muted");
-            }, 2000);
+              if (mayPlay()) mine.playVideo();
+            }
           },
           // The film carries its own subtitles. YouTube turns its captions on by itself for a muted start,
           // once their module has loaded, which is what this event reports.
@@ -701,6 +732,17 @@
       if (mayPlay()) player.playVideo();
       else player.pauseVideo();
     };
+
+    // Browsers hold sound back until the visitor has clicked or pressed a key on the page, so the first one asks again.
+    // Once only: a browser that still refuses stops the film for a moment each time.
+    const sound = () => {
+      if (!refused || (navigator.userActivation && !navigator.userActivation.hasBeenActive)) return;
+      ["click", "keydown"].forEach((name) => document.removeEventListener(name, sound));
+      refused = false;
+      tried = false;
+      if (ready && !expanded && player.getPlayerState() === PLAYING) voice(player);
+    };
+    ["click", "keydown"].forEach((name) => document.addEventListener(name, sound));
 
     const time = () => (ready ? player.getCurrentTime() : 0) || 0;
 
@@ -895,7 +937,7 @@
     let particles = [];
     let frame = 0;
 
-    const count = () => Math.min(90, Math.round((window.innerWidth * window.innerHeight) / 16000));
+    const count = () => Math.min(65, Math.round((window.innerWidth * window.innerHeight) / 22000));
 
     const seed = () => {
       particles = Array.from({ length: count() }, () => ({

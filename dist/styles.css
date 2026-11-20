@@ -65,7 +65,7 @@ address { font-style: normal; }
 .i { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
 
 /* particle backdrop */
-.bg-canvas { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.8; }
+.bg-canvas { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.55; }
 .strip, .site-footer, main { position: relative; z-index: 1; }
 
 /* buttons and links */
@@ -234,8 +234,11 @@ section { padding-block: var(--section); }
 .hero-video { position: relative; align-self: start; padding: 0 16px 16px 0; }
 .hero-video::before { content: ""; position: absolute; inset: 16px 0 0 16px; background: var(--cobalt); }
 .video-frame { position: relative; aspect-ratio: 16 / 9; background: var(--ink); outline: 2px solid var(--ink); overflow: hidden; transition: transform 0.25s var(--ease); }
-.video-slot, .video-slot > * { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.video-slot img { object-fit: cover; }
+.video-slot, .video-slot > *, .video-poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* covers the title and buttons YouTube shows each time the film starts; app.js lifts it once they have gone */
+.video-poster { object-fit: cover; transition: opacity 0.4s var(--ease); }
+.video-frame.is-playing .video-poster { opacity: 0; }
+.video-frame.is-expanded .video-poster { display: none; }
 .video-open { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
 .video-open:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
 .video-open[hidden], .video-close[hidden] { display: none; }
@@ -631,7 +634,7 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
   .strip .strip-deadline { display: none; }
   .strip { font-size: 0.8125rem; }
   .strip-inner { min-height: 0; padding-block: 5px; }
-  .bg-canvas { opacity: 0.48; }
+  .bg-canvas { opacity: 0.34; }
   .f-tick { font-size: 21px; }
   .f-label { font-size: 19px; }
   .f-note { font-size: 20px; stroke-width: 6px; }
