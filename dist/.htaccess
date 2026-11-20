@@ -1,4 +1,7 @@
 # The folder URL (/phan-tich-du-lieu-voi-r/) must open index.html. On 20/11/2026, once this folder had held an
-# .htaccess, the hosting (LiteSpeed) sent that URL to the main site's PHP instead, and kept doing so after the file
-# was removed. Naming the index here keeps the folder URL on the page.
+# .htaccess, the hosting (LiteSpeed) sent that URL to the main site's PHP instead (its "404" page), and kept doing
+# so after the file was removed. With its own rewrite rules this folder no longer takes the main site's rules,
+# and the folder URL is mapped to the page here.
 DirectoryIndex index.html
+RewriteEngine On
+RewriteRule ^$ index.html [L]
