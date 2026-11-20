@@ -1,8 +1,0 @@
-# The hosting (LiteSpeed behind Cloudflare) sends the page with no Cache-Control, so browsers kept an old copy
-# for a while after a deploy. The page is now checked on every visit (a short 304 when it has not changed).
-# Its script and stylesheet carry ?v= in their links and keep the hosting's week-long cache.
-<IfModule mod_headers.c>
-  <FilesMatch "\.html$">
-    Header set Cache-Control "no-cache"
-  </FilesMatch>
-</IfModule>
