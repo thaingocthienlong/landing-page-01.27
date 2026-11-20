@@ -162,9 +162,10 @@ function addFeeRow_(fees, lead) {
   fees.getRange(row, 1, 1, 4).setValues([[code, textCell_(lead.phone), textCell_(lead.name), lead.pkg]]);
   fees.getRange(row, 15).setValue('Tự thêm từ form đăng ký ' + lead.short);
   // "Hình thức" is found by its header, not by position: a tab that does not have the column yet gets nothing.
+  // Written even when empty: a row that freeRow_ copied from the last learner must not keep that learner's answer.
   var head = fees.getRange(1, 1, 1, Math.max(1, fees.getLastColumn())).getValues()[0];
   var formatCol = head.map(function (h) { return String(h).trim(); }).indexOf('Hình thức') + 1;
-  if (formatCol && lead.format) fees.getRange(row, formatCol).setValue(lead.format);
+  if (formatCol) fees.getRange(row, formatCol).setValue(lead.format);
 }
 
 // Run once from the editor, after the user agreed: copies the registrations made before this file existed.

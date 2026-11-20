@@ -1159,6 +1159,15 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   prefillFees(20, false).getRange(1, 24).setValue('Hình thức');
   assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000555', hinh_thuc_hoc: 'Trực tiếp tại Viện' }), { ok: true });
   assert.strictEqual(row(FEES, 2)[23], 'Trực tiếp tại Viện');
+  // A full fee tab grows by a copy of its last row. The copy must not hand that learner's study mode to a
+  // registration that gave none.
+  reset();
+  prefillTrack();
+  const fullFees = prefillFees(999);
+  fullFees.data.slice(1).forEach((r, i) => { r[0] = 'DK-TEST-' + i; r[1] = '0900000000'; r[2] = 'TEST QA'; r[3] = 'Gói 2'; r[21] = 'Trực tuyến qua Zoom'; });
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000666', hinh_thuc_hoc: '=1+1' }), { ok: true });
+  assert.strictEqual(fullFees.getMaxRows(), 1001);
+  assert.deepStrictEqual([row(FEES, 1001)[1], row(FEES, 1001)[21]], ['0944000666', '']);
 
   // Staff renamed both tabs: they are found by id.
   reset();
