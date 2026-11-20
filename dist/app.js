@@ -937,7 +937,7 @@
     let particles = [];
     let frame = 0;
 
-    const count = () => Math.min(90, Math.round((window.innerWidth * window.innerHeight) / 16000));
+    const count = () => Math.min(65, Math.round((window.innerWidth * window.innerHeight) / 22000));
 
     const seed = () => {
       particles = Array.from({ length: count() }, () => ({

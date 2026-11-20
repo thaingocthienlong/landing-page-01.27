@@ -216,7 +216,7 @@ Square. Radius is 2px on buttons, inputs and toggle; 50% only on step-number dis
 
 ## Additions after first release
 
-- **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 48% opacity below 720px, 80% above.
+- **Backdrop:** one fixed full-viewport canvas (`#bg-canvas`) draws faint cobalt linked particles and translucent triangles behind transparent sections; opaque panels (plates, form, tables' featured row, closing band) cover it. Paused when the tab is hidden, a single static frame under reduced motion, 34% opacity below 720px, 55% above, one particle per 22,000 px² of viewport and at most 65 (lightened on 20/11/2026 at the owner's request: the earlier 80%/48%, one per 16,000 px² and at most 90 read as busy).
 - **Logo:** official artwork from `assets/Logo VPN.png`, trimmed and resized to `dist/logo.png` (header, 56px tall; footer on a white chip) and `dist/favicon.png`. The full institute name sits beside it in the header and footer.
 - **Chat button icon:** the robot head the user supplied on 14/11/2026, kept as `assets/chatbot-icon.png`, trimmed and resized to `dist/chatbot.png` (128px; shown at 28px in the desktop launcher, 40px in the round phone button).
 - **Messenger and Zalo button:** a white round button above the chat launcher opens two links (Messenger to the Page, Zalo to 0912 114 511). The two marks are simple solid-colour drawings in the SVG sprite (`i-messenger`, `i-zalo`), not the brands' official files.
