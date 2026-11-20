@@ -89,6 +89,8 @@ function fillLeadTabs_(isConsult, data, when) {
     stamp: Utilities.formatDate(when, LEAD_TZ, 'dd/MM/yyyy HH:mm:ss'),
     short: Utilities.formatDate(when, LEAD_TZ, 'dd/MM HH:mm'),
     code: 'DK-' + Utilities.formatDate(when, LEAD_TZ, 'yyMMdd-HHmmss'),
+    // The form's "Hình thức học" when it is one of the dropdown values; anything else is left out.
+    format: FORMATS.indexOf(clean_(data.hinh_thuc_hoc)) >= 0 ? clean_(data.hinh_thuc_hoc) : '',
     chat: leadChatNote_(isConsult, data)
   };
   lead.key = normalizePhone_(lead.phone);
@@ -117,7 +119,7 @@ function freeRow_(sheet, cols) {
 }
 
 function upsertTrackRow_(track, lead, data) {
-  var format = FORMATS.indexOf(clean_(data.hinh_thuc_hoc)) >= 0 ? clean_(data.hinh_thuc_hoc) : '';
+  var format = lead.format;
   var rows = track.getMaxRows() - 1;
   var cols = rows > 0 ? track.getRange(2, 1, rows, 3).getValues() : [];
   for (var i = 0; lead.key && i < cols.length; i++) {
@@ -159,6 +161,10 @@ function addFeeRow_(fees, lead) {
   fees.getRange(row, 2).setNumberFormat('@');
   fees.getRange(row, 1, 1, 4).setValues([[code, textCell_(lead.phone), textCell_(lead.name), lead.pkg]]);
   fees.getRange(row, 15).setValue('Tự thêm từ form đăng ký ' + lead.short);
+  // "Hình thức" is found by its header, not by position: a tab that does not have the column yet gets nothing.
+  var head = fees.getRange(1, 1, 1, Math.max(1, fees.getLastColumn())).getValues()[0];
+  var formatCol = head.map(function (h) { return String(h).trim(); }).indexOf('Hình thức') + 1;
+  if (formatCol && lead.format) fees.getRange(row, formatCol).setValue(lead.format);
 }
 
 // Run once from the editor, after the user agreed: copies the registrations made before this file existed.

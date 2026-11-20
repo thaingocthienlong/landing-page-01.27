@@ -1044,11 +1044,13 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
     for (let i = 0; i < rows; i++) t.data.push(['', '', '', '=D', '=E', '', '', '', '', '', '', '', '', 'FALSE', '', '', '=Q', '', '', '=T']);
     return t;
   };
-  const prefillFees = (rows = 20) => {
+  // A to U as the fee tab has them; V is the "Hình thức" column Sale staff fill, which a tab may not have yet.
+  const prefillFees = (rows = 20, withFormat = true) => {
     const t = fakeSheet(FEES);
     t.id = ctx.FEES_SHEET_ID;
-    t.data.push(['Mã đăng ký', 'Số điện thoại', 'Họ và tên', 'Gói', 'Mã nhóm', 'Ưu đãi', 'G', 'H', 'I', 'Đã thu', 'Ngày đủ', 'Đã xác minh', 'M', 'N', 'Ghi chú', 'P']);
-    for (let i = 0; i < rows; i++) t.data.push(['', '', '', '', '', '', '=G', '=H', '=I', '', '', 'FALSE', '=M', '=N', '', '=P']);
+    t.data.push(['Mã đăng ký', 'Số điện thoại', 'Họ và tên', 'Gói', 'Mã nhóm', 'Ưu đãi', 'G', 'H', 'I', 'Đã thu', 'Ngày đủ', 'Đã xác minh', 'M', 'N', 'Ghi chú', 'P', 'Q', 'R', 'S', 'T', 'U']
+      .concat(withFormat ? ['Hình thức'] : []));
+    for (let i = 0; i < rows; i++) t.data.push(['', '', '', '', '', '', '=G', '=H', '=I', '', '', 'FALSE', '=M', '=N', '', '=P', '=Q', '=R', '=S', '=T', '=U']);
     return t;
   };
   const META = { utm_source: 'meta', utm_medium: 'paid_social', utm_campaign: 'ptdlr_012027', utm_content: 'k1k301', utm_term: '', fbclid: '' };
@@ -1140,6 +1142,23 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   cache.clear();
   assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000333', hinh_thuc_hoc: 'Linh hoạt (ONL + OFF)' }), { ok: true });
   assert.strictEqual(row(TRACK, 4)[10], 'Linh hoạt (ONL + OFF)', 'the option staff added to the dropdown');
+  // The same answer reaches the fee tab's "Hình thức" column (V) on the row each of those posts added, so the paid
+  // learner list carries it. Each of the four dropdown values is copied as it is; anything else is left out.
+  assert.deepStrictEqual([2, 3, 4, 5, 6].map((n) => [row(FEES, n)[3], row(FEES, n)[21] ?? '']), [
+    ['Gói 1', 'Trực tuyến qua Zoom'], ['Gói 2', 'Trực tiếp tại Viện'], ['Gói 3', 'Chưa quyết định'], ['Gói 1', ''], ['Gói 1', 'Linh hoạt (ONL + OFF)']]);
+  // A fee tab that has no "Hình thức" header yet: the registration still goes in, and no cell of its row gets the answer.
+  reset();
+  prefillTrack();
+  prefillFees(20, false);
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000444', hinh_thuc_hoc: 'Trực tuyến qua Zoom' }), { ok: true });
+  assert.strictEqual(row(FEES, 2)[1], '0944000444');
+  assert.ok(!row(FEES, 2).includes('Trực tuyến qua Zoom'), 'nothing is written where there is no Hình thức column');
+  // The header may sit in another column: it is found by name, not by position.
+  reset();
+  prefillTrack();
+  prefillFees(20, false).getRange(1, 24).setValue('Hình thức');
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000555', hinh_thuc_hoc: 'Trực tiếp tại Viện' }), { ok: true });
+  assert.strictEqual(row(FEES, 2)[23], 'Trực tiếp tại Viện');
 
   // Staff renamed both tabs: they are found by id.
   reset();
