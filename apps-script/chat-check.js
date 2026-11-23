@@ -449,7 +449,8 @@ const DOWN = [{ code: 500 }, { code: 500 }];
   const examples = ctx.CHAT_SYSTEM_PROMPT.split(ctx.CHAT_EXAMPLES_HEADING)[1].split(/\nHỏi[^\n]*\nĐáp: /).slice(1);
   assert.strictEqual(examples.length, 8);
   const amounts = examples.reduce((count, answer) => count + ctx.chatAmounts_(answer).amounts.length, 0);
-  assert.strictEqual(amounts, 10, 'the fee examples are read in full');
+  // Only the turn that quotes the chosen package names amounts: the examples never list fees.
+  assert.strictEqual(amounts, 2, 'the fee examples are read in full');
   examples.forEach((answer) => {
     const turn = ctx.chatOptions_(answer.trim());
     assert.strictEqual(ctx.chatUnknownFigure_(turn.reply, official, '', ''), '', answer);
