@@ -770,16 +770,18 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 
 /* Zalo: one round button above the Messenger button opens the two advisers' Zalo links */
 .chat-bot { flex: none; width: 28px; height: 28px; }
-/* the Messenger mark is blue, so it sits on a white disc to read on the cobalt button */
-svg.chat-bot { padding: 2px; border-radius: 50%; background: #fff; }
+/* the Messenger mark is blue, so on the cobalt desktop button it sits on a white disc */
+svg.chat-bot { width: 34px; height: 34px; padding: 2px; border-radius: 50%; background: #fff; }
 .contact-fab { display: none; }
 .js .contact-fab { position: fixed; z-index: 56; right: 24px; bottom: 88px; display: block; }
 .chat-open .contact-fab { display: none; }
 .contact-toggle { display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border: 1px solid var(--hair); border-radius: 50%; background: #fff; color: var(--ink); box-shadow: 0 4px 14px rgba(10, 30, 70, 0.18); cursor: pointer; }
 .contact-toggle:hover { border-color: var(--cobalt); }
+/* closed, the Zalo mark is the button itself; the white disc comes back only around the close cross */
+.contact-toggle[aria-expanded="false"] { border: 0; background: none; box-shadow: none; }
 .contact-toggle:focus-visible, .contact-menu a:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 3px; }
 .contact-marks { display: flex; gap: 2px; }
-.contact-marks .contact-logo { width: 22px; height: 22px; }
+.contact-marks .contact-logo { width: 56px; height: 56px; filter: drop-shadow(0 3px 8px rgba(10, 30, 70, 0.22)); }
 .contact-shut { display: none; width: 22px; height: 22px; }
 .contact-toggle[aria-expanded="true"] .contact-marks { display: none; }
 .contact-toggle[aria-expanded="true"] .contact-shut { display: block; }
@@ -804,7 +806,9 @@ svg.chat-bot { padding: 2px; border-radius: 50%; background: #fff; }
   .mobile-bar [data-chat-open] { display: none; }
   /* a round chat button floats above the bar's right end */
   .js .chat-launcher { position: fixed; z-index: 55; right: var(--gut); bottom: calc(84px + env(safe-area-inset-bottom)); display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border-radius: 50%; }
-  .js .chat-launcher .chat-bot { width: 40px; height: 40px; }
+  /* on phones the Messenger mark is the button itself, as the Zalo one above it */
+  .js .chat-launcher, .js .chat-launcher:hover { background: none; }
+  .js .chat-launcher svg.chat-bot { width: 56px; height: 56px; padding: 0; background: none; filter: drop-shadow(0 3px 8px rgba(10, 30, 70, 0.22)); }
   /* the contact button sits above the chat button */
   .js .contact-fab { right: var(--gut); bottom: calc(154px + env(safe-area-inset-bottom)); }
   /* rings keep spreading from the button's center while the page is open */
