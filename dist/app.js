@@ -61,9 +61,15 @@
     });
   };
 
-  /* ---------- Messenger and Zalo: a round button opens the two links ---------- */
+  /* ---------- Messenger button, and a round button that opens the advisers' Zalo links ---------- */
+
+  const trackContact = (link) => {
+    const method = link.dataset.contactLink;
+    track("contact_click", { method }, { name: "Contact", params: { content_name: method } });
+  };
 
   const setupContact = () => {
+    document.querySelectorAll(".chat-launcher[data-contact-link]").forEach((link) => link.addEventListener("click", () => trackContact(link)));
     const root = document.querySelector("[data-contact]");
     const toggle = root?.querySelector(".contact-toggle");
     const menu = root?.querySelector(".contact-menu");
@@ -81,8 +87,7 @@
     document.addEventListener("click", (event) => { if (!menu.hidden && !root.contains(event.target)) setOpen(false); });
     menu.querySelectorAll("[data-contact-link]").forEach((link) => {
       link.addEventListener("click", () => {
-        const method = link.dataset.contactLink;
-        track("contact_click", { method }, { name: "Contact", params: { content_name: method } });
+        trackContact(link);
         setOpen(false);
       });
     });
