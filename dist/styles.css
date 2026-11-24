@@ -768,8 +768,10 @@ html:not(.js) [data-step-next], html:not(.js) [data-step-prev], html:not(.js) .s
 .chat-people a + a { border-left: 1px solid var(--hair); }
 .chat-people a:hover { background: var(--plate); text-decoration: underline; }
 
-/* Messenger and Zalo: one round button above the chat launcher opens the two links; hidden while the chat is open */
+/* Zalo: one round button above the Messenger button opens the two advisers' Zalo links */
 .chat-bot { flex: none; width: 28px; height: 28px; }
+/* the Messenger mark is blue, so it sits on a white disc to read on the cobalt button */
+svg.chat-bot { padding: 2px; border-radius: 50%; background: #fff; }
 .contact-fab { display: none; }
 .js .contact-fab { position: fixed; z-index: 56; right: 24px; bottom: 88px; display: block; }
 .chat-open .contact-fab { display: none; }
