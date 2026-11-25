@@ -18,6 +18,9 @@ var INTEREST_BY_PACKAGE = { 'Gói 1': INTERESTS[0], 'Gói 3': INTERESTS[2], 'Gó
 // The last one was added by staff to the tab's dropdown; the registration form sends it too.
 var FORMATS = ['Trực tiếp tại Viện', 'Trực tuyến qua Zoom', 'Chưa quyết định', 'Linh hoạt (ONL + OFF)'];
 var PACKAGES = ['Gói 1', 'Gói 2', 'Gói 3', 'Gói 4', 'Gói 5', 'Gói 6'];
+// Fee tab header -> registration form field.
+var FEE_DETAILS = [['Email', 'emailcontact'], ['Giới tính', 'gioi_tinh'], ['Ngày sinh', 'ngay_sinh'],
+  ['Tỉnh/Thành phố', 'tinh_thanh'], ['Vị trí công tác', 'vi_tri'], ['Đơn vị công tác', 'don_vi']];
 var SOURCE_BY_HEARD = {
   'Email': 'Email/Zalo của Viện', 'Zalo': 'Email/Zalo của Viện',
   'Facebook Viện Phương Nam': 'Facebook tự nhiên', 'Facebook GS.TS. Nguyễn Văn Tuấn': 'Facebook tự nhiên', 'Hội nhóm Facebook': 'Facebook tự nhiên',
@@ -97,7 +100,7 @@ function fillLeadTabs_(isConsult, data, when) {
   var track = staffSheet_(book, TRACK_SHEET_ID, TRACK_SHEET);
   if (track) upsertTrackRow_(track, lead, data);
   var fees = staffSheet_(book, FEES_SHEET_ID, FEES_SHEET);
-  if (fees && !isConsult && lead.pkg) addFeeRow_(fees, lead);
+  if (fees && !isConsult && lead.pkg) addFeeRow_(fees, lead, data);
 }
 
 // The tab with this id, else the one with the old name.
@@ -146,7 +149,7 @@ function upsertTrackRow_(track, lead, data) {
   if (lead.chat) track.getRange(row, 19).setValue(textCell_(lead.chat));
 }
 
-function addFeeRow_(fees, lead) {
+function addFeeRow_(fees, lead, data) {
   var rows = fees.getMaxRows() - 1;
   var cols = rows > 0 ? fees.getRange(2, 1, rows, 4).getValues() : [];
   var codes = {};
@@ -157,15 +160,20 @@ function addFeeRow_(fees, lead) {
   var code = lead.code;
   for (var n = 2; codes[code]; n++) code = lead.code + '-' + n;
   var row = freeRow_(fees, cols);
-  // Only A to D and O: the rest are formulas, checkboxes or for the accountant.
+  // A to D and O here, "Hình thức" and the details below: the rest are formulas, checkboxes or for the accountant.
   fees.getRange(row, 2).setNumberFormat('@');
   fees.getRange(row, 1, 1, 4).setValues([[code, textCell_(lead.phone), textCell_(lead.name), lead.pkg]]);
   fees.getRange(row, 15).setValue('Tự thêm từ form đăng ký ' + lead.short);
   // "Hình thức" is found by its header, not by position: a tab that does not have the column yet gets nothing.
   // Written even when empty: a row that freeRow_ copied from the last learner must not keep that learner's answer.
-  var head = fees.getRange(1, 1, 1, Math.max(1, fees.getLastColumn())).getValues()[0];
-  var formatCol = head.map(function (h) { return String(h).trim(); }).indexOf('Hình thức') + 1;
+  var head = fees.getRange(1, 1, 1, Math.max(1, fees.getLastColumn())).getValues()[0].map(function (h) { return String(h).trim(); });
+  var formatCol = head.indexOf('Hình thức') + 1;
   if (formatCol) fees.getRange(row, formatCol).setValue(lead.format);
+  // The learner's details (P to U), by header and under the same two rules; text format keeps "03/01/1998" a text, not a date.
+  FEE_DETAILS.forEach(function (pair) {
+    var col = head.indexOf(pair[0]) + 1;
+    if (col) fees.getRange(row, col).setNumberFormat('@').setValue(textCell_(data[pair[1]]));
+  });
 }
 
 // Run once from the editor, after the user agreed: copies the registrations made before this file existed.

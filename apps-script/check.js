@@ -1169,6 +1169,23 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(fullFees.getMaxRows(), 1001);
   assert.deepStrictEqual([row(FEES, 1001)[1], row(FEES, 1001)[21]], ['0944000666', '']);
 
+  // The learner's details reach the fee tab's own columns P to U, found by their headers like "Hình thức".
+  const DETAILS = ['Email', 'Giới tính', 'Ngày sinh', 'Tỉnh/Thành phố', 'Vị trí công tác', 'Đơn vị công tác'];
+  const withDetails = (t) => { DETAILS.forEach((h, i) => t.getRange(1, 16 + i).setValue(h)); return t; };
+  reset();
+  prefillTrack();
+  withDetails(prefillFees());
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000777', don_vi: '=HYPERLINK("https://x")' }), { ok: true });
+  assert.deepStrictEqual(plain(row(FEES, 2)).slice(15, 21),
+    ['an@example.com', 'Nam', '01/01/1990', 'TP. Hồ Chí Minh', 'Bác sĩ', "'=HYPERLINK(\"https://x\")"]);
+  // A full tab's copied row gets the new learner's details over the last learner's.
+  reset();
+  prefillTrack();
+  const fullDetails = withDetails(prefillFees(999));
+  fullDetails.data.slice(1).forEach((r, i) => { r[0] = 'DK-TEST-' + i; r[1] = '0900000000'; r[2] = 'TEST QA'; r[3] = 'Gói 2'; r[15] = 'cu@example.com'; r[20] = 'Bệnh viện cũ'; });
+  assert.deepStrictEqual(post({ ...FORM, phoneregister: '0944000888' }), { ok: true });
+  assert.deepStrictEqual([row(FEES, 1001)[1], row(FEES, 1001)[15], row(FEES, 1001)[20]], ['0944000888', 'an@example.com', 'Bệnh viện A']);
+
   // Staff renamed both tabs: they are found by id.
   reset();
   prefillTrack().setName('1. ' + TRACK);
