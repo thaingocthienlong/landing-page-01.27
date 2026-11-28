@@ -1065,6 +1065,11 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   assert.strictEqual(ctx.leadSource_(false, { utm_source: 'meta', utm_medium: 'messenger' }), 'Chưa rõ');
   assert.deepStrictEqual([ctx.leadChannel_(true), ctx.leadChannel_(false)], ['Web - form tư vấn', 'Web - form đăng ký']);
   assert.strictEqual(ctx.leadSource_(true, {}), 'Chưa rõ');
+  // Google Ads: Search (cpc) and remarketing (display) arrive with utm_source=google, the ad group whole in utm_content.
+  assert.deepStrictEqual(['cpc', 'display', 'CPC', 'organic', ''].map((utm_medium) => ctx.leadSource_(false, { utm_source: 'google', utm_medium, biet_qua: 'Zalo' })),
+    ['Quảng cáo Google', 'Quảng cáo Google', 'Quảng cáo Google', 'Email/Zalo của Viện', 'Email/Zalo của Viện']);
+  assert.strictEqual(ctx.leadSource_(true, { utm_source: 'google', utm_medium: 'display' }), 'Quảng cáo Google');
+  assert.deepStrictEqual(['gg-r', 'GG-GV', 'gg-dl', 'gg-k2', 'gg-k3', 'gg-rmk', 'gg-x', 'gg-'].map((v) => ctx.leadGroup_(v)), ['GG-R', 'GG-GV', 'GG-DL', 'GG-K2', 'GG-K3', 'GG-RMK', '', '']);
   assert.deepStrictEqual(['Email', 'Zalo', 'Hội nhóm Facebook', 'Website Viện Phương Nam', 'Người quen giới thiệu', 'Khác', ''].map((biet_qua) => ctx.leadSource_(false, { biet_qua })),
     ['Email/Zalo của Viện', 'Email/Zalo của Viện', 'Facebook tự nhiên', 'Website', 'Người quen giới thiệu', 'Khác', 'Chưa rõ']);
   assert.deepStrictEqual(['Gói 1', 'Gói 2', 'Gói 3', 'Gói 5', 'Gói 6'].map((package_id) => ctx.leadInterest_(false, { package_id })),
@@ -1122,6 +1127,12 @@ assert.deepStrictEqual(post(FORM), { ok: true, duplicate: true });
   cache.clear();
   assert.deepStrictEqual(post({ ...LEAD, so_dien_thoai: '0977111222', utm_medium: 'messenger', utm_content: '' }), { ok: true });
   assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0977111222')).slice(5, 8), ['Web - form tư vấn', 'Chưa rõ', '']);
+
+  // A registration from a Google ad: source and ad group come from the UTM labels, whatever "Biết đến qua" says.
+  cache.clear();
+  assert.deepStrictEqual(post({ ...FORM, emailcontact: 'g@example.com', phoneregister: '0955444333', package_id: 'Gói 5', biet_qua: 'Khác',
+    utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'ptdlr_012027_search', utm_content: 'gg-k2', utm_term: 'kinh tế y tế' }), { ok: true });
+  assert.deepStrictEqual(plain(sheets[TRACK].data.find((r) => r[2] === '0955444333')).slice(5, 9), ['Web - form đăng ký', 'Quảng cáo Google', 'GG-K2', 'gg-k2']);
 
   // The registration form's "Hình thức học" reaches the staff tab: on a new row, and on a known lead's row only while that cell is empty.
   reset();

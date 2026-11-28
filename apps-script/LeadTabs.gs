@@ -52,6 +52,7 @@ function leadSource_(isConsult, data) {
   var medium = clean_(data.utm_medium).toLowerCase();
   if (medium === 'messenger') return 'Chưa rõ';
   if (source === 'meta' && medium === 'paid_social') return 'Quảng cáo Meta';
+  if (source === 'google' && (medium === 'cpc' || medium === 'display')) return 'Quảng cáo Google';
   if (isConsult) return 'Chưa rõ';
   return SOURCE_BY_HEARD[clean_(data.biet_qua)] || 'Chưa rõ';
 }
@@ -62,6 +63,7 @@ function leadGroup_(content) {
   if (c.indexOf('k1k3') === 0) return 'K1K3';
   if (c.indexOf('k2') === 0) return 'K2';
   if (c.indexOf('gen') === 0) return 'GEN';
+  if (/^gg-(r|gv|dl|k2|k3|rmk)$/.test(c)) return c.toUpperCase(); // Google ad groups: utm_content is the whole code
   return '';
 }
 
@@ -142,7 +144,7 @@ function upsertTrackRow_(track, lead, data) {
   track.getRange(row, 3).setNumberFormat('@');
   track.getRange(row, 1, 1, 3).setValues([[lead.stamp, textCell_(lead.name), textCell_(lead.phone)]]);
   track.getRange(row, 6, 1, 8).setValues([[
-    leadChannel_(lead.isConsult), source, source === 'Quảng cáo Meta' ? leadGroup_(data.utm_content) : '', textCell_(data.utm_content),
+    leadChannel_(lead.isConsult), source, source.indexOf('Quảng cáo ') === 0 ? leadGroup_(data.utm_content) : '', textCell_(data.utm_content),
     leadInterest_(lead.isConsult, data), format, 'Chờ kiểm', lead.isConsult ? 'Mới' : 'Đã đăng ký'
   ]]);
   if (lead.pkg) track.getRange(row, 18).setValue(lead.pkg);
